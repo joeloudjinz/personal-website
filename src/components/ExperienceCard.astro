@@ -1,153 +1,155 @@
 ---
-import type { CollectionEntry } from 'astro:content';
+import type {CollectionEntry} from 'astro:content';
 import TagPill from './TagPill.astro';
 
 export interface Props {
-	experience: CollectionEntry<'experiences'>;
+    experience: CollectionEntry<'experiences'>;
 }
 
-const { experience } = Astro.props;
+const {experience} = Astro.props;
 ---
 
 <div class='border dark:border-zinc-700 rounded-xl shadow-sm p-5 w-full'>
-	<div class='flex justify-between items-start mb-3'>
-		<h3 class='font-bold text-2xl mt-0 text-zinc-800 dark:text-zinc-200'>
-			{experience.data.roleName}
-		</h3>
-	</div>
+    <div class='flex justify-between items-start mb-3'>
+        <h3 class='font-bold text-2xl mt-0 text-zinc-800 dark:text-zinc-200'>
+            {experience.data.roleName}
+        </h3>
+    </div>
 
-	<div class='flex items-center gap-2 mb-3 text-zinc-600 dark:text-zinc-300'>
-		<!-- Company Icon -->
-		<svg
-			xmlns='http://www.w3.org/2000/svg'
-			width='16'
-			height='16'
-			viewBox='0 0 24 24'
-			fill='none'
-			stroke='currentColor'
-			stroke-width='2'
-			stroke-linecap='round'
-			stroke-linejoin='round'
-			class='lucide lucide-building'
-		>
-			<path d='M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z'></path>
-			<path d='M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2'></path>
-			<path d='M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2'></path>
-			<path d='M10 6h4'></path>
-			<path d='M10 10h4'></path>
-			<path d='M10 14h4'></path>
-			<path d='M10 18h4'></path>
-		</svg>
+    <div class='flex items-center gap-2 mb-3 text-zinc-600 dark:text-zinc-300'>
+        <!-- Company Icon -->
+        <svg
+                xmlns='http://www.w3.org/2000/svg'
+                width='16'
+                height='16'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                stroke-width='2'
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                class='lucide lucide-building'
+        >
+            <path d='M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z'></path>
+            <path d='M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2'></path>
+            <path d='M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2'></path>
+            <path d='M10 6h4'></path>
+            <path d='M10 10h4'></path>
+            <path d='M10 14h4'></path>
+            <path d='M10 18h4'></path>
+        </svg>
 
-		{
-			experience.data.companyUrl ? (
-				<a href={experience.data.companyUrl} target='_blank' rel='noopener noreferrer' class='font-light hover:font-extrabold transition-all duration-400'>
-					{experience.data.companyName}
-				</a>
-			) : (
-				<span>{experience.data.companyName}</span>
-			)
-		}
-	</div>
+        {
+            experience.data.companyUrl ? (
+                    <a href={experience.data.companyUrl} target='_blank' rel='noopener noreferrer'
+                       class='font-light hover:font-extrabold transition-all duration-400'>
+                        {experience.data.companyName}
+                    </a>
+            ) : (
+                    <span>{experience.data.companyName}</span>
+            )
+        }
+    </div>
 
-	<div class='flex justify-between items-center mb-3 text-sm text-zinc-600 dark:text-zinc-300'>
-		<div class='flex gap-4'>
-			<!-- Location Icon -->
-			<div class='flex items-center gap-1'>
-				<svg
-					xmlns='http://www.w3.org/2000/svg'
-					width='14'
-					height='14'
-					viewBox='0 0 24 24'
-					fill='none'
-					stroke='currentColor'
-					stroke-width='2'
-					stroke-linecap='round'
-					stroke-linejoin='round'
-					class='lucide lucide-map-pin'
-				>
-					<path d='M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0'></path>
-					<circle cx='12' cy='10' r='3'></circle>
-				</svg>
-				<span>{experience.data.location}</span>
-			</div>
+    <div class='flex justify-between items-center mb-3 text-sm text-zinc-600 dark:text-zinc-300'>
+        <div class='flex gap-4'>
+            <!-- Location Icon -->
+            <div class='flex items-center gap-1'>
+                <svg
+                        xmlns='http://www.w3.org/2000/svg'
+                        width='14'
+                        height='14'
+                        viewBox='0 0 24 24'
+                        fill='none'
+                        stroke='currentColor'
+                        stroke-width='2'
+                        stroke-linecap='round'
+                        stroke-linejoin='round'
+                        class='lucide lucide-map-pin'
+                >
+                    <path d='M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0'></path>
+                    <circle cx='12' cy='10' r='3'></circle>
+                </svg>
+                <span>{experience.data.location}</span>
+            </div>
 
-			<!-- Work Type Icon -->
-			<div class='flex items-center gap-1'>
-				{
-					experience.data.workType === 'onsite' && (
-						<svg
-							xmlns='http://www.w3.org/2000/svg'
-							width='14'
-							height='14'
-							viewBox='0 0 24 24'
-							fill='none'
-							stroke='currentColor'
-							stroke-width='2'
-							stroke-linecap='round'
-							stroke-linejoin='round'
-							class='lucide lucide-building'>
-							<path d='M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z' />
-							<path d='M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2' />
-							<path d='M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2' />
-							<path d='M10 6h4' />
-							<path d='M10 10h4' />
-							<path d='M10 14h4' />
-							<path d='M10 18h4' />
-						</svg>
-					)
-				}
-				{
-					experience.data.workType === 'hybrid' && (
-						<svg
-							xmlns='http://www.w3.org/2000/svg'
-							width='14'
-							height='14'
-							viewBox='0 0 24 24'
-							fill='none'
-							stroke='currentColor'
-							stroke-width='2'
-							stroke-linecap='round'
-							stroke-linejoin='round'
-							class='lucide lucide-laptop'>
-							<path d='M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16' />
-						</svg>
-					)
-				}
-				{
-					experience.data.workType === 'remote' && (
-						<svg
-							xmlns='http://www.w3.org/2000/svg'
-							width='14'
-							height='14'
-							viewBox='0 0 24 24'
-							fill='none'
-							stroke='currentColor'
-							stroke-width='2'
-							stroke-linecap='round'
-							stroke-linejoin='round'
-							class='lucide lucide-monitor-smartphone'>
-							<path d='M18 10V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2' />
-							<path d='M18 10h3a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-3' />
-							<path d='M14 19h2' />
-							<path d='M14 15h6' />
-						</svg>
-					)
-				}
-				<span>{experience.data.workType.charAt(0).toUpperCase() + experience.data.workType.slice(1)}</span>
-			</div>
-		</div>
+            <!-- Work Type Icon -->
+            <div class='flex items-center gap-1'>
+                {
+                    experience.data.workType === 'onsite' && (
+                                <svg
+                                        xmlns='http://www.w3.org/2000/svg'
+                                        width='14'
+                                        height='14'
+                                        viewBox='0 0 24 24'
+                                        fill='none'
+                                        stroke='currentColor'
+                                        stroke-width='2'
+                                        stroke-linecap='round'
+                                        stroke-linejoin='round'
+                                        class='lucide lucide-building'>
+                                    <path d='M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z'/>
+                                    <path d='M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2'/>
+                                    <path d='M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2'/>
+                                    <path d='M10 6h4'/>
+                                    <path d='M10 10h4'/>
+                                    <path d='M10 14h4'/>
+                                    <path d='M10 18h4'/>
+                                </svg>
+                    )
+                }
+                {
+                    experience.data.workType === 'hybrid' && (
+                                <svg
+                                        xmlns='http://www.w3.org/2000/svg'
+                                        width='14'
+                                        height='14'
+                                        viewBox='0 0 24 24'
+                                        fill='none'
+                                        stroke='currentColor'
+                                        stroke-width='2'
+                                        stroke-linecap='round'
+                                        stroke-linejoin='round'
+                                        class='lucide lucide-laptop'>
+                                    <path d='M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16'/>
+                                </svg>
+                    )
+                }
+                {
+                    experience.data.workType === 'remote' && (
+                                <svg
+                                        xmlns='http://www.w3.org/2000/svg'
+                                        width='14'
+                                        height='14'
+                                        viewBox='0 0 24 24'
+                                        fill='none'
+                                        stroke='currentColor'
+                                        stroke-width='2'
+                                        stroke-linecap='round'
+                                        stroke-linejoin='round'
+                                        class='lucide lucide-monitor-smartphone'>
+                                    <path d='M18 10V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2'/>
+                                    <path d='M18 10h3a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-3'/>
+                                    <path d='M14 19h2'/>
+                                    <path d='M14 15h6'/>
+                                </svg>
+                    )
+                }
+                <span>{experience.data.workType.charAt(0).toUpperCase() + experience.data.workType.slice(1)}</span>
+            </div>
+        </div>
 
-		<span class='text-sm text-zinc-500 dark:text-zinc-400'>
+        <span class='text-sm text-zinc-500 dark:text-zinc-400'>
 			{experience.data.startDate} - {experience.data.endDate}
 		</span>
-	</div>
+    </div>
 
-	<div class='text-zinc-600 dark:text-zinc-300 mb-3'>
-		<p>{experience.data.description}</p>
-	</div>
+    <div class='text-zinc-600 dark:text-zinc-300 mb-3'>
+        <p>{experience.data.description}</p>
+    </div>
 
-	<div class='flex flex-wrap gap-2'>
-		{experience.data.tags.map((tag: string) => <TagPill tag={tag} />)}
-	</div>
+    <div class='flex flex-wrap gap-2'>
+        {experience.data.tags.map((tag: string) =>
+                <TagPill tag={tag}/>)}
+    </div>
 </div>
