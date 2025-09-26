@@ -38,4 +38,18 @@ const experiences = defineCollection({
   })
 });
 
-export const collections = { blog, majorSkills, experiences };
+const education = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/education" }),
+  schema: z.object({
+    title: z.string(),
+    universityName: z.string(),
+    universityUrl: z.string().nullable(),
+    facultyName: z.string(),
+    facultyUrl: z.string().nullable(),
+    universityLocation: z.string(),
+    startDate: z.string(),
+    endDate: z.string()
+  })
+});
+
+export const collections = { blog, majorSkills, experiences, education };
