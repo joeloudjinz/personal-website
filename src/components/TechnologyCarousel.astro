@@ -1,0 +1,59 @@
+---
+interface Props {
+  excludedLogos?: string[];
+}
+
+const { excludedLogos = [
+  'Lovable',
+	'Deno',
+	'Django',
+	'ExpressJS',
+	'Kafka',
+	'npm',
+	'RabbitMQ'
+] } = Astro.props;
+
+// Get all SVG files in the logos directory with eager loading
+const logoModules = import.meta.glob('/src/assets/logos/*.svg', { eager: true, query: '?url' });
+
+// Create an array of logo info
+const logos = Object.entries(logoModules)
+  .map(([path, module]) => {
+    const fileName = path.split('/').pop() || '';
+    const name = fileName.replace('.svg', '').replace('-logo', '');
+    // The imported module contains the url to the asset
+    const imageUrl = (module as any).default || module;
+    return { name, path, image: imageUrl };
+  })
+  .filter(logo => !excludedLogos.some(excluded => logo.name.toLowerCase().includes(excluded.toLowerCase())));
+---
+
+<div class="relative py-8 overflow-hidden">
+  <div class="flex overflow-hidden">
+    <div class="animate-marquee flex">
+      {logos.map((logo) => (
+        <div class="mx-8 flex items-center justify-center flex-shrink-0 min-w-fit">
+          <div class="w-32 h-32 rounded-full bg-black bg-opacity-20 dark:bg-white dark:bg-opacity-50 flex items-center justify-center">
+            <img 
+              src={logo.image}
+              alt={logo.name}
+              class="h-16 w-auto object-contain max-w-none"
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes marquee {
+    0% { transform: translateX(0%); }
+    100% { transform: translateX(-100%); }
+  }
+  
+  .animate-marquee {
+    animation: marquee 60s linear infinite;
+    display: flex;
+  }
+</style>

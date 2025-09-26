@@ -1,0 +1,109 @@
+---
+import { SITE_TITLE, SITE_TAGLINE, SITE_DESCRIPTION, FULL_NAME } from '../consts';
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { Image } from 'astro:assets';
+// import type { CollectionEntry } from 'astro:content';
+import MainPicture from '@src/assets/img/ava.jpg'; // Use your own avatar image
+import Prose from '../components/Prose.astro';
+import { projects } from './projects/projects';
+import ProjectList from '../components/ProjectList.astro';
+// import PostItem from '../components/PostItem.astro';
+import SkillCard from '../components/SkillCard.astro';
+import TechnologyCarousel from '../components/TechnologyCarousel.astro';
+import SoftwareEngineer from '../assets/illustrations/software-engineer.svg';
+
+// type BlogPost = CollectionEntry<'blog'>;
+
+const skills = (await getCollection('majorSkills')).sort((a, b) => a.data.order - b.data.order);
+const top6Projects = projects.slice(0, 6);
+// const posts = (await getCollection('blog'))
+// 	.sort((a: BlogPost, b: BlogPost) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+// 	.slice(0, 5);
+---
+
+<BaseLayout title={SITE_TITLE + ' - ' + SITE_TAGLINE} description={SITE_DESCRIPTION}>
+	<div class='container'>
+		<div class='w-full md:flex md:items-center gap-16 mb-10'>
+			<div class='text-pretty leading-9'>
+				<h1 class='text-7xl font-bold mb-4'>Abdellah Addoun</h1>
+				<h3 class='text-2xl font-light mb-4'>Senior software engineer solving problems across the technology stack.</h3>
+				<Prose>
+					<div class='text-md'>
+						<p>
+							In software engineering, technologies are constantly evolving. The most valuable skill isn't mastering one specific language
+							or framework, but developing the ability to adapt, learn, and choose the right tool for the job.
+						</p>
+						<p>
+							This is the principle that guides my work as a senior software engineer. To stay adaptable, I leverage modern tools like LLMs
+							to learn faster, adapt quickly, and enhance my problem-solving skills. This focus allows me to tackle challenges across the
+							full technology stack, whether that means architecting a backend service in .NET or leading a team to deliver a user-friendly
+							interface in Angular. I believe that building great products also requires building strong, collaborative teams where everyone
+							is empowered to contribute their best work.
+						</p>
+						<p>
+							I am always learning and am currently focused on how generative AI can help create smarter, more intuitive applications. This
+							site is a place to know more about me, explore my professional journey and see how I approach engineering. Find out more in
+							<a href='/about/'>about me</a> page. Thanks for visiting.
+						</p>
+					</div>
+				</Prose>
+			</div>
+			<Image src={MainPicture} alt={FULL_NAME} width={300} loading='eager' class='rounded-3xl rotate-3 mx-4 md:mx-0' />
+		</div>
+		<main>
+			<article>
+				<!--<h2 class='text-lg font-bold mb-3'>Technologies I Work With</h2>-->
+				<TechnologyCarousel />
+				<!--<h2 class='text-lg font-bold mb-3'>What I Can Do</h2>-->
+				<div class='grid grid-cols-1 md:grid-cols-2 gap-5 mt-4'>
+					{skills.map((skill) => <SkillCard skill={skill} />)}
+				</div>
+			</article>
+
+			<article class='mt-8'>
+				<div class='border dark:border-zinc-700 rounded-xl shadow-sm p-6 bg-transparent'>
+					<div class='flex items-center'>
+						<div class='flex-shrink-0 mr-6'>
+							<Image src={SoftwareEngineer} class='w-64 h-64' alt='Software Engineer' />
+						</div>
+						<div>
+							<h2 class='text-xl font-bold mb-2'>Personal Projects</h2>
+							<p class='text-zinc-600 dark:text-zinc-300 mb-4'>
+								Explore a collection of my latest work and ongoing projects where I experiment with new technologies and solve interesting
+								challenges.
+							</p>
+							<a
+								href='/projects/'
+								class='inline-block px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors'
+							>
+								View Projects &raquo;
+							</a>
+						</div>
+					</div>
+				</div>
+			</article>
+
+			<!--<article class='mt-4'>-->
+			<!--	<div>-->
+			<!--		<div class='flex justify-between gap-2 mb-1'>-->
+			<!--			<h2 class='text-lg font-bold mb-3'>My Personal Projects</h2>-->
+			<!--			<a href='/projects/' class='inline-block py-2 underline dark:prose-invert'>All projects &raquo;</a>-->
+			<!--		</div>-->
+			<!--	</div>-->
+			<!--	<ProjectList projects={top6Projects} />-->
+			<!--</article>-->
+
+			<!--<div class='mt-6 mb-12'>-->
+			<!--	<div class='flex justify-between gap-2 border-b mb-1 dark:border-b-zinc-700'>-->
+			<!--		<h2 class='text-lg font-bold mb-3'>Recent Posts</h2>-->
+			<!--		<a href='/posts/' class='inline-block py-2 underline dark:prose-invert'>All posts &raquo;</a>-->
+			<!--	</div>-->
+			<!--	<div>-->
+			<!--		{posts.map((post: BlogPost) => <PostItem post={post} />)}-->
+			<!--	</div>-->
+			<!--	<div class='text-right'></div>-->
+			<!--</div>-->
+		</main>
+	</div>
+</BaseLayout>
