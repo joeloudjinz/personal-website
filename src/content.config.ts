@@ -34,7 +34,6 @@ const experiences = defineCollection({
     endDate: z.string(),
     location: z.string(),
     workType: z.enum(['onsite', 'hybrid', 'remote']),
-    description: z.string(),
     tags: z.array(z.string())
   })
 });

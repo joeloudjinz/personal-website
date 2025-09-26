@@ -144,8 +144,8 @@ const {experience} = Astro.props;
 		</span>
     </div>
 
-    <div class='text-zinc-600 dark:text-zinc-300 mb-3'>
-        <p>{experience.data.description}</p>
+    <div class='text-zinc-600 dark:text-zinc-300 mb-3 prose prose-sm dark:prose-invert max-w-none'>
+        {experience.body}
     </div>
 
     <div class='flex flex-wrap gap-2'>
