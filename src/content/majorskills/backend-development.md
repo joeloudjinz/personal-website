@@ -3,4 +3,7 @@ title: 'Backend & API Development'
 order: 1
 ---
 
-This is where I focus most of my energy. I design and build the core engines of applications. My experience includes leading backend teams, making key architectural decisions, and developing secure, reliable APIs. I enjoy creating systems that are built to last and are easy to maintain.
+Deep expertise in architecting and building the core engines of software applications. This encompasses the full backend
+lifecycle: from making critical architectural decisions and leading development teams to delivering secure,
+high-performance APIs. The result is robust, scalable, and maintainable systems engineered for long-term reliability and
+success.

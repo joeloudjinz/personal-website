@@ -3,4 +3,6 @@ title: 'Technical Project Management'
 order: 3
 ---
 
-I am comfortable leading the entire technical delivery of a project. I have managed development teams using Agile and Scrum, planned sprints, and removed obstacles to keep things moving. A key part of my work is making sure the technical team is aligned with the business goals and delivers on time.
+Proven ability to lead the end-to-end technical delivery of projects. Expertise in managing development teams within
+Agile and Scrum frameworks, responsible for planning sprints, removing impediments, and maintaining project velocity. A
+core focus is aligning technical execution with strategic business goals to guarantee high-quality, on-time delivery.
