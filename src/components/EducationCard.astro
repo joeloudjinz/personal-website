@@ -1,0 +1,115 @@
+---
+import type {CollectionEntry} from 'astro:content';
+
+export interface Props {
+    education: CollectionEntry<'education'>;
+}
+
+const {education} = Astro.props;
+---
+
+<div class='border dark:border-zinc-700 rounded-xl shadow-sm p-5 w-full'>
+    <div>
+        <h3 class='font-bold text-2xl mt-0 text-zinc-800 dark:text-zinc-200'>
+            {education.data.title}
+        </h3>
+        <div class='text-sm text-zinc-500 dark:text-zinc-400 mt-1'>
+            {education.data.startDate} - {education.data.endDate}
+        </div>
+    </div>
+
+    <div class='flex items-center gap-2 my-3 text-zinc-600 dark:text-zinc-300 text-sm'>
+        <!-- University Icon -->
+        <svg
+                xmlns='http://www.w3.org/2000/svg'
+                width='14'
+                height='14'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                stroke-width='2'
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                class='lucide lucide-building'
+        >
+            <path d='M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z'></path>
+            <path d='M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2'></path>
+            <path d='M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2'></path>
+            <path d='M10 6h4'></path>
+            <path d='M10 10h4'></path>
+            <path d='M10 14h4'></path>
+            <path d='M10 18h4'></path>
+        </svg>
+
+        {
+            education.data.universityUrl ? (
+                    <a href={education.data.universityUrl} target='_blank' rel='noopener noreferrer'
+                       class='font-light hover:font-extrabold transition-all duration-400'>
+                        {education.data.universityName}
+                    </a>
+            ) : (
+                    <span>{education.data.universityName}</span>
+            )
+        }
+    </div>
+
+    <div class='flex items-center gap-2 mb-3 text-zinc-600 dark:text-zinc-300 text-sm'>
+        <!-- Faculty Icon -->
+        <svg
+                xmlns='http://www.w3.org/2000/svg'
+                width='14'
+                height='14'
+                viewBox='0 0 24 24'
+                fill='none'
+                stroke='currentColor'
+                stroke-width='2'
+                stroke-linecap='round'
+                stroke-linejoin='round'
+                class='lucide lucide-graduation-cap'
+        >
+            <path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"></path>
+            <path d="M22 10v6"></path>
+            <path d="M12 12v6"></path>
+            <path d="L2 10v6"></path>
+            <path d="M18 16V10"></path>
+            <path d="M6 16V10"></path>
+        </svg>
+
+        {
+            education.data.facultyUrl ? (
+                    <a href={education.data.facultyUrl} target='_blank' rel='noopener noreferrer'
+                       class='font-light hover:font-extrabold transition-all duration-400'>
+                        {education.data.facultyName}
+                    </a>
+            ) : (
+                    <span>{education.data.facultyName}</span>
+            )
+        }
+        
+        <span class='mx-2'>•</span>
+        
+        <!-- Location Icon -->
+        <div class='flex items-center gap-1'>
+            <svg
+                    xmlns='http://www.w3.org/2000/svg'
+                    width='14'
+                    height='14'
+                    viewBox='0 0 24 24'
+                    fill='none'
+                    stroke='currentColor'
+                    stroke-width='2'
+                    stroke-linecap='round'
+                    stroke-linejoin='round'
+                    class='lucide lucide-map-pin'
+            >
+                <path d='M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0'></path>
+                <circle cx='12' cy='10' r='3'></circle>
+            </svg>
+            <span>{education.data.universityLocation}</span>
+        </div>
+    </div>
+
+    <div class='text-zinc-600 dark:text-zinc-300 prose prose-sm dark:prose-invert max-w-none'>
+        {education.body}
+    </div>
+</div>
