@@ -2,7 +2,7 @@
 import BaseHead from './components/BaseHead.astro';
 import Header from './components/Header.astro';
 import Footer from './components/Footer.astro';
-import {logo} from "@src/assets/img/avatar.png";
+import logo from "@src/assets/img/avatar.png";
 
 const GTAG_MEASUREMENT_ID = import.meta.env.PUBLIC_GTAG_MEASUREMENT_ID;
 const { title, description } = Astro.props;
@@ -11,7 +11,7 @@ const { title, description } = Astro.props;
 <!doctype html>
 <html lang='en'>
 	<head>
-		<BaseHead title={title} description={description} image={logo} />
+		<BaseHead title={title} description={description} />
 	</head>
 	<body class="bg-white dark:bg-zinc-900 dark:text-zinc-100 pt-16 sm:pt-0">
 		<Header/>
