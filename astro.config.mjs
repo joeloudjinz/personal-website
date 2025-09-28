@@ -1,4 +1,4 @@
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import tailwind from "@astrojs/tailwind";
@@ -15,5 +15,16 @@ export default defineConfig({
     rehypePlugins: [[autoNewTabExternalLinks, {
       domain: 'localhost:4321'
     }]]
+  },
+  env: {
+    schema: {
+      // GTAG Measurement ID - public client variable
+      PUBLIC_GTAG_MEASUREMENT_ID: envField.string({
+        context: "client", 
+        access: "public",
+        optional: true,
+        description: "Google Analytics Measurement ID"
+      }),
+    }
   }
 });

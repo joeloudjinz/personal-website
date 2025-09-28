@@ -2,9 +2,8 @@
 import BaseHead from './components/BaseHead.astro';
 import Header from './components/Header.astro';
 import Footer from './components/Footer.astro';
-import { loadEnv } from 'vite';
 
-const { GTAG_MEASUREMENT_ID } = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), '');
+const GTAG_MEASUREMENT_ID = import.meta.env.PUBLIC_GTAG_MEASUREMENT_ID;
 const { title, description, image } = Astro.props;
 ---
 
@@ -13,9 +12,7 @@ const { title, description, image } = Astro.props;
 	<head>
 		<BaseHead title={title} description={description} image={image} />
 	</head>
-	<body
-		class="bg-white dark:bg-zinc-900 dark:text-zinc-100 pt-16 sm:pt-0"
-	>
+	<body class="bg-white dark:bg-zinc-900 dark:text-zinc-100 pt-16 sm:pt-0">
 		<Header/>
 		<div class='py-8 min-h-[calc(100vh-160px)]'>
 			<slot />
@@ -23,16 +20,15 @@ const { title, description, image } = Astro.props;
 		<Footer />
 		{GTAG_MEASUREMENT_ID && (
       <>
-        <script type='text/partytown' async src={'https://www.googletagmanager.com/gtag/js?id=' + GTAG_MEASUREMENT_ID}></script>
-        <script type='text/partytown' define:vars={{ GTAG_MEASUREMENT_ID }}>
-          window.dataLayer = window.dataLayer || [];
-          function gtag() {
-            dataLayer.push(arguments);
-          }
-          gtag('js', new Date());
+		  <!-- Google tag (gtag.js) -->
+		  <script is:inline async src={"https://www.googletagmanager.com/gtag/js?id="+GTAG_MEASUREMENT_ID}></script>
+			<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
 
-          gtag('config', GTAG_MEASUREMENT_ID);
-        </script>
+            gtag('config', {GTAG_MEASUREMENT_ID});
+		</script>
       </>
     )}
 	</body>
