@@ -1,5 +1,5 @@
 ---
-id: "07-dubai-backend"
+id: "01-dubai-backend"
 roleName: "Backend Engineer"
 companyName: "Sweedy Portal"
 companyUrl: null
@@ -13,6 +13,7 @@ tags: [ "PHP", "Laravel", "Javascript", "VueJS", "MySQL", "Unit Testing", "Integ
 My professional journey began right after university when I joined Sweedy Portal in Dubai as a Backend Engineer. I was
 part of an ambitious project to build a comprehensive school management system from the ground up—a much-needed solution
 for schools across the GCC region at that time.
+
 From the start, I played a key role in shaping the project's technical direction. I selected Laravel and Vue.js as the
 core technology stack and provided guidance and support to my team members. As the lead on the backend, I architected
 the system using Clean Architecture and SOLID principles to ensure our code was both robust and easy to maintain. My
