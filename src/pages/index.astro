@@ -17,7 +17,9 @@ const skills = (await getCollection('majorSkills')).sort((a, b) => a.data.order 
         <div class='w-full md:flex md:items-center gap-16 mb-10'>
             <div class='text-pretty leading-9'>
                 <h1 class='text-7xl font-bold mb-4'>Abdellah Addoun</h1>
-                <h3 class='text-3xl font-light mb-4'>Solving problems across the technology stack.</h3>
+                <h3 class='text-3xl font-light mb-4 purple-red-gradient-wave'>
+                    Solving problems across the technology stack.
+                </h3>
                 <Prose>
                     <div class='text-md'>
                         <p>
@@ -49,7 +51,7 @@ const skills = (await getCollection('majorSkills')).sort((a, b) => a.data.order 
             <article>
                 <!--<h2 class='text-lg font-bold mb-3'>Technologies I Work With</h2>-->
                 <TechnologyCarousel/>
-                <!--<h2 class='text-lg font-bold mb-3'>What I Can Do</h2>-->
+                <h2 class='text-lg font-bold mb-3'>What I Can Bring to the Team?</h2>
                 <div class='grid grid-cols-1 md:grid-cols-2 gap-5 mt-4'>
                     {skills.map((skill) =>
                             <SkillCard skill={skill}/>)}
@@ -65,14 +67,10 @@ const skills = (await getCollection('majorSkills')).sort((a, b) => a.data.order 
                         <div>
                             <h2 class='text-xl font-bold mb-2'>Personal Projects</h2>
                             <p class='text-zinc-600 dark:text-zinc-300 mb-4'>
-                                Explore a collection of my latest work and ongoing projects where I experiment with new
-                                technologies and solve interesting
-                                challenges.
+                                Checkout my humble projects gallery, more is yet to come! Inchallah.
                             </p>
-                            <a
-                                    href='/projects/'
-                                    class='inline-block px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors'
-                            >
+                            <a href='/projects/'
+                               class='inline-block px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors'>
                                 View Projects &raquo;
                             </a>
                         </div>

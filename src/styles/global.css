@@ -7,3 +7,27 @@
 		font-size: 0.875rem;
 	}
 }
+
+@layer utilities {
+	.purple-red-gradient-wave {
+		background: linear-gradient(45deg, #e0bbff, #ffb3c6, #ff9494, #ffb7d2, #e0bbff);
+		background-size: 300% 300%;
+		-webkit-background-clip: text;
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+		animation: wave 3s ease-in-out infinite;
+		display: inline-block;
+	}
+	
+	@keyframes wave {
+		0% {
+			background-position: 0% 50%;
+		}
+		50% {
+			background-position: 100% 50%;
+		}
+		100% {
+			background-position: 0% 50%;
+		}
+	}
+}
