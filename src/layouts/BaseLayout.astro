@@ -2,15 +2,16 @@
 import BaseHead from './components/BaseHead.astro';
 import Header from './components/Header.astro';
 import Footer from './components/Footer.astro';
+import logo from "@src/assets/img/avatar.png";
 
 const GTAG_MEASUREMENT_ID = import.meta.env.PUBLIC_GTAG_MEASUREMENT_ID;
-const { title, description, image } = Astro.props;
+const { title, description } = Astro.props;
 ---
 
 <!doctype html>
 <html lang='en'>
 	<head>
-		<BaseHead title={title} description={description} image={image} />
+		<BaseHead title={title} description={description} />
 	</head>
 	<body class="bg-white dark:bg-zinc-900 dark:text-zinc-100 pt-16 sm:pt-0">
 		<Header/>
@@ -19,17 +20,17 @@ const { title, description, image } = Astro.props;
 		</div>
 		<Footer />
 		{GTAG_MEASUREMENT_ID && (
-      <>
-		  <!-- Google tag (gtag.js) -->
-		  <script is:inline async src={"https://www.googletagmanager.com/gtag/js?id="+GTAG_MEASUREMENT_ID}></script>
-			<script>
-			window.dataLayer = window.dataLayer || [];
-			function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
+			<Fragment>
+				{/* Google tag (gtag.js) */}
+				<script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GTAG_MEASUREMENT_ID}`}></script>
+                <script is:inline>
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
 
-            gtag('config', {GTAG_MEASUREMENT_ID});
-		</script>
-      </>
-    )}
+                gtag('config', '${GTAG_MEASUREMENT_ID}');
+                </script>
+            </Fragment>
+			)}
 	</body>
 </html>
