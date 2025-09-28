@@ -1,68 +1,73 @@
 ---
-import { Image } from 'astro:assets';
+import {Image} from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Avatar from '@src/assets/img/ava-wide.jpg';
 import Prose from '../components/Prose.astro';
 import ExperienceCard from '../components/ExperienceCard.astro';
 import EducationCard from '../components/EducationCard.astro';
-import { FULL_NAME } from '../consts';
-import { getCollection } from 'astro:content';
+import {FULL_NAME} from '../consts';
+import {getCollection} from 'astro:content';
 
 const experiences = (await getCollection('experiences')).sort((a, b) => {
-  // Extract numeric prefix from IDs and sort in ascending order
-  const numA = parseInt(a.data.id.match(/^\d+/)?.[0] ?? '0');
-  const numB = parseInt(b.data.id.match(/^\d+/)?.[0] ?? '0');
-  return numA - numB; // Ascending order
+    // Extract numeric prefix from IDs and sort in ascending order
+    const numA = parseInt(a.data.id.match(/^\d+/)?.[0] ?? '0');
+    const numB = parseInt(b.data.id.match(/^\d+/)?.[0] ?? '0');
+    return numA - numB; // Ascending order
 });
 
 const education = (await getCollection('education')).sort((a, b) => {
-  // Sort by start date in descending order (most recent first)
-  return new Date(b.data.startDate).getTime() - new Date(a.data.startDate).getTime();
+    // Sort by start date in descending order (most recent first)
+    return new Date(b.data.startDate).getTime() - new Date(a.data.startDate).getTime();
 });
 ---
 
 <BaseLayout title='About Me' description='Learn more about me, my background and my journey in web development'>
-	<div class='container'>
-		<main class='prose text-lg dark:prose-invert'>
-			<article>
-				<div class='w-full md:flex md:items-center gap-16 mb-10'>
-					<div class='text-pretty leading-9'>
-						<h1 class='text-4xl font-bold mb-4'>Welcome to My Small Corner of the Web?</h1>
-						<Prose>
-							<div class='text-lg'>
-								<p>
-									At my core, I'm a problem-solver. I thrive on untangling complex challenges by leading projects and building software with
-									the resources at hand. For me, technology isn't just about code; it's about crafting smart, effective solutions that make
-									a real difference. This page is a snapshot of my professional journey, the skills I've developed, and the work I'm
-									passionate about. I'm glad you're here—feel free to look around.
-								</p>
-							</div>
-						</Prose>
-					</div>
-					<Image src={Avatar} alt={FULL_NAME} width={300} class='rounded-3xl rotate-3 mx-4 md:mx-0' />
-				</div>
-				<article>
-					<h2>The Journey of Gaining Experience</h2>
-					<div class='space-y-4 mt-4'>
-						{experiences.map((exp) => <ExperienceCard experience={exp} />)}
-					</div>
-				</article>
+    <div class='container'>
+        <main class='prose text-lg dark:prose-invert'>
+            <article>
+                <div class='w-full md:flex md:items-center gap-16 mb-10'>
+                    <div class='text-pretty leading-9'>
+                        <h1 class='text-4xl font-bold mb-4'>Welcome to My Small Corner of the Web?</h1>
+                        <Prose>
+                            <div class='text-lg'>
+                                <p>
+                                    At my core, I'm a problem-solver. I thrive on untangling complex challenges by
+                                    leading projects and building software with
+                                    the resources at hand. For me, technology isn't just about code; it's about crafting
+                                    smart, effective solutions that make
+                                    a real difference. This page is a snapshot of my professional journey, the skills
+                                    I've developed, and the work I'm
+                                    passionate about. I'm glad you're here—feel free to look around.
+                                </p>
+                            </div>
+                        </Prose>
+                    </div>
+                    <Image src={Avatar} alt={FULL_NAME} width={300} class='rounded-3xl rotate-3 mx-4 md:mx-0'/>
+                </div>
+                <article>
+                    <h2>The Story Behind My Experience</h2>
+                    <section class='space-y-4 mt-4'>
+                        {experiences.map((exp) =>
+                                <ExperienceCard experience={exp}/>)}
+                    </section>
+                </article>
 
-				<article>
-					<h2>University Journey</h2>
-					<div class='grid grid-cols-1 md:grid-cols-2 gap-4 mt-4'>
-						{education.map((edu) => <EducationCard education={edu} />)}
-					</div>
-				</article>
+                <article>
+                    <h2>Education Journey</h2>
+                    <section class='grid grid-cols-1 md:grid-cols-2 gap-4 mt-4'>
+                        {education.map((edu) =>
+                                <EducationCard education={edu}/>)}
+                    </section>
+                </article>
 
-				<!--<article>-->
-				<!--	<h2 class='mt-4'>What's Interesting</h2>-->
-				<!--</article>-->
+                <!--<article>-->
+                <!--	<h2 class='mt-4'>What's Interesting</h2>-->
+                <!--</article>-->
 
-				<!--<article>-->
-				<!--	<h2 class='mt-4'>Get In Touch</h2>-->
-				<!--</article>-->
-			</article>
-		</main>
-	</div>
+                <!--<article>-->
+                <!--	<h2 class='mt-4'>Get In Touch</h2>-->
+                <!--</article>-->
+            </article>
+        </main>
+    </div>
 </BaseLayout>
