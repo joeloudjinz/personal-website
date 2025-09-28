@@ -3,6 +3,7 @@ title: 'Technical Project Management'
 order: 3
 ---
 
-Proven ability to lead the end-to-end technical delivery of projects. Expertise in managing development teams within
-Agile and Scrum frameworks, responsible for planning sprints, removing impediments, and maintaining project velocity. A
-core focus is aligning technical execution with strategic business goals to guarantee high-quality, on-time delivery.
+A great idea needs a clear path from concept to completion. I act as the guide for that journey. I bring the development
+team together, map out the project in clear, manageable steps, and then clear any obstacles that get in their way. By
+keeping the team moving in sync and ensuring our technical work always serves the larger business goal, I make sure the
+story has a successful ending: a high-quality product, delivered on time.

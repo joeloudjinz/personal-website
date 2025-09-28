@@ -3,7 +3,7 @@ title: 'Backend & API Development'
 order: 1
 ---
 
-Deep expertise in architecting and building the core engines of software applications. This encompasses the full backend
-lifecycle: from making critical architectural decisions and leading development teams to delivering secure,
-high-performance APIs. The result is robust, scalable, and maintainable systems engineered for long-term reliability and
-success.
+Every great application starts with a hidden engine. My story begins by designing that core system—the strong, silent
+foundation that will power everything. I lead the team that builds this engine, making sure it's secure, fast, and ready
+to grow. We create the pathways (APIs) that allow every part of the application to work together perfectly, resulting in
+a reliable system built for the long haul.

@@ -3,7 +3,7 @@ title: 'Web & Mobile Frontend Development'
 order: 2
 ---
 
-Hands-on experience in frontend development, building the visible and interactive elements of modern applications.
-Specializes in creating responsive user interfaces with Angular for web and beautiful, native-feel mobile experiences
-with Flutter. Excels in close collaboration with UI/UX designers to translate creative concepts into pixel-perfect,
-intuitive applications.
+This is where an application gets its face and personality. My work brings a creative vision to life, turning designs
+into a tangible experience for the user. Whether I'm building a website that looks great on any device or a mobile app
+that feels intuitive and smooth, the goal is always the same: to create a beautiful, easy-to-use interface that lets the
+user connect with the technology effortlessly.
