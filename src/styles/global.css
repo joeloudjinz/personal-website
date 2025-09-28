@@ -19,6 +19,15 @@
 		display: inline-block;
 	}
 	
+	.beige-amber-gradient-wave {
+		background: linear-gradient(45deg, #fff8e6, #ffeaa7, #fab1a0, #fdcb6e, #fff8e6);
+		background-size: 300% 300%;
+		-webkit-background-clip: text;
+		background-clip: text;
+		-webkit-text-fill-color: transparent;
+		animation: wave 10s ease-in-out infinite;
+	}
+	
 	@keyframes wave {
 		0% {
 			background-position: 0% 50%;

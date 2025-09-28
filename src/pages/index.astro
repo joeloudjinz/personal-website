@@ -7,7 +7,8 @@ import MainPicture from '@src/assets/img/ava.jpg';
 import Prose from '../components/Prose.astro';
 import SkillCard from '../components/SkillCard.astro';
 import TechnologyCarousel from '../components/TechnologyCarousel.astro';
-import SoftwareEngineer from '../assets/illustrations/software-engineer.svg';
+import SoftwareEngineerDark from '../assets/illustrations/software-engineer-dark-s.png';
+import SoftwareEngineerLight from '../assets/illustrations/software-engineer-light-s.png';
 
 const skills = (await getCollection('majorSkills')).sort((a, b) => a.data.order - b.data.order);
 ---
@@ -60,18 +61,29 @@ const skills = (await getCollection('majorSkills')).sort((a, b) => a.data.order 
 
             <article class='mt-8'>
                 <div class='border dark:border-zinc-700 rounded-xl shadow-sm p-6 bg-transparent'>
-                    <div class='flex items-center'>
-                        <div class='flex-shrink-0 mr-6'>
-                            <Image src={SoftwareEngineer} class='w-64 h-64' alt='Software Engineer'/>
+                    <div class='flex flex-col md:flex-row items-center'>
+                        <div class='w-full md:w-auto flex-shrink-0 mb-4 md:mb-0 md:mr-6'>
+                            <img
+                                    id="softwareEngineerImage"
+                                    src={SoftwareEngineerLight.src}
+                                    class='w-full h-auto max-h-64 object-contain dark:hidden'
+                                    alt='Software Engineer'
+                            />
+                            <img
+                                    id="softwareEngineerImageDark"
+                                    src={SoftwareEngineerDark.src}
+                                    class='w-full h-auto max-h-64 object-contain hidden dark:block'
+                                    alt='Software Engineer'
+                            />
                         </div>
-                        <div>
-                            <h2 class='text-xl font-bold mb-2'>Personal Projects</h2>
+                        <div class='w-full md:w-auto text-center md:text-left'>
+                            <h2 class='text-xl font-bold mb-2'>Projects</h2>
                             <p class='text-zinc-600 dark:text-zinc-300 mb-4'>
-                                Checkout my humble projects gallery, more is yet to come! Inchallah.
+                                Checkout my humble projects gallery.
                             </p>
                             <a href='/projects/'
                                class='inline-block px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors'>
-                                View Projects &raquo;
+                                Let's Go &raquo;
                             </a>
                         </div>
                     </div>

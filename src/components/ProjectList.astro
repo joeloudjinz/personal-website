@@ -45,7 +45,7 @@ const {projects} = Astro.props;
                         {(project.tags || [])?.map((tag: string) => (
                                 <TagPill tag={tag}/>))}
                     </div>
-                    <div class='flex justify-end gap-3'>
+                    <div class='flex justify-end gap-3 pt-2'>
                         {project.postLink && (
                                 <a class='underline flex items-center gap-2' href={project.postLink}>Article</a>
                         )}
