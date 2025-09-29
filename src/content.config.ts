@@ -52,4 +52,17 @@ const education = defineCollection({
   })
 });
 
-export const collections = { blog, majorSkills, experiences, education };
+const recommendations = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/recommendations" }),
+  schema: z.object({
+    id: z.number(),
+    name: z.string(),
+    title: z.string(),
+    avatar: z.string(),
+    date: z.string(),
+    relationship: z.string(),
+    linkedinUrl: z.string(),
+  })
+});
+
+export const collections = { blog, majorSkills, experiences, education, recommendations };

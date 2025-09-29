@@ -1,6 +1,6 @@
 ---
-import {SITE_TITLE, SITE_TAGLINE, SITE_DESCRIPTION, FULL_NAME} from '../consts';
-import {getCollection} from 'astro:content';
+import {SITE_TITLE, SITE_TAGLINE, SITE_DESCRIPTION, FULL_NAME, LINKEDIN_ACCOUNT} from '../consts';
+import {getCollection, render} from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import {Image} from 'astro:assets';
 import MainPicture from '@src/assets/img/ava.jpg';
@@ -10,7 +10,23 @@ import TechnologyCarousel from '../components/TechnologyCarousel.astro';
 import SoftwareEngineerDark from '../assets/illustrations/software-engineer-dark-s.png';
 import SoftwareEngineerLight from '../assets/illustrations/software-engineer-light-s.png';
 
-const skills = (await getCollection('majorSkills')).sort((a, b) => a.data.order - b.data.order);
+// Fetch both collections in parallel for better performance
+const [skillsCollection, recommendationsCollection] = await Promise.all([
+    getCollection('majorSkills'),
+    getCollection('recommendations')
+]);
+
+// Sort skills and recommendations in parallel
+const skills = skillsCollection.sort((a, b) => a.data.order - b.data.order);
+
+// Process recommendations with content rendering in parallel
+const recommendationsWithContent = await Promise.all(
+    recommendationsCollection.map(async (rec) => {
+        const {Content} = await render(rec);
+        return {...rec, Content};
+    })
+);
+const recommendations = recommendationsWithContent.sort((a, b) => a.data.id - b.data.id);
 ---
 
 <BaseLayout title={SITE_TITLE + ' - ' + SITE_TAGLINE} description={SITE_DESCRIPTION}>
@@ -49,10 +65,51 @@ const skills = (await getCollection('majorSkills')).sort((a, b) => a.data.order 
                    class='rounded-3xl rotate-3 mx-4 md:mx-0'/>
         </div>
         <main>
-            <article>
+            <TechnologyCarousel/>
+
+            <article class='mt-8'>
+                <h2 class='text-3xl font-bold mb-1'>Curious about what it's like to work with me?</h2>
+                <h2 class='text-sm font-light mb-3'>
+                    Take a look at what my colleagues and clients have
+                    shared in the recommendations section of my <a
+                        class="hover:font-extrabold transition-all duration-150" href={LINKEDIN_ACCOUNT}
+                        target="_blank">Linkedin profile</a>.
+                </h2>
+                <div class="columns-1 md:columns-2 gap-6 mt-4">
+                    {recommendations.map((rec) => (
+                            <div class="mb-6 break-inside-avoid">
+                                <div class="relative overflow-hidden bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl shadow-2xl p-8 text-white">
+                                    <div class="absolute top-0 left-0 w-full h-full bg-white opacity-10 transform -skew-x-12"></div>
+                                    <div class="relative z-10">
+                                        <svg class="w-12 h-12 mb-4 text-purple-300" fill="currentColor"
+                                             viewBox="0 0 24 24">
+                                            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
+                                        </svg>
+                                        <div class="text-sm font-light mb-4 prose prose-invert">
+                                            <Prose>
+                                                <rec.Content/>
+                                            </Prose>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <img src={rec.data.avatar} alt={rec.data.name}
+                                                 class="w-12 h-12 rounded-full mr-4 border-2 border-purple-300">
+                                            <div>
+                                                <h4 class="text-xl font-semibold hover:font-extrabold transition-all duration-150">
+                                                    <a href={rec.data.linkedinUrl} target="_blank">{rec.data.name}</a>
+                                                </h4>
+                                                <p class="text-purple-200 font-light">{rec.data.title}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                    ))}
+                </div>
+            </article>
+
+            <article class='mt-8'>
                 <!--<h2 class='text-lg font-bold mb-3'>Technologies I Work With</h2>-->
-                <TechnologyCarousel/>
-                <h2 class='text-lg font-bold mb-3'>What I Can Bring to the Team?</h2>
+                <h2 class='text-3xl font-bold mb-3'>What I Can Bring to the Team?</h2>
                 <div class='grid grid-cols-1 md:grid-cols-2 gap-5 mt-4'>
                     {skills.map((skill) =>
                             <SkillCard skill={skill}/>)}
@@ -77,7 +134,7 @@ const skills = (await getCollection('majorSkills')).sort((a, b) => a.data.order 
                             />
                         </div>
                         <div class='w-full md:w-auto text-center md:text-left'>
-                            <h2 class='text-xl font-bold mb-2'>Projects</h2>
+                            <h2 class='text-4xl font-bold mb-2'>Projects</h2>
                             <p class='text-zinc-600 dark:text-zinc-300 mb-4'>
                                 Checkout my humble projects gallery.
                             </p>
