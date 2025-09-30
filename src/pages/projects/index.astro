@@ -1,7 +1,22 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectList from '../../components/ProjectList.astro';
-import {projects} from './projects';
+import { getAllProjects } from '../../utils/projects';
+
+// Define hardcoded list of project IDs for sorting
+const projectOrder = [
+  'data-seeder-dotnet',
+  'algerian-rib-validator',
+  'onion-architecture-dotnet',
+  'repository-pattern-laravel'
+];
+
+const allProjects = await getAllProjects();
+
+// Sort projects based on the defined order
+const sortedProjects = projectOrder
+  .map(id => allProjects.find(project => project.data.id === id))
+  .filter(project => project !== undefined) as typeof allProjects;
 ---
 
 <BaseLayout
@@ -16,7 +31,7 @@ import {projects} from './projects';
                 over time.
             </p>
         </div>
-        <ProjectList projects={projects}/>
+        <ProjectList projects={sortedProjects}/>
         <div class="my-5 py-4 text-center">
             <p class="text-2xl purple-red-gradient-wave">More projects are yet to come! INCHALLAH 🤲🏽.</p>
         </div>

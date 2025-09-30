@@ -65,4 +65,22 @@ const recommendations = defineCollection({
   })
 });
 
-export const collections = { blog, majorSkills, experiences, education, recommendations };
+const projects = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/projects" }),
+  schema: ({ image }) => z.object({
+    name: z.string(),
+    demoLink: z.string(),
+    demoLinkRel: z.string().optional(),
+    tags: z.array(z.string()).optional(),
+    description: z.string().optional(),
+    postLink: z.string().optional(),
+    isUnderConstruction: z.boolean().default(false),
+    publishedPackageLink: z.string().optional(),
+    version: z.string().optional(),
+    isFeatured: z.boolean().default(false),
+    id: z.string(), // New required property for sorting
+    coverImage: image().optional()
+  })
+});
+
+export const collections = { blog, majorSkills, experiences, education, recommendations, projects };
