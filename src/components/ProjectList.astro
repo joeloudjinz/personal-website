@@ -1,9 +1,5 @@
 ---
-import {Image} from 'astro:assets';
 import type {Project} from '../pages/projects/projects';
-import {kFormatter} from '../utils';
-import GithubWhite from '@src/assets/img/github-mark-white.svg';
-import GithubBlack from '@src/assets/img/github-mark.svg';
 import TagPill from '../components/TagPill.astro';
 
 const {projects} = Astro.props;
@@ -13,26 +9,6 @@ const {projects} = Astro.props;
     {
         projects.map((project: Project) => (
                 <div class='col-span-12 sm:col-span-6 lg:col-span-6 border dark:border-zinc-700 rounded-xl shadow-sm p-5'>
-                    <!--      <div class='flex justify-between items-center'>-->
-
-                    <!--          {project.stargazers_count !== undefined && (-->
-                    <!--                  <div class='shrink-0'>-->
-                    <!--                      <a href={project.html_url}-->
-                    <!--                         target='_blank'-->
-                    <!--                         class='border border-zinc-300 dark:border-zinc-700 rounded-2xl-->
-                    <!--      text-xs text-zinc-700 dark:text-zinc-300 no-underline px-2 py-0.5-->
-                    <!--      transition-all duration-700-->
-                    <!--    hover:border-zinc-700 dark:hover:border-zinc-300-->
-                    <!--      flex items-center gap-1-->
-                    <!--'>-->
-                    <!--                          <Image src={GithubBlack} height={12} class='dark:hidden' alt='Github stars'/>-->
-                    <!--                          <Image src={GithubWhite} height={12} class='hidden dark:block'-->
-                    <!--                                 alt='Github stars'/>-->
-                    <!--                          {kFormatter(project.stargazers_count)} stars-->
-                    <!--                      </a>-->
-                    <!--                  </div>-->
-                    <!--          )}-->
-                    <!--      </div>-->
                     <h1 class='font-semibold my-2 text-xl'>
                         <a href={project.demoLink} target='_blank' rel={project.demoLinkRel}
                            class="underline hover:font-extrabold transition-all duration-150">
@@ -65,33 +41,13 @@ const {projects} = Astro.props;
                         {project.postLink && (
                                 <a class='underline flex items-center gap-2' href={project.postLink}>Article</a>
                         )}
-                        {project.publishedLink !== undefined && (
+                        {project.publishedPackageLink !== undefined && (
                                 <a class='underline flex items-center gap-2 hover:font-extrabold transition-all duration-150'
-                                   href={project.publishedLink}>
-                                    Package
+                                   target="_blank"
+                                   href={project.publishedPackageLink}>
+                                    View Package
                                 </a>
                         )}
-                        <!--{project.demoLink && ( // This line adds the conditional check for the Demo link-->
-                        <!--        <a class='underline flex items-center gap-2' href={project.demoLink} target='_blank'-->
-                        <!--           rel={project.demoLinkRel}>-->
-                        <!--            Repository-->
-                        <!--            <svg-->
-                        <!--                    xmlns='http://www.w3.org/2000/svg'-->
-                        <!--                    width='14'-->
-                        <!--                    height='14'-->
-                        <!--                    viewBox='0 0 24 24'-->
-                        <!--                    fill='none'-->
-                        <!--                    stroke='currentColor'-->
-                        <!--                    stroke-width='2'-->
-                        <!--                    stroke-linecap='round'-->
-                        <!--                    stroke-linejoin='round'-->
-                        <!--                    class='lucide lucide-external-link'>-->
-                        <!--                <path d='M15 3h6v6'/>-->
-                        <!--                <path d='M10 14 21 3'/>-->
-                        <!--                <path d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'/>-->
-                        <!--            </svg>-->
-                        <!--        </a>-->
-                        <!--)}-->
                     </div>
                 </div>
         ))
