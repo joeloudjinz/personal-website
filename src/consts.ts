@@ -3,9 +3,9 @@
 
 export const FULL_NAME = 'Abdellah Addoun';
 export const NICKNAME = 'JoeInz';
-export const SITE_TITLE = 'JoeInz Personal Website';
-export const SITE_TAGLINE = 'Software Engineer Personal Website'; // site tagline
-export const SITE_DESCRIPTION = 'Abdellah ADDOUN\' personal website. Find experience, projects, thoughts, and more about the senior software engineer with the name JoeInz here, welcome.';
+export const SITE_TITLE = 'Abdellah ADDOUN';
+export const SITE_TAGLINE = 'Senior/Lead Software Engineer'; // site tagline
+export const SITE_DESCRIPTION = "My personal cyber space 🌌 in the wide web 🕸️. Find details about my experience, projects, thoughts, and more all in one place. I'm one communication away, i'll be more then excited to answer.";
 export const EMAIL = 'addoun.abdellah@gmail.com';
 
 export const GITHUB_ACCOUNT = 'https://github.com/joeloudjinz';
