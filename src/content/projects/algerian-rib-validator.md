@@ -3,7 +3,7 @@ name: "Algerian RIB Validator"
 demoLink: "https://github.com/itshakim213/rib-validator-dz"
 isUnderConstruction: false
 isFeatured: false
-version: "0.0.2"
+version: "0.0.1"
 tags: [ "C#", ".NET 9", "Node", "Typescript", "Javascript", "NuGet", "Npm" ]
 id: "algerian-rib-validator"
 ---

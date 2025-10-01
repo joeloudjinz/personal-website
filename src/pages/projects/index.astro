@@ -1,34 +1,34 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectList from '../../components/ProjectList.astro';
-import { getAllProjects } from '../../utils/projects';
+import {getAllProjects} from '../../utils/projects';
 
 // Define hardcoded list of project IDs for sorting
 const projectOrder = [
-  'data-seeder-dotnet',
-  'algerian-rib-validator',
-  'onion-architecture-dotnet',
-  'repository-pattern-laravel'
+    'data-seeder-dotnet',
+    'algerian-rib-validator',
+    'onion-architecture-dotnet',
+    'repository-pattern-laravel'
 ];
 
 const allProjects = await getAllProjects();
 
 // Sort projects based on the defined order
 const sortedProjects = projectOrder
-  .map(id => allProjects.find(project => project.data.id === id))
-  .filter(project => project !== undefined) as typeof allProjects;
+    .map(id => allProjects.find(project => project.data.id === id))
+    .filter(project => project !== undefined) as typeof allProjects;
 ---
 
 <BaseLayout
-        title="Abdellah's Projects Gallery"
-        description="Find my open source projects and proof of concepts."
+        title="Abdellah addoun's Projects Gallery"
+        description="Find a humble list of open source projects i worked on or contrinuted to over time."
 >
     <div class='container'>
         <div class="mb-10">
-            <h1 class="text-3xl font-bold mb-2">Projects Gallery</h1>
+            <h1 class="text-5xl font-bold mb-2">Projects Gallery</h1>
             <p class="text-zinc-700 dark:text-zinc-300 text-lg">
-                Find a collection of my open source projects and proof of concepts that I've worked on
-                over time.
+                Open source projects i worked on or contributed to over the time. Feel free to check them out and if you
+                have any feedback i'm happy to hear it out.
             </p>
         </div>
         <ProjectList projects={sortedProjects}/>
