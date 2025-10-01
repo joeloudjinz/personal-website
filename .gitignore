@@ -61,3 +61,5 @@ coverage/
 .AppleDouble
 .LSOverride
 Icon?
+
+.firebase/
