@@ -2,24 +2,52 @@
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
 import '../../styles/global.css';
-import Favicon from '@src/assets/img/favicon.png';
+// import Favicon from '@src/assets/img/favicon.png';
+import {FULL_NAME, SITE_DESCRIPTION, SITE_TITLE} from "../../consts";
 
 interface Props {
     title: string;
     description: string;
+    keywords?: string;
+    author?: string;
+    image?: string;
+    publishedTime?: string;
+    modifiedTime?: string;
+    type?: 'website' | 'article';
+    tags?: string[];
 }
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const ogImageURL = new URL('/avatar.png', Astro.site).href;
+const {
+    title = SITE_TITLE,
+    description = SITE_DESCRIPTION,
+    keywords = 'software engineer, senior, tech lead, team lead, lead, full-stack developer, web developer, backend developer, frontend developer, programming, coding, ai, artificial intelligence, generative ai, technology, tech enthusiast, open source, javascript, typescript, python, java, c#, ruby, php, go, rust, sql, nosql, cloud computing, devops, agile methodologies, problem solving, system design, team leadership, collaboration, continuous learning',
+    author = FULL_NAME,
+    image = 'avatar.png',
+    publishedTime,
+    modifiedTime,
+    type = 'website',
+    tags
+} = Astro.props;
 
-const {title, description} = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const ogImageURL = new URL(image || '/avatar.png', Astro.site).href;
+const siteName = SITE_TITLE;
+const locale = 'en_US';
 ---
 
 <!-- Global Metadata -->
 <meta charset='utf-8'/>
 <meta name='viewport' content='width=device-width,initial-scale=1'/>
-<link rel='icon' href={Favicon.src}/>
+<link rel='icon' href={ogImageURL}/>
 <meta name='generator' content={Astro.generator}/>
+
+<!-- SEO Meta Tags -->
+<meta name='robots' content='index, follow'/>
+<meta name='theme-color' content='#ffffff'/>
+<meta name='author' content={author}/>
+<meta name='keywords' content={keywords}/>
+<meta name='revisit-after' content='7 days'/>
+<meta name='rating' content='General'/>
 
 <!-- Canonical URL -->
 <link rel='canonical' href={canonicalURL}/>
@@ -29,23 +57,64 @@ const {title, description} = Astro.props;
 <meta name='title' content={title}/>
 <meta name='description' content={description}/>
 
+<!-- Structured Data (JSON-LD) -->
+<script type='application/ld+json'>
+    {
+        JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': type
+        ===
+        'article'
+        ?
+        'Article': 'WebSite',
+        'name': title,
+        'description': description,
+        'url': canonicalURL,
+        'image': image
+        ?
+        new
+        URL(image,
+        Astro.site).href: ogImageURL,
+        'author': {
+            '@type': 'Person',
+            'name': author,
+            'url': Astro.site
+        },
+        ...(type
+        ===
+        'article'
+        &
+        &
+        publishedTime
+        &
+        & {
+        'datePublished': publishedTime
+    }),
+    ...(type === 'article' && modifiedTime && {'dateModified': modifiedTime
+    }),
+    ...(tags && {
+    'keywords': tags.join(', ')})
+    })}
+</script>
+
 <!-- Open Graph / Facebook / LinkedIn -->
-<meta property='og:type' content='website'/>
+<meta property='og:type' content={type === 'article' ? 'article' : 'website'}/>
 <meta property='og:url' content={Astro.url}/>
 <meta property='og:title' content={title}/>
 <meta property='og:description' content={description}/>
 <meta property='og:image' content={ogImageURL}/>
 <meta property='og:image:width' content='1200'/>
 <meta property='og:image:height' content='630'/>
-<meta property='og:site_name' content='Abdellah Addoun'/>
-<meta property='og:locale' content='en_US'/>
-
-<!-- LinkedIn-specific additional tags -->
-<meta property='article:author' content='Abdellah Addoun'/>
+<meta property='og:image:alt' content={title}/>
+<meta property='og:site_name' content={siteName}/>
+<meta property='og:locale' content={locale}/>
 
 <!-- Twitter -->
-<meta property='twitter:card' content='summary_large_image'/>
-<meta property='twitter:url' content={Astro.url}/>
-<meta property='twitter:title' content={title}/>
-<meta property='twitter:description' content={description}/>
-<meta property='twitter:image' content={ogImageURL}/>
+<meta name='twitter:card' content={ogImageURL}/>
+<meta name='twitter:url' content={Astro.url}/>
+<meta name='twitter:title' content={title}/>
+<meta name='twitter:description' content={description}/>
+<meta name='twitter:image' content={ogImageURL}/>
+<meta name='twitter:image:alt' content={title}/>
+<!--<meta name='twitter:site' content='@yourTwitterHandle'/>-->
+<!--<meta name='twitter:creator' content='@yourTwitterHandle'/>-->

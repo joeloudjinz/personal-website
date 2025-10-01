@@ -1,19 +1,39 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectList from '../../components/ProjectList.astro';
-import { projects } from './projects';
+import {getAllProjects} from '../../utils/projects';
 
+// Define hardcoded list of project IDs for sorting
+const projectOrder = [
+    'data-seeder-dotnet',
+    'algerian-rib-validator',
+    'onion-architecture-dotnet',
+    'repository-pattern-laravel'
+];
+
+const allProjects = await getAllProjects();
+
+// Sort projects based on the defined order
+const sortedProjects = projectOrder
+    .map(id => allProjects.find(project => project.data.id === id))
+    .filter(project => project !== undefined) as typeof allProjects;
 ---
 
 <BaseLayout
-	title="All My Projects"
-	description="All my project portfolio from real projects to open source projects."
+        title="Abdellah addoun's Projects Gallery"
+        description="Find a humble list of open source projects i worked on or contrinuted to over time."
 >
-  <div class='container'>
-    <div class="mb-10">
-      <h1 class="text-3xl font-bold mb-2">All My Projects</h1>
-      <p class="text-zinc-700 dark:text-zinc-300 text-lg">All my project portfolio from real projects to open source projects.</p>
+    <div class='container'>
+        <div class="mb-10">
+            <h1 class="text-5xl font-bold mb-2">Projects Gallery</h1>
+            <p class="text-zinc-700 dark:text-zinc-300 text-lg">
+                Open source projects i worked on or contributed to over the time. Feel free to check them out and if you
+                have any feedback i'm happy to hear it out.
+            </p>
+        </div>
+        <ProjectList projects={sortedProjects}/>
+        <div class="my-5 py-4 text-center">
+            <p class="text-2xl purple-red-gradient-wave">More projects are yet to come! INCHALLAH 🤲🏽.</p>
+        </div>
     </div>
-    <ProjectList projects={projects}/>
-  </div>
 </BaseLayout>

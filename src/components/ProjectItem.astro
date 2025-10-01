@@ -1,0 +1,59 @@
+---
+import type { ProjectCollectionEntry } from '../utils/projects';
+import { render } from 'astro:content';
+import TagPill from '../components/TagPill.astro';
+import Prose from '../components/Prose.astro';
+
+interface Props {
+  project: ProjectCollectionEntry;
+}
+
+const { project } = Astro.props as Props;
+const { Content } = await render(project);
+---
+
+<section class='col-span-12 sm:col-span-6 lg:col-span-6 border dark:border-zinc-700 rounded-xl shadow-sm p-5'>
+    <h1 class='font-semibold my-2 text-xl'>
+        <a href={project.data.demoLink} target='_blank' rel={project.data.demoLinkRel}
+           class="hover:font-extrabold transition-all duration-150">
+            {
+                project.data.isFeatured == false
+                    ? <span>{project.data.name}</span>
+                    : <span class='text-2xl beige-amber-gradient-wave dark:purple-red-gradient-wave'>
+                        {project.data.name}
+                    </span>
+            }
+        </a>
+    </h1>
+    {project.data.isUnderConstruction &&
+        <p class="pb-3 font-extralight text-sm italic">🚧 Under Development</p>
+    }
+    {project.data.version !== undefined &&
+        <p class="pb-3 font-extrabold">
+            <span class="font-light">Version</span> {project.data.version}
+        </p>
+    }
+
+    <section class='text-zinc-600 dark:text-zinc-300 mb-4 min-h-[150px] prose prose-sm dark:prose-invert max-w-none'>
+        <Prose>
+            <Content />
+        </Prose>
+    </section>
+    <div class='flex flex-wrap gap-2'>
+        {(project.data.tags || [])?.map((tag: string) => (
+            <TagPill tag={tag}/>
+        ))}
+    </div>
+    <div class='flex justify-end gap-3 pt-2'>
+        {project.data.postLink && (
+            <a class='underline flex items-center gap-2' href={project.data.postLink}>Article</a>
+        )}
+        {project.data.publishedPackageLink !== undefined && (
+            <a class='underline flex items-center gap-2 hover:font-extrabold transition-all duration-150'
+               target="_blank"
+               href={project.data.publishedPackageLink}>
+                View Package
+            </a>
+        )}
+    </div>
+</section>

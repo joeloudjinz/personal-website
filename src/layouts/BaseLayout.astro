@@ -21,15 +21,14 @@ const { title, description } = Astro.props;
 		<Footer />
 		{GTAG_MEASUREMENT_ID && (
 			<Fragment>
-				{/* Google tag (gtag.js) */}
-				<script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GTAG_MEASUREMENT_ID}`}></script>
-                <script is:inline>
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-
-                gtag('config', '${GTAG_MEASUREMENT_ID}');
-                </script>
+				<!-- Google tag (gtag.js) -->
+				<script is:inline async src="https://www.googletagmanager.com/gtag/js?id=G-F851EDF21L"></script>
+				<script is:inline>
+					window.dataLayer = window.dataLayer || [];
+					function gtag(){dataLayer.push(arguments);}
+					gtag('js', new Date());
+					gtag('config', 'G-F851EDF21L');
+				</script>
             </Fragment>
 			)}
 	</body>

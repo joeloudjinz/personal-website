@@ -1,0 +1,26 @@
+# www.robotstxt.org/
+
+# Allow all crawlers to access all content
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://abdellahaddoun.com/sitemap-index.xml
+
+# Disallow access to private/development files
+Disallow: /cgi-bin/
+Disallow: /trackback/
+Disallow: /comments/
+Disallow: /*/comments/
+Disallow: /search/
+Disallow: /admin/
+Disallow: /.git/
+Disallow: /.github/
+Disallow: /.astro/
+Disallow: /node_modules/
+
+# Specific to this Astro site
+Disallow: /rss.xml
+
+# Host directive - specify preferred domain
+Host: https://abdellahaddoun.com
