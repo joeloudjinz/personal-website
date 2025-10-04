@@ -16,7 +16,7 @@
 		background-clip: text;
 		-webkit-text-fill-color: transparent;
 		animation: wave 3s ease-in-out infinite;
-		display: inline-block;
+		display: inline;
 	}
 	
 	.beige-amber-gradient-wave {

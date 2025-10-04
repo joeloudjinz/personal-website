@@ -13,7 +13,7 @@ tags: [ "Modularity", "Event-driven Architecture", "System design", ".NET", "C#"
 This period was the busiest chapter in my career. My role grew beyond my previous duties to also cover leadership for
 the mobile and web frontend teams. My work became more about making high-level architectural decisions and guiding team
 members, but I still wrote code and fixed problems when needed. I worked very closely with other leaders,
-like [Ryan Ramshandar](https://www.linkedin.com/in/ryanramchandar/), a talented Flutter engineer who led the mobile side
+like [Ryan Ramchandar](https://www.linkedin.com/in/ryanramchandar/), a talented Flutter engineer who led the mobile side
 of our Framework and client projects.
 
 As a manager, I became responsible for helping grow our technical teams. I interviewed candidates for various roles like
@@ -31,6 +31,6 @@ solve major issues and remove roadblocks for the development teams when they nee
 mentor the backend team, while also sharing the project's vision with the web and mobile engineers.
 
 The most valuable part of this job was the people. I was lucky to work with such a talented and good team, including
-[Ayoub Gourine](https://www.linkedin.com/in/gourine-ayoub-002a701bb/), [Ryan Ramshandar](https://www.linkedin.com/in/ryanramchandar/),
+[Ayoub Gourine](https://www.linkedin.com/in/gourine-ayoub-002a701bb/), [Ryan Ramchandar](https://www.linkedin.com/in/ryanramchandar/),
 and [Michael Knight](https://www.linkedin.com/in/michael-knight-095619207/). Working with them made this one of the best
 experiences of my career.
