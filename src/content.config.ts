@@ -83,4 +83,13 @@ const projects = defineCollection({
   })
 });
 
-export const collections = { blog, majorSkills, experiences, education, recommendations, projects };
+const interests = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/interests" }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string().max(60, { message: "Description must be 60 characters or less" }),
+    coverImage: z.string().optional()
+  })
+});
+
+export const collections = { blog, majorSkills, experiences, education, recommendations, projects, interests };

@@ -1,0 +1,27 @@
+---
+import type {CollectionEntry} from 'astro:content';
+
+export interface Props {
+    interest: CollectionEntry<'interests'>;
+}
+
+const {interest} = Astro.props;
+---
+
+<div class='border dark:border-zinc-700 rounded-xl shadow-sm p-0 w-full overflow-hidden flex flex-col'>
+    {interest.data.coverImage && (
+        <img
+            src={interest.data.coverImage}
+            alt={interest.data.title}
+            class="w-full h-40 object-contain"
+        />
+    )}
+    <div class='p-5 flex flex-col flex-grow'>
+        <h3 class='font-bold text-xl mt-0 text-zinc-800 dark:text-zinc-200 mb-2'>
+            {interest.data.title}
+        </h3>
+        <p class='text-zinc-600 dark:text-zinc-300 flex-grow'>
+            {interest.data.description}
+        </p>
+    </div>
+</div>
