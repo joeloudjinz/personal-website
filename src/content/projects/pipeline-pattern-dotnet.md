@@ -1,13 +1,17 @@
 ---
 name: "Pipeline Pattern for .NET"
 demoLink: "https://github.com/joeloudjinz/InzPipeline"
-isUnderConstruction: true
+publishedPackageLink: "https://www.nuget.org/packages/InzSoftwares.NetPipeline"
+isUnderConstruction: false
 isFeatured: true
-version: "0.0.2"
-tags: [ "C#", ".NET 9", "Pipeline Pattern", "OOP", "NuGet" ]
+version: "1.0.0"
+tags: [ "C#", ".NET 9", "Pipeline Pattern", "Resiliency", "Robustness", "OOP", "NuGet" ]
 id: "pipeline-pattern-dotnet"
 ---
 
-A powerful and flexible data seeding library for .NET applications, designed to streamline the process of populating
-databases with test or initial data. It supports environment-specific data, dependency management between seeders, batch
-processing for large datasets, and hash-based change detection. It integrates seamlessly with Entity Framework.
+A sophisticated .NET pipeline processing library that enables building complex data processing workflows through a
+fluent API. Provides a robust and extensible framework for processing data through a series of configurable, composable,
+and resilient steps. Features include sequential, parallel, conditional, and sub-pipeline execution, resource
+sharing with thread-safe operations, comprehensive error handling (retry policy, circuit breaker policy, fallback
+policy, circuit breaker strategy, retry with backoff strategy), pipeline validation with dependency checking,
+performance monitoring with metrics collection, cancellation support, and asynchronous operations.
