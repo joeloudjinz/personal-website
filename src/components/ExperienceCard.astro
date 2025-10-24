@@ -18,41 +18,44 @@ const {Content} = await render(experience);
             {experience.data.roleName}
         </h3>
     </div>
+    {
+        experience.data.companyName.length !== 0 && (
+                    <div class='flex items-center gap-2 mb-3 text-zinc-600 dark:text-zinc-300'>
+                        <!-- Company Icon -->
+                        <svg
+                                xmlns='http://www.w3.org/2000/svg'
+                                width='16'
+                                height='16'
+                                viewBox='0 0 24 24'
+                                fill='none'
+                                stroke='currentColor'
+                                stroke-width='2'
+                                stroke-linecap='round'
+                                stroke-linejoin='round'
+                                class='lucide lucide-building'
+                        >
+                            <path d='M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z'></path>
+                            <path d='M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2'></path>
+                            <path d='M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2'></path>
+                            <path d='M10 6h4'></path>
+                            <path d='M10 10h4'></path>
+                            <path d='M10 14h4'></path>
+                            <path d='M10 18h4'></path>
+                        </svg>
 
-    <div class='flex items-center gap-2 mb-3 text-zinc-600 dark:text-zinc-300'>
-        <!-- Company Icon -->
-        <svg
-                xmlns='http://www.w3.org/2000/svg'
-                width='16'
-                height='16'
-                viewBox='0 0 24 24'
-                fill='none'
-                stroke='currentColor'
-                stroke-width='2'
-                stroke-linecap='round'
-                stroke-linejoin='round'
-                class='lucide lucide-building'
-        >
-            <path d='M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z'></path>
-            <path d='M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2'></path>
-            <path d='M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2'></path>
-            <path d='M10 6h4'></path>
-            <path d='M10 10h4'></path>
-            <path d='M10 14h4'></path>
-            <path d='M10 18h4'></path>
-        </svg>
-
-        {
-            experience.data.companyUrl ? (
-                    <a href={experience.data.companyUrl} target='_blank' rel='noopener noreferrer'
-                       class='font-light hover:font-extrabold transition-all duration-400'>
-                        {experience.data.companyName}
-                    </a>
-            ) : (
-                    <span>{experience.data.companyName}</span>
-            )
-        }
-    </div>
+                        {
+                            experience.data.companyUrl ? (
+                                    <a href={experience.data.companyUrl} target='_blank' rel='noopener noreferrer'
+                                       class='font-light hover:font-extrabold transition-all duration-400'>
+                                        {experience.data.companyName}
+                                    </a>
+                            ) : (
+                                    <span>{experience.data.companyName}</span>
+                            )
+                        }
+                    </div>
+        )
+    }
 
     <div class='flex justify-between items-center mb-3 text-sm text-zinc-600 dark:text-zinc-300'>
         <div class='flex gap-4'>
@@ -149,7 +152,7 @@ const {Content} = await render(experience);
 
     <div class='text-zinc-600 dark:text-zinc-300 mb-3 prose prose-sm dark:prose-invert max-w-none'>
         <Prose>
-            <Content />
+            <Content/>
         </Prose>
     </div>
 
