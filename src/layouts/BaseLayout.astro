@@ -5,13 +5,14 @@ import Footer from './components/Footer.astro';
 import logo from "@src/assets/img/avatar.png";
 
 const GTAG_MEASUREMENT_ID = import.meta.env.PUBLIC_GTAG_MEASUREMENT_ID;
-const { title, description } = Astro.props;
+const { title, description, image, type, publishedTime, modifiedTime, tags } = Astro.props;
 ---
 
 <!doctype html>
 <html lang='en'>
 	<head>
-		<BaseHead title={title} description={description} />
+		<BaseHead title={title} description={description} image={image} type={type}
+				  publishedTime={publishedTime} modifiedTime={modifiedTime} tags={tags} />
 	</head>
 	<body class="bg-white dark:bg-zinc-900 dark:text-zinc-100 pt-16 sm:pt-0">
 		<Header/>

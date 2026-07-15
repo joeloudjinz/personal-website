@@ -2,7 +2,6 @@
 // Import the global.css file here so that it is included on
 // all pages through the use of the <BaseHead /> component.
 import '../../styles/global.css';
-// import Favicon from '@src/assets/img/favicon.png';
 import {FULL_NAME, SITE_DESCRIPTION, SITE_TITLE} from "../../consts";
 
 interface Props {
@@ -33,12 +32,29 @@ const canonicalURL = new URL(Astro.url.pathname, Astro.site);
 const ogImageURL = new URL(image || '/avatar.png', Astro.site).href;
 const siteName = SITE_TITLE;
 const locale = 'en_US';
+
+const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': type === 'article' ? 'Article' : 'WebSite',
+    'name': title,
+    'description': description,
+    'url': canonicalURL.href,
+    'image': ogImageURL,
+    'author': {
+        '@type': 'Person',
+        'name': author,
+        'url': Astro.site?.href
+    },
+    ...(type === 'article' && publishedTime && {'datePublished': publishedTime}),
+    ...(type === 'article' && modifiedTime && {'dateModified': modifiedTime}),
+    ...(tags && {'keywords': tags.join(', ')})
+};
 ---
 
 <!-- Global Metadata -->
 <meta charset='utf-8'/>
 <meta name='viewport' content='width=device-width,initial-scale=1'/>
-<link rel='icon' href={ogImageURL}/>
+<link rel='icon' href='/favicon.png' type='image/png'/>
 <meta name='generator' content={Astro.generator}/>
 
 <!-- SEO Meta Tags -->
@@ -58,44 +74,7 @@ const locale = 'en_US';
 <meta name='description' content={description}/>
 
 <!-- Structured Data (JSON-LD) -->
-<script type='application/ld+json'>
-    {
-        JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': type
-        ===
-        'article'
-        ?
-        'Article': 'WebSite',
-        'name': title,
-        'description': description,
-        'url': canonicalURL,
-        'image': image
-        ?
-        new
-        URL(image,
-        Astro.site).href: ogImageURL,
-        'author': {
-            '@type': 'Person',
-            'name': author,
-            'url': Astro.site
-        },
-        ...(type
-        ===
-        'article'
-        &
-        &
-        publishedTime
-        &
-        & {
-        'datePublished': publishedTime
-    }),
-    ...(type === 'article' && modifiedTime && {'dateModified': modifiedTime
-    }),
-    ...(tags && {
-    'keywords': tags.join(', ')})
-    })}
-</script>
+<script is:inline type='application/ld+json' set:html={JSON.stringify(structuredData)}/>
 
 <!-- Open Graph / Facebook / LinkedIn -->
 <meta property='og:type' content={type === 'article' ? 'article' : 'website'}/>
@@ -110,7 +89,7 @@ const locale = 'en_US';
 <meta property='og:locale' content={locale}/>
 
 <!-- Twitter -->
-<meta name='twitter:card' content={ogImageURL}/>
+<meta name='twitter:card' content='summary_large_image'/>
 <meta name='twitter:url' content={Astro.url}/>
 <meta name='twitter:title' content={title}/>
 <meta name='twitter:description' content={description}/>
