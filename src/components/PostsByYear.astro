@@ -3,6 +3,9 @@ import type {CollectionEntry} from 'astro:content';
 import PostItem from './PostItem.astro';
 
 type BlogPost = CollectionEntry<'blog'>;
+interface Props {
+    posts: BlogPost[];
+}
 const {posts} = Astro.props;
 
 function groupPostsByYear(posts: BlogPost[]) {

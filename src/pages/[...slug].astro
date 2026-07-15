@@ -121,34 +121,31 @@ const {Content, headings} = await render(post);
     </div>
 </BaseLayout>
 
-<script async is:inline>
-    const anchors = document.querySelectorAll('.prose h2[id], .prose h3[id]');
-    const links = document.querySelectorAll('nav.toc ul li a');
+<script is:inline>
+    const anchors = Array.from(document.querySelectorAll('.prose h2[id], .prose h3[id]'));
+    const links = Array.from(document.querySelectorAll('nav.toc ul li a'));
+    const activeClasses = ['bg-[var(--background-surface-color)]', 'border-[var(--soft-border-color)]', 'text-[var(--link-color)]'];
+    const inactiveClasses = ['border-transparent', 'text-inherit'];
 
-    function observeToc() {
-        if (typeof anchors != 'undefined' && anchors != null && typeof links != 'undefined' && links != null) {
-            let scrollTop = window.scrollY;
-
-            // highlight the last scrolled-to: set everything inactive first
-            for (const link of links) {
-                link.classList.add('border-transparent', 'text-inherit');
-                link.classList.remove('bg-[var(--background-surface-color)]', 'border-[var(--soft-border-color)]', 'text-[var(--link-color)]');
-            }
-            // then iterate backwards, on the first match highlight it and break
-            for (var i = anchors.length - 1; i >= 0; i--) {
-                if (scrollTop > anchors[i].offsetTop - 80) {
-                    links[i].classList.remove('border-transparent', 'text-inherit');
-                    links[i].classList.add('bg-[var(--background-surface-color)]', 'border-[var(--soft-border-color)]', 'text-[var(--link-color)]');
-                    break;
-                }
-            }
-        }
+    function highlight(activeIndex) {
+        links.forEach((link, i) => {
+            link.classList.remove(...(i === activeIndex ? inactiveClasses : activeClasses));
+            link.classList.add(...(i === activeIndex ? activeClasses : inactiveClasses));
+        });
     }
 
-    window.addEventListener('scroll', (event) => {
-        observeToc(event);
-    });
-    window.addEventListener('hashchange', (event) => {
-        observeToc(event);
-    });
+    // The observed band spans from the 80px reading line down to 25% of the
+    // viewport; a heading entering it becomes active, one leaving it downwards
+    // hands the highlight back to the previous section. No scroll listener needed.
+    const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+            const index = anchors.indexOf(entry.target);
+            if (entry.isIntersecting) {
+                highlight(index);
+            } else if (entry.boundingClientRect.top > 80) {
+                highlight(index - 1);
+            }
+        }
+    }, {rootMargin: '-80px 0px -75% 0px'});
+    anchors.forEach((anchor) => observer.observe(anchor));
 </script>

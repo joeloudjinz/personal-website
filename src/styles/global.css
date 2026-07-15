@@ -39,4 +39,11 @@
 			background-position: 0% 50%;
 		}
 	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.purple-red-gradient-wave,
+		.beige-amber-gradient-wave {
+			animation: none;
+		}
+	}
 }
