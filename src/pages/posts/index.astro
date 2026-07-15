@@ -1,14 +1,12 @@
 ---
-import {getCollection} from 'astro:content';
-import type {CollectionEntry} from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PostsByYear from '../../components/PostsByYear.astro';
+import {getSortedPosts} from '../../utils/posts';
 
-type BlogPost = CollectionEntry<'blog'>;
 const title = "Abdellah Addoun's Blog Posts"
 const description = 'Find a set of articles, guides, tutorials, or posts about different fields and concepts in software engineering.'
 
-const posts = (await getCollection('blog')).sort((a: BlogPost, b: BlogPost) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+const posts = await getSortedPosts();
 ---
 
 <BaseLayout

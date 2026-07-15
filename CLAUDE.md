@@ -53,7 +53,7 @@ All site content lives in `src/content/` as Markdown files managed by Astro's co
 - **Analytics**: Google Analytics 4 via inline gtag scripts in `BaseLayout.astro`. `PUBLIC_GTAG_MEASUREMENT_ID` is declared in the `env.schema` of `astro.config.mjs` (client/public).
 - **Comments**: Giscus integration in `[...slug].astro`, conditional on `GISCUS_*` env vars read via Vite's `loadEnv`.
 - **Site constants**: `src/consts.ts` holds name, title, tagline, social URLs.
-- **Utilities**: `src/utils.ts` has `slugify()` and `unslugify()`. A separate `src/utils/projects.ts` provides `getAllProjects()`.
+- **Utilities**: `src/utils.ts` has `slugify()`. `src/utils/posts.ts` provides `getSortedPosts()` and `getTagSlugMap()`; `src/utils/projects.ts` provides `getAllProjects()`.
 
 ### Styling
 

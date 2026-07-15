@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProjectList from '../../components/ProjectList.astro';
-import {getAllProjects} from '../../utils/projects';
+import {getAllProjects, type ProjectCollectionEntry} from '../../utils/projects';
 
 // Define hardcoded list of project IDs for sorting
 const projectOrder = [
@@ -17,10 +17,14 @@ const projectOrder = [
 
 const allProjects = await getAllProjects();
 
-// Sort projects based on the defined order
-const sortedProjects = projectOrder
-    .map(id => allProjects.find(project => project.data.id === id))
-    .filter(project => project !== undefined) as typeof allProjects;
+// Sort projects based on the defined order; anything not in the list is
+// appended at the end so a new project file can never silently disappear
+const sortedProjects = [
+    ...projectOrder
+        .map(id => allProjects.find(project => project.data.id === id))
+        .filter((project): project is ProjectCollectionEntry => project !== undefined),
+    ...allProjects.filter(project => !projectOrder.includes(project.data.id))
+];
 ---
 
 <BaseLayout
