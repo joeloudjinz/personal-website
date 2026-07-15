@@ -83,6 +83,7 @@ const {Content, headings} = await render(post);
                 </Prose>
                 {
                     GISCUS_REPO &&
+                    <>
                     <script
                         id='giscus-script'
                         is:inline
@@ -100,6 +101,13 @@ const {Content, headings} = await render(post);
                         data-lang='en'
                         crossorigin='anonymous'
                         async></script>
+                    <script is:inline>
+                        // Giscus reads its attributes only when the async client.js executes,
+                        // so this can still override the initial theme to match the site's.
+                        const giscusTheme = localStorage.getItem('theme') === 'dark' ? 'dark_dimmed' : 'light';
+                        document.getElementById('giscus-script')?.setAttribute('data-theme', giscusTheme);
+                    </script>
+                    </>
                 }
 
             </article>
