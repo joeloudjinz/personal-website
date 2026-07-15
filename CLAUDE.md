@@ -38,7 +38,7 @@ All site content lives in `src/content/` as Markdown files managed by Astro's co
 
 - Blog post detail pages use the catch-all route `src/pages/[...slug].astro`, which generates static paths from the blog collection.
 - Tags: `src/pages/tags/index.astro` lists all tags; `src/pages/tags/[tag]/index.astro` filters posts by tag.
-- `src/pages/rss.xml.js` serves the RSS feed (`@astrojs/rss`); a sitemap is generated at build time by `@astrojs/sitemap` (site URL set in `astro.config.mjs`).
+- A sitemap is generated at build time by `@astrojs/sitemap` (site URL set in `astro.config.mjs`).
 - Other pages are standard file-based routes (`index`, `about`, `projects/index`, `posts/index`, `404`).
 
 ### Layout & Components
@@ -50,10 +50,10 @@ All site content lives in `src/content/` as Markdown files managed by Astro's co
 - **Path alias**: `@src/*` maps to `src/*` (configured in tsconfig.json).
 - **Dark mode**: Class-based toggle (`selector` strategy), persisted in localStorage. Giscus comments sync theme via script.
 - **External links**: Custom rehype plugin `src/autoNewTabExternalLinks.ts` opens external links in new tabs (excludes localhost:4321).
-- **Analytics**: Google Analytics 4 via Partytown (offloaded to web worker). `PUBLIC_GTAG_MEASUREMENT_ID` is declared in the `env.schema` of `astro.config.mjs` (client/public).
+- **Analytics**: Google Analytics 4 via inline gtag scripts in `BaseLayout.astro`. `PUBLIC_GTAG_MEASUREMENT_ID` is declared in the `env.schema` of `astro.config.mjs` (client/public).
 - **Comments**: Giscus integration in `[...slug].astro`, conditional on `GISCUS_*` env vars read via Vite's `loadEnv`.
 - **Site constants**: `src/consts.ts` holds name, title, tagline, social URLs.
-- **Utilities**: `src/utils.ts` has `slugify()`, `unslugify()`, `kFormatter()`, `getRepositoryDetails()`. A separate `src/utils/projects.ts` provides `getAllProjects()`.
+- **Utilities**: `src/utils.ts` has `slugify()` and `unslugify()`. A separate `src/utils/projects.ts` provides `getAllProjects()`.
 
 ### Styling
 
@@ -64,4 +64,3 @@ Tailwind CSS with `@tailwindcss/typography` plugin. Custom animated gradient uti
 All are optional:
 - `PUBLIC_GTAG_MEASUREMENT_ID` — GA4 measurement ID (public, client-side; declared in the `astro.config.mjs` env schema)
 - `GISCUS_REPO`, `GISCUS_REPO_ID`, `GISCUS_CATEGORY`, `GISCUS_CATEGORY_ID` — Giscus comments config (build-time only, via `loadEnv`)
-- `GITHUB_PERSONAL_ACCESS_TOKEN` — Used in `src/utils.ts` by `getRepositoryDetails()` for authenticated GitHub API calls (build-time only)
