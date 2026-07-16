@@ -1,68 +1,144 @@
 ---
-import {Image} from 'astro:assets';
+// Header image temporarily removed; a new one will replace it
+// import {Image} from 'astro:assets';
+// import Avatar from '@src/assets/img/ava-wide.jpg';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Avatar from '@src/assets/img/ava-wide.jpg';
-import Prose from '../components/Prose.astro';
 import ExperienceCard from '../components/ExperienceCard.astro';
 import EducationCard from '../components/EducationCard.astro';
-// import InterestCard from '../components/InterestCard.astro';
-import {FULL_NAME} from '../consts';
+import ContactBlock from '../components/ContactBlock.astro';
+// import {FULL_NAME} from '../consts';
 import {getCollection} from 'astro:content';
+import {getExperiences} from '../utils/experiences';
 
-const experiences = (await getCollection('experiences')).sort((a, b) => {
-    // Extract numeric prefix from IDs and sort in ascending order
-    const numA = parseInt(a.data.id.match(/^\d+/)?.[0] ?? '0');
-    const numB = parseInt(b.data.id.match(/^\d+/)?.[0] ?? '0');
-    return numA - numB; // Ascending order
-});
-
-const education = (await getCollection('education')).sort((a, b) => {
-    // Sort by start date in descending order (most recent first)
-    return new Date(b.data.startDate).getTime() - new Date(a.data.startDate).getTime();
-});
-
-// const interests = (await getCollection('interests'));
+// Newest first: the current role leads the timeline, expanded
+const experiences = (await getExperiences()).reverse();
+const education = (await getCollection('education')).sort(
+    (a, b) => new Date(b.data.startDate).getTime() - new Date(a.data.startDate).getTime()
+);
 ---
 
 <BaseLayout title='About Abdellah Addoun'
-            description='Read and discover more about the next senior software engineer in your team, or the next team-player in your company.'>
-    <div class='container'>
-        <main class='prose text-lg dark:prose-invert'>
-            <article>
-                <div class='w-full md:flex md:items-center gap-16 mb-10'>
-                    <div class='text-pretty leading-9'>
-                        <h1 class='text-4xl font-bold mb-4'>Welcome to My Small Corner of the Wide Web</h1>
-                        <Prose>
-                            <div class='text-lg'>
-                                <p>
-                                    At my core, I'm a <span class='purple-red-gradient-wave'>problem-solver</span>.
-                                    I thrive on untangling complex challenges by <span class='purple-red-gradient-wave'>leading projects and building software with the resources at hand.</span>
-                                    <br/>
-                                    For me, technology isn't just about code; it's about crafting smart, effective
-                                    solutions that make a real difference. This page details my journey in life. Embrace
-                                    yourself, I'm glad you're here.
-                                </p>
-                            </div>
-                        </Prose>
-                    </div>
-                    <Image src={Avatar} alt={FULL_NAME} width={300} class='rounded-3xl rotate-3 mx-4 md:mx-0'/>
-                </div>
-                <article>
-                    <h2>The Story Behind My Experience</h2>
-                    <section class='space-y-4 mt-4'>
-                        {experiences.map((exp) =>
-                                <ExperienceCard experience={exp}/>)}
-                    </section>
-                </article>
+            description='Read and discover more about the next senior software engineer in your team, or the next team-player in your company.'
+            gradient='subtle'>
+    <!-- Header -->
+    <section class='shell pt-16 pb-14'>
+        <div class='cascade'>
+            <p class='kicker mb-5'>About · The person behind @joeinz</p>
+            <h1 class='font-display text-4xl md:text-[56px] font-semibold text-strong tracking-[-0.015em] leading-tight mb-6'>
+                The <span class='marker-wash'>person</span> behind <span class='marker-wash whitespace-nowrap'>the commits</span>.
+            </h1>
+            <p class='text-[21px] text-muted leading-relaxed max-w-[760px] mb-10'>
+                At my core, I'm a problem-solver. I thrive on untangling complex challenges by leading projects and
+                building software with the resources at hand. For me, technology isn't just about code; it's about
+                crafting smart, effective solutions that make a real difference.
+            </p>
+            {/* <Image src={Avatar} alt={FULL_NAME} class='w-full h-[240px] md:h-[360px] object-cover rounded-tile shadow-card'/> */}
+        </div>
+    </section>
 
-                <article>
-                    <h2>Education Journey</h2>
-                    <section class='grid grid-cols-1 md:grid-cols-2 gap-4 mt-4'>
-                        {education.map((edu) =>
-                                <EducationCard education={edu}/>)}
-                    </section>
-                </article>
-            </article>
-        </main>
+    <!-- Experience timeline -->
+    <section class='border-t border-hairline'>
+        <div class='shell py-[72px]'>
+            <p class='kicker mb-4'>2019 → Today · {experiences.length} roles</p>
+            <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-12'>
+                The story behind my experience.
+            </h2>
+            <div class='relative' id='experienceTimeline'>
+                <div id='timelineLine' class='absolute left-[13px] md:left-[23px] w-[2px] bg-hairline' aria-hidden='true'></div>
+                <div id='timelineMarker'
+                     class='absolute left-[7px] md:left-[17px] top-0 w-3.5 h-3.5 rounded-full bg-accent shadow-[0_0_0_5px_var(--accent-wash)] transition-transform duration-200 ease-out z-[2]'
+                     aria-hidden='true'></div>
+                {experiences.map((exp) => <ExperienceCard experience={exp}/>)}
+            </div>
+        </div>
+    </section>
+
+    <!-- Education -->
+    <section class='border-t border-hairline'>
+        <div class='shell py-[72px] reveal'>
+            <p class='kicker mb-4'>Education journey</p>
+            <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-10'>
+                Where it started.
+            </h2>
+            <div class='grid md:grid-cols-2 gap-6'>
+                {education.map((edu) => <EducationCard education={edu}/>)}
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <div class='border-t border-hairline'>
+        <ContactBlock variant='row'/>
     </div>
 </BaseLayout>
+
+<style is:global>
+    .timeline-entry .story-card {
+        transition: transform var(--dur-base) var(--ease-standard),
+            box-shadow var(--dur-base) var(--ease-standard);
+    }
+
+    .timeline-entry.is-active .story-card {
+        transform: scale(1.02);
+        box-shadow: var(--shadow-card);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .timeline-entry.is-active .story-card {
+            transform: none;
+        }
+    }
+</style>
+
+<script is:inline>
+    if (!window.__timelineBound) {
+        window.__timelineBound = true;
+
+        // The traveling dot follows a reading line at 35% of the viewport;
+        // the entry under that line is the focused one.
+        const DOT_CENTER_OFFSET = 55; /* rail pt-12 (48) + half dot (7) */
+        let ticking = false;
+
+        const update = () => {
+            ticking = false;
+            const timeline = document.getElementById('experienceTimeline');
+            const marker = document.getElementById('timelineMarker');
+            const line = document.getElementById('timelineLine');
+            if (!timeline || !marker || !line) return;
+            const entries = Array.from(timeline.querySelectorAll('.timeline-entry'));
+            if (!entries.length) return;
+
+            const focusY = window.innerHeight * 0.35 - timeline.getBoundingClientRect().top;
+            const firstCenter = entries[0].offsetTop + DOT_CENTER_OFFSET;
+            const lastCenter = entries[entries.length - 1].offsetTop + DOT_CENTER_OFFSET;
+
+            // The rail runs exactly from the first dot's center to the last dot's center
+            line.style.top = `${firstCenter}px`;
+            line.style.height = `${lastCenter - firstCenter}px`;
+
+            const y = Math.min(Math.max(focusY, firstCenter), lastCenter);
+            marker.style.transform = `translateY(${y - 7}px)`;
+
+            let active = entries[0];
+            for (const entry of entries) {
+                if (entry.offsetTop + DOT_CENTER_OFFSET - 14 <= y) active = entry;
+            }
+            entries.forEach((entry) => entry.classList.toggle('is-active', entry === active));
+        };
+
+        const request = () => {
+            if (!ticking) {
+                ticking = true;
+                requestAnimationFrame(update);
+            }
+        };
+
+        window.addEventListener('scroll', request, {passive: true});
+        window.addEventListener('resize', request, {passive: true});
+        document.addEventListener('astro:page-load', request);
+        // Re-measure when content height changes (story expand/collapse)
+        if ('ResizeObserver' in window) {
+            new ResizeObserver(request).observe(document.documentElement);
+        }
+    }
+</script>

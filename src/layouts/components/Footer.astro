@@ -1,26 +1,12 @@
 ---
-import {FULL_NAME, NICKNAME, LINKEDIN_ACCOUNT, EMAIL} from '../../consts';
-const today = new Date();
+import Byline from '@src/components/Byline.astro';
+import {FULL_NAME, NICKNAME} from '../../consts';
+const year = new Date().getFullYear();
 ---
 
-<footer class='container mt-8'>
-    <div class='py-8 text-center'>
-        <h3 class='text-xl font-bold mb-2'>I'm one message away</h3>
-        <p class='text-zinc-600 dark:text-zinc-300 mb-6'>
-            Reach out on <a href={LINKEDIN_ACCOUNT} target='_blank' rel='noopener noreferrer'
-                            class="underline hover:font-extrabold transition-all duration-200">LinkedIn</a>,
-            or send a direct <a href={`mailto:${EMAIL}`} rel='nofollow noopener'
-                                class="underline hover:font-extrabold transition-all duration-200">email</a>.
-            I'll be delighted to answer.
-        </p>
-    </div>
-    <div class='py-4 border-t dark:border-t-zinc-700'>
-        <div class='md:flex text-sm text-zinc-500 dark:text-zinc-300 prose dark:prose-invert justify-between'>
-            <div>Copyright © {today.getFullYear()} {FULL_NAME} - {NICKNAME}.</div>
-            <div>
-                Template created by <a href='https://devaradise.com' target='_blank' rel='nofollow noopener'>Syakir @
-                Devaradise</a> (Thank you)
-            </div>
-        </div>
+<footer class='border-t border-hairline'>
+    <div class='shell flex flex-col sm:flex-row items-center justify-between gap-4 py-8'>
+        <Byline/>
+        <p class='text-[13px] text-muted'>© {year} {FULL_NAME} · {NICKNAME}</p>
     </div>
 </footer>

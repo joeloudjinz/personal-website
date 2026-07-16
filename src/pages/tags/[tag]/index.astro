@@ -23,11 +23,15 @@ const description = `All Posts Tagged with ${tagName}`;
 <BaseLayout
 	title={title}
 	description={description}
+	gradient='warm'
 >
-  <div class='container'>
-    <div class="mb-10">
-      <h1 class="text-3xl font-bold mb-2">{title}</h1>
-    </div>
+  <section class='shell pt-16 pb-6 cascade'>
+    <p class='kicker mb-5'>Field notes · By tag</p>
+    <h1 class='font-display text-4xl md:text-[56px] font-semibold text-strong tracking-[-0.015em] leading-tight'>
+      Tagged with <span class='marker-wash'>{tagName}</span>.
+    </h1>
+  </section>
+  <section class='shell pb-[72px]'>
     <PostsByYear posts={taggedPosts}/>
-  </div>
+  </section>
 </BaseLayout>

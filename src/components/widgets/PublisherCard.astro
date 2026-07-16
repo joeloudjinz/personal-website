@@ -1,0 +1,52 @@
+---
+import {Image} from 'astro:assets';
+import Ava from '@src/assets/img/ava.jpg';
+import GithubInk from '@src/assets/img/github-ink.svg';
+import GithubCream from '@src/assets/img/github-cream.svg';
+import LinkedinInk from '@src/assets/img/linkedin-ink.svg';
+import LinkedinCream from '@src/assets/img/linkedin-cream.svg';
+import {FULL_NAME, GITHUB_ACCOUNT, LINKEDIN_ACCOUNT} from '@src/consts';
+
+interface Props {
+    pubDate: string;
+    readingTime: number;
+}
+
+const {pubDate, readingTime} = Astro.props;
+---
+
+<div class='cardx p-[26px]'>
+    <div class='flex items-center gap-4 pb-5'>
+        <Image src={Ava} alt={FULL_NAME} width={104}
+               class='w-[52px] h-[52px] rounded-full object-cover shrink-0'/>
+        <div>
+            <p class='font-display text-lg font-semibold text-strong leading-tight'>{FULL_NAME}</p>
+            <p class='text-[13px] text-muted mt-1'>Senior software engineer · <span class='text-accent'>@joeinz</span></p>
+        </div>
+    </div>
+
+    <div class='border-t border-hairline py-4 space-y-2.5'>
+        <div class='flex justify-between text-[13px]'>
+            <span class='text-muted'>Published</span>
+            <span class='text-strong font-medium tabular-nums'>{pubDate}</span>
+        </div>
+        <div class='flex justify-between text-[13px]'>
+            <span class='text-muted'>Reading time</span>
+            <span class='text-strong font-medium tabular-nums'>{readingTime} min</span>
+        </div>
+    </div>
+
+    <div class='border-t border-hairline pt-4 flex items-center justify-between'>
+        <span class='flex items-center gap-3'>
+            <a href={GITHUB_ACCOUNT} target='_blank' aria-label='GitHub'>
+                <Image src={GithubInk} width={18} height={18} alt='' class='dark:hidden'/>
+                <Image src={GithubCream} width={18} height={18} alt='' class='hidden dark:block'/>
+            </a>
+            <a href={LINKEDIN_ACCOUNT} target='_blank' aria-label='LinkedIn'>
+                <Image src={LinkedinInk} width={18} height={18} alt='' class='dark:hidden'/>
+                <Image src={LinkedinCream} width={18} height={18} alt='' class='hidden dark:block'/>
+            </a>
+        </span>
+        <a href={LINKEDIN_ACCOUNT} target='_blank' class='arrow-link text-sm'>Follow <span class='arrow'>→</span></a>
+    </div>
+</div>

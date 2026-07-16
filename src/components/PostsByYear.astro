@@ -1,6 +1,5 @@
 ---
 import type {CollectionEntry} from 'astro:content';
-import PostItem from './PostItem.astro';
 
 type BlogPost = CollectionEntry<'blog'>;
 interface Props {
@@ -27,15 +26,27 @@ function groupPostsByYear(posts: BlogPost[]) {
 }
 
 const groupedPosts = groupPostsByYear(posts);
+
+const shortDate = (date: Date) =>
+    date.toLocaleDateString('en-us', {month: 'short', day: '2-digit', timeZone: 'UTC'});
 ---
 
-{groupedPosts.map(({ year, posts }) => (
-<div class="mb-8">
-    <h2 class="text-2xl font-bold mb-4">{year}</h2>
-    <div>
-        {posts.map((post: BlogPost) => (
-                <PostItem post={post}/>
-        ))}
-    </div>
-</div>
-    ))}
+{groupedPosts.map(({year, posts}) => (
+        <div class='grid md:grid-cols-[200px_1fr] gap-4 md:gap-12 border-t border-hairline first:border-t-0 py-10 reveal'>
+            <div class='font-display text-[56px] md:text-[72px] font-semibold text-accent leading-none'>{year}</div>
+            <div>
+                {posts.map((post) => (
+                        <a href={`/${post.id}/`}
+                           class='flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 py-6 border-b border-hairline last:border-b-0 group'>
+                            <span class='text-sm text-muted tabular-nums w-[100px] shrink-0'>{shortDate(post.data.pubDate)}</span>
+                            <span class='font-display text-xl md:text-[26px] font-semibold text-strong leading-snug grow group-hover:text-accent transition-colors duration-200'>
+                                {post.data.title}
+                            </span>
+                            <span class='flex gap-2 flex-wrap shrink-0'>
+                                {(post.data.tags ?? []).map((tag) => <span class='chip'>{tag}</span>)}
+                            </span>
+                        </a>
+                ))}
+            </div>
+        </div>
+))}
