@@ -5,6 +5,13 @@ import {getOrderedProjects} from '../../utils/projects';
 
 const projects = await getOrderedProjects();
 const nugetCount = projects.filter((project) => project.data.publishedPackageLink).length;
+
+// Row-major masonry: odd positions fill the left column, even the right,
+// so items 1|2, 3|4… pair up while every card keeps its natural height.
+const masonryColumns = [
+    projects.filter((_, i) => i % 2 === 0),
+    projects.filter((_, i) => i % 2 === 1)
+];
 ---
 
 <BaseLayout
@@ -25,8 +32,17 @@ const nugetCount = projects.filter((project) => project.data.publishedPackageLin
 
     <!-- Masonry grid -->
     <section class='shell pb-[72px]'>
-        <div class='md:columns-2 gap-6 reveal'>
+        <!-- Mobile: single column in list order -->
+        <div class='flex flex-col gap-6 md:hidden reveal'>
             {projects.map((project) => <ProjectItem project={project}/>)}
+        </div>
+        <!-- md+: two masonry columns paired row-major from the curated order -->
+        <div class='hidden md:grid md:grid-cols-2 gap-6 items-start reveal'>
+            {masonryColumns.map((column) => (
+                    <div class='flex flex-col gap-6'>
+                        {column.map((project) => <ProjectItem project={project}/>)}
+                    </div>
+            ))}
         </div>
         <p class='text-center font-display text-[21px] italic text-muted mt-14'>
             More projects are yet to come, inchallah.
