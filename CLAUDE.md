@@ -43,12 +43,14 @@ All site content lives in `src/content/` as Markdown files managed by Astro's co
 
 ### Layout & Components
 
-`src/layouts/BaseLayout.astro` wraps all pages; its building blocks (`BaseHead`, `Header`, `HeaderLink`, `Footer`) live in `src/layouts/components/`. Reusable components live in `src/components/` — card components for each content type, plus `Prose.astro` for Tailwind typography wrapping. Blog posts include `TableOfContent` (scroll-synced TOC from H2/H3 headings) and `AboutTheAuthor` sidebar widgets from `src/components/widgets/`.
+`src/layouts/BaseLayout.astro` wraps all pages (per-page `gradient` prop picks the background family: `glow`/`subtle`/`warm`); its building blocks (`BaseHead`, `Header`, `Footer`) live in `src/layouts/components/`. Reusable components live in `src/components/` — card components for each content type, `StackLine` (dotted tag lines), `Byline`, `ContactBlock`, `ToolboxMarquee`, plus `Prose.astro` for article typography. Blog posts include `TableOfContent` (H2 rows, scroll-synced) and `PublisherCard` sidebar widgets from `src/components/widgets/`, plus a reading-progress bar.
 
 ### Key Patterns
 
+- **Design system**: "Joe Inz" brand — semantic CSS custom properties in `src/styles/global.css` (cream/chocolate/caramel light, navy dark), mapped into Tailwind via `tailwind.config.mjs`. Fraunces (display) + Inter (UI/body) from Google Fonts. Shared classes: `.shell`, `.kicker`, `.cardx`, `.chip`, `.btn-*`, `.marker-wash`, `.stack-line`.
 - **Path alias**: `@src/*` maps to `src/*` (configured in tsconfig.json).
-- **Dark mode**: Class-based toggle (`selector` strategy), persisted in localStorage. Giscus comments sync theme via script.
+- **Dark mode**: `.theme-dark` class on `<html>` flips the semantic tokens (Tailwind `darkMode: ['selector', '.theme-dark']`), persisted in localStorage (checked before OS preference), re-applied on Astro View Transitions via `astro:after-swap`. Giscus comments sync theme via script.
+- **View transitions**: Astro `ClientRouter` in `BaseLayout`; per-page inline scripts bind via `astro:page-load` with window guards.
 - **External links**: Custom rehype plugin `src/autoNewTabExternalLinks.ts` opens external links in new tabs (excludes localhost:4321).
 - **Analytics**: Google Analytics 4 via inline gtag scripts in `BaseLayout.astro`. `PUBLIC_GTAG_MEASUREMENT_ID` is declared in the `env.schema` of `astro.config.mjs` (client/public).
 - **Comments**: Giscus integration in `[...slug].astro`, conditional on `GISCUS_*` env vars read via Vite's `loadEnv`.
@@ -57,7 +59,7 @@ All site content lives in `src/content/` as Markdown files managed by Astro's co
 
 ### Styling
 
-Tailwind CSS with `@tailwindcss/typography` plugin. Custom animated gradient utilities (`purple-red-gradient-wave`, `beige-amber-gradient-wave`) defined in `src/styles/global.css` as `@layer utilities`. Container max-width is 1024px.
+Tailwind CSS with `@tailwindcss/typography` plugin. All colors flow through the semantic tokens in `src/styles/global.css` — never hard-code palette values in components. Page backgrounds are gradients + a grain overlay (see `.page-grad-*` and `.grain-overlay`). Motion respects `prefers-reduced-motion`; content shell is 1440px with 96px side padding at desktop (`.shell`).
 
 ## Environment Variables
 
