@@ -18,9 +18,3 @@ Disallow: /.git/
 Disallow: /.github/
 Disallow: /.astro/
 Disallow: /node_modules/
-
-# Specific to this Astro site
-Disallow: /rss.xml
-
-# Host directive - specify preferred domain
-Host: https://abdellahaddoun.com
