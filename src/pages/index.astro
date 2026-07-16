@@ -21,9 +21,10 @@ const latestPosts = (await getSortedPosts()).slice(0, 4);
 const recommendations = (await getCollection('recommendations')).sort((a, b) => a.data.id - b.data.id);
 const interests = await getCollection('interests');
 
-// First sentence of the recommendation body, used as the pull quote
+// First sentence of the recommendation body, used as the pull quote.
+// Bodies contain raw HTML markup, so strip tags before extracting.
 const pullQuote = (body: string | undefined) => {
-    const text = (body ?? '').replace(/\s+/g, ' ').trim();
+    const text = (body ?? '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
     return text.match(/^.*?[.!?](?=\s|$)/)?.[0] ?? text;
 };
 
