@@ -1,5 +1,5 @@
 ---
 title: "Reading Books"
-description: "Delving into tech books, sci-fi novels, and biographies."
+description: "Delving into arabic novels, islamic books, and others."
 coverImage: '/interests/reading-cover.jpg'
 ---
