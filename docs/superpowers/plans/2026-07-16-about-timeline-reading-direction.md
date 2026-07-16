@@ -274,12 +274,23 @@ In `src/pages/about.astro`, inside the same `<style is:global>` block, add this 
 `.order-story .cue-forward` rule from Task 2:
 
 ```css
-    /* The leading card has nothing before it — true in either order, so :first-child
-       handles both without position logic. */
-    .timeline-entry:first-child .direction-cue {
+    /* The leading card has nothing before it. "Not preceded by another entry"
+       is true of whichever card leads, in either order, and is immune to the
+       rail divs, the flashback, and the script Vite injects between them in dev.
+       Do not narrow this to :first-child or an adjacent-sibling form — both
+       assume a fixed node layout and silently match nothing. */
+    .timeline-entry:not(.timeline-entry ~ .timeline-entry) .direction-cue {
         display: none;
     }
 ```
+
+**Do not use `:first-child` here, and do not "simplify" this selector.** This cost three review passes to catch.
+`#experienceTimeline`'s children are `#timelineLine`, `#timelineMarker`, then the entries — so the leading entry is
+the *third* child and `:first-child` matches nothing. The obvious repair, `#timelineMarker + .timeline-entry`, is also
+wrong: in `npm run dev`, Vite injects each component's hoisted script inline, so the marker's adjacent sibling is a
+`<script>`, not an entry. That form works in the production build (where scripts are bundled into `<head>`) and fails
+in dev — a split that hides the bug from anyone verifying against `dist/` alone. The `:not(... ~ ...)` form depends on
+no surrounding node layout at all. `CSS.supports('selector(.a:not(.a ~ .a))')` is true in current browsers.
 
 - [ ] **Step 3: Verify the build passes**
 
