@@ -50,7 +50,17 @@ const education = (await getCollection('education')).sort(
                 <div id='timelineMarker'
                      class='absolute left-[7px] md:left-[17px] top-0 w-3.5 h-3.5 rounded-full bg-accent shadow-[0_0_0_5px_var(--accent-wash)] transition-transform duration-200 ease-out z-[2]'
                      aria-hidden='true'></div>
-                {experiences.map((exp) => <ExperienceCard experience={exp}/>)}
+                {experiences.map((exp, index) => (
+                    <Fragment>
+                        <ExperienceCard experience={exp}/>
+                        {index === 0 && (
+                            <div id='timelineFlashback' class='grid grid-cols-[28px_1fr] md:grid-cols-[48px_1fr]'>
+                                <div></div>
+                                <p class='kicker mb-7'>How I got here</p>
+                            </div>
+                        )}
+                    </Fragment>
+                ))}
             </div>
         </div>
     </section>
