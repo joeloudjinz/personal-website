@@ -104,9 +104,10 @@ const education = (await getCollection('education')).sort(
         display: inline;
     }
 
-    /* The leading card has nothing before it — true in either order, so :first-child
-       handles both without position logic. */
-    .timeline-entry:first-child .direction-cue {
+    /* The leading card has nothing before it. The marker is always the node
+       immediately before it — in the SSR'd HTML and after any reorder — so this
+       matches in both orders with no position logic. */
+    #timelineMarker + .timeline-entry .direction-cue {
         display: none;
     }
 
