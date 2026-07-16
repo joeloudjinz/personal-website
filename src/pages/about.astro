@@ -1,11 +1,12 @@
 ---
-import {Image} from 'astro:assets';
+// Header image temporarily removed; a new one will replace it
+// import {Image} from 'astro:assets';
+// import Avatar from '@src/assets/img/ava-wide.jpg';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import Avatar from '@src/assets/img/ava-wide.jpg';
 import ExperienceCard from '../components/ExperienceCard.astro';
 import EducationCard from '../components/EducationCard.astro';
 import ContactBlock from '../components/ContactBlock.astro';
-import {FULL_NAME} from '../consts';
+// import {FULL_NAME} from '../consts';
 import {getCollection} from 'astro:content';
 import {getExperiences} from '../utils/experiences';
 
@@ -31,7 +32,7 @@ const education = (await getCollection('education')).sort(
                 building software with the resources at hand. For me, technology isn't just about code; it's about
                 crafting smart, effective solutions that make a real difference.
             </p>
-            <Image src={Avatar} alt={FULL_NAME} class='w-full h-[240px] md:h-[360px] object-cover rounded-tile shadow-card'/>
+            {/* <Image src={Avatar} alt={FULL_NAME} class='w-full h-[240px] md:h-[360px] object-cover rounded-tile shadow-card'/> */}
         </div>
     </section>
 
