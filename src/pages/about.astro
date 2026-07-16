@@ -104,6 +104,10 @@ const education = (await getCollection('education')).sort(
         display: inline;
     }
 
+    .order-story #timelineFlashback {
+        display: none;
+    }
+
     /* The leading card has nothing before it. The marker is always the node
        immediately before it — in the SSR'd HTML and after any reorder — so this
        matches in both orders with no position logic. */
@@ -119,10 +123,6 @@ const education = (await getCollection('education')).sort(
         background: var(--accent-wash);
         color: var(--text-strong);
         font-weight: 600;
-    }
-
-    .order-story #timelineFlashback {
-        display: none;
     }
 
     .timeline-entry .story-card {
@@ -234,8 +234,9 @@ const education = (await getCollection('education')).sort(
             // querySelectorAll order with offsetTop and would desync otherwise.
             ordered.forEach((entry) => timeline.appendChild(entry));
 
-            // The flashback frame only makes sense walking backwards; in story order
-            // the current role is last, so it is hidden by CSS and its position is moot.
+            // The re-append strands the flashback at the front, so re-seat it after
+            // the leading entry. In story order that lands it mid-list, which is moot —
+            // CSS hides it there.
             if (flashback) timeline.insertBefore(flashback, ordered[1] ?? null);
 
             section.classList.toggle('order-story', order === 'story');
@@ -257,9 +258,9 @@ const education = (await getCollection('education')).sort(
         };
 
         document.addEventListener('click', (event) => {
-            const button = event.target?.closest?.('.order-btn');
+            const button = event.target?.closest('.order-btn');
             if (!button) return;
-            const order = button.dataset.order;
+            const order = button.dataset.order === 'story' ? 'story' : 'latest';
             try {
                 localStorage.setItem(STORAGE_KEY, order);
             } catch {
@@ -268,7 +269,9 @@ const education = (await getCollection('education')).sort(
             applyOrder(order);
         });
 
-        // Re-apply on first load and after each View Transitions navigation.
-        document.addEventListener('astro:page-load', () => applyOrder(readStoredOrder()));
+        // Runs before paint to avoid a flash of the wrong order; astro:after-swap
+        // covers View Transitions navigations, matching how theme setup does it.
+        applyOrder(readStoredOrder());
+        document.addEventListener('astro:after-swap', () => applyOrder(readStoredOrder()));
     }
 </script>
