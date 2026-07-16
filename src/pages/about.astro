@@ -45,8 +45,8 @@ const education = (await getCollection('education')).sort(
             <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-6'>
                 The story behind my experience.
             </h2>
-            <div class='flex items-center gap-2 mb-12' id='orderControl'>
-                <span class='kicker'>Read</span>
+            <div class='flex items-center gap-2 mb-12' id='orderControl' role='group' aria-labelledby='orderControlLabel'>
+                <span class='kicker' id='orderControlLabel'>Read</span>
                 <button type='button' class='order-btn chip' data-order='latest' aria-pressed='true'>Latest first</button>
                 <button type='button' class='order-btn chip' data-order='story' aria-pressed='false'>Story order</button>
             </div>
