@@ -87,7 +87,7 @@ const RECOMMENDATIONS_URL = `${LINKEDIN_ACCOUNT}/details/recommendations/`;
                             ]}></span>
                             <span class='text-base font-semibold text-strong grow'>{exp.data.roleName}</span>
                             <span class='text-sm text-muted text-right hidden md:block'>
-                                {exp.data.companyName} · {exp.data.location}
+                                {[exp.data.companyName, exp.data.location].filter(Boolean).join(' · ')}
                             </span>
                         </div>
                 ))}

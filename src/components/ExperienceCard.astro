@@ -33,10 +33,10 @@ const workTypeLabel = workType.charAt(0).toUpperCase() + workType.slice(1);
         </div>
 
         <p class='text-sm text-muted mb-6'>
-            {companyUrl
+            {companyName && (companyUrl
                 ? <a href={companyUrl} target='_blank' class='text-info font-semibold'>{companyName}</a>
-                : <span class='text-info font-semibold'>{companyName}</span>}
-            <span> · {formatExperienceDate(startDate)} → {formatExperienceDate(endDate)} · {location}</span>
+                : <span class='text-info font-semibold'>{companyName}</span>)}
+            <span>{companyName && ' · '}{formatExperienceDate(startDate)} → {formatExperienceDate(endDate)} · {location}</span>
         </p>
 
         <div class:list={['story text-[15.5px] leading-[1.65] text-body', !current && 'collapsed']}>
