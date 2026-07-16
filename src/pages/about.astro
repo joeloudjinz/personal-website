@@ -42,9 +42,14 @@ const education = (await getCollection('education')).sort(
             <p class='kicker mb-4'>
                 <span class='cue-back'>Today → 2019</span><span class='cue-forward'>2019 → Today</span> · {experiences.length} roles
             </p>
-            <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-12'>
+            <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-6'>
                 The story behind my experience.
             </h2>
+            <div class='flex items-center gap-2 mb-12' id='orderControl'>
+                <span class='kicker'>Read</span>
+                <button type='button' class='order-btn chip' data-order='latest' aria-pressed='true'>Latest first</button>
+                <button type='button' class='order-btn chip' data-order='story' aria-pressed='false'>Story order</button>
+            </div>
             <div class='relative' id='experienceTimeline'>
                 <div id='timelineLine' class='absolute left-[13px] md:left-[23px] w-[2px] bg-hairline' aria-hidden='true'></div>
                 <div id='timelineMarker'
@@ -103,6 +108,16 @@ const education = (await getCollection('education')).sort(
        handles both without position logic. */
     .timeline-entry:first-child .direction-cue {
         display: none;
+    }
+
+    .order-btn {
+        cursor: pointer;
+    }
+
+    .order-btn[aria-pressed='true'] {
+        background: var(--accent-wash);
+        color: var(--text-strong);
+        font-weight: 600;
     }
 
     .timeline-entry .story-card {
