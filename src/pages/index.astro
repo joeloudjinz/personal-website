@@ -190,7 +190,7 @@ const RECOMMENDATIONS_URL = `${LINKEDIN_ACCOUNT}/details/recommendations/`;
                 {recommendations.map((rec) => (
                         <div class='cardx p-8'>
                             <blockquote class='font-display text-[19px] italic text-body leading-relaxed mb-5'>
-                                “{pullQuote(rec.body)}”
+                                “{rec.data.pullQuote ?? pullQuote(rec.body)}”
                             </blockquote>
                             <p class='text-[13.5px] text-muted'>
                                 {rec.data.name} · {rec.data.title} · {rec.data.relationship}
