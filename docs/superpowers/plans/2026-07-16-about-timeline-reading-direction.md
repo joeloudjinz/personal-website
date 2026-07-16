@@ -406,14 +406,20 @@ Change its bottom margin from `mb-12` to `mb-6` and insert the control after it,
             <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-6'>
                 The story behind my experience.
             </h2>
-            <div class='flex items-center gap-2 mb-12' id='orderControl'>
-                <span class='kicker'>Read</span>
+            <div class='flex items-center gap-2 mb-12' id='orderControl' role='group' aria-labelledby='orderControlLabel'>
+                <span class='kicker' id='orderControlLabel'>Read</span>
                 <button type='button' class='order-btn chip' data-order='latest' aria-pressed='true'>Latest first</button>
                 <button type='button' class='order-btn chip' data-order='story' aria-pressed='false'>Story order</button>
             </div>
 ```
 
 `.chip` is an existing shared class from `src/styles/global.css`.
+
+**Why `role='group'` + `aria-pressed`, and not a radiogroup:** two `aria-pressed` buttons on their own establish no relationship, so a screen reader announces them as unrelated toggles rather than a 1-of-2 choice, and the visible "Read" label is not programmatically associated with either. `role='group'` + `aria-labelledby` fixes both. The stricter pattern — `role='radiogroup'` + `role='radio'` + `aria-checked` — was considered and rejected: `role='radio'` promises arrow-key navigation between options, and Task 6 wires these with a plain click listener. Announcing a keyboard contract we do not honour is worse than the lighter pattern. Keeping `aria-pressed` also keeps Task 6's script and this task's `[aria-pressed='true']` CSS selector unchanged.
+
+**Known, accepted limitations** (raised in review, deliberately not fixed here):
+- The pressed and unpressed backgrounds differ by only ~1.39:1 contrast. Acceptable because `font-weight: 600` plus the `text-muted` → `text-strong` swap give a second, high-contrast channel (10.8:1 light, 7.6:1 dark), so the state is not signalled by colour alone.
+- `.order-btn` inherits the browser default focus ring. No interactive class in `global.css` defines a focus style, so this is consistent with the codebase rather than a regression. A project-wide focus style is a separate task.
 
 - [ ] **Step 2: Style the selected state**
 
