@@ -170,13 +170,22 @@
 		color: var(--accent);
 	}
 
-	/* Caramel marker wash behind key phrases */
+	/* Caramel marker wash behind key phrases. Painted by a pseudo-element inset
+	   vertically (em-scaled) so washes on adjacent lines can never overlap.
+	   Washed phrases must not wrap: pair multi-word phrases with whitespace-nowrap. */
 	.marker-wash {
-		background: var(--accent-wash);
+		position: relative;
+		isolation: isolate;
 		padding: 2px 10px;
+	}
+
+	.marker-wash::before {
+		content: '';
+		position: absolute;
+		inset: 0.14em 0;
+		background: var(--accent-wash);
 		border-radius: 8px;
-		box-decoration-break: clone;
-		-webkit-box-decoration-break: clone;
+		z-index: -1;
 	}
 
 	/* Buttons — pill; hover darkens ~7%, press nudges 1px. No scale, no bounce. */
@@ -332,7 +341,7 @@
 	.cascade > *:nth-child(4) { animation-delay: 240ms; }
 	.cascade > *:nth-child(5) { animation-delay: 320ms; }
 
-	.wash-wipe {
+	.wash-wipe::before {
 		transform-origin: left;
 		animation: wash-wipe var(--dur-slow) var(--ease-standard) 500ms backwards;
 	}
@@ -373,7 +382,7 @@
 	.marquee-track { animation: none; }
 	.badge-pulse { animation: none; }
 	.cascade > * { animation: none; opacity: 1; }
-	.wash-wipe { animation: none; }
+	.wash-wipe::before { animation: none; }
 	.reveal { opacity: 1; transform: none; }
 	.reveal.is-visible { transition: none; }
 
