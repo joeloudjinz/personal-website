@@ -6,23 +6,18 @@ import {formatExperienceDate, isCurrentRole} from '../utils/experiences';
 
 export interface Props {
     experience: CollectionEntry<'experiences'>;
-    isLast?: boolean;
 }
 
-const {experience, isLast = false} = Astro.props;
+const {experience} = Astro.props;
 const {Content} = await render(experience);
 const current = isCurrentRole(experience);
 const {roleName, companyName, companyUrl, startDate, endDate, location, workType, tags} = experience.data;
 const workTypeLabel = workType.charAt(0).toUpperCase() + workType.slice(1);
 ---
 
-<div class='grid grid-cols-[28px_1fr] md:grid-cols-[48px_1fr] reveal'>
+<div class='timeline-entry grid grid-cols-[28px_1fr] md:grid-cols-[48px_1fr] reveal'>
     <div class='flex flex-col items-center pt-12'>
-        <span class:list={[
-            'w-3.5 h-3.5 rounded-full shrink-0',
-            current ? 'bg-accent' : 'border-2 border-accent'
-        ]}></span>
-        {!isLast && <span class='w-[2px] grow bg-hairline mt-2'></span>}
+        <span class='w-3.5 h-3.5 rounded-full border-2 border-accent bg-surface relative z-[1] shrink-0'></span>
     </div>
 
     <div class='cardx p-6 md:p-10 mb-7 story-card'>

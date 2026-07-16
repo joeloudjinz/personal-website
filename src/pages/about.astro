@@ -43,10 +43,12 @@ const education = (await getCollection('education')).sort(
             <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-12'>
                 The story behind my experience.
             </h2>
-            <div>
-                {experiences.map((exp, i) => (
-                        <ExperienceCard experience={exp} isLast={i === experiences.length - 1}/>
-                ))}
+            <div class='relative' id='experienceTimeline'>
+                <div id='timelineLine' class='absolute left-[13px] md:left-[23px] w-[2px] bg-hairline' aria-hidden='true'></div>
+                <div id='timelineMarker'
+                     class='absolute left-[7px] md:left-[17px] top-0 w-3.5 h-3.5 rounded-full bg-accent shadow-[0_0_0_5px_var(--accent-wash)] transition-transform duration-200 ease-out z-[2]'
+                     aria-hidden='true'></div>
+                {experiences.map((exp) => <ExperienceCard experience={exp}/>)}
             </div>
         </div>
     </section>
@@ -69,3 +71,74 @@ const education = (await getCollection('education')).sort(
         <ContactBlock variant='row'/>
     </div>
 </BaseLayout>
+
+<style is:global>
+    .timeline-entry .story-card {
+        transition: transform var(--dur-base) var(--ease-standard),
+            box-shadow var(--dur-base) var(--ease-standard);
+    }
+
+    .timeline-entry.is-active .story-card {
+        transform: scale(1.02);
+        box-shadow: var(--shadow-card);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .timeline-entry.is-active .story-card {
+            transform: none;
+        }
+    }
+</style>
+
+<script is:inline>
+    if (!window.__timelineBound) {
+        window.__timelineBound = true;
+
+        // The traveling dot follows a reading line at 35% of the viewport;
+        // the entry under that line is the focused one.
+        const DOT_CENTER_OFFSET = 55; /* rail pt-12 (48) + half dot (7) */
+        let ticking = false;
+
+        const update = () => {
+            ticking = false;
+            const timeline = document.getElementById('experienceTimeline');
+            const marker = document.getElementById('timelineMarker');
+            const line = document.getElementById('timelineLine');
+            if (!timeline || !marker || !line) return;
+            const entries = Array.from(timeline.querySelectorAll('.timeline-entry'));
+            if (!entries.length) return;
+
+            const focusY = window.innerHeight * 0.35 - timeline.getBoundingClientRect().top;
+            const firstCenter = entries[0].offsetTop + DOT_CENTER_OFFSET;
+            const lastCenter = entries[entries.length - 1].offsetTop + DOT_CENTER_OFFSET;
+
+            // The rail runs exactly from the first dot's center to the last dot's center
+            line.style.top = `${firstCenter}px`;
+            line.style.height = `${lastCenter - firstCenter}px`;
+
+            const y = Math.min(Math.max(focusY, firstCenter), lastCenter);
+            marker.style.transform = `translateY(${y - 7}px)`;
+
+            let active = entries[0];
+            for (const entry of entries) {
+                if (entry.offsetTop + DOT_CENTER_OFFSET - 14 <= y) active = entry;
+            }
+            entries.forEach((entry) => entry.classList.toggle('is-active', entry === active));
+        };
+
+        const request = () => {
+            if (!ticking) {
+                ticking = true;
+                requestAnimationFrame(update);
+            }
+        };
+
+        window.addEventListener('scroll', request, {passive: true});
+        window.addEventListener('resize', request, {passive: true});
+        document.addEventListener('astro:page-load', request);
+        // Re-measure when content height changes (story expand/collapse)
+        if ('ResizeObserver' in window) {
+            new ResizeObserver(request).observe(document.documentElement);
+        }
+    }
+</script>
