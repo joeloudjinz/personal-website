@@ -51,32 +51,26 @@ const title = `All Tags`;
 const description = 'Post tags: concise keywords categorizing content for easy navigation and improved searchability'
 ---
 
-<BaseLayout title={title} description={description}>
-	<div class='container'>
-    <div class="mb-10">
-      <h1 class="text-3xl font-bold mb-2">{title}</h1>
-      <p class="text-zinc-700 dark:text-zinc-300 text-lg">{description}</p>
-    </div>
-    <div>
-      {groupedTags.map(({ letter, tags }) => (
-        <div class="flex gap-2 border-b dark:border-b-zinc-700 py-3 mb-5 capitalize">
-          <h2 class="text-2xl font-bold text-zinc-800 dark:text-zinc-200 w-7 shrink-0">{letter}</h2>
-          <div class='flex gap-2 flex-wrap'>
-            {
-              (tags || [] )?.map((tag: Tag) => (
-                <a
-                  class='border border-zinc-300 dark:border-zinc-700 rounded-2xl
-                    text-sm text-zinc-700 dark:text-zinc-300 no-underline px-3 py-1
-                    transition-all duration-700
-                  hover:border-zinc-700 dark:hover:border-zinc-300'
-                  href={`/tags/${tag.value}/`}>
-                  {tag.label} ({tag.postCount})
-                </a>
-              ))
-            }
-          </div>
-        </div>
-      ))}
-    </div>
-	</div>
+<BaseLayout title={title} description={description} gradient='warm'>
+	<section class='shell pt-16 pb-6 cascade'>
+		<p class='kicker mb-5'>Field notes · Every tag</p>
+		<h1 class='font-display text-4xl md:text-[56px] font-semibold text-strong tracking-[-0.015em] leading-tight mb-6'>
+			All tags.
+		</h1>
+		<p class='text-[21px] text-muted leading-relaxed max-w-[760px]'>{description}</p>
+	</section>
+	<section class='shell pb-[72px]'>
+		{groupedTags.map(({ letter, tags }) => (
+			<div class='flex gap-6 border-t border-hairline py-6 reveal'>
+				<h2 class='font-display text-[27px] font-semibold text-accent w-8 shrink-0 leading-none'>{letter}</h2>
+				<div class='flex gap-2.5 flex-wrap items-center'>
+					{tags.map((tag: Tag) => (
+						<a class='chip !text-sm !px-3 !py-1.5 no-underline' href={`/tags/${tag.value}/`}>
+							{tag.label} <span class='text-accent'>({tag.postCount})</span>
+						</a>
+					))}
+				</div>
+			</div>
+		))}
+	</section>
 </BaseLayout>
