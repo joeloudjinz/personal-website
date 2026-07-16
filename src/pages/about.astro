@@ -2,67 +2,69 @@
 import {Image} from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Avatar from '@src/assets/img/ava-wide.jpg';
-import Prose from '../components/Prose.astro';
 import ExperienceCard from '../components/ExperienceCard.astro';
 import EducationCard from '../components/EducationCard.astro';
-// import InterestCard from '../components/InterestCard.astro';
+import ContactBlock from '../components/ContactBlock.astro';
 import {FULL_NAME} from '../consts';
 import {getCollection} from 'astro:content';
+import {getExperiences} from '../utils/experiences';
 
-const experiences = (await getCollection('experiences')).sort((a, b) => {
-    // Extract numeric prefix from IDs and sort in ascending order
-    const numA = parseInt(a.data.id.match(/^\d+/)?.[0] ?? '0');
-    const numB = parseInt(b.data.id.match(/^\d+/)?.[0] ?? '0');
-    return numA - numB; // Ascending order
-});
-
-const education = (await getCollection('education')).sort((a, b) => {
-    // Sort by start date in descending order (most recent first)
-    return new Date(b.data.startDate).getTime() - new Date(a.data.startDate).getTime();
-});
-
-// const interests = (await getCollection('interests'));
+// Newest first: the current role leads the timeline, expanded
+const experiences = (await getExperiences()).reverse();
+const education = (await getCollection('education')).sort(
+    (a, b) => new Date(b.data.startDate).getTime() - new Date(a.data.startDate).getTime()
+);
 ---
 
 <BaseLayout title='About Abdellah Addoun'
-            description='Read and discover more about the next senior software engineer in your team, or the next team-player in your company.'>
-    <div class='container'>
-        <main class='prose text-lg dark:prose-invert'>
-            <article>
-                <div class='w-full md:flex md:items-center gap-16 mb-10'>
-                    <div class='text-pretty leading-9'>
-                        <h1 class='text-4xl font-bold mb-4'>Welcome to My Small Corner of the Wide Web</h1>
-                        <Prose>
-                            <div class='text-lg'>
-                                <p>
-                                    At my core, I'm a <span class='purple-red-gradient-wave'>problem-solver</span>.
-                                    I thrive on untangling complex challenges by <span class='purple-red-gradient-wave'>leading projects and building software with the resources at hand.</span>
-                                    <br/>
-                                    For me, technology isn't just about code; it's about crafting smart, effective
-                                    solutions that make a real difference. This page details my journey in life. Embrace
-                                    yourself, I'm glad you're here.
-                                </p>
-                            </div>
-                        </Prose>
-                    </div>
-                    <Image src={Avatar} alt={FULL_NAME} width={300} class='rounded-3xl rotate-3 mx-4 md:mx-0'/>
-                </div>
-                <article>
-                    <h2>The Story Behind My Experience</h2>
-                    <section class='space-y-4 mt-4'>
-                        {experiences.map((exp) =>
-                                <ExperienceCard experience={exp}/>)}
-                    </section>
-                </article>
+            description='Read and discover more about the next senior software engineer in your team, or the next team-player in your company.'
+            gradient='subtle'>
+    <!-- Header -->
+    <section class='shell pt-16 pb-14'>
+        <div class='cascade'>
+            <p class='kicker mb-5'>About · The person behind @joeinz</p>
+            <h1 class='font-display text-4xl md:text-[56px] font-semibold text-strong tracking-[-0.015em] leading-tight mb-6'>
+                Welcome to my small corner of the wide web.
+            </h1>
+            <p class='text-[21px] text-muted leading-relaxed max-w-[760px] mb-10'>
+                At my core, I'm a problem-solver. I thrive on untangling complex challenges by leading projects and
+                building software with the resources at hand. For me, technology isn't just about code; it's about
+                crafting smart, effective solutions that make a real difference.
+            </p>
+            <Image src={Avatar} alt={FULL_NAME} class='w-full h-[240px] md:h-[360px] object-cover rounded-tile shadow-card'/>
+        </div>
+    </section>
 
-                <article>
-                    <h2>Education Journey</h2>
-                    <section class='grid grid-cols-1 md:grid-cols-2 gap-4 mt-4'>
-                        {education.map((edu) =>
-                                <EducationCard education={edu}/>)}
-                    </section>
-                </article>
-            </article>
-        </main>
+    <!-- Experience timeline -->
+    <section class='border-t border-hairline'>
+        <div class='shell py-[72px]'>
+            <p class='kicker mb-4'>2019 → Today · {experiences.length} roles</p>
+            <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-12'>
+                The story behind my experience.
+            </h2>
+            <div>
+                {experiences.map((exp, i) => (
+                        <ExperienceCard experience={exp} isLast={i === experiences.length - 1}/>
+                ))}
+            </div>
+        </div>
+    </section>
+
+    <!-- Education -->
+    <section class='border-t border-hairline'>
+        <div class='shell py-[72px] reveal'>
+            <p class='kicker mb-4'>Education journey</p>
+            <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-10'>
+                Where it started.
+            </h2>
+            <div class='grid md:grid-cols-2 gap-6'>
+                {education.map((edu) => <EducationCard education={edu}/>)}
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <div class='border-t border-hairline'>
+        <ContactBlock variant='row'/>
     </div>
 </BaseLayout>
