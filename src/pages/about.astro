@@ -38,8 +38,10 @@ const education = (await getCollection('education')).sort(
 
     <!-- Experience timeline -->
     <section class='border-t border-hairline'>
-        <div class='shell py-[72px]'>
-            <p class='kicker mb-4'>2019 → Today · {experiences.length} roles</p>
+        <div class='shell py-[72px]' id='experienceSection'>
+            <p class='kicker mb-4'>
+                <span class='cue-back'>Today → 2019</span><span class='cue-forward'>2019 → Today</span> · {experiences.length} roles
+            </p>
             <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-12'>
                 The story behind my experience.
             </h2>
@@ -73,6 +75,20 @@ const education = (await getCollection('education')).sort(
 </BaseLayout>
 
 <style is:global>
+    /* Direction-dependent text is rendered twice; .order-story picks which shows.
+       This keeps the Phase 2 toggle to a single class flip — no string rewriting. */
+    .cue-forward {
+        display: none;
+    }
+
+    .order-story .cue-back {
+        display: none;
+    }
+
+    .order-story .cue-forward {
+        display: inline;
+    }
+
     .timeline-entry .story-card {
         /* Anchor the left edge so the gap to the timeline rail never changes */
         transform-origin: left center;
