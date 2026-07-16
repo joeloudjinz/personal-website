@@ -13,7 +13,7 @@ import {getSortedPosts} from '../utils/posts';
 import {getOrderedProjects} from '../utils/projects';
 import {getExperiences, isCurrentRole, formatExperienceDate} from '../utils/experiences';
 
-// Newest first — current role on top
+// Newest first, current role on top
 const experiences = (await getExperiences()).reverse();
 const skills = (await getCollection('majorSkills')).sort((a, b) => a.data.order - b.data.order);
 const featuredProjects = (await getOrderedProjects()).filter((p) => p.data.isFeatured).slice(0, 2);
@@ -41,11 +41,11 @@ const RECOMMENDATIONS_URL = `${LINKEDIN_ACCOUNT}/details/recommendations/`;
                     Senior software engineer · Ain Salah, Algeria
                 </p>
                 <h1 class='font-display text-5xl md:text-7xl font-semibold text-strong tracking-[-0.015em] leading-[1.1] mb-7'>
-                    Make it work — then <span class='marker-wash wash-wipe whitespace-nowrap'>make it last</span>.
+                    Make it work, then <span class='marker-wash wash-wipe whitespace-nowrap'>make it last</span>.
                 </h1>
                 <p class='text-[21px] text-muted leading-relaxed max-w-[560px] mb-9'>
                     At my core, I'm a problem-solver. I untangle complex challenges by leading teams and building
-                    software with the resources at hand — and I write about what I learn along the way.
+                    software with the resources at hand. I write about what I learn along the way.
                 </p>
                 <div class='flex flex-wrap gap-4'>
                     <a href='/about/' class='btn btn-primary btn-lg'>About me</a>
@@ -70,7 +70,7 @@ const RECOMMENDATIONS_URL = `${LINKEDIN_ACCOUNT}/details/recommendations/`;
                     The story behind my experience.
                 </h2>
                 <p class='text-base text-muted leading-relaxed mb-7'>
-                    Nine roles in seven years — from a first backend job in Dubai to leading backend, web and mobile
+                    Nine roles in seven years, from a first backend job in Dubai to leading backend, web and mobile
                     teams. The full story, with the lessons attached, lives on the About page.
                 </p>
                 <a href='/about/' class='btn btn-secondary arrow-link !text-strong'>Read the full story <span class='arrow'>→</span></a>
@@ -151,7 +151,7 @@ const RECOMMENDATIONS_URL = `${LINKEDIN_ACCOUNT}/details/recommendations/`;
                     I write now and then.
                 </h2>
                 <p class='text-base text-muted leading-relaxed mb-7'>
-                    Not often — only when there's something worth saying. Lessons from the trenches, system design
+                    Not often. Only when there's something worth saying. Lessons from the trenches, system design
                     notes, and the occasional prompt that earns its keep.
                 </p>
                 <a href='/posts/' class='arrow-link text-[15px]'>All posts <span class='arrow'>→</span></a>
