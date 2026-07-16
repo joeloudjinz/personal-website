@@ -74,6 +74,8 @@ const education = (await getCollection('education')).sort(
 
 <style is:global>
     .timeline-entry .story-card {
+        /* Anchor the left edge so the gap to the timeline rail never changes */
+        transform-origin: left center;
         transition: transform var(--dur-base) var(--ease-standard),
             box-shadow var(--dur-base) var(--ease-standard);
     }
@@ -119,9 +121,25 @@ const education = (await getCollection('education')).sort(
             const y = Math.min(Math.max(focusY, firstCenter), lastCenter);
             marker.style.transform = `translateY(${y - 7}px)`;
 
-            let active = entries[0];
+            // The entry whose milestone the traveling dot currently sits on
+            let markerEntry = entries[0];
             for (const entry of entries) {
-                if (entry.offsetTop + DOT_CENTER_OFFSET - 14 <= y) active = entry;
+                if (entry.offsetTop + DOT_CENTER_OFFSET - 14 <= y) markerEntry = entry;
+            }
+
+            // Focus that entry's card only once it is fully on screen (below the
+            // sticky nav); cards taller than the viewport qualify while they fill
+            // it. Measured from untransformed layout so the scale can't flicker.
+            const NAV_CLEARANCE = 88;
+            const viewportBottom = window.innerHeight;
+            const card = markerEntry.querySelector('.story-card');
+            let active = null;
+            if (card) {
+                const top = markerEntry.getBoundingClientRect().top;
+                const bottom = top + card.offsetHeight;
+                const fullyVisible = top >= NAV_CLEARANCE && bottom <= viewportBottom;
+                const fillsScreen = top <= NAV_CLEARANCE && bottom >= viewportBottom;
+                if (fullyVisible || fillsScreen) active = markerEntry;
             }
             entries.forEach((entry) => entry.classList.toggle('is-active', entry === active));
         };
