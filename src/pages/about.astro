@@ -55,8 +55,8 @@ const education = (await getCollection('education')).sort(
                         <ExperienceCard experience={exp}/>
                         {index === 0 && (
                             <div id='timelineFlashback' class='grid grid-cols-[28px_1fr] md:grid-cols-[48px_1fr]'>
-                                <div></div>
-                                <p class='kicker mb-7'>How I got here</p>
+                                <div aria-hidden='true'></div>
+                                <h3 class='kicker mb-7'>How I got here</h3>
                             </div>
                         )}
                     </Fragment>
