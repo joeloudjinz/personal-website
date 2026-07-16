@@ -57,7 +57,7 @@ const education = (await getCollection('education')).sort(
                      aria-hidden='true'></div>
                 {experiences.map((exp, index) => (
                     <Fragment>
-                        <ExperienceCard experience={exp}/>
+                        <ExperienceCard experience={exp} index={index}/>
                         {index === 0 && (
                             <div id='timelineFlashback' class='grid grid-cols-[28px_1fr] md:grid-cols-[48px_1fr]'>
                                 <div aria-hidden='true'></div>
@@ -118,6 +118,10 @@ const education = (await getCollection('education')).sort(
         background: var(--accent-wash);
         color: var(--text-strong);
         font-weight: 600;
+    }
+
+    .order-story #timelineFlashback {
+        display: none;
     }
 
     .timeline-entry .story-card {
@@ -205,5 +209,65 @@ const education = (await getCollection('education')).sort(
         if ('ResizeObserver' in window) {
             new ResizeObserver(request).observe(document.documentElement);
         }
+    }
+</script>
+
+<script is:inline>
+    if (!window.__orderToggleBound) {
+        window.__orderToggleBound = true;
+
+        const STORAGE_KEY = 'experienceOrder';
+
+        const applyOrder = (order) => {
+            const section = document.getElementById('experienceSection');
+            const timeline = document.getElementById('experienceTimeline');
+            const flashback = document.getElementById('timelineFlashback');
+            if (!section || !timeline) return;
+
+            // Sort back to render order first; after a reversal the DOM is no longer authoritative.
+            const entries = Array.from(timeline.querySelectorAll('.timeline-entry'))
+                .sort((a, b) => Number(a.dataset.index) - Number(b.dataset.index));
+            const ordered = order === 'story' ? entries.slice().reverse() : entries;
+
+            // Moving real nodes, not CSS column-reverse: the rail script pairs
+            // querySelectorAll order with offsetTop and would desync otherwise.
+            ordered.forEach((entry) => timeline.appendChild(entry));
+
+            // The flashback frame only makes sense walking backwards; in story order
+            // the current role is last, so it is hidden by CSS and its position is moot.
+            if (flashback) timeline.insertBefore(flashback, ordered[1] ?? null);
+
+            section.classList.toggle('order-story', order === 'story');
+
+            document.querySelectorAll('.order-btn').forEach((button) => {
+                button.setAttribute('aria-pressed', String(button.dataset.order === order));
+            });
+
+            // The rail's update() is closed over; it already listens for resize.
+            window.dispatchEvent(new Event('resize'));
+        };
+
+        const readStoredOrder = () => {
+            try {
+                return localStorage.getItem(STORAGE_KEY) === 'story' ? 'story' : 'latest';
+            } catch {
+                return 'latest';
+            }
+        };
+
+        document.addEventListener('click', (event) => {
+            const button = event.target?.closest?.('.order-btn');
+            if (!button) return;
+            const order = button.dataset.order;
+            try {
+                localStorage.setItem(STORAGE_KEY, order);
+            } catch {
+                /* private mode — the toggle still works for this page view */
+            }
+            applyOrder(order);
+        });
+
+        // Re-apply on first load and after each View Transitions navigation.
+        document.addEventListener('astro:page-load', () => applyOrder(readStoredOrder()));
     }
 </script>
