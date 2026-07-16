@@ -89,6 +89,12 @@ const education = (await getCollection('education')).sort(
         display: inline;
     }
 
+    /* The leading card has nothing before it — true in either order, so :first-child
+       handles both without position logic. */
+    .timeline-entry:first-child .direction-cue {
+        display: none;
+    }
+
     .timeline-entry .story-card {
         /* Anchor the left edge so the gap to the timeline rail never changes */
         transform-origin: left center;
