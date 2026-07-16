@@ -13,7 +13,8 @@ import {getSortedPosts} from '../utils/posts';
 import {getOrderedProjects} from '../utils/projects';
 import {getExperiences, isCurrentRole, formatExperienceDate} from '../utils/experiences';
 
-const experiences = await getExperiences();
+// Newest first — current role on top
+const experiences = (await getExperiences()).reverse();
 const skills = (await getCollection('majorSkills')).sort((a, b) => a.data.order - b.data.order);
 const featuredProjects = (await getOrderedProjects()).filter((p) => p.data.isFeatured).slice(0, 2);
 const latestPosts = (await getSortedPosts()).slice(0, 4);
