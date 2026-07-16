@@ -338,16 +338,24 @@ Replace it with:
                         <ExperienceCard experience={exp}/>
                         {index === 0 && (
                             <div id='timelineFlashback' class='grid grid-cols-[28px_1fr] md:grid-cols-[48px_1fr]'>
-                                <div></div>
-                                <p class='kicker mb-7'>How I got here</p>
+                                <div aria-hidden='true'></div>
+                                <h3 class='kicker mb-7'>How I got here</h3>
                             </div>
                         )}
                     </Fragment>
                 ))}
 ```
 
-The empty `<div></div>` occupies the rail column so the text aligns with the cards, matching the
-`grid-cols-[28px_1fr] md:grid-cols-[48px_1fr]` used by `ExperienceCard`.
+The empty `<div>` occupies the rail column so the text aligns with the cards, matching the
+`grid-cols-[28px_1fr] md:grid-cols-[48px_1fr]` used by `ExperienceCard`. It is `aria-hidden` to match how
+`#timelineMarker` and `#timelineLine` already mark presentational elements in this file.
+
+**Why `<h3>` and not `<p>`:** this sub-header's whole job is to reframe everything below it as a retrospective. As a
+`<p class='kicker'>` it would be the only kicker in the codebase that neither precedes a heading nor sits in a
+landmark — meaning a screen-reader user navigating by heading outline would never encounter it, and the reframing
+cue would be lost for exactly the users who most need explicit structure. `<h3>` keeps heading order valid: the
+section's `<h2>` is "The story behind my experience.", role titles are `<h3>`, so the sequence stays
+`h2 → h3 → h3 → …` with no skipped levels.
 
 - [ ] **Step 3: Verify the build passes**
 
