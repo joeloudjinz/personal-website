@@ -1,0 +1,38 @@
+---
+const logoModules = import.meta.glob('/src/assets/logos/*.svg', {eager: true, query: '?url', import: 'default'});
+
+const TOOLS = [
+    {file: 'DotNet', label: '.NET'},
+    {file: 'CSharp', label: 'C#'},
+    {file: 'Typescript', label: 'Typescript'},
+    {file: 'Angular', label: 'Angular'},
+    {file: 'NestJS', label: 'NestJS'},
+    {file: 'NodeJS', label: 'NodeJS'},
+    {file: 'Flutter', label: 'Flutter'},
+    {file: 'Dart', label: 'Dart'},
+    {file: 'AWS', label: 'AWS'},
+    {file: 'MySQL', label: 'MySQL'},
+    {file: 'Postgres', label: 'Postgres'},
+    {file: 'Docker', label: 'Docker'},
+    {file: 'Firebase', label: 'Firebase'},
+    {file: 'Stripe', label: 'Stripe'},
+    {file: 'DataDog', label: 'DataDog'},
+    {file: 'Kafka', label: 'Kafka'}
+];
+
+const tiles = TOOLS
+    .map((tool) => ({label: tool.label, url: logoModules[`/src/assets/logos/${tool.file}-logo.svg`] as string | undefined}))
+    .filter((tile): tile is {label: string; url: string} => !!tile.url);
+---
+
+<div class='marquee overflow-hidden' role='img' aria-label={`Technologies: ${tiles.map((t) => t.label).join(', ')}`}>
+    <div class='marquee-track'>
+        {[...tiles, ...tiles].map((tile) => (
+                <div class='cardx !rounded-[12px] flex flex-col items-center justify-center gap-3 w-[118px] py-5 mx-2 shrink-0'
+                     aria-hidden='true'>
+                    <img src={tile.url} alt='' class='h-[34px] w-auto max-w-[70px] object-contain' loading='lazy'/>
+                    <span class='text-xs text-muted'>{tile.label}</span>
+                </div>
+        ))}
+    </div>
+</div>

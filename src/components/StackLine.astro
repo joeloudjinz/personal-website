@@ -1,0 +1,16 @@
+---
+interface Props {
+    tags: string[];
+    label?: string;
+}
+
+const {tags, label} = Astro.props;
+---
+
+<p class='stack-line'>
+    {label && <span class='stack-label'>{label}</span>}{
+        tags.map((tag, i) => (
+            <Fragment>{i > 0 && <span class='stack-dot'>·</span>}<span>{tag}</span></Fragment>
+        ))
+    }
+</p>
