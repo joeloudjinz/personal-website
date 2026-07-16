@@ -186,6 +186,14 @@
 		background: var(--accent-wash);
 		border-radius: 8px;
 		z-index: -1;
+		transform: scaleX(0);
+		transform-origin: left;
+		transition: transform var(--dur-slow) var(--ease-standard) 350ms;
+	}
+
+	/* Wipes in left to right once scrolled into view (observer in BaseLayout) */
+	.marker-wash.is-visible::before {
+		transform: scaleX(1);
 	}
 
 	/* Buttons — pill; hover darkens ~7%, press nudges 1px. No scale, no bounce. */
@@ -341,11 +349,6 @@
 	.cascade > *:nth-child(4) { animation-delay: 240ms; }
 	.cascade > *:nth-child(5) { animation-delay: 320ms; }
 
-	.wash-wipe::before {
-		transform-origin: left;
-		animation: wash-wipe var(--dur-slow) var(--ease-standard) 500ms backwards;
-	}
-
 	/* Reading progress hairline (post detail) */
 	.reading-progress {
 		position: sticky;
@@ -363,11 +366,6 @@
 	to { opacity: 1; transform: none; }
 }
 
-@keyframes wash-wipe {
-	from { transform: scaleX(0); }
-	to { transform: scaleX(1); }
-}
-
 @keyframes marquee {
 	from { transform: translateX(0); }
 	to { transform: translateX(-50%); }
@@ -382,7 +380,7 @@
 	.marquee-track { animation: none; }
 	.badge-pulse { animation: none; }
 	.cascade > * { animation: none; opacity: 1; }
-	.wash-wipe::before { animation: none; }
+	.marker-wash::before { transform: none; transition: none; }
 	.reveal { opacity: 1; transform: none; }
 	.reveal.is-visible { transition: none; }
 
