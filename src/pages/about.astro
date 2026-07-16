@@ -108,10 +108,12 @@ const education = (await getCollection('education')).sort(
         display: none;
     }
 
-    /* The leading card has nothing before it. The marker is always the node
-       immediately before it — in the SSR'd HTML and after any reorder — so this
-       matches in both orders with no position logic. */
-    #timelineMarker + .timeline-entry .direction-cue {
+    /* The leading card has nothing before it. "Not preceded by another entry"
+       is true of whichever card leads, in either order, and is immune to the
+       rail divs, the flashback, and the script Vite injects between them in dev.
+       Do not narrow this to :first-child or an adjacent-sibling form — both
+       assume a fixed node layout and silently match nothing. */
+    .timeline-entry:not(.timeline-entry ~ .timeline-entry) .direction-cue {
         display: none;
     }
 
