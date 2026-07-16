@@ -2,7 +2,7 @@
 const logoModules = import.meta.glob('/src/assets/logos/*.svg', {eager: true, query: '?url', import: 'default'});
 
 // loved: tools I like, use a lot and am most familiar with — rendered bigger,
-// with a heart and a shimmer
+// with a pulsing heart
 const TOOLS = [
     {file: 'DotNet', label: '.NET', loved: true},
     {file: 'CSharp', label: 'C#', loved: true},
@@ -80,3 +80,57 @@ const ariaLabel = `Technologies: ${tiles.map((t) => t.loved ? `${t.label} (favor
     }
 </style>
 
+
+<script is:inline>
+    if (!window.__toolboxMarqueeBound) {
+        window.__toolboxMarqueeBound = true;
+
+        // Takes over the CSS marquee animation with a JS-driven offset so the
+        // wheel can scrub through the loop; keeps the same 48s speed, pauses
+        // on hover, and wraps seamlessly over the duplicated tile set.
+        const LOOP_MS = 48000;
+
+        const init = () => {
+            const marquee = document.getElementById('toolboxMarquee');
+            const track = document.getElementById('toolboxTrack');
+            if (!marquee || !track || track.dataset.bound) return;
+            track.dataset.bound = '1';
+            track.style.animation = 'none';
+
+            const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            let half = track.scrollWidth / 2;
+            let offset = 0;
+            let hovered = false;
+            let last = performance.now();
+
+            const apply = () => {
+                offset = ((offset % half) + half) % half;
+                track.style.transform = `translateX(${-offset}px)`;
+            };
+
+            const tick = (now) => {
+                if (!track.isConnected) return;
+                const elapsed = now - last;
+                last = now;
+                if (!hovered && !reduced) {
+                    offset += (half / LOOP_MS) * elapsed;
+                    apply();
+                }
+                requestAnimationFrame(tick);
+            };
+
+            marquee.addEventListener('mouseenter', () => { hovered = true; });
+            marquee.addEventListener('mouseleave', () => { hovered = false; });
+            marquee.addEventListener('wheel', (event) => {
+                event.preventDefault();
+                offset += (event.deltaY || 0) + (event.deltaX || 0);
+                apply();
+            }, {passive: false});
+            window.addEventListener('resize', () => { half = track.scrollWidth / 2; }, {passive: true});
+
+            requestAnimationFrame(tick);
+        };
+
+        document.addEventListener('astro:page-load', init);
+    }
+</script>
