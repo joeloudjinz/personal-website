@@ -142,47 +142,53 @@ const education = (await getCollection('education')).sort(
        `.story.collapsed + .story-toggle` matches only while there is something left to
        read — so the current role, expanded on load showing "Show less ↑", never shimmers.
        Only one card is ever active, so only one button ever glints. */
+    /* The glint runs THROUGH the letterforms, not behind them — a wash on a padded box reads
+       as a highlighted rectangle, not a shimmer.
+
+       The glint is caramel mixed toward --text-strong, and that token is what makes this
+       work: it flips per theme (choc ink on cream, cream on navy), so the mix automatically
+       moves AWAY from the background in both — darker on light, lighter on dark. Pure
+       --accent cannot be used as text here: measured against the card surface it is 3.69:1
+       in light and 3.37:1 in dark, both under the 4.5:1 AA floor, because caramel is a
+       mid-tone that is low-contrast on cream AND on navy. At 70% the mix measures 5.74:1
+       light / 4.92:1 dark. 80% already fails dark at 4.33:1 — do not push it warmer. */
     .timeline-entry.is-active .story.collapsed + .story-toggle {
-        position: relative;
-        isolation: isolate;
-    }
-
-    /* The wash sweeps BEHIND the label, not through it.
-
-       Caramel cannot be a text colour here. Measured against the card surface, --accent is
-       3.69:1 in light and 3.37:1 in dark — both under the 4.5:1 AA floor — and dark mode's
-       --info base is already only 4.53:1, so there is no headroom to tint toward caramel at
-       all. Caramel is a mid-tone: low contrast on cream AND on navy. That is exactly why the
-       design system uses it for the rail dot (a shape) and as --accent-wash (a background),
-       never as text. Sweeping the wash underneath keeps the label at full --info contrast
-       (7.91 light / 4.53 dark) while still reading as a warm caramel glint. */
-    .timeline-entry.is-active .story.collapsed + .story-toggle::before {
-        content: '';
-        position: absolute;
-        inset: -2px -6px;
-        z-index: -1;
-        border-radius: 4px;
         background-image: linear-gradient(100deg,
-            transparent 40%, var(--accent-wash) 50%, transparent 60%);
-        background-size: 300% 100%;
+            var(--info) 40%,
+            color-mix(in srgb, var(--accent) 70%, var(--text-strong)) 50%,
+            var(--info) 60%);
+        background-size: 250% 100%;
         background-repeat: no-repeat;
-        animation: toggle-glint 4s var(--ease-standard) infinite;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: toggle-glint 5s linear infinite;
     }
 
-    /* Sweep across the first 30% (~1.2s), then rest. A continuous shimmer would sit in the
-       exact spot the reader is reading — the card is active because their eyes are there. */
+    /* Sweep across the first 45% (~2.25s), then rest ~2.75s. A continuous shimmer would sit
+       in the exact spot the reader is reading, since the card is active precisely because
+       their eyes are there.
+
+       `linear`, deliberately, NOT --ease-standard. That token is an ease-out, and easing the
+       whole animation front-loads the travel: measured, it covered most of its distance in
+       the first 500ms and then crawled — a blink, then nothing. A traveling band has to move
+       at constant speed to read as a sweep. Easing is for transitions, not for this. */
     @keyframes toggle-glint {
         0% {
             background-position: 150% 0;
         }
-        30%, 100% {
+        45%, 100% {
             background-position: -150% 0;
         }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .timeline-entry.is-active .story.collapsed + .story-toggle::before {
-            content: none;
+        .timeline-entry.is-active .story.collapsed + .story-toggle {
+            background-image: none;
+            animation: none;
+            /* must be restored — background-clip:text with a transparent colour would
+               otherwise leave the label invisible */
+            color: var(--info);
         }
     }
 
