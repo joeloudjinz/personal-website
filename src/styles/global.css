@@ -263,6 +263,10 @@
 
 	/* Dotted stack line — items separated by caramel middle dots, no chips */
 	.stack-line {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		column-gap: 7px;
 		font-size: 13px;
 		line-height: 2;
 		color: var(--text-muted);
@@ -274,12 +278,17 @@
 		letter-spacing: .12em;
 		text-transform: uppercase;
 		color: var(--accent);
-		margin-right: 10px;
+		margin-right: 3px;
 	}
 
-	.stack-line .stack-dot {
+	/* The dot rides at the START of each tag after the first, so it stays glued to its
+	   tag and can never wrap onto a new line alone the way a standalone flex item would.
+	   column-gap (7px) sits before the dot, margin-right (7px) after it — matching the old
+	   `margin: 0 7px` dot spacing exactly. */
+	.stack-line .stack-tag + .stack-tag::before {
+		content: '·';
 		color: var(--accent);
-		margin: 0 7px;
+		margin-right: 7px;
 	}
 
 	/* Badges */

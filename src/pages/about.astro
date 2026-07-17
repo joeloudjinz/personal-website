@@ -38,17 +38,24 @@ const education = (await getCollection('education')).sort(
 
     <!-- Experience timeline -->
     <section class='border-t border-hairline'>
-        <div class='shell py-[72px]'>
-            <p class='kicker mb-4'>2019 → Today · {experiences.length} roles</p>
-            <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-12'>
+        <div class='shell py-[72px]' id='experienceSection'>
+            <p class='kicker mb-4'>
+                <span class='cue-back'>Today → 2019</span><span class='cue-forward'>2019 → Today</span> · {experiences.length} roles
+            </p>
+            <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-6'>
                 The story behind my experience.
             </h2>
+            <div class='flex items-center gap-2 mb-12' id='orderControl' role='group' aria-labelledby='orderControlLabel'>
+                <span class='kicker' id='orderControlLabel'>Read</span>
+                <button type='button' class='order-btn chip' data-order='latest' aria-pressed='true'>Latest first</button>
+                <button type='button' class='order-btn chip' data-order='story' aria-pressed='false'>Story order</button>
+            </div>
             <div class='relative' id='experienceTimeline'>
                 <div id='timelineLine' class='absolute left-[13px] md:left-[23px] w-[2px] bg-hairline' aria-hidden='true'></div>
                 <div id='timelineMarker'
                      class='absolute left-[7px] md:left-[17px] top-0 w-3.5 h-3.5 rounded-full bg-accent shadow-[0_0_0_5px_var(--accent-wash)] transition-transform duration-200 ease-out z-[2]'
                      aria-hidden='true'></div>
-                {experiences.map((exp) => <ExperienceCard experience={exp}/>)}
+                {experiences.map((exp, index) => <ExperienceCard experience={exp} index={index}/>)}
             </div>
         </div>
     </section>
@@ -73,6 +80,148 @@ const education = (await getCollection('education')).sort(
 </BaseLayout>
 
 <style is:global>
+    /* Direction-dependent text is rendered twice; .order-story picks which shows.
+       This keeps the Phase 2 toggle to a single class flip — no string rewriting. */
+    .cue-forward {
+        display: none;
+    }
+
+    .order-story .cue-back {
+        display: none;
+    }
+
+    .order-story .cue-forward {
+        display: inline;
+    }
+
+    /* The leading card has nothing before it. "Not preceded by another entry"
+       is true of whichever card leads, in either order, and is immune to the
+       rail divs and the script Vite injects between them in dev. Do not narrow
+       this to :first-child or an adjacent-sibling form — both assume a fixed
+       node layout and silently match nothing. */
+    .timeline-entry:not(.timeline-entry ~ .timeline-entry) .direction-cue {
+        display: none;
+    }
+
+    .order-btn {
+        cursor: pointer;
+    }
+
+    .order-btn[aria-pressed='true'] {
+        background: var(--accent-wash);
+        color: var(--text-strong);
+        font-weight: 600;
+    }
+
+    /* The cursor is created by script, so it cannot live in ExperienceCard's scoped styles.
+
+       It MUST occupy zero width in the flow. It is inserted at the write head on every
+       frame, so if it took real inline width it would wrap onto a new line whenever the
+       write head neared the end of a full line — pushing the box past the min-height
+       reserved before it existed, which is the exact layout shift the grow-then-type
+       sequence exists to prevent. Measured: reserved 497px vs 522px actual. The block is
+       therefore painted by an absolutely-positioned ::after, which is outside the flow. */
+    /* An occasional caramel glint through the toggle, inviting the reader in.
+
+       Scoped by two classes that already exist, so this needs no JavaScript:
+       `.is-active` is set by the rail script on the card the traveling dot is on, and
+       `.story.collapsed + .story-toggle` matches only while there is something left to
+       read — so the current role, expanded on load showing "Show less ↑", never shimmers.
+       Only one card is ever active, so only one button ever glints. */
+    /* The glint runs THROUGH the letterforms, not behind them — a wash on a padded box reads
+       as a highlighted rectangle, not a shimmer.
+
+       The glint is caramel mixed toward --text-strong, and that token is what makes this
+       work: it flips per theme (choc ink on cream, cream on navy), so the mix automatically
+       moves AWAY from the background in both — darker on light, lighter on dark. Pure
+       --accent cannot be used as text here: measured against the card surface it is 3.69:1
+       in light and 3.37:1 in dark, both under the 4.5:1 AA floor, because caramel is a
+       mid-tone that is low-contrast on cream AND on navy. At 70% the mix measures 5.74:1
+       light / 4.92:1 dark. 80% already fails dark at 4.33:1 — do not push it warmer. */
+    .timeline-entry.is-active .story.collapsed + .story-toggle {
+        background-image: linear-gradient(100deg,
+            var(--info) 40%,
+            color-mix(in srgb, var(--accent) 70%, var(--text-strong)) 50%,
+            var(--info) 60%);
+        background-size: 250% 100%;
+        background-repeat: no-repeat;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: toggle-glint 5s linear infinite;
+    }
+
+    /* Sweep across the first 45% (~2.25s), then rest ~2.75s. A continuous shimmer would sit
+       in the exact spot the reader is reading, since the card is active precisely because
+       their eyes are there.
+
+       `linear`, deliberately, NOT --ease-standard. That token is an ease-out, and easing the
+       whole animation front-loads the travel: measured, it covered most of its distance in
+       the first 500ms and then crawled — a blink, then nothing. A traveling band has to move
+       at constant speed to read as a sweep. Easing is for transitions, not for this.
+
+       The 100% -> 0% range is a hard constraint, NOT a stylistic choice. With
+       background-size:250% the offset is (container - image) * P/100, so the image only
+       covers the label while P stays within 0-100%. Outside that range the uncovered text
+       has no background at all, and because background-clip:text pairs with
+       color:transparent, THE LABEL VANISHES. An earlier version swept 150% -> -150% and the
+       text was wiped out for the whole 2.75s rest. Within 0-100% the band still travels the
+       full width of the label — at P=100 it sits just left of it, at P=0 just right — so
+       nothing is lost by staying in range. */
+    @keyframes toggle-glint {
+        0% {
+            background-position: 100% 0;
+        }
+        45%, 100% {
+            background-position: 0% 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .timeline-entry.is-active .story.collapsed + .story-toggle {
+            background-image: none;
+            animation: none;
+            /* must be restored — background-clip:text with a transparent colour would
+               otherwise leave the label invisible */
+            color: var(--info);
+        }
+    }
+
+    .type-cursor {
+        position: relative;
+        display: inline-block;
+        width: 0;
+    }
+
+    .type-cursor::after {
+        content: '';
+        position: absolute;
+        left: 1px;
+        bottom: 0;
+        width: 0.5em;
+        height: 1em;
+        background: var(--accent);
+        animation: type-blink 1s steps(2, start) infinite;
+    }
+
+    .type-cursor.is-done::after {
+        animation: none;
+        opacity: 0;
+        transition: opacity var(--dur-base) var(--ease-standard);
+    }
+
+    @keyframes type-blink {
+        to {
+            visibility: hidden;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .type-cursor::after {
+            animation: none;
+        }
+    }
+
     .timeline-entry .story-card {
         /* Anchor the left edge so the gap to the timeline rail never changes */
         transform-origin: left center;
@@ -158,5 +307,344 @@ const education = (await getCollection('education')).sort(
         if ('ResizeObserver' in window) {
             new ResizeObserver(request).observe(document.documentElement);
         }
+    }
+</script>
+
+<script is:inline>
+    if (!window.__orderToggleBound) {
+        window.__orderToggleBound = true;
+
+        const STORAGE_KEY = 'experienceOrder';
+
+        const applyOrder = (order) => {
+            const section = document.getElementById('experienceSection');
+            const timeline = document.getElementById('experienceTimeline');
+            if (!section || !timeline) return;
+
+            // Sort back to render order first; after a reversal the DOM is no longer authoritative.
+            const entries = Array.from(timeline.querySelectorAll('.timeline-entry'))
+                .sort((a, b) => Number(a.dataset.index) - Number(b.dataset.index));
+            const ordered = order === 'story' ? entries.slice().reverse() : entries;
+
+            // Moving real nodes, not CSS column-reverse: the rail script pairs
+            // querySelectorAll order with offsetTop and would desync otherwise.
+            ordered.forEach((entry) => timeline.appendChild(entry));
+
+            section.classList.toggle('order-story', order === 'story');
+
+            document.querySelectorAll('.order-btn').forEach((button) => {
+                button.setAttribute('aria-pressed', String(button.dataset.order === order));
+            });
+
+            // The rail's update() is closed over; it already listens for resize.
+            window.dispatchEvent(new Event('resize'));
+        };
+
+        const readStoredOrder = () => {
+            try {
+                return localStorage.getItem(STORAGE_KEY) === 'story' ? 'story' : 'latest';
+            } catch {
+                return 'latest';
+            }
+        };
+
+        document.addEventListener('click', (event) => {
+            const button = event.target?.closest('.order-btn');
+            if (!button) return;
+            const order = button.dataset.order === 'story' ? 'story' : 'latest';
+            try {
+                localStorage.setItem(STORAGE_KEY, order);
+            } catch {
+                /* private mode — the toggle still works for this page view */
+            }
+            applyOrder(order);
+        });
+
+        // Runs before paint to avoid a flash of the wrong order; astro:after-swap
+        // covers View Transitions navigations, matching how theme setup does it.
+        applyOrder(readStoredOrder());
+        document.addEventListener('astro:after-swap', () => applyOrder(readStoredOrder()));
+    }
+</script>
+
+<script is:inline>
+    if (!window.__storyRevealBound) {
+        window.__storyRevealBound = true;
+
+        const D_TARGET = 12;       /* ms/char: the steady writing rate we aim for */
+        const CEILING = 6000;      /* ms: hard ceiling on one reveal, no matter how long */
+        const MAX_FRAME_MS = 50;   /* clamp a stalled frame so it cannot dump the story */
+        const GROW_MS = 340;       /* the .story min-height transition is 320ms */
+        const state = new WeakMap();
+
+        /* Flat character map over the story's text nodes. Walking text nodes (rather than
+           slicing innerHTML) is what keeps <strong> and the bullet list in 09-solo-engineer
+           intact. */
+        const buildState = (story) => {
+            const walker = document.createTreeWalker(story, NodeFilter.SHOW_TEXT);
+            const nodes = [];
+            let offset = 0;
+            let node;
+            while ((node = walker.nextNode())) {
+                const full = node.nodeValue || '';
+                nodes.push({node: node, full: full, start: offset, end: offset + full.length});
+                offset += full.length;
+            }
+            /* Blocks that leave an artefact when emptied: an empty <p> still occupies a
+               line, an empty <li> still paints its bullet via li::before. */
+            const blocks = Array.from(story.querySelectorAll('p, ul, ol, li')).map((el) => {
+                const inside = nodes.filter((n) => el.contains(n.node));
+                return {
+                    el: el,
+                    start: inside.length ? inside[0].start : 0,
+                    end: inside.length ? inside[inside.length - 1].end : 0
+                };
+            });
+            return {nodes: nodes, blocks: blocks, total: offset, cut: offset, cursor: null, raf: 0,
+                    growTimer: 0, typing: false};
+        };
+
+        /* Restore text up to character `upto`; empty everything after. Returns the last node
+           holding revealed, non-whitespace text — the anchor for the cursor.
+
+           Whitespace-only nodes MUST be skipped. Markdown renders `<p>…</p>\n<p>…</p>`, so
+           the `\n` between paragraphs is a text node whose parent is the `.story` div, not a
+           paragraph. Anchoring to it puts the cursor in BLOCK context, which forces an
+           anonymous block box costing a full line-height (measured +25.56px). */
+        const reveal = (story, upto) => {
+            const s = state.get(story);
+            let tail = null;
+            for (const item of s.nodes) {
+                if (item.end <= upto) {
+                    if (item.node.nodeValue !== item.full) item.node.nodeValue = item.full;
+                    if (item.full.trim()) tail = item;
+                } else if (item.start >= upto) {
+                    if (item.node.nodeValue !== '') item.node.nodeValue = '';
+                } else {
+                    const shown = item.full.slice(0, upto - item.start);
+                    item.node.nodeValue = shown;
+                    if (shown.trim()) tail = item;
+                }
+            }
+            for (const b of s.blocks) {
+                b.el.style.display = b.start >= upto && b.end > b.start ? 'none' : '';
+            }
+            return tail;
+        };
+
+        /* The teaser is the first block — a whole paragraph, a complete thought.
+
+           This is deliberately NOT a measurement. An earlier version cut at a measured
+           3-line boundary, and every bug this feature shipped came from that: the boundary
+           had to be re-measured because `text-wrap: pretty` re-wraps what remains once you
+           cut it, re-measured again on `fonts.ready` because the pre-paint pass uses
+           fallback metrics, and re-measured AGAIN on resize because a cut in characters
+           goes stale the moment the box changes width. A block boundary is a DOM fact:
+           width-independent, font-independent, wrap-independent. It needs none of that.
+
+           No ellipsis: the teaser ends on a real full stop, so a trailing "…" would read as
+           a typo. The toggle is the affordance. */
+        const truncate = (story) => {
+            const s = state.get(story);
+            /* The first TOP-LEVEL child, not s.blocks[0] — s.blocks mixes nesting levels
+               (p, ul, ol, li), so a story opening with a list would pick the <ul> and then
+               its <li> separately. */
+            const first = story.children[0];
+            const inside = first ? s.nodes.filter((n) => first.contains(n.node)) : [];
+            const end = inside.length ? inside[inside.length - 1].end : 0;
+            s.cut = end > 0 && end < s.total ? end : s.total;
+            reveal(story, s.cut);
+        };
+
+        const finish = (story) => {
+            const s = state.get(story);
+            if (s.growTimer) clearTimeout(s.growTimer);
+            s.growTimer = 0;
+            if (s.raf) cancelAnimationFrame(s.raf);
+            s.raf = 0;
+            s.typing = false;
+            reveal(story, s.total);
+            story.style.minHeight = '';
+            if (s.cursor) {
+                const cursor = s.cursor;
+                s.cursor = null;
+                cursor.classList.add('is-done');
+                setTimeout(() => cursor.remove(), 260);
+            }
+        };
+
+        /* Takes the tail `reveal` already computed. Do not re-derive it here: a second scan
+           with slightly different rules is a second definition of "the tail" that can drift
+           out of agreement, and it costs an extra O(n) pass every frame. */
+        const placeCursor = (story, tail) => {
+            const s = state.get(story);
+            if (!s.cursor || !tail) return;
+            const parent = tail.node.parentNode;
+            if (parent && s.cursor.previousSibling !== tail.node) {
+                parent.insertBefore(s.cursor, tail.node.nextSibling);
+            }
+        };
+
+        const type = (story) => {
+            const s = state.get(story);
+            /* The reader may have collapsed the card during the grow delay. */
+            if (story.classList.contains('collapsed')) return;
+            const from = s.cut;
+            const N = s.total - from;
+            if (N <= 0) {
+                finish(story);
+                return;
+            }
+
+            /* delay ramps dFast -> dSteady across the first third, then holds constant.
+               Integrating that gives T = 11*N*dSteady/12, hence dSteady = 12T/(11N).
+               Under the ceiling, dSteady resolves to exactly D_TARGET. */
+            const T = Math.min(CEILING, (11 * N * D_TARGET) / 12);
+            const dSteady = (12 * T) / (11 * N);
+            const dFast = dSteady / 2;
+            const delayAt = (i) => dFast + (dSteady - dFast) * Math.min(1, (i / N) * 3);
+
+            s.cursor = document.createElement('span');
+            s.cursor.className = 'type-cursor';
+            s.cursor.setAttribute('aria-hidden', 'true');
+            s.typing = true;
+
+            let revealed = from;
+            let acc = 0;
+            let last = performance.now();
+            const frame = (now) => {
+                acc += Math.min(now - last, MAX_FRAME_MS);
+                last = now;
+                while (revealed < s.total && acc >= delayAt(revealed - from)) {
+                    acc -= delayAt(revealed - from);
+                    revealed++;
+                }
+                placeCursor(story, reveal(story, revealed));
+                if (revealed >= s.total) {
+                    finish(story);
+                    return;
+                }
+                s.raf = requestAnimationFrame(frame);
+            };
+            s.raf = requestAnimationFrame(frame);
+        };
+
+        const expand = (story, button) => {
+            const s = state.get(story);
+            story.classList.remove('collapsed');
+            button.textContent = 'Show less ↑';
+            button.setAttribute('aria-expanded', 'true');
+
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                reveal(story, s.total);
+                story.style.minHeight = '';
+                return;
+            }
+
+            /* Measure the full height by briefly revealing everything. This is synchronous
+               and forces one reflow, so the browser never paints the revealed state. */
+            reveal(story, s.total);
+            const fullHeight = story.scrollHeight;
+            reveal(story, s.cut, true);
+
+            /* Reserve ONE LINE MORE than the finished text needs.
+
+               `p { text-wrap: pretty }` (global.css) rebalances a paragraph to avoid
+               orphans. A half-typed paragraph is a complete paragraph as far as CSS is
+               concerned, so mid-run it can push its last word onto an extra line and render
+               TALLER than the same paragraph will once fully revealed. Reserving only
+               fullHeight therefore leaves the box overflowing by one line for part of the
+               run, jittering everything below it — measured at exactly +25px on
+               06-teknika-backend-lead, and 0.98-1.02 line-heights across all eight stories,
+               which is what makes one line a safe bound.
+
+               The cursor is not the cause: it is width:0 with an absolutely-positioned
+               ::after. (Its own rect measures 0x0, but note that measuring the cursor's rect
+               cannot detect the case where it lands in block context — `reveal` skipping
+               whitespace-only nodes is what prevents that.) Do not "fix" this by padding for
+               the cursor.
+
+               min-height needs an explicit start value — auto will not transition. */
+            const lineHeight = parseFloat(getComputedStyle(story).lineHeight) || 0;
+            story.style.minHeight = story.offsetHeight + 'px';
+            void story.offsetHeight;
+            story.style.minHeight = fullHeight + lineHeight + 'px';
+
+            /* Cancel any grow timer still pending from a previous expand. Without this, a
+               fast expand -> collapse -> expand inside the 340ms grow window leaves a stale
+               timeout that fires type() a second time, and two rAF loops then race over the
+               same story sharing s.raf/s.cursor with last-write-wins — orphaning one loop
+               forever. Reproduced: three quick clicks produced two live cursors. */
+            if (s.growTimer) clearTimeout(s.growTimer);
+            s.growTimer = setTimeout(() => {
+                s.growTimer = 0;
+                type(story);
+            }, GROW_MS);
+        };
+
+        const collapse = (story, button) => {
+            const s = state.get(story);
+            if (s.growTimer) clearTimeout(s.growTimer); /* a run scheduled but not yet started */
+            s.growTimer = 0;
+            if (s.raf) cancelAnimationFrame(s.raf);
+            s.raf = 0;
+            s.typing = false;
+            if (s.cursor) {
+                s.cursor.remove();
+                s.cursor = null;
+            }
+            story.style.minHeight = '';
+            story.classList.add('collapsed');
+            button.textContent = 'Read the story ↓';
+            button.setAttribute('aria-expanded', 'false');
+            truncate(story);
+        };
+
+        document.addEventListener('click', (event) => {
+            const card = event.target?.closest('.story-card');
+            if (!card) return;
+            const story = card.querySelector('.story');
+            if (!story || !state.has(story)) return;
+
+            /* Mid-run, ANY click on the card finishes immediately — including one on the
+               toggle, which must not collapse a card the reader is waiting to read. */
+            if (state.get(story).typing) {
+                finish(story);
+                return;
+            }
+
+            const button = event.target?.closest('.story-toggle');
+            if (!button) return;
+            if (story.classList.contains('collapsed')) expand(story, button);
+            else collapse(story, button);
+        });
+
+        /* A card typing off-screen wastes frames and strands the reader with a
+           half-written story when they scroll back. */
+        const offscreenObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) return;
+                const story = entry.target.querySelector('.story');
+                if (story && state.has(story) && state.get(story).typing) finish(story);
+            });
+        }, {threshold: 0});
+
+        const initStories = () => {
+            /* IntersectionObserver holds STRONG references to its targets, and View
+               Transitions replace the cards on every navigation — without this, each return
+               to /about leaks the previous set. */
+            offscreenObserver.disconnect();
+            document.querySelectorAll('.story').forEach((story) => {
+                if (!state.has(story)) state.set(story, buildState(story));
+                if (story.classList.contains('collapsed')) truncate(story);
+            });
+            document.querySelectorAll('.story-card').forEach((card) => offscreenObserver.observe(card));
+        };
+        initStories();
+        document.addEventListener('astro:after-swap', initStories);
+
+        /* No resize listener and no fonts.ready re-truncate: the teaser is a block boundary,
+           so it does not depend on box width or font metrics and cannot go stale. Both were
+           required only by the measured-cut approach this replaces. */
     }
 </script>

@@ -1,12 +1,14 @@
 ---
 import Byline from '@src/components/Byline.astro';
+import SocialLinks from '@src/components/SocialLinks.astro';
 import {FULL_NAME, NICKNAME} from '../../consts';
 const year = new Date().getFullYear();
 ---
 
 <footer class='border-t border-hairline'>
-    <div class='shell flex flex-col sm:flex-row items-center justify-between gap-4 py-8'>
+    <div class='shell flex flex-col sm:flex-row items-center justify-between gap-5 py-8'>
         <Byline/>
+        <SocialLinks size={22}/>
         <p class='text-[13px] text-muted'>© {year} {FULL_NAME} · {NICKNAME}</p>
     </div>
 </footer>

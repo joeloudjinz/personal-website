@@ -6,21 +6,27 @@ import {formatExperienceDate, isCurrentRole} from '../utils/experiences';
 
 export interface Props {
     experience: CollectionEntry<'experiences'>;
+    index: number;
 }
 
-const {experience} = Astro.props;
+const {experience, index} = Astro.props;
 const {Content} = await render(experience);
 const current = isCurrentRole(experience);
 const {roleName, companyName, companyUrl, startDate, endDate, location, workType, tags} = experience.data;
 const workTypeLabel = workType.charAt(0).toUpperCase() + workType.slice(1);
+const startYear = startDate.slice(0, 4);
 ---
 
-<div class='timeline-entry grid grid-cols-[28px_1fr] md:grid-cols-[48px_1fr] reveal'>
-    <div class='flex flex-col items-center pt-12'>
+<div class='timeline-entry grid grid-cols-[28px_minmax(0,1fr)] md:grid-cols-[48px_minmax(0,1fr)] reveal' data-index={index}>
+    <div class='flex flex-col items-center pt-12 md:pt-6'>
+        <span class='hidden md:block text-[11px] font-semibold text-muted tabular-nums leading-[14px] mb-[10px]'>{startYear}</span>
         <span class='w-3.5 h-3.5 rounded-full border-2 border-accent bg-surface relative z-[1] shrink-0'></span>
     </div>
 
     <div class='cardx p-6 md:p-10 mb-7 story-card'>
+        <p class='direction-cue kicker mb-2'>
+            <span class='cue-back'>Before that</span><span class='cue-forward'>Then</span>
+        </p>
         <div class='flex items-center gap-3 flex-wrap mb-3'>
             <h3 class='font-display text-[27px] font-semibold text-strong leading-tight'>{roleName}</h3>
             {current && <span class='badge-accent'>Current</span>}
@@ -34,11 +40,13 @@ const workTypeLabel = workType.charAt(0).toUpperCase() + workType.slice(1);
             <span>{companyName && ' · '}{formatExperienceDate(startDate)} → {formatExperienceDate(endDate)} · {location}</span>
         </p>
 
-        <div class:list={['story text-[15.5px] leading-[1.65] text-body', !current && 'collapsed']}>
+        <div id={`story-${experience.id}`}
+             class:list={['story text-[15.5px] leading-[1.65] text-body', !current && 'collapsed']}>
             <Content/>
         </div>
         <button class='story-toggle text-sm font-semibold text-info mt-4'
-                aria-expanded={current ? 'true' : 'false'}>
+                aria-expanded={current ? 'true' : 'false'}
+                aria-controls={`story-${experience.id}`}>
             {current ? 'Show less ↑' : 'Read the story ↓'}
         </button>
 
@@ -51,12 +59,11 @@ const workTypeLabel = workType.charAt(0).toUpperCase() + workType.slice(1);
 <style>
     .story {
         overflow: hidden;
-        transition: max-height 320ms var(--ease-standard);
-    }
-
-    /* ~3 lines at 15.5px / 1.65 */
-    .story.collapsed {
-        max-height: 77px;
+        /* min-height, not max-height: once truncation replaces the clamp there is no
+           overflow to cap, and a max-height cannot RESERVE space. Task 2 grows this to
+           the story's full height before typing so the page does not shift while the
+           reader reads. */
+        transition: min-height 320ms var(--ease-standard);
     }
 
     .story :global(p + p) {
@@ -89,34 +96,3 @@ const workTypeLabel = workType.charAt(0).toUpperCase() + workType.slice(1);
         color: var(--text-strong);
     }
 </style>
-
-<script>
-    // One delegated handler animates every story's expand/collapse via max-height.
-    if (!(window as any).__storyToggleBound) {
-        (window as any).__storyToggleBound = true;
-        document.addEventListener('click', (event) => {
-            const button = (event.target as Element | null)?.closest('.story-toggle');
-            if (!button) return;
-            const story = button.closest('.story-card')?.querySelector('.story') as HTMLElement | null;
-            if (!story) return;
-
-            const collapsed = story.classList.contains('collapsed');
-            if (collapsed) {
-                story.classList.remove('collapsed');
-                story.style.maxHeight = `${story.scrollHeight}px`;
-                story.addEventListener('transitionend', () => {
-                    story.style.maxHeight = '';
-                }, {once: true});
-                button.textContent = 'Show less ↑';
-                button.setAttribute('aria-expanded', 'true');
-            } else {
-                story.style.maxHeight = `${story.scrollHeight}px`;
-                void story.offsetHeight;
-                story.style.maxHeight = '';
-                story.classList.add('collapsed');
-                button.textContent = 'Read the story ↓';
-                button.setAttribute('aria-expanded', 'false');
-            }
-        });
-    }
-</script>

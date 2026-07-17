@@ -1,0 +1,26 @@
+---
+import {Image} from 'astro:assets';
+import GithubInk from '@src/assets/img/github-ink.svg';
+import GithubCream from '@src/assets/img/github-cream.svg';
+import LinkedinInk from '@src/assets/img/linkedin-ink.svg';
+import LinkedinCream from '@src/assets/img/linkedin-cream.svg';
+import {GITHUB_ACCOUNT, LINKEDIN_ACCOUNT} from '../consts';
+
+interface Props {
+    class?: string;
+    size?: number;
+}
+
+const {class: className, size = 20} = Astro.props;
+---
+
+<div class:list={['flex items-center gap-4', className]}>
+    <a href={GITHUB_ACCOUNT} target='_blank' rel='noopener' class='p-1' aria-label='GitHub'>
+        <Image src={GithubInk} width={size} height={size} alt='' class='dark:hidden'/>
+        <Image src={GithubCream} width={size} height={size} alt='' class='hidden dark:block'/>
+    </a>
+    <a href={LINKEDIN_ACCOUNT} target='_blank' rel='noopener' class='p-1' aria-label='LinkedIn'>
+        <Image src={LinkedinInk} width={size} height={size} alt='' class='dark:hidden'/>
+        <Image src={LinkedinCream} width={size} height={size} alt='' class='hidden dark:block'/>
+    </a>
+</div>
