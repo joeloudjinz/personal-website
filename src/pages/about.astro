@@ -518,6 +518,12 @@ const education = (await getCollection('education')).sort(
             button.textContent = 'Show less ↑';
             button.setAttribute('aria-expanded', 'true');
 
+            if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                reveal(story, s.total);
+                story.style.minHeight = '';
+                return;
+            }
+
             /* Measure the full height by briefly revealing everything. This is synchronous
                and forces one reflow, so the browser never paints the revealed state. */
             reveal(story, s.total);
@@ -551,21 +557,40 @@ const education = (await getCollection('education')).sort(
         };
 
         document.addEventListener('click', (event) => {
+            const card = event.target?.closest('.story-card');
+            if (!card) return;
+            const story = card.querySelector('.story');
+            if (!story || !state.has(story)) return;
+
+            /* Mid-run, ANY click on the card finishes immediately — including one on the
+               toggle, which must not collapse a card the reader is waiting to read. */
+            if (state.get(story).typing) {
+                finish(story);
+                return;
+            }
+
             const button = event.target?.closest('.story-toggle');
             if (!button) return;
-            const story = button.closest('.story-card')?.querySelector('.story');
-            if (!story || !state.has(story)) return;
             if (story.classList.contains('collapsed')) expand(story, button);
             else collapse(story, button);
         });
 
-        /* Runs before paint so the full story never flashes; astro:after-swap covers
-           View Transitions navigations, matching the other scripts on this page. */
+        /* A card typing off-screen wastes frames and strands the reader with a
+           half-written story when they scroll back. */
+        const offscreenObserver = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) return;
+                const story = entry.target.querySelector('.story');
+                if (story && state.has(story) && state.get(story).typing) finish(story);
+            });
+        }, {threshold: 0});
+
         const initStories = () => {
             document.querySelectorAll('.story').forEach((story) => {
                 if (!state.has(story)) state.set(story, buildState(story));
                 if (story.classList.contains('collapsed')) truncate(story);
             });
+            document.querySelectorAll('.story-card').forEach((card) => offscreenObserver.observe(card));
         };
         initStories();
         document.addEventListener('astro:after-swap', initStories);
