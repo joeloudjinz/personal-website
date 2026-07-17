@@ -2,11 +2,8 @@
 import {Image} from 'astro:assets';
 import LogoLight from '@src/assets/img/logo.png';
 import LogoDark from '@src/assets/img/logo-transparent.png';
-import GithubInk from '@src/assets/img/github-ink.svg';
-import GithubCream from '@src/assets/img/github-cream.svg';
-import LinkedinInk from '@src/assets/img/linkedin-ink.svg';
-import LinkedinCream from '@src/assets/img/linkedin-cream.svg';
-import {GITHUB_ACCOUNT, LINKEDIN_ACCOUNT, NICKNAME} from '../../consts';
+import SocialLinks from '@src/components/SocialLinks.astro';
+import {NICKNAME} from '../../consts';
 
 const menu = [
     {link: '/', label: 'Home'},
@@ -48,14 +45,7 @@ const isActive = (link: string) =>
         </div>
 
         <div class='flex items-center gap-4'>
-            <a href={GITHUB_ACCOUNT} target='_blank' class='p-1' aria-label='GitHub'>
-                <Image src={GithubInk} width={20} height={20} alt='' class='dark:hidden'/>
-                <Image src={GithubCream} width={20} height={20} alt='' class='hidden dark:block'/>
-            </a>
-            <a href={LINKEDIN_ACCOUNT} target='_blank' class='p-1' aria-label='LinkedIn'>
-                <Image src={LinkedinInk} width={20} height={20} alt='' class='dark:hidden'/>
-                <Image src={LinkedinCream} width={20} height={20} alt='' class='hidden dark:block'/>
-            </a>
+            <SocialLinks/>
 
             <button id='themeToggle'
                     class='flex items-center rounded-full border border-hairline p-[3px]'
