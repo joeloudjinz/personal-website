@@ -81,9 +81,25 @@ The existing `.story.collapsed { max-height: 77px }` rule is removed; truncation
 
 Order matters, and this is the part that most affects perceived quality:
 
-1. **Grow the box to full height first**, reusing the existing 320ms `max-height` transition. Full height is obtained
-   by measuring an offscreen clone carrying the full text.
+1. **Grow the box to full height first** (~320ms), then
 2. **Then** start typing into the settled box.
+
+**The height mechanism changes, and this is easy to get wrong.** Today `.story.collapsed { max-height: 77px }` does
+the clamping and `.story { transition: max-height 320ms }` animates it. Once truncation replaces the clamp, the
+collapsed box is simply the natural height of the teaser, and `max-height` no longer reserves anything — a `max-height`
+does not *force* a box to be tall, so the growth step would do nothing and the box would instead jump as text arrives.
+
+Reservation must therefore use `min-height`:
+
+1. Measure full height `H` from an offscreen clone carrying the full text.
+2. Set `min-height` to the box's *current* height, force a reflow, then set `min-height: H` so the transition has an
+   explicit start value (`auto` is not animatable). This mirrors the pattern the existing expand code already uses
+   with `scrollHeight`.
+3. Transition `min-height` over 320ms with `--ease-standard`. The box grows, empty below the teaser.
+4. Type. Text fills the reserved space.
+5. On completion, clear the inline `min-height` — natural height now equals `H`.
+
+The `.story` transition property changes from `max-height` to `min-height` accordingly.
 
 Text fills a pre-sized area instead of pushing the page down for three seconds. Two consequences: no continuous layout
 shift while the reader is reading, and the timeline rail re-syncs **once** after expansion rather than every frame for
