@@ -135,6 +135,57 @@ const education = (await getCollection('education')).sort(
        reserved before it existed, which is the exact layout shift the grow-then-type
        sequence exists to prevent. Measured: reserved 497px vs 522px actual. The block is
        therefore painted by an absolutely-positioned ::after, which is outside the flow. */
+    /* An occasional caramel glint through the toggle, inviting the reader in.
+
+       Scoped by two classes that already exist, so this needs no JavaScript:
+       `.is-active` is set by the rail script on the card the traveling dot is on, and
+       `.story.collapsed + .story-toggle` matches only while there is something left to
+       read — so the current role, expanded on load showing "Show less ↑", never shimmers.
+       Only one card is ever active, so only one button ever glints. */
+    .timeline-entry.is-active .story.collapsed + .story-toggle {
+        position: relative;
+        isolation: isolate;
+    }
+
+    /* The wash sweeps BEHIND the label, not through it.
+
+       Caramel cannot be a text colour here. Measured against the card surface, --accent is
+       3.69:1 in light and 3.37:1 in dark — both under the 4.5:1 AA floor — and dark mode's
+       --info base is already only 4.53:1, so there is no headroom to tint toward caramel at
+       all. Caramel is a mid-tone: low contrast on cream AND on navy. That is exactly why the
+       design system uses it for the rail dot (a shape) and as --accent-wash (a background),
+       never as text. Sweeping the wash underneath keeps the label at full --info contrast
+       (7.91 light / 4.53 dark) while still reading as a warm caramel glint. */
+    .timeline-entry.is-active .story.collapsed + .story-toggle::before {
+        content: '';
+        position: absolute;
+        inset: -2px -6px;
+        z-index: -1;
+        border-radius: 4px;
+        background-image: linear-gradient(100deg,
+            transparent 40%, var(--accent-wash) 50%, transparent 60%);
+        background-size: 300% 100%;
+        background-repeat: no-repeat;
+        animation: toggle-glint 4s var(--ease-standard) infinite;
+    }
+
+    /* Sweep across the first 30% (~1.2s), then rest. A continuous shimmer would sit in the
+       exact spot the reader is reading — the card is active because their eyes are there. */
+    @keyframes toggle-glint {
+        0% {
+            background-position: 150% 0;
+        }
+        30%, 100% {
+            background-position: -150% 0;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .timeline-entry.is-active .story.collapsed + .story-toggle::before {
+            content: none;
+        }
+    }
+
     .type-cursor {
         position: relative;
         display: inline-block;
@@ -329,8 +380,6 @@ const education = (await getCollection('education')).sort(
         const CEILING = 6000;      /* ms: hard ceiling on one reveal, no matter how long */
         const MAX_FRAME_MS = 50;   /* clamp a stalled frame so it cannot dump the story */
         const GROW_MS = 340;       /* the .story min-height transition is 320ms */
-        const LINES = 3;   /* collapsed height, matching the 77px clamp this replaces */
-
         const state = new WeakMap();
 
         /* Flat character map over the story's text nodes. Walking text nodes (rather than
@@ -361,15 +410,13 @@ const education = (await getCollection('education')).sort(
         };
 
         /* Restore text up to character `upto`; empty everything after. Returns the last node
-           holding revealed, non-whitespace text — the anchor for both the ellipsis and the
-           cursor.
+           holding revealed, non-whitespace text — the anchor for the cursor.
 
            Whitespace-only nodes MUST be skipped. Markdown renders `<p>…</p>\n<p>…</p>`, so
            the `\n` between paragraphs is a text node whose parent is the `.story` div, not a
            paragraph. Anchoring to it puts the cursor in BLOCK context, which forces an
-           anonymous block box costing a full line-height (measured +25.56px), and would put
-           the ellipsis on a newline node. */
-        const reveal = (story, upto, ellipsis) => {
+           anonymous block box costing a full line-height (measured +25.56px). */
+        const reveal = (story, upto) => {
             const s = state.get(story);
             let tail = null;
             for (const item of s.nodes) {
@@ -387,81 +434,31 @@ const education = (await getCollection('education')).sort(
             for (const b of s.blocks) {
                 b.el.style.display = b.start >= upto && b.end > b.start ? 'none' : '';
             }
-            if (ellipsis && tail) tail.node.nodeValue = tail.node.nodeValue + '…';
             return tail;
         };
 
-        /* Top of the character at `index`, or null if it has no box (collapsed whitespace)
-           or has not been revealed yet. The length guard matters: after a cut, nodes past
-           the cut hold '', and setStart past a node's length throws IndexSizeError. */
-        const rectTopAt = (s, index) => {
-            for (const item of s.nodes) {
-                if (index >= item.start && index < item.end) {
-                    const offset = index - item.start;
-                    if (offset + 1 > item.node.nodeValue.length) return null;
-                    const range = document.createRange();
-                    range.setStart(item.node, offset);
-                    range.setEnd(item.node, offset + 1);
-                    const rect = range.getBoundingClientRect();
-                    return rect.height ? rect.top : null;
-                }
-            }
-            return null;
-        };
+        /* The teaser is the first block — a whole paragraph, a complete thought.
 
-        /* First character index that falls below `lines` lines, searching only up to
-           `hiBound`. Binary search, not a linear walk: tops increase monotonically down the
-           flow, so this costs ~11 probes per story instead of ~2000. Nothing is mutated
-           during the search, so the layout read stays cached. */
-        const lineBoundary = (story, lines, hiBound) => {
-            const s = state.get(story);
-            const lineHeight = parseFloat(getComputedStyle(story).lineHeight);
-            if (!lineHeight) return s.total;
-            const limitIndex = Math.min(hiBound === undefined ? s.total : hiBound, s.total);
-            let firstTop = null;
-            for (let i = 0; i < limitIndex && firstTop === null; i++) firstTop = rectTopAt(s, i);
-            if (firstTop === null) return limitIndex;
-            const limit = firstTop + lines * lineHeight - 1;
-            let lo = 0;
-            let hi = limitIndex;
-            while (lo < hi) {
-                const mid = (lo + hi) >> 1;
-                const top = rectTopAt(s, mid);
-                if (top === null || top <= limit) lo = mid + 1;
-                else hi = mid;
-            }
-            return lo;
-        };
+           This is deliberately NOT a measurement. An earlier version cut at a measured
+           3-line boundary, and every bug this feature shipped came from that: the boundary
+           had to be re-measured because `text-wrap: pretty` re-wraps what remains once you
+           cut it, re-measured again on `fonts.ready` because the pre-paint pass uses
+           fallback metrics, and re-measured AGAIN on resize because a cut in characters
+           goes stale the moment the box changes width. A block boundary is a DOM fact:
+           width-independent, font-independent, wrap-independent. It needs none of that.
 
+           No ellipsis: the teaser ends on a real full stop, so a trailing "…" would read as
+           a typo. The toggle is the affordance. */
         const truncate = (story) => {
             const s = state.get(story);
-            reveal(story, s.total); /* measure against the full text */
-            const full = s.nodes.map((n) => n.full).join('');
-            const backOff = (index) => {
-                const space = full.slice(0, index).lastIndexOf(' ');
-                return space > 0 ? space : index;
-            };
-
-            const boundary = lineBoundary(story, LINES, s.total);
-            if (boundary >= s.total) {
-                s.cut = s.total;
-                return;
-            }
-            s.cut = backOff(boundary);
-            reveal(story, s.cut, true);
-
-            /* global.css sets `p { text-wrap: pretty }`, which rebalances a paragraph's
-               line breaks across its WHOLE content. Line breaking is therefore not greedy:
-               cutting text changes how the text that remains wraps, so a boundary measured
-               against the full story can render one line too tall once applied. Measure
-               what was actually rendered and tighten until it fits. Converges in 1-2
-               passes; the bound stops it probing the emptied nodes past the cut. */
-            for (let pass = 0; pass < 4; pass++) {
-                const rendered = lineBoundary(story, LINES, s.cut);
-                if (rendered >= s.cut) break;
-                s.cut = backOff(rendered);
-                reveal(story, s.cut, true);
-            }
+            /* The first TOP-LEVEL child, not s.blocks[0] — s.blocks mixes nesting levels
+               (p, ul, ol, li), so a story opening with a list would pick the <ul> and then
+               its <li> separately. */
+            const first = story.children[0];
+            const inside = first ? s.nodes.filter((n) => first.contains(n.node)) : [];
+            const end = inside.length ? inside[inside.length - 1].end : 0;
+            s.cut = end > 0 && end < s.total ? end : s.total;
+            reveal(story, s.cut);
         };
 
         const finish = (story) => {
@@ -651,23 +648,8 @@ const education = (await getCollection('education')).sort(
         initStories();
         document.addEventListener('astro:after-swap', initStories);
 
-        /* The cut is measured against a specific box width, so it goes stale the moment the
-           box changes width — window snap, phone rotation, zoom, devtools. The old
-           `max-height: 77px` clamp was viewport-independent and could not fail this way;
-           `.collapsed` now carries no CSS at all, so nothing else catches it. Measured
-           without this: resizing 1600px -> 760px rendered collapsed cards at up to 6 lines
-           instead of 3. initStories is idempotent and only re-cuts collapsed stories, so an
-           expanded or mid-run card is left alone. */
-        let resizeTimer = 0;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(initStories, 150);
-        }, {passive: true});
-
-        /* The pre-paint pass measures with fallback font metrics, so the boundary is wrong
-           until the web fonts swap in. Re-truncate once they land. The page already
-           reflows on font swap, so this rides along invisibly. Only collapsed stories are
-           re-cut, so a story the reader already expanded is left alone. */
-        if (document.fonts && document.fonts.ready) document.fonts.ready.then(initStories);
+        /* No resize listener and no fonts.ready re-truncate: the teaser is a block boundary,
+           so it does not depend on box width or font metrics and cannot go stale. Both were
+           required only by the measured-cut approach this replaces. */
     }
 </script>
