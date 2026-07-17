@@ -205,7 +205,8 @@ block (the one ending with the `astro:after-swap` listener). Do not merge it int
                     end: inside.length ? inside[inside.length - 1].end : 0
                 };
             });
-            return {nodes: nodes, blocks: blocks, total: offset, cut: offset, cursor: null, raf: 0, typing: false};
+            return {nodes: nodes, blocks: blocks, total: offset, cut: offset, cursor: null, raf: 0,
+                    growTimer: 0, typing: false};
         };
 
         /* Restore text up to character `upto`; empty everything after. Returns the last
@@ -398,18 +399,32 @@ delays and reveals however many characters that buys: ~5 per frame on the longes
 In `src/pages/about.astro`'s `<style is:global>` block, add after the `.order-btn[aria-pressed='true']` rule:
 
 ```css
-    /* The cursor is created by script, so it cannot live in ExperienceCard's scoped styles. */
+    /* The cursor is created by script, so it cannot live in ExperienceCard's scoped styles.
+
+       It MUST occupy zero width in the flow. It is inserted at the write head on every
+       frame, so if it took real inline width it would wrap onto a new line whenever the
+       write head neared the end of a full line — pushing the box past the min-height
+       reserved before it existed, which is the exact layout shift the grow-then-type
+       sequence exists to prevent. Measured: reserved 497px vs 522px actual. The block is
+       therefore painted by an absolutely-positioned ::after, which is outside the flow. */
     .type-cursor {
+        position: relative;
         display: inline-block;
+        width: 0;
+    }
+
+    .type-cursor::after {
+        content: '';
+        position: absolute;
+        left: 1px;
+        bottom: 0;
         width: 0.5em;
         height: 1em;
-        margin-left: 1px;
-        vertical-align: text-bottom;
         background: var(--accent);
         animation: type-blink 1s steps(2, start) infinite;
     }
 
-    .type-cursor.is-done {
+    .type-cursor.is-done::after {
         animation: none;
         opacity: 0;
         transition: opacity var(--dur-base) var(--ease-standard);
@@ -422,7 +437,7 @@ In `src/pages/about.astro`'s `<style is:global>` block, add after the `.order-bt
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .type-cursor {
+        .type-cursor::after {
             animation: none;
         }
     }
@@ -452,6 +467,8 @@ In the same script, insert these three functions directly above `const expand = 
 ```js
         const finish = (story) => {
             const s = state.get(story);
+            if (s.growTimer) clearTimeout(s.growTimer);
+            s.growTimer = 0;
             if (s.raf) cancelAnimationFrame(s.raf);
             s.raf = 0;
             s.typing = false;
@@ -546,7 +563,16 @@ Replace the `expand` function from Task 1 entirely:
             void story.offsetHeight;
             story.style.minHeight = fullHeight + 'px';
 
-            setTimeout(() => type(story), GROW_MS);
+            /* Cancel any grow timer still pending from a previous expand. Without this, a
+               fast expand -> collapse -> expand inside the 340ms grow window leaves a stale
+               timeout that fires type() a second time, and two rAF loops then race over the
+               same story sharing s.raf/s.cursor with last-write-wins — orphaning one loop
+               forever. Reproduced: three quick clicks produced two live cursors. */
+            if (s.growTimer) clearTimeout(s.growTimer);
+            s.growTimer = setTimeout(() => {
+                s.growTimer = 0;
+                type(story);
+            }, GROW_MS);
         };
 ```
 
@@ -560,6 +586,8 @@ Replace the `collapse` function from Task 1 entirely:
 ```js
         const collapse = (story, button) => {
             const s = state.get(story);
+            if (s.growTimer) clearTimeout(s.growTimer); /* a run scheduled but not yet started */
+            s.growTimer = 0;
             if (s.raf) cancelAnimationFrame(s.raf);
             s.raf = 0;
             s.typing = false;
