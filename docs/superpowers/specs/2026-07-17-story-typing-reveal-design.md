@@ -25,37 +25,41 @@ so the total is ceilinged at 6s (see Decisions).
 
 The consequence must be stated plainly, because it shapes every other choice:
 
-- Longest remainder ≈ 1,972 chars (2,172 minus the ~200-char teaser). In 6s that is ~330 chars/sec.
+- Longest remainder = 1,796 chars (2,172 minus the measured 376-char teaser). In 6s that is ~300 chars/sec.
 - At 60fps that is **~5 characters per frame**.
 - A classic typewriter cadence is 30–60 chars/sec. People read at ~25 chars/sec.
 
-So on the **long** stories the effect still reads as fast terminal output streaming in, not as someone typing. 1,972
-characters cannot be written deliberately in six seconds; no parameter choice escapes that. The cursor is what sells
-it as "being written". Two things follow:
+So on the **two longest** stories the effect still reads as fast terminal output streaming in, not as someone typing.
+1,796 characters cannot be written deliberately in six seconds; no parameter choice escapes that. The cursor is what
+sells it as "being written". Two things follow:
 
-1. **Per-character `setTimeout` is impossible.** The engine must be a frame loop that reveals a batch per frame.
-2. The **short** stories are where the writing feel actually lands: a 631-char remainder runs at ~96 chars/sec
-   (~1.5 chars/frame), which reads as brisk writing rather than a dump.
+1. **Per-character `setTimeout` is impossible.** The engine must be a frame loop that reveals a batch per frame — at
+   `dSteady ≈ 3.64ms` the longest story needs ~5 characters per frame, and `setTimeout` cannot go below ~4ms.
+2. **The writing feel is real on most of the set.** Two stories land under the ceiling and type at the full 12ms
+   cadence; five more run brisk at 6.4–9.1ms/char. Only the two Teknika stories are compressed hard enough to stream.
 
 ### What the ceiling means today
 
-With current content, every story hits the 6s ceiling:
+Computed against the **measured** 376-char teaser (an earlier draft used a wrong 200-char teaser, which made every
+story hit the ceiling and rendered the dynamic formula inert):
 
-| story | remainder | wants @12ms/char | actual | steady rate |
-|---|---|---|---|---|
-| 08-teknika-senior-engineer | 631 | 6.9s | 6.0s | ~96 chars/s — reads as writing |
-| 01-dubai-backend | 686 | 7.5s | 6.0s | ~114 chars/s |
-| 05-teknika-software-engineer | 897 | 9.9s | 6.0s | ~150 chars/s |
-| 02-assistt-full-stack | 1,019 | 11.2s | 6.0s | ~170 chars/s |
-| 09-solo-engineer | 1,153 | 12.7s | 6.0s | ~192 chars/s |
-| 10-amek-senior-engineer | 1,162 | 12.8s | 6.0s | ~194 chars/s |
-| 03-retavo-back-lead | 1,196 | 13.2s | 6.0s | ~199 chars/s |
-| 07-teknika-dev-manager | 1,854 | 20.4s | 6.0s | ~309 chars/s |
-| 06-teknika-backend-lead | 1,972 | 21.7s | 6.0s | ~329 chars/s — streams |
+| story | remainder | wants @12ms/char | actual | dSteady | feel |
+|---|---|---|---|---|---|
+| 08-teknika-senior-engineer | 455 | 5.0s | **5.0s** | 12.00ms | writing — under the ceiling |
+| 01-dubai-backend | 510 | 5.6s | **5.6s** | 12.00ms | writing — under the ceiling |
+| 05-teknika-software-engineer | 721 | 7.9s | 6.0s | 9.08ms | brisk |
+| 04-raineys-software-engineer | 839 | 9.2s | 6.0s | 7.80ms | brisk |
+| 02-assistt-full-stack | 843 | 9.3s | 6.0s | 7.76ms | brisk |
+| 09-solo-engineer | 977 | 10.7s | 6.0s | 6.70ms | brisk |
+| 10-amek-senior-engineer | 986 | 10.8s | 6.0s | 6.64ms | brisk |
+| 03-retavo-back-lead | 1,020 | 11.2s | 6.0s | 6.42ms | brisk |
+| 07-teknika-dev-manager | 1,678 | 18.5s | 6.0s | 3.90ms | streams |
+| 06-teknika-backend-lead | 1,796 | 19.8s | 6.0s | 3.64ms | streams |
 
-The dynamic formula is still correct to implement, and it is not dead code: a shorter role added later (say 300
-chars) resolves to ~3.3s at the true 12ms/char writing cadence instead of being padded out to 6s. It simply does not
-produce visible variation across *today's* ten stories, all of which are long enough to be compressed.
+**Two of ten run at the true 12ms writing cadence**, five are brisk (110–155 chars/s), and only the two long Teknika
+stories are compressed hard enough to read as streaming. The dynamic formula earns its place: it produces real
+variation across today's content, and a shorter role added later would type at the full writing cadence rather than
+being padded to 6s.
 
 ## Decisions
 
@@ -65,14 +69,32 @@ produce visible variation across *today's* ten stories, all of which are long en
 | Total duration | Dynamic, ceilinged at 6s. Aim for a 12ms/char steady writing rate; compress only when that would exceed 6s. The priority is the *feel of writing*, not finishing fast. |
 | Speed curve | Fast, then settle to a steady pace. The opening burst is 2× the steady rate — quicker, but not a blur. Decelerates to a constant rate, never to a crawl. |
 | Escape hatches | All three: click to finish instantly; `prefers-reduced-motion` skips entirely; auto-finish if scrolled out of view. |
-| Mobile truncation | Responsive: ~200 chars desktop, ~120 chars mobile. |
+| Teaser length | **Measured, not fixed.** Binary-search the character index where line 4 begins, then back off to a word boundary. Supersedes the "~200 desktop / ~120 mobile" budgets in an earlier draft — see below. |
 | Screen readers | Collapsed content leaves the accessibility tree. Disclosure pattern completed with `aria-controls`. |
 
-### Why responsive truncation
+### Why the teaser is measured, not a constant — corrected during plan review
 
-Today's `max-height: 77px` yields ~3 lines at *any* width. A fixed ~200 chars is ~3 lines on desktop but ~5–6 lines
-on mobile, which would visibly grow mobile cards. A responsive count preserves the existing ~3-line intent at both
-breakpoints.
+An earlier draft of this spec fixed the teaser at ~200 chars desktop / ~120 mobile, on the assumption that ~200 chars
+is about three lines. **Measurement in a real browser disproved both numbers**, and the correction matters:
+
+- At a 1440px viewport the `.story` box is **1118px** wide, and three lines hold **376 characters**. A 200-char teaser
+  would show ~1.4 lines — a visible regression against today's clamp. (`77px ÷ 25.575px line-height = 3.01`, so 77px
+  was indeed a 3-line design.)
+- At a 390px viewport the `.story` box is **still 874px** wide. The card never narrows. This is a **pre-existing
+  horizontal-overflow bug** on the site — the home page overflows too, and it is not caused by this work. So a
+  "mobile" budget is currently meaningless, and hardcoding one would bake in a number derived from a broken layout,
+  then silently regress the day the overflow is fixed.
+
+Measuring the real 3-line boundary is both more correct and simpler: it deletes the responsive branch entirely and
+reproduces today's collapsed height at any width, whatever the card is doing.
+
+This does **not** reopen the rejected "measure the visual clamp cut" option. That one was rejected because the boundary
+would be live and layout-dependent during typing. This measures **once**, at init, and still yields a fixed character
+index — the property that made truncation attractive. Typing from that index stays exact and trivial.
+
+The measurement is a binary search (~11 probes per story, since line tops increase monotonically down the flow), not a
+linear walk over ~2,000 characters. It re-runs on `document.fonts.ready`, because the pre-paint pass measures with
+fallback font metrics and would otherwise cut at the wrong place once the web font swaps in.
 
 ### Why the screen-reader change is acceptable
 
@@ -90,8 +112,12 @@ the order toggle in `about.astro`) and, for each collapsed story:
 
 1. Walks text nodes with a `TreeWalker`, building a flat character map `[{node, start, end, text}]`.
 2. Caches each node's full text.
-3. Truncates at the last word boundary at or before the budget (200 desktop / 120 mobile), appends `…`, and empties
-   the text nodes past the cut.
+3. Binary-searches the character index where line 4 begins, backs off to the last word boundary before it, appends
+   `…`, and empties the text nodes past the cut.
+
+**Emptied text nodes are not enough on their own.** An empty `<p>` still occupies a line and an empty `<li>` still
+paints its bullet via `li::before`, so any block whose text lies entirely past the cut must also be `display: none`.
+Without this, a collapsed card shows blank lines and stray bullets under its teaser.
 
 Running pre-paint avoids a flash of the full story. The `TreeWalker` approach preserves `<strong>` and `<ul>`/`<li>`
 markup — only `09-solo-engineer.md` has a list, but it must survive.
@@ -173,14 +199,14 @@ dFast   = dSteady / 2
 
 This is self-consistent: when a story lands under the ceiling, `dSteady` resolves to exactly `D_TARGET`.
 
-Worked examples:
+Worked examples, using the measured 376-char teaser:
 
-- **1,972-char remainder** — `T` clamps to 6000ms; `dSteady ≈ 3.32ms`, `dFast ≈ 1.66ms`. Both far below one frame,
-  which is exactly why the accumulator loop is required.
-- **631-char remainder** — `T` clamps to 6000ms; `dSteady ≈ 10.37ms`, `dFast ≈ 5.19ms`. Roughly one character every
-  frame or two: the writing feel.
-- **300-char remainder (hypothetical future entry)** — `T = 3300ms` (under the ceiling); `dSteady = 12ms` exactly,
-  `dFast = 6ms`.
+- **1,796-char remainder** (`06-teknika-backend-lead`) — wants 19.8s, so `T` clamps to 6000ms; `dSteady ≈ 3.64ms`,
+  `dFast ≈ 1.82ms`. Both far below one frame, which is exactly why the accumulator loop is required.
+- **986-char remainder** (`10-amek-senior-engineer`) — wants 10.8s, clamps to 6000ms; `dSteady ≈ 6.64ms`,
+  `dFast ≈ 3.32ms`. Brisk.
+- **455-char remainder** (`08-teknika-senior-engineer`) — wants 5.0s, **under the ceiling**, so `T = 5005ms` and
+  `dSteady = 12ms` exactly, `dFast = 6ms`. Roughly one character per frame: the writing feel, uncompressed.
 
 ### 5. Cursor
 
@@ -206,7 +232,8 @@ A single block `<span>` at the write head, moved to follow the current text node
 - **Streaming, not typing** on the long stories. See above. Inherent to the 6s ceiling; no parameter choice escapes it.
 - **Screen readers during the run.** Text is inserted progressively, so a screen reader that starts reading the
   instant the toggle is activated could encounter partial text. Bounded at 6s, and screen-reader reading is far slower
-  than even the slowest steady rate here (~96 chars/sec), so the text lands well before it is reached. Reduced-motion
+  than even the slowest steady rate here (~83 chars/sec at the uncompressed 12ms cadence), so the text lands well
+  before it is reached. Reduced-motion
   users skip the animation entirely.
 - **Find-in-page** will not match text that has not been typed yet, and will not match collapsed text at all
   (it is not in the DOM). Same as any disclosure widget.
