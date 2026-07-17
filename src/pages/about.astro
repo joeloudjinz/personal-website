@@ -55,17 +55,7 @@ const education = (await getCollection('education')).sort(
                 <div id='timelineMarker'
                      class='absolute left-[7px] md:left-[17px] top-0 w-3.5 h-3.5 rounded-full bg-accent shadow-[0_0_0_5px_var(--accent-wash)] transition-transform duration-200 ease-out z-[2]'
                      aria-hidden='true'></div>
-                {experiences.map((exp, index) => (
-                    <Fragment>
-                        <ExperienceCard experience={exp} index={index}/>
-                        {index === 0 && (
-                            <div id='timelineFlashback' class='grid grid-cols-[28px_1fr] md:grid-cols-[48px_1fr]'>
-                                <div aria-hidden='true'></div>
-                                <h3 class='kicker mb-7'>How I got here</h3>
-                            </div>
-                        )}
-                    </Fragment>
-                ))}
+                {experiences.map((exp, index) => <ExperienceCard experience={exp} index={index}/>)}
             </div>
         </div>
     </section>
@@ -104,15 +94,11 @@ const education = (await getCollection('education')).sort(
         display: inline;
     }
 
-    .order-story #timelineFlashback {
-        display: none;
-    }
-
     /* The leading card has nothing before it. "Not preceded by another entry"
        is true of whichever card leads, in either order, and is immune to the
-       rail divs, the flashback, and the script Vite injects between them in dev.
-       Do not narrow this to :first-child or an adjacent-sibling form — both
-       assume a fixed node layout and silently match nothing. */
+       rail divs and the script Vite injects between them in dev. Do not narrow
+       this to :first-child or an adjacent-sibling form — both assume a fixed
+       node layout and silently match nothing. */
     .timeline-entry:not(.timeline-entry ~ .timeline-entry) .direction-cue {
         display: none;
     }
@@ -333,7 +319,6 @@ const education = (await getCollection('education')).sort(
         const applyOrder = (order) => {
             const section = document.getElementById('experienceSection');
             const timeline = document.getElementById('experienceTimeline');
-            const flashback = document.getElementById('timelineFlashback');
             if (!section || !timeline) return;
 
             // Sort back to render order first; after a reversal the DOM is no longer authoritative.
@@ -344,11 +329,6 @@ const education = (await getCollection('education')).sort(
             // Moving real nodes, not CSS column-reverse: the rail script pairs
             // querySelectorAll order with offsetTop and would desync otherwise.
             ordered.forEach((entry) => timeline.appendChild(entry));
-
-            // The re-append strands the flashback at the front, so re-seat it after
-            // the leading entry. In story order that lands it mid-list, which is moot —
-            // CSS hides it there.
-            if (flashback) timeline.insertBefore(flashback, ordered[1] ?? null);
 
             section.classList.toggle('order-story', order === 'story');
 
