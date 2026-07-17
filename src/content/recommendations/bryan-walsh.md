@@ -5,6 +5,7 @@ title: "Principal Engineer | Full-Stack & Mobile Architect | 20+ yrs Web & SaaS 
 date: "September 20, 2024"
 relationship: "Bryan managed Abdellah directly"
 linkedinUrl: "https://www.linkedin.com/in/bryangwalsh"
+pullQuote: 'If I had to pick someone to be my "right-hand man" in any grand project, it would undoubtedly be Abdellah. I trust him completely.'
 avatar: "https://media.licdn.com/dms/image/v2/D4E35AQHhnl366H_G-A/profile-framedphoto-shrink_100_100/B4EZgzKANiGUAw-/0/1753204917326?e=1759762800&v=beta&t=TuFzSO76LaNU6oxlM609dHpJHvaXcEwBPzPlMqsWrwk"
 ---
 

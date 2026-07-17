@@ -62,6 +62,7 @@ const recommendations = defineCollection({
     date: z.string(),
     relationship: z.string(),
     linkedinUrl: z.string(),
+    pullQuote: z.string().optional(), // curated card quote; falls back to the body's first sentence
   })
 });
 

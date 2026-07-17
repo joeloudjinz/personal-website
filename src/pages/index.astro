@@ -1,150 +1,239 @@
 ---
 import {SITE_TITLE, SITE_TAGLINE, SITE_DESCRIPTION, FULL_NAME, LINKEDIN_ACCOUNT} from '../consts';
-import {getCollection, render} from 'astro:content';
+import {getCollection} from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import {Image} from 'astro:assets';
 import MainPicture from '@src/assets/img/ava.jpg';
-import Prose from '../components/Prose.astro';
+import Byline from '../components/Byline.astro';
 import SkillCard from '../components/SkillCard.astro';
-import TechnologyCarousel from '../components/TechnologyCarousel.astro';
-import SoftwareEngineerDark from '../assets/illustrations/software-engineer-dark-s.png';
-import SoftwareEngineerLight from '../assets/illustrations/software-engineer-light-s.png';
+import StackLine from '../components/StackLine.astro';
+import ToolboxMarquee from '../components/ToolboxMarquee.astro';
+import ContactBlock from '../components/ContactBlock.astro';
+import {getSortedPosts} from '../utils/posts';
+import {getOrderedProjects} from '../utils/projects';
+import {getExperiences, isCurrentRole, formatExperienceDate} from '../utils/experiences';
 
-// Fetch both collections in parallel for better performance
-const [skillsCollection, recommendationsCollection] = await Promise.all([
-    getCollection('majorSkills'),
-    getCollection('recommendations')
-]);
+// Newest first, current role on top
+const experiences = (await getExperiences()).reverse();
+const skills = (await getCollection('majorSkills')).sort((a, b) => a.data.order - b.data.order);
+const featuredProjects = (await getOrderedProjects()).filter((p) => p.data.isFeatured).slice(0, 2);
+const latestPosts = (await getSortedPosts()).slice(0, 4);
+const recommendations = (await getCollection('recommendations')).sort((a, b) => a.data.id - b.data.id);
+const interests = await getCollection('interests');
 
-// Sort skills and recommendations in parallel
-const skills = skillsCollection.sort((a, b) => a.data.order - b.data.order);
+// First sentence of the recommendation body, used as the pull quote.
+// Bodies contain raw HTML markup, so strip tags before extracting.
+const pullQuote = (body: string | undefined) => {
+    const text = (body ?? '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    return text.match(/^.*?[.!?](?=\s|$)/)?.[0] ?? text;
+};
 
-// Process recommendations with content rendering in parallel
-const recommendationsWithContent = await Promise.all(
-    recommendationsCollection.map(async (rec) => {
-        const {Content} = await render(rec);
-        return {...rec, Content};
-    })
-);
-const recommendations = recommendationsWithContent.sort((a, b) => a.data.id - b.data.id);
+const RECOMMENDATIONS_URL = `${LINKEDIN_ACCOUNT}/details/recommendations/`;
 ---
 
-<BaseLayout title={SITE_TITLE + ' - ' + SITE_TAGLINE} description={SITE_DESCRIPTION}>
-    <div class='container'>
-        <div class='w-full md:flex md:items-center gap-16 mb-10'>
-            <div class='text-pretty leading-9'>
-                <h1 class='text-7xl font-bold mb-4'>Abdellah Addoun</h1>
-                <h3 class='text-3xl font-light mb-4 purple-red-gradient-wave'>
-                    Solving Problems Across the Technology Stack.
-                </h3>
-                <Prose>
-                    <div class='text-md'>
-                        <p>
-                            In software engineering, technologies are constantly evolving. Mastering one specific
-                            language or framework is not enough, so developing the ability to adapt, learn, and choose
-                            the right tools for the task is more valuable than ever.
-                        </p>
-                        <p>
-                            This is the principle that guides my work as a senior software engineer. To stay adaptable,
-                            I leverage modern tools like powerful IDEs and LLMs to learn faster, adapt quickly, and
-                            enhance my problem-solving skills. This focus allows me to tackle challenges across the
-                            full technology stack. I believe that building great products also requires building strong,
-                            collaborative teams where everyone is empowered to contribute their best work.
-                        </p>
-                        <p>
-                            I am always learning and am currently focused on how generative AI can help create smarter,
-                            more intuitive applications. This site is a place to know more about me, explore my
-                            professional journey and see how I approach engineering. Find out more in
-                            <a href='/about/' class="hover:font-extrabold transition-all duration-150">About Me</a>
-                            page. Thanks for visiting.
-                        </p>
-                    </div>
-                </Prose>
+<BaseLayout title={SITE_TITLE + ' - ' + SITE_TAGLINE} description={SITE_DESCRIPTION} gradient='glow'>
+    <!-- 1 · Hero -->
+    <section class='shell'>
+        <div class='grid lg:grid-cols-[1.15fr_.85fr] gap-12 lg:gap-20 pt-16 lg:pt-[88px] pb-20 items-center'>
+            <div class='cascade'>
+                <p class='kicker flex items-center gap-3 mb-6'>
+                    <span class='w-[3px] h-4 bg-accent inline-block'></span>
+                    Senior software engineer · Ain Salah, Algeria
+                </p>
+                <h1 class='font-display text-5xl md:text-7xl font-semibold text-strong tracking-[-0.015em] leading-[1.1] mb-7'>
+                    Make it <span class='marker-wash'>work</span>, then <span class='marker-wash whitespace-nowrap'>make it last</span>.
+                </h1>
+                <p class='text-[21px] text-muted leading-relaxed max-w-[560px] mb-9'>
+                    At my core, I'm a problem-solver. I untangle complex challenges by leading teams and building
+                    software with the resources at hand. I write about what I learn along the way.
+                </p>
+                <div class='flex flex-wrap gap-4'>
+                    <a href='/about/' class='btn btn-primary btn-lg'>About me</a>
+                    <a href='/posts/' class='btn btn-secondary btn-lg'>Read the writing</a>
+                </div>
             </div>
-            <Image src={MainPicture} alt={FULL_NAME} width={350} loading='eager'
-                   class='rounded-3xl rotate-3 mx-4 md:mx-0'/>
+            <div class='flex flex-col items-center gap-6'
+                 style='animation: rise-in var(--dur-slow) var(--ease-standard) 400ms backwards;'>
+                <Image src={MainPicture} alt={FULL_NAME} width={760}
+                       class='w-[380px] max-w-full aspect-[4/5] object-cover rounded-tile shadow-card' loading='eager'/>
+                <Byline/>
+            </div>
         </div>
-        <main>
-            <TechnologyCarousel/>
+    </section>
 
-            <article class='mt-8'>
-                <h2 class='text-3xl font-bold mb-1'>Curious about what it's like to work with me?</h2>
-                <h2 class='text-sm font-light mb-3'>
-                    Take a look at what my colleagues and clients have
-                    shared in the recommendations section of my <a
-                        class="hover:font-extrabold transition-all duration-150" href={LINKEDIN_ACCOUNT}
-                        target="_blank">Linkedin profile</a>.
+    <!-- 2 · Experience teaser -->
+    <section class='border-t border-hairline'>
+        <div class='shell py-[72px] grid lg:grid-cols-[420px_1fr] gap-12 lg:gap-20 reveal'>
+            <div class='lg:sticky lg:top-28 self-start'>
+                <p class='kicker mb-4'>2019 → Today</p>
+                <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-5'>
+                    The story behind my experience.
                 </h2>
-                <div class="columns-1 md:columns-2 gap-6 mt-4">
-                    {recommendations.map((rec) => (
-                            <div class="mb-6 break-inside-avoid">
-                                <div class="relative overflow-hidden bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl shadow-2xl p-8 text-white">
-                                    <div class="absolute top-0 left-0 w-full h-full bg-white opacity-10 transform -skew-x-12"></div>
-                                    <div class="relative z-10">
-                                        <svg class="w-12 h-12 mb-4 text-purple-300" fill="currentColor"
-                                             viewBox="0 0 24 24">
-                                            <path d="M14.017 21v-7.391c0-5.704 3.731-9.57 8.983-10.609l.995 2.151c-2.432.917-3.995 3.638-3.995 5.849h4v10h-9.983zm-14.017 0v-7.391c0-5.704 3.748-9.57 9-10.609l.996 2.151c-2.433.917-3.996 3.638-3.996 5.849h3.983v10h-9.983z"/>
-                                        </svg>
-                                        <div class="text-sm font-light mb-4 prose prose-invert">
-                                            <Prose>
-                                                <rec.Content/>
-                                            </Prose>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <img src={rec.data.avatar} alt={rec.data.name}
-                                                 class="w-12 h-12 rounded-full mr-4 border-2 border-purple-300">
-                                            <div>
-                                                <h4 class="text-xl font-semibold hover:font-extrabold transition-all duration-150">
-                                                    <a href={rec.data.linkedinUrl} target="_blank">{rec.data.name}</a>
-                                                </h4>
-                                                <p class="text-purple-200 font-light">{rec.data.title}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                <p class='text-base text-muted leading-relaxed mb-7'>
+                    From a first backend job in Dubai to leading teams and managing development for US startups, to
+                    consulting for Swedish clients today. The full story, with the lessons attached, lives on the About page.
+                </p>
+                <a href='/about/' class='btn btn-secondary arrow-link !text-strong'>Read the full story <span class='arrow'>→</span></a>
+            </div>
+            <div>
+                {experiences.map((exp) => (
+                        <div class='flex items-center gap-4 py-3.5 border-b border-hairline'>
+                            <span class='text-[13px] text-muted tabular-nums w-[150px] shrink-0 hidden sm:block'>
+                                {formatExperienceDate(exp.data.startDate)} → {formatExperienceDate(exp.data.endDate)}
+                            </span>
+                            <span class:list={[
+                                'w-2 h-2 rounded-full shrink-0',
+                                isCurrentRole(exp) ? 'bg-accent' : 'border border-accent'
+                            ]}></span>
+                            <span class='text-base font-semibold text-strong grow'>{exp.data.roleName}</span>
+                            <span class='text-sm text-muted text-right hidden md:block'>
+                                {[exp.data.companyName, exp.data.location].filter(Boolean).join(' · ')}
+                            </span>
+                        </div>
+                ))}
+            </div>
+        </div>
+    </section>
+
+    <!-- 3 · Major skills -->
+    <section class='border-t border-hairline'>
+        <div class='shell py-[72px] reveal'>
+            <p class='kicker mb-4'>What I do</p>
+            <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-10'>
+                Four hats, one job: make it work.
+            </h2>
+            <div class='sm:columns-2 gap-6'>
+                {skills.map((skill) => <SkillCard skill={skill}/>)}
+            </div>
+        </div>
+    </section>
+
+    <!-- 4 · Featured projects -->
+    <section class='border-t border-hairline'>
+        <div class='shell py-[72px] reveal'>
+            <div class='flex items-end justify-between gap-4 mb-10'>
+                <div>
+                    <p class='kicker mb-4'>Open source · Featured</p>
+                    <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight'>
+                        Built in the open.
+                    </h2>
+                </div>
+                <a href='/projects/' class='arrow-link text-[15px] shrink-0'>All projects <span class='arrow'>→</span></a>
+            </div>
+            <div class='grid md:grid-cols-2 gap-6'>
+                {featuredProjects.map((project) => (
+                        <div class='cardx cardx-hover p-8'>
+                            <div class='flex items-center gap-3 flex-wrap mb-4'>
+                                <h3 class='font-display text-[26px] font-semibold text-strong'>
+                                    <a href={project.data.demoLink} target='_blank' rel={project.data.demoLinkRel}>
+                                        {project.data.name}
+                                    </a>
+                                </h3>
+                                {project.data.isUnderConstruction && <span class='badge-accent badge-pulse'>In progress</span>}
+                                {project.data.version && <span class='badge-outline'>v{project.data.version}</span>}
                             </div>
-                    ))}
-                </div>
-            </article>
-
-            <article class='mt-8'>
-                <h2 class='text-3xl font-bold mb-3'>What I Can Bring to the Team?</h2>
-                <div class='grid grid-cols-1 md:grid-cols-2 gap-5 mt-4'>
-                    {skills.map((skill) =>
-                            <SkillCard skill={skill}/>)}
-                </div>
-            </article>
-
-            <article class='mt-8'>
-                <div class='border dark:border-zinc-700 rounded-xl shadow-sm p-6 bg-transparent'>
-                    <div class='flex flex-col md:flex-row items-center'>
-                        <div class='w-full md:w-auto flex-shrink-0 mb-4 md:mb-0 md:mr-6'>
-                            <img
-                                    id="softwareEngineerImage"
-                                    src={SoftwareEngineerLight.src}
-                                    class='w-full h-auto max-h-64 object-contain dark:hidden'
-                                    alt='Software Engineer'
-                            />
-                            <img
-                                    id="softwareEngineerImageDark"
-                                    src={SoftwareEngineerDark.src}
-                                    class='w-full h-auto max-h-64 object-contain hidden dark:block'
-                                    alt='Software Engineer'
-                            />
-                        </div>
-                        <div class='w-full md:w-auto text-center md:text-left'>
-                            <h2 class='text-4xl font-bold mb-2'>Projects</h2>
-                            <p class='text-zinc-600 dark:text-zinc-300 mb-4'>
-                                Checkout my humble projects gallery.
+                            <p class='text-[15px] text-muted leading-relaxed mb-5'>
+                                {project.data.description ?? project.body}
                             </p>
-                            <a href='/projects/'
-                               class='inline-block px-4 py-2 border border-zinc-300 dark:border-zinc-600 rounded-lg hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors'>
-                                Let's Go &raquo;
-                            </a>
+                            <StackLine tags={project.data.tags ?? []}/>
                         </div>
-                    </div>
+                ))}
+            </div>
+        </div>
+    </section>
+
+    <!-- 5 · Writing -->
+    <section class='border-t border-hairline'>
+        <div class='shell py-[72px] grid lg:grid-cols-[420px_1fr] gap-12 lg:gap-20 reveal'>
+            <div>
+                <p class='kicker mb-4'>Field notes</p>
+                <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-5'>
+                    I write now and then.
+                </h2>
+                <p class='text-base text-muted leading-relaxed mb-7'>
+                    Not often. Only when there's something worth saying. Lessons from the trenches, system design
+                    notes, and the occasional prompt that earns its keep.
+                </p>
+                <a href='/posts/' class='arrow-link text-[15px]'>All posts <span class='arrow'>→</span></a>
+            </div>
+            <div>
+                {latestPosts.map((post) => (
+                        <a href={`/${post.id}/`}
+                           class='flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-6 py-5 border-b border-hairline group'>
+                            <span class='text-[13px] text-muted tabular-nums w-[100px] shrink-0'>
+                                {post.data.pubDate.toLocaleDateString('en-us', {month: 'short', day: '2-digit', year: 'numeric', timeZone: 'UTC'})}
+                            </span>
+                            <span class='font-display text-[21px] font-semibold text-strong leading-snug group-hover:text-accent transition-colors duration-200'>
+                                {post.data.title}
+                            </span>
+                        </a>
+                ))}
+            </div>
+        </div>
+    </section>
+
+    <!-- 6 · Recommendations -->
+    <section class='border-t border-hairline'>
+        <div class='shell py-[72px] reveal'>
+            <div class='flex flex-col items-start gap-4 mb-10 md:flex-row md:items-end md:justify-between'>
+                <div>
+                    <p class='kicker mb-4'>Kind words · LinkedIn recommendations</p>
+                    <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight'>
+                        From the people I've worked with.
+                    </h2>
                 </div>
-            </article>
-        </main>
+                <a href={RECOMMENDATIONS_URL} target='_blank' class='arrow-link text-[15px] shrink-0'>
+                    All recommendations on LinkedIn <span class='arrow'>→</span>
+                </a>
+            </div>
+            <div class='grid md:grid-cols-2 gap-6'>
+                {recommendations.map((rec) => (
+                        <div class='cardx p-8'>
+                            <blockquote class='font-display text-[19px] italic text-body leading-relaxed mb-5'>
+                                “{rec.data.pullQuote ?? pullQuote(rec.body)}”
+                            </blockquote>
+                            <p class='text-[13.5px] text-muted'>
+                                {rec.data.name} · {rec.data.title} · {rec.data.relationship}
+                            </p>
+                        </div>
+                ))}
+            </div>
+        </div>
+    </section>
+
+    <!-- 7 · Toolbox marquee -->
+    <section class='border-t border-hairline'>
+        <div class='shell pt-[72px] pb-10 reveal'>
+            <p class='kicker mb-4'>The toolbox · Always moving</p>
+            <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight'>
+                Tools I reach for.
+            </h2>
+        </div>
+        <div class='pb-[72px]'>
+            <ToolboxMarquee/>
+        </div>
+    </section>
+
+    <!-- 8 · Interests -->
+    <section class='border-t border-hairline'>
+        <div class='shell py-[72px] reveal'>
+            <p class='kicker mb-4'>Off the clock</p>
+            <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-10'>
+                When I'm not shipping.
+            </h2>
+            <div class='grid sm:grid-cols-3 gap-6'>
+                {interests.map((interest) => (
+                        <div class='cardx cardx-hover p-8'>
+                            <h3 class='font-display text-[21px] font-semibold text-strong mb-3'>{interest.data.title}</h3>
+                            <p class='text-sm text-muted leading-relaxed'>{interest.data.description}</p>
+                        </div>
+                ))}
+            </div>
+        </div>
+    </section>
+
+    <!-- 9 · Contact -->
+    <div class='border-t border-hairline'>
+        <ContactBlock variant='centered'/>
     </div>
 </BaseLayout>

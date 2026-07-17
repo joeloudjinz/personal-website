@@ -1,14 +1,12 @@
 ---
-import {type CollectionEntry, getCollection} from 'astro:content';
+import {type CollectionEntry, render} from 'astro:content';
 import Prose from '../components/Prose.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import {Image} from 'astro:assets';
-import FormattedDate from '../components/FormattedDate.astro';
-import AboutTheAuthor from '../components/widgets/AboutTheAuthor.astro';
+import PublisherCard from '../components/widgets/PublisherCard.astro';
 import TableOfContent from '../components/widgets/TableOfContent.astro';
-import {slugify} from '../utils';
+import {getSortedPosts} from '../utils/posts';
 import {loadEnv} from 'vite';
-import {render} from 'astro:content';
 
 const {
     GISCUS_REPO,
@@ -18,134 +16,175 @@ const {
 } = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), '');
 
 export async function getStaticPaths() {
-    const posts = await getCollection('blog');
-    return posts.map((post) => ({
+    const posts = await getSortedPosts();
+    return posts.map((post, index) => ({
         params: {slug: post.id},
-        props: post
+        props: {post, newer: posts[index - 1] ?? null, older: posts[index + 1] ?? null}
     }));
 }
-type Props = CollectionEntry<'blog'>;
-const post: Props = Astro.props;
+
+interface Props {
+    post: CollectionEntry<'blog'>;
+    newer: CollectionEntry<'blog'> | null;
+    older: CollectionEntry<'blog'> | null;
+}
+
+const {post, newer, older} = Astro.props;
 const {
     data: {title, seoTitle, description, coverImage, pubDate, updatedDate, tags}
 } = post;
 const {Content, headings} = await render(post);
+
+const readingTime = Math.max(1, Math.ceil((post.body ?? '').split(/\s+/).length / 200));
+const displayDate = (date: Date) =>
+    date.toLocaleDateString('en-us', {month: 'short', day: '2-digit', year: 'numeric', timeZone: 'UTC'});
 ---
 
 <BaseLayout title={seoTitle || title} description={description} image={coverImage?.src || undefined}
             type='article' publishedTime={pubDate.toISOString()}
-            modifiedTime={updatedDate?.toISOString()} tags={tags}>
-    <div class='container lg:flex gap-10'>
-        <main
-                class='overflow-hidden grow'
-        >
-            <article>
-                <Prose>
-                    <div>
-                        <h1 class='!my-1 leading-tight'>{title}</h1>
-                        <div class='text-sm font-[500] mt-2 sm:mt-0 py-1 md:text-right flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center'>
-                            {
-                                <div class='flex gap-2'>
-                                    {
-                                        (tags || [])?.map((tag: string) => (
-                                                <a
-                                                        class='border border-zinc-300 dark:border-zinc-700 rounded-2xl
-                          text-sm text-zinc-700 dark:text-zinc-300 no-underline px-2 py-0.5
-                          transition-all duration-700
-                        hover:border-zinc-700 dark:hover:border-zinc-300'
-                                                        href={`/tags/${slugify(tag)}`}>
-                                                    {tag}
-                                                </a>
-                                        ))
-                                    }
-                                </div>
-                            }
-                            <div>
-                                {
-                                    updatedDate ?
-                                            <>Updated on <strong>
-                                                <FormattedDate date={updatedDate}/>
-                                            </strong></>
-                                        :
-                                            <>Published on <strong>
-                                                <FormattedDate date={pubDate}/>
-                                            </strong></>
-                                }
-                            </div>
-                        </div>
-                    </div>
-                    <div class='py-3 overflow-hidden'>
-                        {coverImage &&
-                                <Image class='rounded-3xl w-full m-0 lg:mb-2' src={coverImage} alt={title}
-                                       loading='eager'/>}
-                    </div>
-                    <Content/>
-                </Prose>
-                {
-                    GISCUS_REPO &&
-                    <>
-                    <script
-                        id='giscus-script'
-                        is:inline
-                        src='https://giscus.app/client.js'
-                        data-repo={GISCUS_REPO}
-                        data-repo-id={GISCUS_REPO_ID}
-                        data-category={GISCUS_CATEGORY}
-                        data-category-id={GISCUS_CATEGORY_ID}
-                        data-mapping='pathname'
-                        data-strict='0'
-                        data-reactions-enabled='1'
-                        data-emit-metadata='0'
-                        data-input-position='bottom'
-                        data-theme='preferred_color_scheme'
-                        data-lang='en'
-                        crossorigin='anonymous'
-                        async></script>
-                    <script is:inline>
-                        // Giscus reads its attributes only when the async client.js executes,
-                        // so this can still override the initial theme to match the site's.
-                        const giscusTheme = localStorage.getItem('theme') === 'dark' ? 'dark_dimmed' : 'light';
-                        document.getElementById('giscus-script')?.setAttribute('data-theme', giscusTheme);
-                    </script>
-                    </>
-                }
+            modifiedTime={updatedDate?.toISOString()} tags={tags} gradient='glow'>
+    <!-- Reading progress hairline, pinned under the sticky nav -->
+    <div class='reading-progress' id='readingProgress' aria-hidden='true'></div>
 
-            </article>
-        </main>
-        <div class='shrink-0 w-[280px] hidden md:block'>
-        <div class='mb-4'>
-        <AboutTheAuthor />
+    <!-- Article header -->
+    <header class='mx-auto max-w-[860px] px-6 text-center pt-14 pb-12 cascade'>
+        <p class='kicker mb-6'>Field notes · {displayDate(pubDate)} · {readingTime} min read</p>
+        <h1 class='font-display text-4xl md:text-[56px] font-semibold text-strong tracking-[-0.015em] leading-tight mb-6'
+            transition:name={`post-title-${post.id}`}>
+            {title}
+        </h1>
+        <p class='text-[21px] text-muted leading-relaxed mb-7'>{description}</p>
+        {(tags ?? []).length > 0 && (
+                <div class='flex justify-center flex-wrap gap-2'>
+                    {(tags ?? []).map((tag) => <span class='chip'>{tag}</span>)}
+                </div>
+        )}
+    </header>
+
+    <!-- Body: sticky rail + 720px article -->
+    <div class='shell pb-16'>
+        <div class='lg:grid lg:grid-cols-[300px_minmax(0,720px)] lg:justify-center lg:gap-12 xl:gap-[72px]'>
+            <aside class='hidden lg:block'>
+                <div class='sticky top-24 space-y-6'>
+                    <PublisherCard pubDate={displayDate(pubDate)} readingTime={readingTime}/>
+                    <TableOfContent headings={headings}/>
+                </div>
+            </aside>
+
+            <div class='min-w-0'>
+                {coverImage && (
+                        <Image class='rounded-tile shadow-card w-full mb-10' src={coverImage} alt={title}
+                               loading='eager'/>
+                )}
+                <article id='articleBody'>
+                    <Prose>
+                        <Content/>
+                    </Prose>
+                </article>
+
+                {GISCUS_REPO && (
+                        <div class='mt-14 border-t border-hairline pt-10'>
+                            <script
+                                    id='giscus-script'
+                                    is:inline
+                                    src='https://giscus.app/client.js'
+                                    data-repo={GISCUS_REPO}
+                                    data-repo-id={GISCUS_REPO_ID}
+                                    data-category={GISCUS_CATEGORY}
+                                    data-category-id={GISCUS_CATEGORY_ID}
+                                    data-mapping='pathname'
+                                    data-strict='0'
+                                    data-reactions-enabled='1'
+                                    data-emit-metadata='0'
+                                    data-input-position='bottom'
+                                    data-theme='preferred_color_scheme'
+                                    data-lang='en'
+                                    crossorigin='anonymous'
+                                    async></script>
+                            <script is:inline>
+                                // Giscus reads its attributes only when the async client.js executes,
+                                // so this can still override the initial theme to match the site's.
+                                const giscusTheme = localStorage.getItem('theme') === 'dark' ? 'dark_dimmed' : 'light';
+                                document.getElementById('giscus-script')?.setAttribute('data-theme', giscusTheme);
+                            </script>
+                        </div>
+                )}
+
+                <!-- Prev / next -->
+                {(older || newer) && (
+                        <nav class='grid sm:grid-cols-2 gap-6 border-t border-hairline mt-14 pt-8'
+                             aria-label='More posts'>
+                            {older ? (
+                                    <a href={`/${older.id}/`} class='cardx cardx-hover p-6'>
+                                        <p class='text-[11px] font-semibold uppercase tracking-[.08em] text-muted mb-3'>‹ Previous</p>
+                                        <p class='font-display text-xl font-semibold text-strong leading-snug mb-2'>{older.data.title}</p>
+                                        <p class='text-[13px] text-muted tabular-nums'>{displayDate(older.data.pubDate)}</p>
+                                    </a>
+                            ) : <span></span>}
+                            {newer && (
+                                    <a href={`/${newer.id}/`} class='cardx cardx-hover p-6 text-right'>
+                                        <p class='text-[11px] font-semibold uppercase tracking-[.08em] text-muted mb-3'>Next ›</p>
+                                        <p class='font-display text-xl font-semibold text-strong leading-snug mb-2'>{newer.data.title}</p>
+                                        <p class='text-[13px] text-muted tabular-nums'>{displayDate(newer.data.pubDate)}</p>
+                                    </a>
+                            )}
+                        </nav>
+                )}
+            </div>
         </div>
-        <TableOfContent headings={headings}/>
-    </div>
     </div>
 </BaseLayout>
 
 <script is:inline>
-    const anchors = Array.from(document.querySelectorAll('.prose h2[id], .prose h3[id]'));
-    const links = Array.from(document.querySelectorAll('nav.toc ul li a'));
-    const activeClasses = ['bg-[var(--background-surface-color)]', 'border-[var(--soft-border-color)]', 'text-[var(--link-color)]'];
-    const inactiveClasses = ['border-transparent', 'text-inherit'];
+    if (!window.__postPageBound) {
+        window.__postPageBound = true;
 
-    function highlight(activeIndex) {
-        links.forEach((link, i) => {
-            link.classList.remove(...(i === activeIndex ? inactiveClasses : activeClasses));
-            link.classList.add(...(i === activeIndex ? activeClasses : inactiveClasses));
-        });
-    }
+        let tocObserver = null;
 
-    // The observed band spans from the 80px reading line down to 25% of the
-    // viewport; a heading entering it becomes active, one leaving it downwards
-    // hands the highlight back to the previous section. No scroll listener needed.
-    const observer = new IntersectionObserver((entries) => {
-        for (const entry of entries) {
-            const index = anchors.indexOf(entry.target);
-            if (entry.isIntersecting) {
-                highlight(index);
-            } else if (entry.boundingClientRect.top > 80) {
-                highlight(index - 1);
+        const initPostPage = () => {
+            // Reading progress: scaleX tracks article scroll (0 at top, 1 at end)
+            const bar = document.getElementById('readingProgress');
+            const article = document.getElementById('articleBody');
+            if (bar && article) {
+                let ticking = false;
+                const update = () => {
+                    ticking = false;
+                    const rect = article.getBoundingClientRect();
+                    const total = Math.max(1, rect.height - window.innerHeight);
+                    const progress = Math.min(1, Math.max(0, -rect.top / total));
+                    bar.style.transform = `scaleX(${progress})`;
+                };
+                window.addEventListener('scroll', () => {
+                    if (!ticking) {
+                        ticking = true;
+                        requestAnimationFrame(update);
+                    }
+                }, {passive: true});
+                update();
             }
-        }
-    }, {rootMargin: '-80px 0px -75% 0px'});
-    anchors.forEach((anchor) => observer.observe(anchor));
+
+            // TOC active-section highlight
+            tocObserver?.disconnect();
+            const anchors = Array.from(document.querySelectorAll('#articleBody h2[id]'));
+            const links = Array.from(document.querySelectorAll('.toc .toc-link'));
+            if (anchors.length && anchors.length === links.length) {
+                const highlight = (index) => {
+                    links.forEach((link, i) => link.classList.toggle('active', i === index));
+                };
+                tocObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        const index = anchors.indexOf(entry.target);
+                        if (entry.isIntersecting) {
+                            highlight(index);
+                        } else if (entry.boundingClientRect.top > 110) {
+                            highlight(index - 1);
+                        }
+                    }
+                }, {rootMargin: '-110px 0px -70% 0px'});
+                anchors.forEach((anchor) => tocObserver.observe(anchor));
+            }
+        };
+
+        document.addEventListener('astro:page-load', initPostPage);
+    }
 </script>

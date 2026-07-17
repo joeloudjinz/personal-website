@@ -1,47 +1,51 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import ProjectList from '../../components/ProjectList.astro';
-import {getAllProjects, type ProjectCollectionEntry} from '../../utils/projects';
+import ProjectItem from '../../components/ProjectItem.astro';
+import {getOrderedProjects} from '../../utils/projects';
 
-// Define hardcoded list of project IDs for sorting
-const projectOrder = [
-    "inz-foge-ui-library",
-    "dynamic-module-loader-dotnet",
-    'data-seeder-dotnet',
-    'algerian-rib-validator',
-    'pipeline-pattern-dotnet',
-    "pipeline-pattern-typescript",
-    'onion-architecture-dotnet',
-    'repository-pattern-laravel'
-];
+const projects = await getOrderedProjects();
+const nugetCount = projects.filter((project) => project.data.publishedPackageLink).length;
 
-const allProjects = await getAllProjects();
-
-// Sort projects based on the defined order; anything not in the list is
-// appended at the end so a new project file can never silently disappear
-const sortedProjects = [
-    ...projectOrder
-        .map(id => allProjects.find(project => project.data.id === id))
-        .filter((project): project is ProjectCollectionEntry => project !== undefined),
-    ...allProjects.filter(project => !projectOrder.includes(project.data.id))
+// Row-major masonry: odd positions fill the left column, even the right,
+// so items 1|2, 3|4… pair up while every card keeps its natural height.
+const masonryColumns = [
+    projects.filter((_, i) => i % 2 === 0),
+    projects.filter((_, i) => i % 2 === 1)
 ];
 ---
 
 <BaseLayout
-        title="Abdellah addoun's Projects Gallery"
-        description="Find a humble list of open source projects i worked on or contrinuted to over time."
->
-    <div class='container'>
-        <div class="mb-10">
-            <h1 class="text-5xl font-bold mb-2">Projects Gallery</h1>
-            <p class="text-zinc-700 dark:text-zinc-300 text-lg">
-                Open source projects i worked on or contributed to over the time. Feel free to check them out and if you
-                have any feedback i'm happy to hear it out.
-            </p>
+        title="Abdellah Addoun's Projects Gallery"
+        description='Find a humble list of open source projects I worked on or contributed to over time.'
+        gradient='subtle'>
+    <!-- Header -->
+    <section class='shell pt-16 pb-14 cascade'>
+        <p class='kicker mb-5'>Open source · {projects.length} projects, {nugetCount} on NuGet</p>
+        <h1 class='font-display text-4xl md:text-[56px] font-semibold text-strong tracking-[-0.015em] leading-tight mb-6'>
+            Projects gallery.
+        </h1>
+        <p class='text-[21px] text-muted leading-relaxed max-w-[760px]'>
+            Open source projects I worked on or contributed to over time. Feel free to check them out. If you have
+            any feedback, I'm happy to hear it.
+        </p>
+    </section>
+
+    <!-- Masonry grid -->
+    <section class='shell pb-[72px]'>
+        <!-- Mobile: single column in list order -->
+        <div class='flex flex-col gap-6 md:hidden reveal'>
+            {projects.map((project) => <ProjectItem project={project}/>)}
         </div>
-        <ProjectList projects={sortedProjects}/>
-        <div class="my-5 py-4 text-center">
-            <p class="text-2xl purple-red-gradient-wave">More projects are yet to come! INCHALLAH 🤲🏽.</p>
+        <!-- md+: two masonry columns paired row-major from the curated order -->
+        <div class='hidden md:grid md:grid-cols-2 gap-6 items-start reveal'>
+            {masonryColumns.map((column) => (
+                    <div class='flex flex-col gap-6'>
+                        {column.map((project) => <ProjectItem project={project}/>)}
+                    </div>
+            ))}
         </div>
-    </div>
+        <p class='text-center font-display text-[21px] italic text-muted mt-14'>
+            More projects are yet to come, inchallah.
+        </p>
+    </section>
 </BaseLayout>

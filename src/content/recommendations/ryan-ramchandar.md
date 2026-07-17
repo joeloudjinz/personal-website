@@ -5,6 +5,7 @@ title: "Software Consultant"
 date: "December 3, 2024"
 relationship: "Worked with Abdellah on the same team"
 linkedinUrl: "https://www.linkedin.com/in/ryanramchandar"
+pullQuote: 'Abdellah was proactive about solving challenges, even anticipating issues before they arose. … His patience and logical approach made the process both effective and enjoyable.'
 avatar: "https://media.licdn.com/dms/image/v2/D4E03AQGvrTX3YudGJA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1647402894620?e=1761782400&v=beta&t=8MUFEKQi_MRD2s6sdVBTlBPjkBShH6n3aOaZgJs_EEA"
 ---
 <p class="text-white">

@@ -1,0 +1,13 @@
+---
+interface Props {
+    tags: string[];
+    label?: string;
+}
+
+const {tags, label} = Astro.props;
+---
+
+<p class='stack-line'>
+    {label && <span class='stack-label'>{label}</span>}
+    {tags.map((tag) => <span class='stack-tag'>{tag}</span>)}
+</p>

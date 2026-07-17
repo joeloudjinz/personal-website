@@ -1,0 +1,136 @@
+---
+const logoModules = import.meta.glob('/src/assets/logos/*.svg', {eager: true, query: '?url', import: 'default'});
+
+// loved: tools I like, use a lot and am most familiar with — rendered bigger,
+// with a pulsing heart
+const TOOLS = [
+    {file: 'DotNet', label: '.NET', loved: true},
+    {file: 'CSharp', label: 'C#', loved: true},
+    {file: 'Typescript', label: 'Typescript', loved: true},
+    {file: 'Angular', label: 'Angular', loved: true},
+    {file: 'NestJS', label: 'NestJS', loved: true},
+    {file: 'NodeJS', label: 'NodeJS', loved: true},
+    {file: 'Flutter', label: 'Flutter', loved: true},
+    {file: 'Dart', label: 'Dart', loved: true},
+    {file: 'AWS', label: 'AWS'},
+    {file: 'MySQL', label: 'MySQL'},
+    {file: 'Postgres', label: 'Postgres', loved: true},
+    {file: 'Redis', label: 'Redis', loved: true},
+    {file: 'Docker', label: 'Docker', loved: true},
+    {file: 'Firebase', label: 'Firebase', loved: true},
+    {file: 'Stripe', label: 'Stripe'},
+    {file: 'DataDog', label: 'DataDog'},
+    {file: 'Kafka', label: 'Kafka'},
+    {file: 'Claude', label: 'Claude', loved: true},
+    {file: 'Gemini', label: 'Gemini'}
+];
+
+const tiles = TOOLS
+    .map((tool) => ({
+        label: tool.label,
+        loved: !!tool.loved,
+        url: logoModules[`/src/assets/logos/${tool.file}-logo.svg`] as string | undefined
+    }))
+    .filter((tile): tile is {label: string; loved: boolean; url: string} => !!tile.url);
+
+const ariaLabel = `Technologies: ${tiles.map((t) => t.loved ? `${t.label} (favorite)` : t.label).join(', ')}`;
+---
+
+<div class='marquee overflow-hidden' id='toolboxMarquee' role='img' aria-label={ariaLabel}>
+    <div class='marquee-track items-center' id='toolboxTrack'>
+        {[...tiles, ...tiles].map((tile) => (
+                <div class:list={[
+                    'cardx !rounded-[12px] relative flex flex-col items-center justify-center shrink-0 mx-2',
+                    tile.loved ? 'tile-loved w-[136px] py-7 gap-3.5' : 'w-[118px] py-5 gap-3'
+                ]}
+                     aria-hidden='true'>
+                    {tile.loved && (
+                            <svg class='tile-heart absolute top-2.5 right-2.5 w-[18px] h-[18px]' viewBox='0 0 24 24'
+                                 fill='var(--accent)'>
+                                <path d='M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z'/>
+                            </svg>
+                    )}
+                    <img src={tile.url} alt='' class:list={[
+                        'w-auto max-w-[74px] object-contain',
+                        tile.loved ? 'h-[38px]' : 'h-[34px]'
+                    ]} loading='lazy'/>
+                    <span class='text-xs text-muted'>{tile.label}</span>
+                </div>
+        ))}
+    </div>
+</div>
+
+<style>
+    /* Tilted heart with a subtle heartbeat */
+    .tile-heart {
+        transform: rotate(12deg);
+        transform-origin: center;
+        animation: heart-pulse 2.6s var(--ease-standard) infinite;
+    }
+
+    @keyframes heart-pulse {
+        0%, 100% { transform: rotate(12deg) scale(1); }
+        50% { transform: rotate(12deg) scale(1.12); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .tile-heart {
+            animation: none;
+        }
+    }
+</style>
+
+
+<script is:inline>
+    if (!window.__toolboxMarqueeBound) {
+        window.__toolboxMarqueeBound = true;
+
+        // Takes over the CSS marquee animation with a JS-driven offset so the
+        // wheel can scrub through the loop; keeps the same 48s speed, pauses
+        // on hover, and wraps seamlessly over the duplicated tile set.
+        const LOOP_MS = 48000;
+
+        const init = () => {
+            const marquee = document.getElementById('toolboxMarquee');
+            const track = document.getElementById('toolboxTrack');
+            if (!marquee || !track || track.dataset.bound) return;
+            track.dataset.bound = '1';
+            track.style.animation = 'none';
+
+            const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            let half = track.scrollWidth / 2;
+            let offset = 0;
+            let hovered = false;
+            let last = performance.now();
+
+            const apply = () => {
+                offset = ((offset % half) + half) % half;
+                track.style.transform = `translateX(${-offset}px)`;
+            };
+
+            const tick = (now) => {
+                if (!track.isConnected) return;
+                const elapsed = now - last;
+                last = now;
+                if (!hovered && !reduced) {
+                    offset += (half / LOOP_MS) * elapsed;
+                    apply();
+                }
+                requestAnimationFrame(tick);
+            };
+
+            marquee.addEventListener('mouseenter', () => { hovered = true; });
+            marquee.addEventListener('mouseleave', () => { hovered = false; });
+            marquee.addEventListener('wheel', (event) => {
+                event.preventDefault();
+                offset += (event.deltaY || 0) + (event.deltaX || 0);
+                apply();
+            }, {passive: false});
+            window.addEventListener('resize', () => { half = track.scrollWidth / 2; }, {passive: true});
+
+            requestAnimationFrame(tick);
+        };
+
+        document.addEventListener('astro:page-load', init);
+    }
+</script>

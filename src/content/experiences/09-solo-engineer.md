@@ -4,7 +4,7 @@ roleName: "Solo Engineer Looking for Opportunities"
 companyName: ""
 companyUrl: ""
 startDate: "2025-09"
-endDate: "Present"
+endDate: "2026-04"
 location: "Ain Salah - Algeria"
 workType: "remote"
 tags: [ ".NET", "Angular", "Typescript", "NestJS", "Langchain", "Langgraph", "Debugging", "Prompt Engineering", "LLM Integration", "AI Agents", "Collaboration" ]
