@@ -96,6 +96,27 @@ The measurement is a binary search (~11 probes per story, since line tops increa
 linear walk over ~2,000 characters. It re-runs on `document.fonts.ready`, because the pre-paint pass measures with
 fallback font metrics and would otherwise cut at the wrong place once the web font swaps in.
 
+### Line breaking is not greedy — `text-wrap: pretty`
+
+`src/styles/global.css:118` sets `p { text-wrap: pretty }`, part of the design system's original tokens. `pretty`
+rebalances a paragraph's line breaks across its **whole content** to avoid orphans. The consequence is easy to miss
+and fatal to a naive implementation:
+
+> **A boundary measured against the full story stops being true the moment you cut the text**, because the shorter
+> paragraph re-wraps differently. The measurement invalidates itself.
+
+This was not theoretical. Measured in a real browser after the first implementation pass, **two of nine collapsed
+cards rendered 4 lines instead of 3** from exactly this effect — and re-running the measurement with fonts fully
+loaded did not fix it, which is what ruled out the font-metric explanation.
+
+`truncate` therefore applies its cut, then **re-measures what it actually rendered** and tightens until it fits,
+capped at 4 passes. It converges in 1-2. Two supporting details:
+
+- The re-measure must be bounded to the current cut. Nodes past the cut hold `''`, and a `Range.setStart` beyond a
+  node's length throws `IndexSizeError`.
+- Setting `text-wrap: auto` on the story would also "fix" it and is **rejected**: it is a deliberate typographic
+  choice of the design system, and the brief was to respect the design system.
+
 ### Why the screen-reader change is acceptable
 
 Today `overflow: hidden` clips the story visually but leaves it in the accessibility tree — a screen reader reads the

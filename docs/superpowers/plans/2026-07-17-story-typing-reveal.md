@@ -67,6 +67,13 @@ the working tree — that is pre-existing drift. Leave it. Never `git add -A` or
   3-line boundary is immune to both.
 - `experience.id` resolves via the `glob()` loader in `src/content.config.ts` to the filename slug, e.g.
   `10-amek-senior-engineer` — verified, and valid/unique as an HTML id.
+- **`src/styles/global.css:118` sets `p { text-wrap: pretty }`.** This is pre-existing, part of the design system's
+  original tokens commit. It is the single most important fact on this page, because **line breaking is not greedy**:
+  `pretty` rebalances a paragraph's breaks across its whole content, so shortening a paragraph re-wraps the text that
+  remains. A boundary measured against the full story therefore stops being true the moment it is applied — measured
+  in a real browser, two of nine cards rendered 4 lines instead of 3 from exactly this. `truncate` handles it by
+  re-measuring what it actually rendered and tightening (converges in 1-2 passes). Do **not** "fix" this by setting
+  `text-wrap: auto` on the story: that is a design-system typography choice, and the brief was to respect it.
 
 ## File Structure
 
@@ -224,13 +231,17 @@ block (the one ending with the `astro:after-swap` listener). Do not merge it int
             return tail;
         };
 
-        /* Top of the character at `index`, or null if it has no box (collapsed whitespace). */
+        /* Top of the character at `index`, or null if it has no box (collapsed whitespace)
+           or has not been revealed yet. The length guard matters: after a cut, nodes past
+           the cut hold '', and setStart past a node's length throws IndexSizeError. */
         const rectTopAt = (s, index) => {
             for (const item of s.nodes) {
                 if (index >= item.start && index < item.end) {
+                    const offset = index - item.start;
+                    if (offset + 1 > item.node.nodeValue.length) return null;
                     const range = document.createRange();
-                    range.setStart(item.node, index - item.start);
-                    range.setEnd(item.node, index - item.start + 1);
+                    range.setStart(item.node, offset);
+                    range.setEnd(item.node, offset + 1);
                     const rect = range.getBoundingClientRect();
                     return rect.height ? rect.top : null;
                 }
@@ -238,20 +249,21 @@ block (the one ending with the `astro:after-swap` listener). Do not merge it int
             return null;
         };
 
-        /* First character index that falls below `lines` lines. Binary search, not a linear
-           walk: tops increase monotonically down the flow, so this costs ~11 probes per
-           story instead of ~2000. Nothing is mutated during the search, so the layout read
-           stays cached. */
-        const lineBoundary = (story, lines) => {
+        /* First character index that falls below `lines` lines, searching only up to
+           `hiBound`. Binary search, not a linear walk: tops increase monotonically down the
+           flow, so this costs ~11 probes per story instead of ~2000. Nothing is mutated
+           during the search, so the layout read stays cached. */
+        const lineBoundary = (story, lines, hiBound) => {
             const s = state.get(story);
             const lineHeight = parseFloat(getComputedStyle(story).lineHeight);
             if (!lineHeight) return s.total;
+            const limitIndex = Math.min(hiBound === undefined ? s.total : hiBound, s.total);
             let firstTop = null;
-            for (let i = 0; i < s.total && firstTop === null; i++) firstTop = rectTopAt(s, i);
-            if (firstTop === null) return s.total;
+            for (let i = 0; i < limitIndex && firstTop === null; i++) firstTop = rectTopAt(s, i);
+            if (firstTop === null) return limitIndex;
             const limit = firstTop + lines * lineHeight - 1;
             let lo = 0;
-            let hi = s.total;
+            let hi = limitIndex;
             while (lo < hi) {
                 const mid = (lo + hi) >> 1;
                 const top = rectTopAt(s, mid);
@@ -264,15 +276,32 @@ block (the one ending with the `astro:after-swap` listener). Do not merge it int
         const truncate = (story) => {
             const s = state.get(story);
             reveal(story, s.total); /* measure against the full text */
-            const boundary = lineBoundary(story, LINES);
+            const full = s.nodes.map((n) => n.full).join('');
+            const backOff = (index) => {
+                const space = full.slice(0, index).lastIndexOf(' ');
+                return space > 0 ? space : index;
+            };
+
+            const boundary = lineBoundary(story, LINES, s.total);
             if (boundary >= s.total) {
                 s.cut = s.total;
                 return;
             }
-            const full = s.nodes.map((n) => n.full).join('');
-            const space = full.slice(0, boundary).lastIndexOf(' ');
-            s.cut = space > 0 ? space : boundary;
+            s.cut = backOff(boundary);
             reveal(story, s.cut, true);
+
+            /* global.css sets `p { text-wrap: pretty }`, which rebalances a paragraph's
+               line breaks across its WHOLE content. Line breaking is therefore not greedy:
+               cutting text changes how the text that remains wraps, so a boundary measured
+               against the full story can render one line too tall once applied. Measure
+               what was actually rendered and tighten until it fits. Converges in 1-2
+               passes; the bound stops it probing the emptied nodes past the cut. */
+            for (let pass = 0; pass < 4; pass++) {
+                const rendered = lineBoundary(story, LINES, s.cut);
+                if (rendered >= s.cut) break;
+                s.cut = backOff(rendered);
+                reveal(story, s.cut, true);
+            }
         };
 
         const expand = (story, button) => {
