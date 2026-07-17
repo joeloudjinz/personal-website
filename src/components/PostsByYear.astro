@@ -32,7 +32,7 @@ const shortDate = (date: Date) =>
 ---
 
 {groupedPosts.map(({year, posts}) => (
-        <div class='grid md:grid-cols-[200px_1fr] gap-4 md:gap-12 border-t border-hairline first:border-t-0 py-10 reveal'>
+        <div class='grid md:grid-cols-[200px_minmax(0,1fr)] gap-4 md:gap-12 border-t border-hairline first:border-t-0 py-10 reveal'>
             <div class='font-display text-[56px] md:text-[72px] font-semibold text-accent leading-none'>{year}</div>
             <div>
                 {posts.map((post) => (
