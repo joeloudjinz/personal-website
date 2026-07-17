@@ -547,12 +547,26 @@ const education = (await getCollection('education')).sort(
             const fullHeight = story.scrollHeight;
             reveal(story, s.cut, true);
 
-            /* Reserve the space before typing so nothing below the card shifts while the
-               reader reads. min-height needs an explicit start value — auto will not
-               transition. */
+            /* Reserve ONE LINE MORE than the finished text needs.
+
+               `p { text-wrap: pretty }` (global.css) rebalances a paragraph to avoid
+               orphans. A half-typed paragraph is a complete paragraph as far as CSS is
+               concerned, so mid-run it can push its last word onto an extra line and render
+               TALLER than the same paragraph will once fully revealed. Reserving only
+               fullHeight therefore leaves the box overflowing by one line for part of the
+               run, jittering everything below it — measured at exactly +25px on
+               06-teknika-backend-lead, and 0.98-1.02 line-heights across all eight stories,
+               which is what makes one line a safe bound.
+
+               The cursor is NOT the cause here: it is width:0 with an absolutely-positioned
+               ::after and measures 0x0, verified layout-neutral. Do not "fix" this by
+               padding for the cursor.
+
+               min-height needs an explicit start value — auto will not transition. */
+            const lineHeight = parseFloat(getComputedStyle(story).lineHeight) || 0;
             story.style.minHeight = story.offsetHeight + 'px';
             void story.offsetHeight;
-            story.style.minHeight = fullHeight + 'px';
+            story.style.minHeight = fullHeight + lineHeight + 'px';
 
             /* Cancel any grow timer still pending from a previous expand. Without this, a
                fast expand -> collapse -> expand inside the 340ms grow window leaves a stale
