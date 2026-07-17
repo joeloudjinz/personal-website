@@ -127,6 +127,35 @@ const education = (await getCollection('education')).sort(
         font-weight: 600;
     }
 
+    /* The cursor is created by script, so it cannot live in ExperienceCard's scoped styles. */
+    .type-cursor {
+        display: inline-block;
+        width: 0.5em;
+        height: 1em;
+        margin-left: 1px;
+        vertical-align: text-bottom;
+        background: var(--accent);
+        animation: type-blink 1s steps(2, start) infinite;
+    }
+
+    .type-cursor.is-done {
+        animation: none;
+        opacity: 0;
+        transition: opacity var(--dur-base) var(--ease-standard);
+    }
+
+    @keyframes type-blink {
+        to {
+            visibility: hidden;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .type-cursor {
+            animation: none;
+        }
+    }
+
     .timeline-entry .story-card {
         /* Anchor the left edge so the gap to the timeline rail never changes */
         transform-origin: left center;
@@ -282,6 +311,10 @@ const education = (await getCollection('education')).sort(
     if (!window.__storyRevealBound) {
         window.__storyRevealBound = true;
 
+        const D_TARGET = 12;       /* ms/char: the steady writing rate we aim for */
+        const CEILING = 6000;      /* ms: hard ceiling on one reveal, no matter how long */
+        const MAX_FRAME_MS = 50;   /* clamp a stalled frame so it cannot dump the story */
+        const GROW_MS = 340;       /* the .story min-height transition is 320ms */
         const LINES = 3;   /* collapsed height, matching the 77px clamp this replaces */
 
         const state = new WeakMap();
@@ -408,15 +441,109 @@ const education = (await getCollection('education')).sort(
             }
         };
 
+        const finish = (story) => {
+            const s = state.get(story);
+            if (s.raf) cancelAnimationFrame(s.raf);
+            s.raf = 0;
+            s.typing = false;
+            reveal(story, s.total);
+            story.style.minHeight = '';
+            if (s.cursor) {
+                const cursor = s.cursor;
+                s.cursor = null;
+                cursor.classList.add('is-done');
+                setTimeout(() => cursor.remove(), 260);
+            }
+        };
+
+        const placeCursor = (story, upto) => {
+            const s = state.get(story);
+            if (!s.cursor) return;
+            let tail = s.nodes[0];
+            for (const item of s.nodes) if (item.start < upto) tail = item;
+            const parent = tail.node.parentNode;
+            if (parent && s.cursor.previousSibling !== tail.node) {
+                parent.insertBefore(s.cursor, tail.node.nextSibling);
+            }
+        };
+
+        const type = (story) => {
+            const s = state.get(story);
+            /* The reader may have collapsed the card during the grow delay. */
+            if (story.classList.contains('collapsed')) return;
+            const from = s.cut;
+            const N = s.total - from;
+            if (N <= 0) {
+                finish(story);
+                return;
+            }
+
+            /* delay ramps dFast -> dSteady across the first third, then holds constant.
+               Integrating that gives T = 11*N*dSteady/12, hence dSteady = 12T/(11N).
+               Under the ceiling, dSteady resolves to exactly D_TARGET. */
+            const T = Math.min(CEILING, (11 * N * D_TARGET) / 12);
+            const dSteady = (12 * T) / (11 * N);
+            const dFast = dSteady / 2;
+            const delayAt = (i) => dFast + (dSteady - dFast) * Math.min(1, (i / N) * 3);
+
+            s.cursor = document.createElement('span');
+            s.cursor.className = 'type-cursor';
+            s.cursor.setAttribute('aria-hidden', 'true');
+            s.typing = true;
+
+            let revealed = from;
+            let acc = 0;
+            let last = performance.now();
+            const frame = (now) => {
+                acc += Math.min(now - last, MAX_FRAME_MS);
+                last = now;
+                while (revealed < s.total && acc >= delayAt(revealed - from)) {
+                    acc -= delayAt(revealed - from);
+                    revealed++;
+                }
+                reveal(story, revealed);
+                placeCursor(story, revealed);
+                if (revealed >= s.total) {
+                    finish(story);
+                    return;
+                }
+                s.raf = requestAnimationFrame(frame);
+            };
+            s.raf = requestAnimationFrame(frame);
+        };
+
         const expand = (story, button) => {
             const s = state.get(story);
             story.classList.remove('collapsed');
             button.textContent = 'Show less ↑';
             button.setAttribute('aria-expanded', 'true');
+
+            /* Measure the full height by briefly revealing everything. This is synchronous
+               and forces one reflow, so the browser never paints the revealed state. */
             reveal(story, s.total);
+            const fullHeight = story.scrollHeight;
+            reveal(story, s.cut, true);
+
+            /* Reserve the space before typing so nothing below the card shifts while the
+               reader reads. min-height needs an explicit start value — auto will not
+               transition. */
+            story.style.minHeight = story.offsetHeight + 'px';
+            void story.offsetHeight;
+            story.style.minHeight = fullHeight + 'px';
+
+            setTimeout(() => type(story), GROW_MS);
         };
 
         const collapse = (story, button) => {
+            const s = state.get(story);
+            if (s.raf) cancelAnimationFrame(s.raf);
+            s.raf = 0;
+            s.typing = false;
+            if (s.cursor) {
+                s.cursor.remove();
+                s.cursor = null;
+            }
+            story.style.minHeight = '';
             story.classList.add('collapsed');
             button.textContent = 'Read the story ↓';
             button.setAttribute('aria-expanded', 'false');
