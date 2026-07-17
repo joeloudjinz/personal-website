@@ -242,8 +242,20 @@ const isActive = (link: string) =>
                 if (!btn || !menu || menu.hidden) return;
                 btn.setAttribute('aria-expanded', 'false');
                 menu.classList.remove('open');
-                if (reduce()) menu.hidden = true;
-                else menu.addEventListener('transitionend', () => {menu.hidden = true;}, {once: true});
+                if (reduce()) {
+                    menu.hidden = true;
+                } else {
+                    /* Guard on target: the panel transitions two properties, and
+                       transitionend bubbles — react only to the panel's own transition,
+                       and drop the listener manually (not `once`, which would fire on the
+                       first bubbled child event and never hide). */
+                    const onEnd = (event) => {
+                        if (event.target !== menu) return;
+                        menu.hidden = true;
+                        menu.removeEventListener('transitionend', onEnd);
+                    };
+                    menu.addEventListener('transitionend', onEnd);
+                }
                 if (returnFocus) btn.focus();
             };
 
