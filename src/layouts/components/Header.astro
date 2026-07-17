@@ -29,7 +29,7 @@ const isActive = (link: string) =>
                    class='h-12 w-12 hidden dark:block'/>
         </a>
 
-        <div class='flex items-center gap-6 md:gap-9'>
+        <div class='hidden md:flex items-center gap-6 md:gap-9'>
             {menu.map((item) => (
                     <a href={item.link}
                        class:list={[
@@ -72,7 +72,32 @@ const isActive = (link: string) =>
                 </span>
             </button>
         </div>
+
+        <button type='button'
+                class='menu-toggle md:hidden flex flex-col justify-center gap-[5px] shrink-0 p-2 -mr-2'
+                aria-label='Menu' aria-expanded='false' aria-controls='mobileMenu'>
+            <span class='menu-bar'></span>
+            <span class='menu-bar'></span>
+            <span class='menu-bar'></span>
+        </button>
     </nav>
+
+    <div id='mobileMenu' class='mobile-menu md:hidden' hidden>
+        <nav class='shell flex flex-col py-2' aria-label='Mobile'>
+            {menu.map((item) => (
+                    <a href={item.link}
+                       class:list={[
+                           'py-3 text-[17px] border-b border-hairline last:border-b-0',
+                           isActive(item.link)
+                               ? 'text-accent font-semibold'
+                               : 'text-body font-medium'
+                       ]}
+                       aria-current={isActive(item.link) ? 'page' : undefined}>
+                        {item.label}
+                    </a>
+            ))}
+        </nav>
+    </div>
 
     <style>
         .toggle-seg {
@@ -110,6 +135,50 @@ const isActive = (link: string) =>
             background: var(--accent);
             color: var(--on-accent);
         }
+
+        .menu-bar {
+            width: 22px;
+            height: 2px;
+            border-radius: 2px;
+            background: var(--text-strong);
+            transition: transform var(--dur-base) var(--ease-standard),
+                opacity var(--dur-base) var(--ease-standard);
+        }
+
+        /* Hamburger morphs to an X while the menu is open. */
+        .menu-toggle[aria-expanded='true'] .menu-bar:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+        .menu-toggle[aria-expanded='true'] .menu-bar:nth-child(2) {
+            opacity: 0;
+        }
+        .menu-toggle[aria-expanded='true'] .menu-bar:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
+        .mobile-menu {
+            overflow: hidden;
+            border-top: 1px solid var(--hairline);
+            transform: translateY(-8px);
+            opacity: 0;
+            transition: transform var(--dur-base) var(--ease-standard),
+                opacity var(--dur-base) var(--ease-standard);
+        }
+        .mobile-menu.open {
+            transform: none;
+            opacity: 1;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .menu-bar,
+            .mobile-menu {
+                transition: none;
+            }
+            .mobile-menu {
+                transform: none;
+                opacity: 1;
+            }
+        }
     </style>
 
     <script is:inline>
@@ -141,6 +210,69 @@ const isActive = (link: string) =>
             });
 
             document.addEventListener('astro:page-load', syncPressed);
+        }
+    </script>
+
+    <script is:inline>
+        if (!window.__mobileMenuBound) {
+            window.__mobileMenuBound = true;
+
+            const reduce = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            const els = () => ({
+                btn: document.querySelector('.menu-toggle'),
+                menu: document.getElementById('mobileMenu')
+            });
+
+            const openMenu = () => {
+                const {btn, menu} = els();
+                if (!btn || !menu) return;
+                menu.hidden = false;
+                btn.setAttribute('aria-expanded', 'true');
+                /* Slide in on the frame after unhiding so the transition has a start state.
+                   `hidden` (display:none) means the closed menu is out of the a11y tree and
+                   not focusable — no focus trap needed for a non-modal disclosure. */
+                if (reduce()) menu.classList.add('open');
+                else requestAnimationFrame(() => requestAnimationFrame(() => menu.classList.add('open')));
+                const first = menu.querySelector('a');
+                if (first) first.focus();
+            };
+
+            const closeMenu = (returnFocus) => {
+                const {btn, menu} = els();
+                if (!btn || !menu || menu.hidden) return;
+                btn.setAttribute('aria-expanded', 'false');
+                menu.classList.remove('open');
+                if (reduce()) menu.hidden = true;
+                else menu.addEventListener('transitionend', () => {menu.hidden = true;}, {once: true});
+                if (returnFocus) btn.focus();
+            };
+
+            document.addEventListener('click', (event) => {
+                if (event.target.closest('.menu-toggle')) {
+                    const {menu} = els();
+                    if (menu && menu.hidden) openMenu();
+                    else closeMenu(true);
+                    return;
+                }
+                /* A click anywhere outside the header closes an open menu. Clicks on a menu
+                   link fall through to navigation, which closes it via astro:page-load. */
+                const {menu} = els();
+                if (menu && !menu.hidden && !event.target.closest('header')) closeMenu(false);
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') closeMenu(true);
+            });
+
+            /* Never leave the menu open across a View-Transitions navigation. */
+            document.addEventListener('astro:page-load', () => {
+                const {btn, menu} = els();
+                if (menu) {
+                    menu.hidden = true;
+                    menu.classList.remove('open');
+                }
+                if (btn) btn.setAttribute('aria-expanded', 'false');
+            });
         }
     </script>
 </header>
