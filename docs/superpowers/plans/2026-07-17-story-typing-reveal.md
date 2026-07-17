@@ -209,20 +209,28 @@ block (the one ending with the `astro:after-swap` listener). Do not merge it int
                     growTimer: 0, typing: false};
         };
 
-        /* Restore text up to character `upto`; empty everything after. Returns the last
-           node holding revealed text, which is where the cursor goes. */
+        /* Restore text up to character `upto`; empty everything after. Returns the last node
+           holding revealed, non-whitespace text — the anchor for both the ellipsis and the
+           cursor.
+
+           Whitespace-only nodes MUST be skipped. Markdown renders `<p>…</p>\n<p>…</p>`, so
+           the `\n` between paragraphs is a text node whose parent is the `.story` div, not a
+           paragraph. Anchoring to it puts the cursor in BLOCK context, which forces an
+           anonymous block box costing a full line-height (measured +25.56px), and would put
+           the ellipsis on a newline node. */
         const reveal = (story, upto, ellipsis) => {
             const s = state.get(story);
             let tail = null;
             for (const item of s.nodes) {
                 if (item.end <= upto) {
                     if (item.node.nodeValue !== item.full) item.node.nodeValue = item.full;
-                    if (item.full.length) tail = item;
+                    if (item.full.trim()) tail = item;
                 } else if (item.start >= upto) {
                     if (item.node.nodeValue !== '') item.node.nodeValue = '';
                 } else {
-                    item.node.nodeValue = item.full.slice(0, upto - item.start);
-                    tail = item;
+                    const shown = item.full.slice(0, upto - item.start);
+                    item.node.nodeValue = shown;
+                    if (shown.trim()) tail = item;
                 }
             }
             for (const b of s.blocks) {
@@ -482,11 +490,12 @@ In the same script, insert these three functions directly above `const expand = 
             }
         };
 
-        const placeCursor = (story, upto) => {
+        /* Takes the tail `reveal` already computed. Do not re-derive it here: a second scan
+           with slightly different rules is a second definition of "the tail" that can drift
+           out of agreement, and it costs an extra O(n) pass every frame. */
+        const placeCursor = (story, tail) => {
             const s = state.get(story);
-            if (!s.cursor) return;
-            let tail = s.nodes[0];
-            for (const item of s.nodes) if (item.start < upto) tail = item;
+            if (!s.cursor || !tail) return;
             const parent = tail.node.parentNode;
             if (parent && s.cursor.previousSibling !== tail.node) {
                 parent.insertBefore(s.cursor, tail.node.nextSibling);
@@ -527,8 +536,7 @@ In the same script, insert these three functions directly above `const expand = 
                     acc -= delayAt(revealed - from);
                     revealed++;
                 }
-                reveal(story, revealed);
-                placeCursor(story, revealed);
+                placeCursor(story, reveal(story, revealed));
                 if (revealed >= s.total) {
                     finish(story);
                     return;
@@ -567,9 +575,11 @@ Replace the `expand` function from Task 1 entirely:
                06-teknika-backend-lead, and 0.98-1.02 line-heights across all eight stories,
                which is what makes one line a safe bound.
  
-               The cursor is NOT the cause here: it is width:0 with an absolutely-positioned
-               ::after and measures 0x0, verified layout-neutral. Do not "fix" this by
-               padding for the cursor.
+               The cursor is not the cause: it is width:0 with an absolutely-positioned
+               ::after. (Its own rect measures 0x0, but note that measuring the cursor's rect
+               cannot detect the case where it lands in block context — `reveal` skipping
+               whitespace-only nodes is what prevents that.) Do not "fix" this by padding for
+               the cursor.
  
                min-height needs an explicit start value — auto will not transition. */
             const lineHeight = parseFloat(getComputedStyle(story).lineHeight) || 0;
@@ -717,6 +727,10 @@ In the reveal script, replace `initStories` and its two call sites:
         }, {threshold: 0});
 
         const initStories = () => {
+            /* IntersectionObserver holds STRONG references to its targets, and View
+               Transitions replace the cards on every navigation — without this, each return
+               to /about leaks the previous set. */
+            offscreenObserver.disconnect();
             document.querySelectorAll('.story').forEach((story) => {
                 if (!state.has(story)) state.set(story, buildState(story));
                 if (story.classList.contains('collapsed')) truncate(story);
@@ -725,6 +739,19 @@ In the reveal script, replace `initStories` and its two call sites:
         };
         initStories();
         document.addEventListener('astro:after-swap', initStories);
+
+        /* The cut is measured against a specific box width, so it goes stale the moment the
+           box changes width — window snap, phone rotation, zoom, devtools. The old
+           `max-height: 77px` clamp was viewport-independent and could not fail this way;
+           `.collapsed` now carries no CSS at all, so nothing else catches it. Measured
+           without this: resizing 1600px -> 760px rendered collapsed cards at up to 6 lines
+           instead of 3. initStories is idempotent and only re-cuts collapsed stories, so an
+           expanded or mid-run card is left alone. */
+        let resizeTimer = 0;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(initStories, 150);
+        }, {passive: true});
 ```
 
 - [ ] **Step 4: Verify the build passes**
