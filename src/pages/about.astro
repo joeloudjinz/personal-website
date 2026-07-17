@@ -172,13 +172,22 @@ const education = (await getCollection('education')).sort(
        `linear`, deliberately, NOT --ease-standard. That token is an ease-out, and easing the
        whole animation front-loads the travel: measured, it covered most of its distance in
        the first 500ms and then crawled — a blink, then nothing. A traveling band has to move
-       at constant speed to read as a sweep. Easing is for transitions, not for this. */
+       at constant speed to read as a sweep. Easing is for transitions, not for this.
+
+       The 100% -> 0% range is a hard constraint, NOT a stylistic choice. With
+       background-size:250% the offset is (container - image) * P/100, so the image only
+       covers the label while P stays within 0-100%. Outside that range the uncovered text
+       has no background at all, and because background-clip:text pairs with
+       color:transparent, THE LABEL VANISHES. An earlier version swept 150% -> -150% and the
+       text was wiped out for the whole 2.75s rest. Within 0-100% the band still travels the
+       full width of the label — at P=100 it sits just left of it, at P=0 just right — so
+       nothing is lost by staying in range. */
     @keyframes toggle-glint {
         0% {
-            background-position: 150% 0;
+            background-position: 100% 0;
         }
         45%, 100% {
-            background-position: -150% 0;
+            background-position: 0% 0;
         }
     }
 
