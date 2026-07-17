@@ -277,3 +277,154 @@ const education = (await getCollection('education')).sort(
         document.addEventListener('astro:after-swap', () => applyOrder(readStoredOrder()));
     }
 </script>
+
+<script is:inline>
+    if (!window.__storyRevealBound) {
+        window.__storyRevealBound = true;
+
+        const LINES = 3;   /* collapsed height, matching the 77px clamp this replaces */
+
+        const state = new WeakMap();
+
+        /* Flat character map over the story's text nodes. Walking text nodes (rather than
+           slicing innerHTML) is what keeps <strong> and the bullet list in 09-solo-engineer
+           intact. */
+        const buildState = (story) => {
+            const walker = document.createTreeWalker(story, NodeFilter.SHOW_TEXT);
+            const nodes = [];
+            let offset = 0;
+            let node;
+            while ((node = walker.nextNode())) {
+                const full = node.nodeValue || '';
+                nodes.push({node: node, full: full, start: offset, end: offset + full.length});
+                offset += full.length;
+            }
+            /* Blocks that leave an artefact when emptied: an empty <p> still occupies a
+               line, an empty <li> still paints its bullet via li::before. */
+            const blocks = Array.from(story.querySelectorAll('p, ul, ol, li')).map((el) => {
+                const inside = nodes.filter((n) => el.contains(n.node));
+                return {
+                    el: el,
+                    start: inside.length ? inside[0].start : 0,
+                    end: inside.length ? inside[inside.length - 1].end : 0
+                };
+            });
+            return {nodes: nodes, blocks: blocks, total: offset, cut: offset, cursor: null, raf: 0, typing: false};
+        };
+
+        /* Restore text up to character `upto`; empty everything after. Returns the last
+           node holding revealed text, which is where the cursor goes. */
+        const reveal = (story, upto, ellipsis) => {
+            const s = state.get(story);
+            let tail = null;
+            for (const item of s.nodes) {
+                if (item.end <= upto) {
+                    if (item.node.nodeValue !== item.full) item.node.nodeValue = item.full;
+                    if (item.full.length) tail = item;
+                } else if (item.start >= upto) {
+                    if (item.node.nodeValue !== '') item.node.nodeValue = '';
+                } else {
+                    item.node.nodeValue = item.full.slice(0, upto - item.start);
+                    tail = item;
+                }
+            }
+            for (const b of s.blocks) {
+                b.el.style.display = b.start >= upto && b.end > b.start ? 'none' : '';
+            }
+            if (ellipsis && tail) tail.node.nodeValue = tail.node.nodeValue + '…';
+            return tail;
+        };
+
+        /* Top of the character at `index`, or null if it has no box (collapsed whitespace). */
+        const rectTopAt = (s, index) => {
+            for (const item of s.nodes) {
+                if (index >= item.start && index < item.end) {
+                    const range = document.createRange();
+                    range.setStart(item.node, index - item.start);
+                    range.setEnd(item.node, index - item.start + 1);
+                    const rect = range.getBoundingClientRect();
+                    return rect.height ? rect.top : null;
+                }
+            }
+            return null;
+        };
+
+        /* First character index that falls below `lines` lines. Binary search, not a linear
+           walk: tops increase monotonically down the flow, so this costs ~11 probes per
+           story instead of ~2000. Nothing is mutated during the search, so the layout read
+           stays cached. */
+        const lineBoundary = (story, lines) => {
+            const s = state.get(story);
+            const lineHeight = parseFloat(getComputedStyle(story).lineHeight);
+            if (!lineHeight) return s.total;
+            let firstTop = null;
+            for (let i = 0; i < s.total && firstTop === null; i++) firstTop = rectTopAt(s, i);
+            if (firstTop === null) return s.total;
+            const limit = firstTop + lines * lineHeight - 1;
+            let lo = 0;
+            let hi = s.total;
+            while (lo < hi) {
+                const mid = (lo + hi) >> 1;
+                const top = rectTopAt(s, mid);
+                if (top === null || top <= limit) lo = mid + 1;
+                else hi = mid;
+            }
+            return lo;
+        };
+
+        const truncate = (story) => {
+            const s = state.get(story);
+            reveal(story, s.total); /* measure against the full text */
+            const boundary = lineBoundary(story, LINES);
+            if (boundary >= s.total) {
+                s.cut = s.total;
+                return;
+            }
+            const full = s.nodes.map((n) => n.full).join('');
+            const space = full.slice(0, boundary).lastIndexOf(' ');
+            s.cut = space > 0 ? space : boundary;
+            reveal(story, s.cut, true);
+        };
+
+        const expand = (story, button) => {
+            const s = state.get(story);
+            story.classList.remove('collapsed');
+            button.textContent = 'Show less ↑';
+            button.setAttribute('aria-expanded', 'true');
+            reveal(story, s.total);
+        };
+
+        const collapse = (story, button) => {
+            story.classList.add('collapsed');
+            button.textContent = 'Read the story ↓';
+            button.setAttribute('aria-expanded', 'false');
+            truncate(story);
+        };
+
+        document.addEventListener('click', (event) => {
+            const button = event.target?.closest('.story-toggle');
+            if (!button) return;
+            const story = button.closest('.story-card')?.querySelector('.story');
+            if (!story || !state.has(story)) return;
+            if (story.classList.contains('collapsed')) expand(story, button);
+            else collapse(story, button);
+        });
+
+        /* Runs before paint so the full story never flashes; astro:after-swap covers
+           View Transitions navigations, matching the other scripts on this page. */
+        const initStories = () => {
+            document.querySelectorAll('.story').forEach((story) => {
+                if (!state.has(story)) state.set(story, buildState(story));
+                if (story.classList.contains('collapsed')) truncate(story);
+            });
+        };
+        initStories();
+        document.addEventListener('astro:after-swap', initStories);
+
+        /* The pre-paint pass measures with fallback font metrics, so the boundary is wrong
+           until the web fonts swap in. Re-truncate once they land. The page already
+           reflows on font swap, so this rides along invisibly. Only collapsed stories are
+           re-cut, so a story the reader already expanded is left alone. */
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(initStories);
+    }
+</script>
