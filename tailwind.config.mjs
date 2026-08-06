@@ -10,7 +10,6 @@ export default {
      *
      * When writing a comment in a scanned file, avoid bare utility names or put
      * them in a form Tailwind will not match (hyphenate, or write `.blur`).
-     * To audit, diff the emitted rule names against the previous build.
      */
     content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
     theme: {
