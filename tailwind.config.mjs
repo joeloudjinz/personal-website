@@ -1,6 +1,17 @@
 /** @type {import('tailwindcss').Config} */
 export default {
     darkMode: ['selector', '.theme-dark'],
+    /**
+     * Tailwind scans these files as raw bytes. It has no idea what a comment is,
+     * so a bare utility name written as English prose — "blur", "truncate",
+     * "container", "table", "fixed", "grid" — is extracted as a class and its
+     * rule is emitted into the bundle every page loads. Nothing flags it: the
+     * CSS is valid, just dead.
+     *
+     * When writing a comment in a scanned file, avoid bare utility names or put
+     * them in a form Tailwind will not match (hyphenate, or write `.blur`).
+     * To audit, diff the emitted rule names against the previous build.
+     */
     content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
     theme: {
         container: {
