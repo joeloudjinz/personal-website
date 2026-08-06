@@ -4,7 +4,6 @@ subdomain: "inzsh.abdellahaddoun.com"
 projectName: "InZsh"
 hero:
   kicker: "Zsh prompt theme · a Joe Inz project"
-  name: "InZsh"
   heading: "InZsh — a prompt that knows the hour."
   wash: "knows the hour"
   promise: "A calm, configurable zsh prompt — built from a design system, with prayer times computed on your machine."

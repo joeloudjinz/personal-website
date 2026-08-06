@@ -141,15 +141,16 @@ const projectPages = defineCollection({
       slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
         message: 'slug must be lowercase kebab-case: it becomes the URL segment'
       }),
-      subdomain: z.string(),
+      // A bare hostname. Group B builds the canonical URL from this, so a value
+      // carrying a scheme, port, path or trailing slash would produce a broken one.
+      subdomain: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)+$/, {
+        message: 'subdomain must be a bare lowercase hostname — no scheme, port, path or trailing slash'
+      }),
+      // The product noun on its own, for chrome that names the project rather
+      // than sells it: the subdomain nav, meta, breadcrumbs.
       projectName: z.string().max(12),
       hero: z.object({
         kicker,
-        // The bare product noun, without the hook or punctuation that heading
-        // carries — for places that name the project rather than sell it.
-        // Currently unrendered: Group B should wire it into the subdomain nav
-        // and page chrome, or drop it deliberately.
-        name: z.string().max(12),
         // The full H1, including its own trailing punctuation.
         heading: z.string().max(80),
         wash,
