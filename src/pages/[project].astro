@@ -3,7 +3,7 @@
 // the markup below is deliberately minimal and is replaced by the real bands later.
 import BaseLayout from '@src/layouts/BaseLayout.astro';
 import type {CodeLine} from '@src/content.config';
-import {BAND_ANCHORS, getProjectPages, type ProjectPageEntry} from '@src/utils/projectPages';
+import {BAND_ANCHORS, getProjectPages, splitWash, type ProjectPageEntry} from '@src/utils/projectPages';
 
 export async function getStaticPaths() {
     // getProjectPages() fails the build if a slug collides with a blog post or a
@@ -24,15 +24,6 @@ const {
 const renderLines = (lines: CodeLine[]) =>
     lines.map((line) => (line.prompt ? '$ ' : '') + line.text).join('\n');
 
-// Splits a heading around its washed phrase so the marker span — and whatever
-// punctuation trails it — survive into the markup.
-const splitWash = (heading: string, wash: string) => {
-    const at = heading.indexOf(wash);
-    return at === -1
-        ? {before: heading, washed: '', after: ''}
-        : {before: heading.slice(0, at), washed: wash, after: heading.slice(at + wash.length)};
-};
-
 const heroHeading = splitWash(hero.heading, hero.wash);
 const closingHeading = splitWash(closing.heading, closing.wash);
 ---
@@ -41,7 +32,9 @@ const closingHeading = splitWash(closing.heading, closing.wash);
     <section class='shell py-16'>
         <p class='kicker'>{hero.kicker}</p>
         <h1 class='font-display text-4xl md:text-5xl text-strong'>
-            {heroHeading.before}<span class='marker-wash'>{heroHeading.washed}</span>{heroHeading.after}
+            {heroHeading
+                ? <>{heroHeading.before}<span class='marker-wash'>{heroHeading.washed}</span>{heroHeading.after}</>
+                : hero.heading}
         </h1>
         <p class='text-muted'>{hero.promise}</p>
         <p><span class='chip'>{hero.status}</span>{hero.version && <span class='chip'>v{hero.version}</span>}</p>
@@ -170,7 +163,9 @@ const closingHeading = splitWash(closing.heading, closing.wash);
         )}
 
         <div>
-            <h2>{closingHeading.before}<span class='marker-wash'>{closingHeading.washed}</span>{closingHeading.after}</h2>
+            <h2>{closingHeading
+                ? <>{closingHeading.before}<span class='marker-wash'>{closingHeading.washed}</span>{closingHeading.after}</>
+                : closing.heading}</h2>
             <p>{closing.sub}</p>
             <p>
                 <a class='btn-primary' href={closing.ctaPrimary.href}>{closing.ctaPrimary.label}</a>

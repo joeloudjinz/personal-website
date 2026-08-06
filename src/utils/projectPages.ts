@@ -12,6 +12,21 @@ const list = (values: string[]) => values.map((value) => `"${value}"`).join(', '
 type BandKey = keyof ProjectPageEntry['data'];
 
 /**
+ * Splits a heading around its washed phrase so the marker span — and whatever
+ * punctuation trails it — survive into the markup. Shared because every band
+ * component that renders a washed heading needs exactly this.
+ *
+ * Returns null when the wash is not present. The schema already rejects that, so
+ * it should be unreachable; returning null rather than an empty match keeps the
+ * caller from emitting the empty, padded span the schema exists to prevent.
+ */
+export function splitWash(heading: string, wash: string): {before: string; washed: string; after: string} | null {
+  const at = heading.indexOf(wash);
+  if (at === -1 || wash.length === 0) return null;
+  return {before: heading.slice(0, at), washed: wash, after: heading.slice(at + wash.length)};
+}
+
+/**
  * The in-page anchor each optional band renders when it is present, and the only
  * record of which "#href" targets are reachable. Renderers must take their id
  * from here rather than hard-coding it, so that adding a band in a later group
