@@ -2,6 +2,7 @@
 // Scaffold route for project showcase pages. The data layer is the point here —
 // the markup below is deliberately minimal and is replaced by the real bands later.
 import BaseLayout from '@src/layouts/BaseLayout.astro';
+import type {CodeLine} from '@src/content.config';
 import {getProjectPages, type ProjectPageEntry} from '@src/utils/projectPages';
 
 export async function getStaticPaths() {
@@ -20,7 +21,7 @@ const {
     hero, glance, why, prayer, config, steps, gallery, specs, colour, verification, faq, closing, credit
 } = page.data;
 
-const renderLines = (lines: {prompt: boolean; text: string}[]) =>
+const renderLines = (lines: CodeLine[]) =>
     lines.map((line) => (line.prompt ? '$ ' : '') + line.text).join('\n');
 
 // Splits a heading around its washed phrase so the marker span — and whatever

@@ -95,13 +95,24 @@ const projects = defineCollection({
 // Nested string fields render as PLAIN TEXT, not markdown. Code identifiers are
 // written with ‘single curly quotes’ — the design system has no inline-code
 // treatment and that is the approved rendering. Backticks would render literally.
+// One line of a rendered code block. Exported as a type so the render helpers that
+// consume it — the scaffold's renderLines today, Group C's code-block component
+// tomorrow — derive their signature from the schema instead of restating it.
+const codeLine = z.object({ prompt: z.boolean().default(false), text: z.string() });
+export type CodeLine = z.infer<typeof codeLine>;
+
 const projectPages = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/projectpages" }),
   schema: ({ image }) => {
-    const cta = z.object({ label: z.string().max(22), href: z.string() });
+    const cta = (labelMax: number) => z.object({ label: z.string().max(labelMax), href: z.string() });
     const link = z.object({ label: z.string().max(40), href: z.string() });
     // A row whose label is page copy too, not a template constant: "Privacy", "Asr:", …
-    const labelled = z.object({ label: z.string().max(40), value: z.string() });
+    // The value cap is per-site: these rows carry anything from a one-word licence
+    // to a full paragraph, and the cap exists to protect the layout, not the prose.
+    const labelled = (valueMax: number) =>
+      z.object({ label: z.string().max(40), value: z.string().max(valueMax) });
+    const kicker = z.string().max(44);
+    const media = z.object({ src: image(), alt: z.string() });
     // The phrase inside a heading that takes the caramel marker. It must be a
     // visible phrase: .marker-wash carries padding, so a blank wash renders an
     // empty span that injects 20px of stray space before the heading. A bare
@@ -123,7 +134,7 @@ const projectPages = defineCollection({
       subdomain: z.string(),
       projectName: z.string().max(12),
       hero: z.object({
-        kicker: z.string().max(44),
+        kicker,
         // The bare product noun, without the hook or punctuation that heading
         // carries — for places that name the project rather than sell it.
         // Currently unrendered: Group B should wire it into the subdomain nav
@@ -135,36 +146,36 @@ const projectPages = defineCollection({
         promise: z.string().max(140),
         status: z.enum(['Stable', 'In progress', 'Maintained', 'Archived']),
         version: z.string().optional(),
-        ctaPrimary: z.object({ label: z.string().max(18), href: z.string() }),
-        ctaSecondary: cta,
-        media: z.object({ src: image(), alt: z.string() }).optional()
+        ctaPrimary: cta(18),
+        ctaSecondary: cta(22),
+        media: media.optional()
       }),
       glance: z.object({
-        kicker: z.string().max(44),
+        kicker,
         items: z.array(z.object({ value: z.string().max(12), label: z.string().max(60) }))
           .min(3).max(5)
       }).optional(),
       why: z.object({
-        kicker: z.string().max(44),
+        kicker,
         heading: z.string().max(50),
         paragraphs: z.array(z.string()).min(2).max(3)
       }).optional(),
       prayer: z.object({
-        kicker: z.string().max(44),
+        kicker,
         heading: z.string(),
         standfirst: z.string(),
         // Label above the config block, e.g. "Four values in .zshrc".
         configLabel: z.string().max(40).optional(),
-        config: z.array(z.object({ prompt: z.boolean().default(false), text: z.string() })),
-        methods: labelled,
-        asr: labelled,
-        media: z.object({ src: image(), alt: z.string() }).optional(),
-        highLatitudes: labelled,
-        privacy: labelled
+        config: z.array(codeLine),
+        methods: labelled(400),
+        asr: labelled(400),
+        media: media.optional(),
+        highLatitudes: labelled(400),
+        privacy: labelled(400)
       }).optional(),
       // The one band the approved design runs without a kicker, so kicker is optional here.
       config: z.object({
-        kicker: z.string().max(44).optional(),
+        kicker: kicker.optional(),
         heading: z.string(),
         intro: z.string(),
         // Column headers are copy, not derivable from the keys: "fallback" prints
@@ -185,20 +196,20 @@ const projectPages = defineCollection({
         link: link.optional()
       }).optional(),
       steps: z.object({
-        kicker: z.string().max(44),
+        kicker,
         heading: z.string(),
         intro: z.string().optional(),
         link: link.optional(),
         items: z.array(z.object({
           title: z.string().max(26),
-          lines: z.array(z.object({ prompt: z.boolean().default(false), text: z.string() })),
+          lines: z.array(codeLine),
           note: z.string().max(110).optional()
         })).min(2).max(4)
       }).optional(),
       // A caption is copy and ships before its capture exists, so src is optional
       // within an item — Group E fills in the images on the items already here.
       gallery: z.object({
-        kicker: z.string().max(44),
+        kicker,
         heading: z.string(),
         intro: z.string().optional(),
         link: link.optional(),
@@ -206,25 +217,24 @@ const projectPages = defineCollection({
           .min(2).max(4).optional()
       }).optional(),
       specs: z.object({
-        kicker: z.string().max(44),
+        kicker,
         heading: z.string(),
         intro: z.string().optional(),
         link: link.optional(),
-        items: z.array(z.object({ label: z.string(), value: z.string().max(90) }))
-          .min(4).max(7)
+        items: z.array(labelled(90)).min(4).max(7)
       }).optional(),
       colour: z.object({
-        kicker: z.string().max(44),
+        kicker,
         heading: z.string(),
         cards: z.array(z.object({ title: z.string(), body: z.string() })).min(3).max(4)
       }).optional(),
       verification: z.object({
-        kicker: z.string().max(44),
+        kicker,
         heading: z.string(),
-        rows: z.array(z.object({ label: z.string(), value: z.string() })).min(3).max(5)
+        rows: z.array(labelled(200)).min(3).max(5)
       }).optional(),
       faq: z.object({
-        kicker: z.string().max(44),
+        kicker,
         heading: z.string(),
         intro: z.string().optional(),
         link: link.optional(),
@@ -234,8 +244,8 @@ const projectPages = defineCollection({
         heading: z.string().max(36),
         wash,
         sub: z.string().max(90),
-        ctaPrimary: z.object({ label: z.string().max(18), href: z.string() }),
-        ctaSecondary: cta,
+        ctaPrimary: cta(18),
+        ctaSecondary: cta(22),
         facts: z.array(z.string().max(14)).max(4).optional()
       }),
       credit: z.string().optional()
