@@ -3,9 +3,21 @@ import {getCollection} from 'astro:content';
 
 export type ProjectPageEntry = CollectionEntry<'projectPages'>;
 
-// Top-level static routes in src/pages. A project slug matching one of these
-// would be silently swallowed: Astro gives static routes priority over dynamic ones.
-const RESERVED_SLUGS = ['404', 'about', 'posts', 'projects', 'tags'];
+/**
+ * Top-level route names in src/pages. A project slug matching one of these would
+ * be silently swallowed: Astro gives static routes priority over dynamic ones.
+ *
+ * Derived from the directory rather than hand-listed, so adding a page cannot
+ * leave this out of date. Vite resolves the glob at build time, so it costs
+ * nothing at runtime; `[...]` entries are the dynamic routes and are skipped.
+ */
+const RESERVED_SLUGS = [...new Set(
+  Object.keys(import.meta.glob('../pages/**/*.{astro,md,mdx,html}'))
+    // "about.astro" -> "about"; "tags/[tag]/index.astro" -> "tags". Only the first
+    // segment can collide, since that is the whole of a project page's URL.
+    .map((path) => path.replace('../pages/', '').split('/')[0].replace(/\.(astro|md|mdx|html)$/, ''))
+    .filter((name) => !name.startsWith('[') && name !== 'index')
+)];
 
 // Errors name the file, not just the offending value: with several project pages
 // a bare slug does not tell you which one to open. The entry id is no help here —
