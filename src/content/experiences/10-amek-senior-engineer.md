@@ -18,7 +18,9 @@ Angular, and PostgreSQL.
 Beyond feature work, I help shape the data model and the overall solution architecture so the services stay scalable
 and maintainable as the tenant base grows. I treat automated testing as a foundational part of delivery, writing unit
 and integration tests with xUnit and Playwright, and I tune both application and Angular single-page-application
-performance to keep the platform efficient under growth.
+performance to keep the platform efficient under growth. On the frontend that paid off most visibly when I traced the
+import graph, restructured modules, and moved everything that could wait behind lazy-loading: the initial bundle came
+down 53% and load-time transfer by roughly 45%, and guardrails now keep the gain from eroding as the codebase grows.
 
 I also make a point of raising technical risks early in refinement sessions and helping shape backlog requirements,
 so problems get solved on the whiteboard before they reach production. By bringing AI-assisted development into my

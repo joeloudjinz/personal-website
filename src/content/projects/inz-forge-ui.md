@@ -2,7 +2,7 @@
 name: "Inz Forge UI"
 demoLink: "https://github.com/joeloudjinz/inz-forge-ui"
 isUnderConstruction: true
-isFeatured: true
+isFeatured: false
 version: "0.0.1"
 tags: [ "Portable Components", "Nx", "Typescript", "Angular", "VueJS", "Cypress", "Playwright" ]
 id: "inz-foge-ui-library"
