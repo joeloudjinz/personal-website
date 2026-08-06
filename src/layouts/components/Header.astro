@@ -23,6 +23,16 @@ type Props =
 const {variant = 'site', projectName} = Astro.props;
 const isSubdomain = variant === 'subdomain';
 
+// Below md the nav runs at 24px side padding and cannot hold everything. The
+// back link is the one thing a visitor on another host cannot get any other way,
+// so it survives and the social marks drop — the footer carries those at every
+// width. Measured at 375px (327px of nav content box): logo, rule, name, the
+// full "‹ abdellahaddoun.com" and the marks together need 361.7px and overflow
+// by 34.7px; dropping the marks lands on exactly 327px, which truncates the
+// project name to an ellipsis; dropping the marks AND shortening the label to
+// "‹ home" needs 279.9px and leaves 47.1px of slack with the name intact. The
+// short label is load-bearing, not a nicety.
+//
 // The variant-only markup below is written hugging its `{…}` boundaries — no
 // newline between the expression and the tag it wraps. Astro emits the template's
 // whitespace verbatim and compressHTML collapses each run separately, so an
@@ -50,7 +60,8 @@ const siteHost = Astro.site?.host ?? '';
         class='sticky top-0 z-50 border-b border-hairline backdrop-blur-[14px]'
         style='background: color-mix(in srgb, var(--surface) 78%, transparent);'
 >
-    <nav class='shell flex items-center justify-between gap-4 py-[18px]'
+    <nav class:list={['shell flex items-center justify-between gap-4 py-[18px]',
+                      isSubdomain && 'max-md:gap-3']}
          aria-label={isSubdomain ? 'Project' : 'Main'}>
         <a href={isSubdomain ? siteHref : '/'} class='flex items-center shrink-0'
            aria-label={isSubdomain ? siteHost : 'Home'}>
@@ -78,9 +89,9 @@ const siteHost = Astro.site?.host ?? '';
         </div>)}
 
         <div class='flex items-center gap-4'>{isSubdomain && (<a href={siteHref}
-                class='hidden sm:inline text-[14px] font-semibold text-info hover:text-accent transition-colors duration-200'
-        >‹ {siteHost}</a>)}
-            <SocialLinks/>
+                class='shrink-0 text-[14px] font-semibold text-info hover:text-accent transition-colors duration-200'
+        >‹ <span class='md:hidden'>home</span><span class='hidden md:inline'>{siteHost}</span></a>)}
+            <SocialLinks class={isSubdomain ? 'max-md:hidden' : undefined}/>
 
             <button class='theme-toggle flex items-center rounded-full border border-hairline p-[3px]'
                     aria-pressed='false'
