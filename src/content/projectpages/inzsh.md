@@ -131,7 +131,12 @@ gallery:
   kicker: "Gallery"
   heading: "The same prompt, three ways."
   intro: "‘inzsh-sharp’ is the default — dark. ‘inzsh-warm’ is the light one, warmer and more editorial. Both are drawn from the same semantic roles, and ‘INZSH_PRESET’ picks between them when the theme loads."
-  # gallery.items omitted — the three 1000 × 200 preset captures have not been generated yet.
+  # Captions are approved copy and ship now; Group E adds src to these same items
+  # once the three 1000 × 200 captures are generated from fixtures.
+  items:
+    - caption: "The sharp preset — dark, full colour."
+    - caption: "The warm preset — light, editorial."
+    - caption: "The 256-colour fallback, as macOS Terminal.app renders it."
 specs:
   kicker: "Specs · compatibility"
   heading: "The practical part."

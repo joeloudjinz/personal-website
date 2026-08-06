@@ -178,13 +178,14 @@ const projectPages = defineCollection({
           note: z.string().max(110).optional()
         })).min(2).max(4)
       }).optional(),
-      // items is optional so the band's copy can land before the captures do.
+      // A caption is copy and ships before its capture exists, so src is optional
+      // within an item — Group E fills in the images on the items already here.
       gallery: z.object({
         kicker: z.string().max(44),
         heading: z.string(),
         intro: z.string().optional(),
         link: link.optional(),
-        items: z.array(z.object({ src: image(), caption: z.string().max(70) }))
+        items: z.array(z.object({ src: image().optional(), caption: z.string().max(70) }))
           .min(2).max(4).optional()
       }).optional(),
       specs: z.object({
