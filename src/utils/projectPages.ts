@@ -7,7 +7,11 @@ export type ProjectPageEntry = CollectionEntry<'projectPages'>;
 // would be silently swallowed: Astro gives static routes priority over dynamic ones.
 const RESERVED_SLUGS = ['404', 'about', 'posts', 'projects', 'tags'];
 
-const list = (values: string[]) => values.map((value) => `"${value}"`).join(', ');
+// Errors name the file, not just the offending value: with several project pages
+// a bare slug does not tell you which one to open. The entry id is no help here —
+// the glob loader derives it from the slug, so it repeats the value.
+const list = (entries: {file: string; slug: string}[]) =>
+  entries.map(({file, slug}) => `"${slug}" (${file})`).join(', ');
 
 type BandKey = keyof ProjectPageEntry['data'];
 
@@ -71,9 +75,10 @@ function collectHrefs(node: unknown, path: string, found: {path: string; href: s
  */
 export async function getProjectPages(): Promise<ProjectPageEntry[]> {
   const pages = await getCollection('projectPages');
-  const slugs = pages.map((page) => page.data.slug);
+  const entries = pages.map((page) => ({file: page.filePath ?? page.id, slug: page.data.slug}));
+  const slugs = entries.map(({slug}) => slug);
 
-  const duplicated = [...new Set(slugs.filter((slug, index) => slugs.indexOf(slug) !== index))];
+  const duplicated = entries.filter(({slug}, index) => slugs.indexOf(slug) !== index);
   if (duplicated.length > 0) {
     throw new Error(
       `[project-pages] Duplicate project page slug(s): ${list(duplicated)}. ` +
@@ -81,19 +86,19 @@ export async function getProjectPages(): Promise<ProjectPageEntry[]> {
     );
   }
 
-  const reserved = slugs.filter((slug) => RESERVED_SLUGS.includes(slug));
+  const reserved = entries.filter(({slug}) => RESERVED_SLUGS.includes(slug));
   if (reserved.length > 0) {
     throw new Error(
-      `[project-pages] Project page slug(s) ${list(reserved)} collide with a top-level page in src/pages. ` +
+      `[project-pages] ${list(reserved)} collide(s) with a top-level page in src/pages. ` +
       `The static route wins and the project page would never be generated. Rename the "slug" field.`
     );
   }
 
   const postSlugs = new Set((await getCollection('blog')).map((post) => post.id));
-  const collisions = slugs.filter((slug) => postSlugs.has(slug));
+  const collisions = entries.filter(({slug}) => postSlugs.has(slug));
   if (collisions.length > 0) {
     throw new Error(
-      `[project-pages] Project page slug(s) ${list(collisions)} collide with a blog post slug. ` +
+      `[project-pages] ${list(collisions)} collide(s) with a blog post slug. ` +
       `Both render at /<slug>/, so one would silently shadow the other. ` +
       `Rename the "slug" field in src/content/projectpages, or the post's "slug" in src/content/blog.`
     );
@@ -109,7 +114,7 @@ export async function getProjectPages(): Promise<ProjectPageEntry[]> {
     collectHrefs(page.data, '', found);
     return found
       .filter(({href}) => href.startsWith('#') && !reachable.has(href.slice(1)))
-      .map(({path, href}) => `${page.id} (slug "${page.data.slug}") → ${path}: "${href}"`);
+      .map(({path, href}) => `${page.filePath ?? page.id} → ${path}: "${href}"`);
   });
   if (deadAnchors.length > 0) {
     throw new Error(
