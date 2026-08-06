@@ -1,0 +1,126 @@
+---
+// Scaffold route for project showcase pages. The data layer is the point here —
+// the markup below is deliberately minimal and is replaced by the real bands later.
+import {type CollectionEntry, getCollection} from 'astro:content';
+import BaseLayout from '@src/layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+    const pages = await getCollection('projectPages');
+    return pages.map((page) => ({params: {project: page.data.slug}, props: {page}}));
+}
+
+interface Props {
+    page: CollectionEntry<'projectPages'>;
+}
+
+const {page} = Astro.props;
+const {
+    projectName, hero, glance, why, prayer, config, steps, gallery, specs, colour, verification, faq, closing, credit
+} = page.data;
+
+const renderLines = (lines: {prompt: boolean; text: string}[]) =>
+    lines.map((line) => (line.prompt ? '$ ' : '') + line.text).join('\n');
+---
+
+<BaseLayout title={`${projectName} — ${hero.hook ?? hero.name}`} description={hero.promise} gradient='warm'>
+    <section class='shell py-16'>
+        <p class='kicker'>{hero.kicker}</p>
+        <h1 class='font-display text-4xl md:text-5xl text-strong'>{hero.name}{hero.hook && ` — ${hero.hook}`}</h1>
+        <p class='text-muted'>{hero.promise}</p>
+        <p><span class='chip'>{hero.status}</span>{hero.version && <span class='chip'>v{hero.version}</span>}</p>
+        <p>
+            <a class='btn-primary' href={hero.ctaPrimary.href}>{hero.ctaPrimary.label}</a>
+            <a class='btn-ghost' href={hero.ctaSecondary.href}>{hero.ctaSecondary.label}</a>
+        </p>
+
+        {glance && (
+                <ul>{glance.map((item) => <li><b>{item.value}</b> {item.label}</li>)}</ul>
+        )}
+
+        {why && (
+                <div>
+                    <h2>{why.heading}</h2>
+                    {why.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+                </div>
+        )}
+
+        {prayer && (
+                <div>
+                    <h2>{prayer.heading}</h2>
+                    <p>{prayer.standfirst}</p>
+                    <pre>{renderLines(prayer.config)}</pre>
+                    <p>{prayer.methods}</p>
+                    <p>{prayer.asr}</p>
+                    <p>{prayer.highLatitudes}</p>
+                    <p>{prayer.privacy}</p>
+                </div>
+        )}
+
+        {config && (
+                <div>
+                    <h2>{config.heading}</h2>
+                    <p>{config.intro}</p>
+                    <table>
+                        <tbody>
+                        {config.knobs.map((knob) => (
+                                <tr>
+                                    <td>{knob.name}</td>
+                                    <td>{knob.values.join(' · ')}</td>
+                                    <td>{knob.fallback}</td>
+                                    <td>{knob.effect}</td>
+                                </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                    <p>{config.note}</p>
+                    {config.link && <a href={config.link.href}>{config.link.label}</a>}
+                </div>
+        )}
+
+        {steps && (
+                <ol id='get-started'>
+                    {steps.map((step) => (
+                            <li>
+                                <h3>{step.title}</h3>
+                                <pre>{renderLines(step.lines)}</pre>
+                                {step.note && <p>{step.note}</p>}
+                            </li>
+                    ))}
+                </ol>
+        )}
+
+        {gallery && (
+                <ul>{gallery.map((shot) => <li>{shot.caption}</li>)}</ul>
+        )}
+
+        {specs && (
+                <dl>{specs.map((spec) => <><dt>{spec.label}</dt><dd>{spec.value}</dd></>)}</dl>
+        )}
+
+        {colour && (
+                <div>
+                    <h2>{colour.heading}</h2>
+                    {colour.cards.map((card) => <div><h3>{card.title}</h3><p>{card.body}</p></div>)}
+                </div>
+        )}
+
+        {verification && (
+                <div>
+                    <h2>{verification.heading}</h2>
+                    {verification.rows.map((row) => <p><b>{row.label}</b> {row.value}</p>)}
+                </div>
+        )}
+
+        {faq && (
+                <dl>{faq.map((item) => <><dt>{item.q}</dt><dd>{item.a}</dd></>)}</dl>
+        )}
+
+        <div>
+            <h2>{closing.heading}</h2>
+            <p>{closing.sub}</p>
+            {closing.facts && <p>{closing.facts.join(' · ')}</p>}
+        </div>
+
+        {credit && <p>{credit}</p>}
+    </section>
+</BaseLayout>
