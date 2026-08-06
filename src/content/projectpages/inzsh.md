@@ -17,22 +17,27 @@ hero:
     href: "https://github.com/joeloudjinz/inzsh"
   # hero.media omitted — showcase.gif (1000 × 480) has not been captured yet.
 glance:
-  - value: "zsh 5.8+"
-    label: "Minimum version · what CI runs against"
-  - value: "2 presets"
-    label: "inzsh-sharp (dark, default) · inzsh-warm (light)"
-  - value: "No network"
-    label: "No calls by default · autolocate is opt-in"
-  - value: "Zero"
-    label: "Dependencies beyond zsh itself"
+  kicker: "At a glance"
+  items:
+    - value: "zsh 5.8+"
+      label: "Minimum version · what CI runs against"
+    - value: "2 presets"
+      label: "inzsh-sharp (dark, default) · inzsh-warm (light)"
+    - value: "No network"
+      label: "No calls by default · autolocate is opt-in"
+    - value: "Zero"
+      label: "Dependencies beyond zsh itself"
 why:
+  kicker: "Why it exists"
   heading: "Most prompts are palettes. This one is a system."
   paragraphs:
     - "Most prompt themes are a set of colours that happened to look nice together — and they usually do, on the terminal they were designed in. InZsh starts from the other end: every colour in the prompt is a semantic role from the JoeInz design system, with a contrast ratio that’s verified, not eyeballed."
     - "The other reason is simpler. I wanted prayer times in my prompt, and no theme does that — not as a plugin calling a web API, and not computed on the machine from coordinates I set once. So I built it."
 prayer:
+  kicker: "Prayer times · computed locally"
   heading: "Prayer times, in the prompt."
   standfirst: "Optional, and off unless configured. When it’s on, the times are computed on your machine using standard astronomical methods."
+  configLabel: "Four values in .zshrc"
   config:
     - text: "INZSH_SALAH_LAT=21.4225"
     - text: "INZSH_SALAH_LON=39.8262"
@@ -45,6 +50,7 @@ prayer:
   highLatitudes: "‘INZSH_SALAH_HIGHLAT’ takes angle · seventh · middle · none — default angle. It decides what happens at latitudes where the sun never reaches the depression angle and fajr or isha would otherwise not exist; ‘none’ leaves the prayer absent rather than inventing one."
   privacy: "No telemetry, and no network calls by default. One opt-in exception: ‘INZSH_SALAH_AUTOLOCATE=1’ permits a query to a third-party IP geolocation service — which means your IP is sent to it. Even then, the theme never makes the request on its own; you run ‘inzsh locate’ when you want the stored position refreshed. Set the coordinates manually and none of this applies."
 config:
+  # No kicker: this is the one band the approved design runs without one.
   heading: "Configured, not forked."
   intro: "Every knob is declared — engine and segment knob families, with per-segment overrides. ‘inzsh preset’ switches styles in a running shell, and a narrow-terminal mode keeps the prompt usable in small panes. The engine knobs:"
   knobs:
@@ -81,42 +87,56 @@ config:
     label: "The configuration reference"
     href: "https://github.com/joeloudjinz/inzsh/blob/dev/docs/configuration.md"
 steps:
-  - title: "Clone and install"
-    lines:
-      - prompt: true
-        text: "git clone https://github.com/joeloudjinz/inzsh.git ~/.inzsh"
-      - prompt: true
-        text: "cd ~/.inzsh && zsh install.zsh"
-    note: "Idempotent — safe to re-run. It backs up your .zshrc before touching it."
-  - title: "Pick a preset"
-    lines:
-      - text: "INZSH_PRESET=warm"
-    note: "In .zshrc, above the line that sources the theme — it’s read when the theme loads. The default is sharp."
-  - title: "Optional — prayer times"
-    lines:
-      - text: "INZSH_SALAH_LAT=21.4225"
-      - text: "INZSH_SALAH_LON=39.8262"
-      - text: "INZSH_SALAH_METHOD=mwl"
-      - text: "INZSH_SALAH_ASR=shafi"
-      - text: "# standard · shafi · hanafi"
-    note: "Latitude, longitude, calculation method, Asr school. Off unless these are set."
-# gallery omitted — the three 1000 × 200 preset captures have not been generated yet.
+  kicker: "Get started"
+  heading: "Three steps in."
+  intro: "You’ll need zsh 5.8+ and a Nerd Font — the prompt draws powerline separators. The installer is reversible: ‘--uninstall’ takes everything back out."
+  # steps.link omitted — the approved label is "The install guide" but its href is unconfirmed.
+  items:
+    - title: "Clone and install"
+      lines:
+        - prompt: true
+          text: "git clone https://github.com/joeloudjinz/inzsh.git ~/.inzsh"
+        - prompt: true
+          text: "cd ~/.inzsh && zsh install.zsh"
+      note: "Idempotent — safe to re-run. It backs up your .zshrc before touching it."
+    - title: "Pick a preset"
+      lines:
+        - text: "INZSH_PRESET=warm"
+      note: "In .zshrc, above the line that sources the theme — it’s read when the theme loads. The default is sharp."
+    - title: "Optional — prayer times"
+      lines:
+        - text: "INZSH_SALAH_LAT=21.4225"
+        - text: "INZSH_SALAH_LON=39.8262"
+        - text: "INZSH_SALAH_METHOD=mwl"
+        - text: "INZSH_SALAH_ASR=shafi"
+        - text: "# standard · shafi · hanafi"
+      note: "Latitude, longitude, calculation method, Asr school. Off unless these are set."
+gallery:
+  kicker: "Gallery"
+  heading: "The same prompt, three ways."
+  intro: "‘inzsh-sharp’ is the default — dark. ‘inzsh-warm’ is the light one, warmer and more editorial. Both are drawn from the same semantic roles, and ‘INZSH_PRESET’ picks between them when the theme loads."
+  # gallery.items omitted — the three 1000 × 200 preset captures have not been generated yet.
 specs:
-  - label: "Requires"
-    value: "zsh 5.8+ · a Nerd Font · a supported terminal"
-  - label: "Full colour"
-    value: "Ghostty · iTerm2 · kitty · Alacritty · WezTerm — the design target"
-  - label: "256 colours"
-    value: "macOS Terminal.app — palette tuned for it; close, not identical"
-  - label: "tmux"
-    value: "Needs RGB passthrough — set -sa terminal-features ',*:RGB'"
-  - label: "Not supported"
-    value: "Linux TTY and other bare consoles"
-  - label: "Optional"
-    value: "oh-my-zsh"
-  - label: "License"
-    value: "MIT"
+  kicker: "Specs · compatibility"
+  heading: "The practical part."
+  # specs.link omitted — the approved label is "Known limitations" but its href is unconfirmed.
+  items:
+    - label: "Requires"
+      value: "zsh 5.8+ · a Nerd Font · a supported terminal"
+    - label: "Full colour"
+      value: "Ghostty · iTerm2 · kitty · Alacritty · WezTerm — the design target"
+    - label: "256 colours"
+      value: "macOS Terminal.app — palette tuned for it; close, not identical"
+    - label: "tmux"
+      value: "Needs RGB passthrough — set -sa terminal-features ',*:RGB'"
+    - label: "Not supported"
+      value: "Linux TTY and other bare consoles"
+    - label: "Optional"
+      value: "oh-my-zsh"
+    - label: "License"
+      value: "MIT"
 colour:
+  kicker: "Colour · semantic roles, verified"
   heading: "It stays readable."
   cards:
     - title: "AA, verified."
@@ -128,6 +148,7 @@ colour:
     - title: "An honest fallback."
       body: "256-colour terminals get a hand-tuned palette that holds the theme’s shape. It’s close rather than identical — and says so."
 verification:
+  kicker: "Verification · 52 spec files"
   heading: "Built not to break."
   rows:
     - label: "Fixtures"
@@ -142,18 +163,27 @@ verification:
 # Only the first answer is approved copy. Answers 2-4 are placeholders assembled
 # from facts stated elsewhere on this page; the user has deferred rewriting them.
 faq:
-  - q: "What leaves my machine?"
-    a: "Nothing, unless you opt in. There’s no telemetry and there are no network calls by default. The one exception is ‘INZSH_SALAH_AUTOLOCATE=1’, which permits an IP-geolocation query — and even then it only happens when you run ‘inzsh locate’ yourself. Manual coordinates avoid it entirely."
-  - q: "How do I uninstall it?"
-    a: "The installer is reversible: ‘--uninstall’ takes everything back out. Your .zshrc was backed up at install time."
-  - q: "Why do the colours look wrong in tmux?"
-    a: "tmux needs RGB passthrough — set -sa terminal-features ',*:RGB'."
-  - q: "What is ‘inzsh doctor’ for?"
-    a: "It prints one diagnostic block — zsh version, terminal, $TERM, colour depth, locale, Nerd Font, tmux — and never prints your coordinates."
+  kicker: "FAQ"
+  heading: "Fair questions."
+  items:
+    - q: "What leaves my machine?"
+      a: "Nothing, unless you opt in. There’s no telemetry and there are no network calls by default. The one exception is ‘INZSH_SALAH_AUTOLOCATE=1’, which permits an IP-geolocation query — and even then it only happens when you run ‘inzsh locate’ yourself. Manual coordinates avoid it entirely."
+    - q: "How do I uninstall it?"
+      a: "The installer is reversible: ‘--uninstall’ takes everything back out. Your .zshrc was backed up at install time."
+    - q: "Why do the colours look wrong in tmux?"
+      a: "tmux needs RGB passthrough — set -sa terminal-features ',*:RGB'."
+    - q: "What is ‘inzsh doctor’ for?"
+      a: "It prints one diagnostic block — zsh version, terminal, $TERM, colour depth, locale, Nerd Font, tmux — and never prints your coordinates."
 closing:
   heading: "Give your prompt a system."
   wash: "system"
   sub: "The installer is reversible — or read the source first."
+  ctaPrimary:
+    label: "Install InZsh"
+    href: "#get-started"
+  ctaSecondary:
+    label: "Read the source"
+    href: "https://github.com/joeloudjinz/inzsh"
   facts: ["MIT", "no telemetry", "zsh 5.8+"]
 credit: "The segment-rank idea — one integer per segment, controlling both order and visibility — comes from comfyline, by not pua. InZsh is an independent implementation."
 ---

@@ -36,11 +36,15 @@ const renderLines = (lines: {prompt: boolean; text: string}[]) =>
         </p>
 
         {glance && (
-                <ul>{glance.map((item) => <li><b>{item.value}</b> {item.label}</li>)}</ul>
+                <div>
+                    <p class='kicker'>{glance.kicker}</p>
+                    <ul>{glance.items.map((item) => <li><b>{item.value}</b> {item.label}</li>)}</ul>
+                </div>
         )}
 
         {why && (
                 <div>
+                    <p class='kicker'>{why.kicker}</p>
                     <h2>{why.heading}</h2>
                     {why.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
                 </div>
@@ -48,8 +52,10 @@ const renderLines = (lines: {prompt: boolean; text: string}[]) =>
 
         {prayer && (
                 <div>
+                    <p class='kicker'>{prayer.kicker}</p>
                     <h2>{prayer.heading}</h2>
                     <p>{prayer.standfirst}</p>
+                    {prayer.configLabel && <p>{prayer.configLabel}</p>}
                     <pre>{renderLines(prayer.config)}</pre>
                     <p>{prayer.methods}</p>
                     <p>{prayer.asr}</p>
@@ -60,6 +66,7 @@ const renderLines = (lines: {prompt: boolean; text: string}[]) =>
 
         {config && (
                 <div>
+                    {config.kicker && <p class='kicker'>{config.kicker}</p>}
                     <h2>{config.heading}</h2>
                     <p>{config.intro}</p>
                     <table>
@@ -80,27 +87,45 @@ const renderLines = (lines: {prompt: boolean; text: string}[]) =>
         )}
 
         {steps && (
-                <ol id='get-started'>
-                    {steps.map((step) => (
-                            <li>
-                                <h3>{step.title}</h3>
-                                <pre>{renderLines(step.lines)}</pre>
-                                {step.note && <p>{step.note}</p>}
-                            </li>
-                    ))}
-                </ol>
+                <div id='get-started'>
+                    <p class='kicker'>{steps.kicker}</p>
+                    <h2>{steps.heading}</h2>
+                    {steps.intro && <p>{steps.intro}</p>}
+                    {steps.link && <a href={steps.link.href}>{steps.link.label}</a>}
+                    <ol>
+                        {steps.items.map((step) => (
+                                <li>
+                                    <h3>{step.title}</h3>
+                                    <pre>{renderLines(step.lines)}</pre>
+                                    {step.note && <p>{step.note}</p>}
+                                </li>
+                        ))}
+                    </ol>
+                </div>
         )}
 
         {gallery && (
-                <ul>{gallery.map((shot) => <li>{shot.caption}</li>)}</ul>
+                <div>
+                    <p class='kicker'>{gallery.kicker}</p>
+                    <h2>{gallery.heading}</h2>
+                    {gallery.intro && <p>{gallery.intro}</p>}
+                    {gallery.items && <ul>{gallery.items.map((shot) => <li>{shot.caption}</li>)}</ul>}
+                </div>
         )}
 
         {specs && (
-                <dl>{specs.map((spec) => <><dt>{spec.label}</dt><dd>{spec.value}</dd></>)}</dl>
+                <div>
+                    <p class='kicker'>{specs.kicker}</p>
+                    <h2>{specs.heading}</h2>
+                    {specs.intro && <p>{specs.intro}</p>}
+                    {specs.link && <a href={specs.link.href}>{specs.link.label}</a>}
+                    <dl>{specs.items.map((spec) => <><dt>{spec.label}</dt><dd>{spec.value}</dd></>)}</dl>
+                </div>
         )}
 
         {colour && (
                 <div>
+                    <p class='kicker'>{colour.kicker}</p>
                     <h2>{colour.heading}</h2>
                     {colour.cards.map((card) => <div><h3>{card.title}</h3><p>{card.body}</p></div>)}
                 </div>
@@ -108,18 +133,29 @@ const renderLines = (lines: {prompt: boolean; text: string}[]) =>
 
         {verification && (
                 <div>
+                    <p class='kicker'>{verification.kicker}</p>
                     <h2>{verification.heading}</h2>
                     {verification.rows.map((row) => <p><b>{row.label}</b> {row.value}</p>)}
                 </div>
         )}
 
         {faq && (
-                <dl>{faq.map((item) => <><dt>{item.q}</dt><dd>{item.a}</dd></>)}</dl>
+                <div>
+                    <p class='kicker'>{faq.kicker}</p>
+                    <h2>{faq.heading}</h2>
+                    {faq.intro && <p>{faq.intro}</p>}
+                    {faq.link && <a href={faq.link.href}>{faq.link.label}</a>}
+                    <dl>{faq.items.map((item) => <><dt>{item.q}</dt><dd>{item.a}</dd></>)}</dl>
+                </div>
         )}
 
         <div>
             <h2>{closing.heading}</h2>
             <p>{closing.sub}</p>
+            <p>
+                <a class='btn-primary' href={closing.ctaPrimary.href}>{closing.ctaPrimary.label}</a>
+                <a class='btn-ghost' href={closing.ctaSecondary.href}>{closing.ctaSecondary.label}</a>
+            </p>
             {closing.facts && <p>{closing.facts.join(' · ')}</p>}
         </div>
 
