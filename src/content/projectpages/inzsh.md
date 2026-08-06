@@ -42,11 +42,11 @@ prayer:
   methods: "MWL · ISNA · UmmAlQura · Egyptian · Karachi · Algeria — default MWL. Aliases like Makkah, Mecca or Egypt work; case, spacing and punctuation are ignored."
   asr: "standard · shafi · hanafi — default standard."
   # prayer.media omitted — the 1000 × 200 prayer-times capture has not been generated yet.
-  highLatitudes: "`INZSH_SALAH_HIGHLAT` takes angle · seventh · middle · none — default angle. It decides what happens at latitudes where the sun never reaches the depression angle and fajr or isha would otherwise not exist; `none` leaves the prayer absent rather than inventing one."
-  privacy: "No telemetry, and no network calls by default. One opt-in exception: `INZSH_SALAH_AUTOLOCATE=1` permits a query to a third-party IP geolocation service — which means your IP is sent to it. Even then, the theme never makes the request on its own; you run `inzsh locate` when you want the stored position refreshed. Set the coordinates manually and none of this applies."
+  highLatitudes: "‘INZSH_SALAH_HIGHLAT’ takes angle · seventh · middle · none — default angle. It decides what happens at latitudes where the sun never reaches the depression angle and fajr or isha would otherwise not exist; ‘none’ leaves the prayer absent rather than inventing one."
+  privacy: "No telemetry, and no network calls by default. One opt-in exception: ‘INZSH_SALAH_AUTOLOCATE=1’ permits a query to a third-party IP geolocation service — which means your IP is sent to it. Even then, the theme never makes the request on its own; you run ‘inzsh locate’ when you want the stored position refreshed. Set the coordinates manually and none of this applies."
 config:
   heading: "Configured, not forked."
-  intro: "Every knob is declared — engine and segment knob families, with per-segment overrides. `inzsh preset` switches styles in a running shell, and a narrow-terminal mode keeps the prompt usable in small panes. The engine knobs:"
+  intro: "Every knob is declared — engine and segment knob families, with per-segment overrides. ‘inzsh preset’ switches styles in a running shell, and a narrow-terminal mode keeps the prompt usable in small panes. The engine knobs:"
   knobs:
     - name: "INZSH_PRESET"
       values: ["sharp", "warm"]
@@ -131,24 +131,24 @@ verification:
   heading: "Built not to break."
   rows:
     - label: "Fixtures"
-      value: "Every still and recording on this page is generated from fixtures — `make shots` and `make demo` rebuild them. Nothing is hand-edited."
+      value: "Every still and recording on this page is generated from fixtures — ‘make shots’ and ‘make demo’ rebuild them. Nothing is hand-edited."
     - label: "Test suites"
       value: "52 spec files across unit, render, pty terminal-grid, installer and perf-budget suites — plus golden files that fail when the prompt changes shape."
     - label: "CI"
       value: "Runs on Linux and macOS, against zsh 5.8."
     - label: "Diagnostics"
-      value: "`inzsh doctor` prints one diagnostic block — zsh version, terminal, $TERM, colour depth, locale, Nerd Font, tmux — and never prints your coordinates."
+      value: "‘inzsh doctor’ prints one diagnostic block — zsh version, terminal, $TERM, colour depth, locale, Nerd Font, tmux — and never prints your coordinates."
 # <!-- provisional: FAQ answers 2-4 pending rewrite -->
 # Only the first answer is approved copy. Answers 2-4 are placeholders assembled
 # from facts stated elsewhere on this page; the user has deferred rewriting them.
 faq:
   - q: "What leaves my machine?"
-    a: "Nothing, unless you opt in. There’s no telemetry and there are no network calls by default. The one exception is `INZSH_SALAH_AUTOLOCATE=1`, which permits an IP-geolocation query — and even then it only happens when you run `inzsh locate` yourself. Manual coordinates avoid it entirely."
+    a: "Nothing, unless you opt in. There’s no telemetry and there are no network calls by default. The one exception is ‘INZSH_SALAH_AUTOLOCATE=1’, which permits an IP-geolocation query — and even then it only happens when you run ‘inzsh locate’ yourself. Manual coordinates avoid it entirely."
   - q: "How do I uninstall it?"
-    a: "The installer is reversible: `--uninstall` takes everything back out. Your .zshrc was backed up at install time."
+    a: "The installer is reversible: ‘--uninstall’ takes everything back out. Your .zshrc was backed up at install time."
   - q: "Why do the colours look wrong in tmux?"
-    a: "tmux needs RGB passthrough — `set -sa terminal-features ',*:RGB'`."
-  - q: "What is `inzsh doctor` for?"
+    a: "tmux needs RGB passthrough — set -sa terminal-features ',*:RGB'."
+  - q: "What is ‘inzsh doctor’ for?"
     a: "It prints one diagnostic block — zsh version, terminal, $TERM, colour depth, locale, Nerd Font, tmux — and never prints your coordinates."
 closing:
   heading: "Give your prompt a system."
