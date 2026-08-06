@@ -3,21 +3,23 @@ import Byline from '@src/components/Byline.astro';
 import SocialLinks from '@src/components/SocialLinks.astro';
 import {FULL_NAME, mainSite, NICKNAME} from '../../consts';
 
-interface Props {
-    /**
-     * 'site' is the main-site footer. 'subdomain' is the footer for a project
-     * showcase page on its own host: it adds the route back to the main site and
-     * a credit line above the signature row.
-     */
-    variant?: 'site' | 'subdomain';
-    /**
-     * The attribution line a project owes to prior art. Plain text — the
-     * projectPages schema's `credit` field. Rendered above the signature row so
-     * it reads as a note about the project, not as part of the site's own
-     * boilerplate. Omitted entirely when the project has nothing to credit.
-     */
-    credit?: string;
-}
+/**
+ * 'site' is the main-site footer. 'subdomain' is the footer for a project
+ * showcase page on its own host: it adds the route back to the main site and a
+ * credit line above the signature row.
+ *
+ * A union, matching Header: `credit` has nowhere to render on a site page, so
+ * two independent optionals would let `<Footer variant='site' credit='…'/>`
+ * typecheck and silently drop the line.
+ *
+ * `credit` is the attribution a project owes to prior art — plain text, the
+ * projectPages schema's `credit` field. It sits above the signature row so it
+ * reads as a note about the project rather than site boilerplate, and is
+ * omitted entirely when the project has nothing to credit.
+ */
+type Props =
+    | {variant?: 'site'; credit?: never}
+    | {variant: 'subdomain'; credit?: string};
 
 const {variant = 'site', credit} = Astro.props;
 const isSubdomain = variant === 'subdomain';
@@ -28,19 +30,25 @@ const year = new Date().getFullYear();
 ---
 
 <footer class='border-t border-hairline'>
-    {isSubdomain ? (<div class='shell pt-8 pb-10'>
+    <div class:list={['shell', isSubdomain ? 'pt-8 pb-10' : 'py-8']}>
         {credit && <p class='text-[13px] text-muted max-w-[760px]'>{credit}</p>}
+
         <div class:list={['flex flex-col sm:flex-row items-center justify-between gap-5', credit && 'mt-6']}>
             <Byline/>
-            <div class='flex flex-col sm:flex-row items-center gap-6'>
-                <a href={siteHref} class='arrow-link text-[14px]'>{siteHost} <span class='arrow'>→</span></a>
-                <SocialLinks size={18}/>
+
+            {/* The subdomain footer has a fourth item, so its trailing three are
+                grouped against the right edge. The site footer spreads its three
+                across the row, which `contents` preserves exactly: the wrapper
+                leaves the box tree and its children stay direct flex items. */}
+            <div class={isSubdomain ? 'flex flex-col sm:flex-row items-center gap-6' : 'contents'}>
+                {isSubdomain && (
+                        <a href={siteHref} class='arrow-link text-[14px]'>
+                            {siteHost} <span class='arrow'>→</span>
+                        </a>
+                )}
+                <SocialLinks size={isSubdomain ? 18 : 22}/>
                 <p class='text-[13px] text-muted'>© {year} {FULL_NAME} · {NICKNAME}</p>
             </div>
         </div>
-    </div>) : (<div class='shell flex flex-col sm:flex-row items-center justify-between gap-5 py-8'>
-        <Byline/>
-        <SocialLinks size={22}/>
-        <p class='text-[13px] text-muted'>© {year} {FULL_NAME} · {NICKNAME}</p>
-    </div>)}
+    </div>
 </footer>

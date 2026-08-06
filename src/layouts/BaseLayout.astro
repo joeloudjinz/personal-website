@@ -41,13 +41,15 @@ const {
 	canonical
 } = Astro.props;
 
-// Narrowed off Astro.props rather than destructured: pulling chrome and
-// projectName into separate consts throws away the correlation the union
-// encodes, and Header would no longer typecheck at the call site.
-const chrome = Astro.props.chrome === 'subdomain'
+// Narrowed off Astro.props into one bag per component, rather than destructured
+// into loose consts: Header and Footer each take a discriminated union, and
+// destructuring throws away the correlation that makes the call site typecheck.
+const headerProps = Astro.props.chrome === 'subdomain'
 	? {variant: 'subdomain', projectName: Astro.props.projectName} as const
 	: {variant: 'site'} as const;
-const credit = Astro.props.chrome === 'subdomain' ? Astro.props.credit : undefined;
+const footerProps = Astro.props.chrome === 'subdomain'
+	? {variant: 'subdomain', credit: Astro.props.credit} as const
+	: {variant: 'site'} as const;
 ---
 
 <!doctype html>
@@ -71,11 +73,11 @@ const credit = Astro.props.chrome === 'subdomain' ? Astro.props.credit : undefin
 	</head>
 	<body class={`page-grad-${gradient} min-h-screen flex flex-col`}>
 		<div class='grain-overlay' aria-hidden='true'></div>
-		<Header {...chrome}/>
+		<Header {...headerProps}/>
 		<main class='flex-1'>
 			<slot />
 		</main>
-		<Footer variant={chrome.variant} credit={credit} />
+		<Footer {...footerProps} />
 		{GTAG_MEASUREMENT_ID && (
 			<Fragment>
 				<!-- Google tag (gtag.js) -->
