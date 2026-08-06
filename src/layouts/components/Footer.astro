@@ -1,7 +1,7 @@
 ---
 import Byline from '@src/components/Byline.astro';
 import SocialLinks from '@src/components/SocialLinks.astro';
-import {FULL_NAME, NICKNAME} from '../../consts';
+import {FULL_NAME, mainSite, NICKNAME} from '../../consts';
 
 interface Props {
     /**
@@ -22,10 +22,7 @@ interface Props {
 const {variant = 'site', credit} = Astro.props;
 const isSubdomain = variant === 'subdomain';
 
-// From another host, "/" is the subdomain's own root — the way back has to be
-// absolute. Astro.site is the main site either way, so it is the one source.
-const siteHref = Astro.site?.href ?? '/';
-const siteHost = Astro.site?.host ?? '';
+const {href: siteHref, host: siteHost} = mainSite(Astro.site);
 
 const year = new Date().getFullYear();
 ---

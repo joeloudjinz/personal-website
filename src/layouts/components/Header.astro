@@ -3,7 +3,7 @@ import {Image} from 'astro:assets';
 import LogoLight from '@src/assets/img/logo.png';
 import LogoDark from '@src/assets/img/logo-transparent.png';
 import SocialLinks from '@src/components/SocialLinks.astro';
-import {NICKNAME} from '../../consts';
+import {mainSite, NICKNAME} from '../../consts';
 
 /**
  * 'site' is the main-site nav. 'subdomain' is the chrome for a project showcase
@@ -44,10 +44,7 @@ const currentPath = Astro.url.pathname;
 const isActive = (link: string) =>
     link === '/' ? currentPath === '/' : currentPath.startsWith(link.replace(/\/$/, ''));
 
-// From another host, "/" is the subdomain's own root — the way back has to be
-// absolute. Astro.site is the main site either way, so it is the one source.
-const siteHref = Astro.site?.href ?? '/';
-const siteHost = Astro.site?.host ?? '';
+const {href: siteHref, host: siteHost} = mainSite(Astro.site);
 ---
 
 <header
