@@ -145,8 +145,8 @@ const projectPages = defineCollection({
       slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
         message: 'slug must be lowercase kebab-case: it becomes the URL segment'
       }),
-      // A bare hostname. Group B builds the canonical URL from this, so a value
-      // carrying a scheme, port, path or trailing slash would produce a broken one.
+      // A bare hostname. TODO(Group B): build the canonical URL from this — which
+      // is why a scheme, port, path or trailing slash is rejected here.
       subdomain: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)+$/, {
         message: 'subdomain must be a bare lowercase hostname — no scheme, port, path or trailing slash'
       }),

@@ -15,7 +15,7 @@ hero:
   ctaSecondary:
     label: "View the repository"
     href: "https://github.com/joeloudjinz/inzsh"
-  # hero.media omitted — showcase.gif (1000 × 480) has not been captured yet.
+  # TODO(Group E): hero.media — showcase.gif (1000 × 480) is not captured yet.
 glance:
   kicker: "At a glance"
   items:
@@ -127,8 +127,8 @@ gallery:
   kicker: "Gallery"
   heading: "The same prompt, three ways."
   intro: "‘inzsh-sharp’ is the default — dark. ‘inzsh-warm’ is the light one, warmer and more editorial. Both are drawn from the same semantic roles, and ‘INZSH_PRESET’ picks between them when the theme loads."
-  # Captions are approved copy and ship now; Group E adds src to these same items
-  # once the three 1000 × 200 captures are generated from fixtures.
+  # TODO(Group E): add src to these three items once the 1000 × 200 captures are
+  # generated from fixtures. The captions are approved copy and ship now.
   items:
     - caption: "The sharp preset — dark, full colour."
     - caption: "The warm preset — light, editorial."
