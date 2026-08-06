@@ -112,7 +112,14 @@ const projectPages = defineCollection({
     });
 
     return z.object({
-      slug: z.string(),
+      // Deliberately an explicit field rather than the glob loader's derived id,
+      // which is how blog posts work. A Zod regex can validate a schema field and
+      // cannot validate a filename — and the regex is what stops a slug like
+      // "About" from overwriting dist/about/index.html on a case-insensitive
+      // filesystem. The divergence from the blog idiom buys that check.
+      slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+        message: 'slug must be lowercase kebab-case: it becomes the URL segment'
+      }),
       subdomain: z.string(),
       projectName: z.string().max(12),
       hero: z.object({
