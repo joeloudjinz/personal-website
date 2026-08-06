@@ -109,8 +109,12 @@ const projectPages = defineCollection({
       projectName: z.string().max(12),
       hero: z.object({
         kicker: z.string().max(44),
+        // name is the product noun (chips, meta); heading is the full H1 including
+        // its own punctuation, and wash is the phrase inside it that takes the
+        // caramel marker — same split as closing.
         name: z.string().max(12),
-        hook: z.string().optional(),
+        heading: z.string().max(80),
+        wash: z.string(),
         promise: z.string().max(140),
         status: z.enum(['Stable', 'In progress', 'Maintained', 'Archived']),
         version: z.string().optional(),

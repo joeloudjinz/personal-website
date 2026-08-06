@@ -17,17 +17,31 @@ interface Props {
 
 const {page} = Astro.props;
 const {
-    projectName, hero, glance, why, prayer, config, steps, gallery, specs, colour, verification, faq, closing, credit
+    hero, glance, why, prayer, config, steps, gallery, specs, colour, verification, faq, closing, credit
 } = page.data;
 
 const renderLines = (lines: {prompt: boolean; text: string}[]) =>
     lines.map((line) => (line.prompt ? '$ ' : '') + line.text).join('\n');
+
+// Splits a heading around its washed phrase so the marker span — and whatever
+// punctuation trails it — survive into the markup.
+const splitWash = (heading: string, wash: string) => {
+    const at = heading.indexOf(wash);
+    return at === -1
+        ? {before: heading, washed: '', after: ''}
+        : {before: heading.slice(0, at), washed: wash, after: heading.slice(at + wash.length)};
+};
+
+const heroHeading = splitWash(hero.heading, hero.wash);
+const closingHeading = splitWash(closing.heading, closing.wash);
 ---
 
-<BaseLayout title={`${projectName} — ${hero.hook ?? hero.name}`} description={hero.promise} gradient='warm'>
+<BaseLayout title={hero.heading} description={hero.promise} gradient='warm'>
     <section class='shell py-16'>
         <p class='kicker'>{hero.kicker}</p>
-        <h1 class='font-display text-4xl md:text-5xl text-strong'>{hero.name}{hero.hook && ` — ${hero.hook}`}</h1>
+        <h1 class='font-display text-4xl md:text-5xl text-strong'>
+            {heroHeading.before}<span class='marker-wash'>{heroHeading.washed}</span>{heroHeading.after}
+        </h1>
         <p class='text-muted'>{hero.promise}</p>
         <p><span class='chip'>{hero.status}</span>{hero.version && <span class='chip'>v{hero.version}</span>}</p>
         <p>
@@ -158,7 +172,7 @@ const renderLines = (lines: {prompt: boolean; text: string}[]) =>
         )}
 
         <div>
-            <h2>{closing.heading}</h2>
+            <h2>{closingHeading.before}<span class='marker-wash'>{closingHeading.washed}</span>{closingHeading.after}</h2>
             <p>{closing.sub}</p>
             <p>
                 <a class='btn-primary' href={closing.ctaPrimary.href}>{closing.ctaPrimary.label}</a>
