@@ -32,12 +32,6 @@ const isSubdomain = variant === 'subdomain';
 // project name to an ellipsis; dropping the marks AND shortening the label to
 // "‹ home" needs 279.9px and leaves 47.1px of slack with the name intact. The
 // short label is load-bearing, not a nicety.
-//
-// The variant-only markup below is written hugging its `{…}` boundaries — no
-// newline between the expression and the tag it wraps. Astro emits the template's
-// whitespace verbatim and compressHTML collapses each run separately, so an
-// indented conditional would add a space to the site variant's output. Keeping
-// the site variant byte-identical is the whole reason this is one component.
 
 const menu = [
     {link: '/', label: 'Home'},
@@ -71,26 +65,39 @@ const siteHost = Astro.site?.host ?? '';
                    class='h-12 w-12 hidden dark:block'/>
         </a>
 
-        {isSubdomain && (<Fragment><span class='w-px h-6 bg-hairline shrink-0' aria-hidden='true'
-        ></span><span class='font-display text-[22px] font-semibold text-strong mr-auto truncate'
-        >{projectName}</span></Fragment>)}{!isSubdomain && (<div class='hidden md:flex items-center gap-6 md:gap-9'>
-            {menu.map((item) => (
-                    <a href={item.link}
-                       class:list={[
-                           'text-[15px] transition-colors duration-200',
-                           isActive(item.link)
-                               ? 'text-accent font-semibold'
-                               : 'text-muted font-medium hover:text-accent'
-                       ]}
-                       aria-current={isActive(item.link) ? 'page' : undefined}>
-                        {item.label}
-                    </a>
-            ))}
-        </div>)}
+        {isSubdomain && (
+                <Fragment>
+                    <span class='w-px h-6 bg-hairline shrink-0' aria-hidden='true'></span>
+                    <span class='font-display text-[22px] font-semibold text-strong mr-auto truncate'>
+                        {projectName}
+                    </span>
+                </Fragment>
+        )}
 
-        <div class='flex items-center gap-4'>{isSubdomain && (<a href={siteHref}
-                class='shrink-0 text-[14px] font-semibold text-info hover:text-accent transition-colors duration-200'
-        >‹ <span class='md:hidden'>home</span><span class='hidden md:inline'>{siteHost}</span></a>)}
+        {!isSubdomain && (
+                <div class='hidden md:flex items-center gap-6 md:gap-9'>
+                    {menu.map((item) => (
+                            <a href={item.link}
+                               class:list={[
+                                   'text-[15px] transition-colors duration-200',
+                                   isActive(item.link)
+                                       ? 'text-accent font-semibold'
+                                       : 'text-muted font-medium hover:text-accent'
+                               ]}
+                               aria-current={isActive(item.link) ? 'page' : undefined}>
+                                {item.label}
+                            </a>
+                    ))}
+                </div>
+        )}
+
+        <div class='flex items-center gap-4'>
+            {isSubdomain && (
+                    <a href={siteHref}
+                       class='shrink-0 text-[14px] font-semibold text-info hover:text-accent transition-colors duration-200'>
+                        ‹ <span class='md:hidden'>home</span><span class='hidden md:inline'>{siteHost}</span>
+                    </a>
+            )}
             <SocialLinks class={isSubdomain ? 'max-md:hidden' : undefined}/>
 
             <button class='theme-toggle flex items-center rounded-full border border-hairline p-[3px]'
@@ -119,31 +126,35 @@ const siteHost = Astro.site?.host ?? '';
             </button>
         </div>
 
-        {!isSubdomain && (<button type='button'
-                class='menu-toggle md:hidden flex flex-col justify-center gap-[5px] shrink-0 p-2 -mr-2'
-                aria-label='Menu' aria-expanded='false' aria-controls='mobileMenu'>
-            <span class='menu-bar'></span>
-            <span class='menu-bar'></span>
-            <span class='menu-bar'></span>
-        </button>)}
+        {!isSubdomain && (
+                <button type='button'
+                        class='menu-toggle md:hidden flex flex-col justify-center gap-[5px] shrink-0 p-2 -mr-2'
+                        aria-label='Menu' aria-expanded='false' aria-controls='mobileMenu'>
+                    <span class='menu-bar'></span>
+                    <span class='menu-bar'></span>
+                    <span class='menu-bar'></span>
+                </button>
+        )}
     </nav>
 
-    {!isSubdomain && (<div id='mobileMenu' class='mobile-menu md:hidden' hidden>
-        <nav class='shell flex flex-col py-2' aria-label='Mobile'>
-            {menu.map((item) => (
-                    <a href={item.link}
-                       class:list={[
-                           'py-3 text-[17px] border-b border-hairline last:border-b-0',
-                           isActive(item.link)
-                               ? 'text-accent font-semibold'
-                               : 'text-body font-medium'
-                       ]}
-                       aria-current={isActive(item.link) ? 'page' : undefined}>
-                        {item.label}
-                    </a>
-            ))}
-        </nav>
-    </div>)}
+    {!isSubdomain && (
+            <div id='mobileMenu' class='mobile-menu md:hidden' hidden>
+                <nav class='shell flex flex-col py-2' aria-label='Mobile'>
+                    {menu.map((item) => (
+                            <a href={item.link}
+                               class:list={[
+                                   'py-3 text-[17px] border-b border-hairline last:border-b-0',
+                                   isActive(item.link)
+                                       ? 'text-accent font-semibold'
+                                       : 'text-body font-medium'
+                               ]}
+                               aria-current={isActive(item.link) ? 'page' : undefined}>
+                                {item.label}
+                            </a>
+                    ))}
+                </nav>
+            </div>
+    )}
 
     <style>
         .toggle-seg {
