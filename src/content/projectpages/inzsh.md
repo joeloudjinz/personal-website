@@ -34,30 +34,27 @@ why:
   paragraphs:
     - "Most prompt themes are a set of colours that happened to look nice together — and they usually do, on the terminal they were designed in. InZsh starts from the other end: every colour in the prompt is a semantic role from the JoeInz design system, with a contrast ratio that’s verified, not eyeballed."
     - "The other reason is simpler. I wanted prayer times in my prompt, and no theme does that — not as a plugin calling a web API, and not computed on the machine from coordinates I set once. So I built it."
-prayer:
+deepDive:
   kicker: "Prayer times · computed locally"
   heading: "Prayer times, in the prompt."
   standfirst: "Optional, and off unless configured. When it’s on, the times are computed on your machine using standard astronomical methods."
-  configLabel: "Four values in .zshrc"
-  config:
+  codeLabel: "Four values in .zshrc"
+  code:
     - text: "INZSH_SALAH_LAT=21.4225"
     - text: "INZSH_SALAH_LON=39.8262"
     - text: "INZSH_SALAH_METHOD=mwl"
     - text: "INZSH_SALAH_ASR=shafi"
     - text: "# standard · shafi · hanafi"
-  methods:
-    label: "Methods:"
-    value: "MWL · ISNA · UmmAlQura · Egyptian · Karachi · Algeria — default MWL. Aliases like Makkah, Mecca or Egypt work; case, spacing and punctuation are ignored."
-  asr:
-    label: "Asr:"
-    value: "standard · shafi · hanafi — default standard."
-  # prayer.media omitted — the 1000 × 200 prayer-times capture has not been generated yet.
-  highLatitudes:
-    label: "High latitudes"
-    value: "‘INZSH_SALAH_HIGHLAT’ takes angle · seventh · middle · none — default angle. It decides what happens at latitudes where the sun never reaches the depression angle and fajr or isha would otherwise not exist; ‘none’ leaves the prayer absent rather than inventing one."
-  privacy:
-    label: "Privacy"
-    value: "No telemetry, and no network calls by default. One opt-in exception: ‘INZSH_SALAH_AUTOLOCATE=1’ permits a query to a third-party IP geolocation service — which means your IP is sent to it. Even then, the theme never makes the request on its own; you run ‘inzsh locate’ when you want the stored position refreshed. Set the coordinates manually and none of this applies."
+  # TODO(Group E): deepDive.media — the 1000 × 200 prayer-times capture is not generated yet.
+  rows:
+    - label: "Methods:"
+      value: "MWL · ISNA · UmmAlQura · Egyptian · Karachi · Algeria — default MWL. Aliases like Makkah, Mecca or Egypt work; case, spacing and punctuation are ignored."
+    - label: "Asr:"
+      value: "standard · shafi · hanafi — default standard."
+    - label: "High latitudes"
+      value: "‘INZSH_SALAH_HIGHLAT’ takes angle · seventh · middle · none — default angle. It decides what happens at latitudes where the sun never reaches the depression angle and fajr or isha would otherwise not exist; ‘none’ leaves the prayer absent rather than inventing one."
+    - label: "Privacy"
+      value: "No telemetry, and no network calls by default. One opt-in exception: ‘INZSH_SALAH_AUTOLOCATE=1’ permits a query to a third-party IP geolocation service — which means your IP is sent to it. Even then, the theme never makes the request on its own; you run ‘inzsh locate’ when you want the stored position refreshed. Set the coordinates manually and none of this applies."
 config:
   # No kicker: this is the one band the approved design runs without one.
   heading: "Configured, not forked."
@@ -158,7 +155,7 @@ specs:
       value: "oh-my-zsh"
     - label: "License"
       value: "MIT"
-colour:
+pillars:
   kicker: "Colour · semantic roles, verified"
   heading: "It stays readable."
   cards:

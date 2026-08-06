@@ -170,18 +170,21 @@ const projectPages = defineCollection({
         heading: z.string().max(50),
         paragraphs: z.array(z.string()).min(2).max(3)
       }).optional(),
-      prayer: z.object({
+      // The long-form band for a project's signature feature: a standfirst, an
+      // optional code block, and however many labelled paragraphs that feature
+      // needs. Named for the role, not the subject — InZsh fills it with prayer
+      // times, the next project fills it with something else, and neither has to
+      // touch this file. Row order is the author's, not a side effect of where
+      // the fields happen to sit in the schema.
+      deepDive: z.object({
         kicker,
         heading: z.string(),
         standfirst: z.string(),
-        // Label above the config block, e.g. "Four values in .zshrc".
-        configLabel: z.string().max(40).optional(),
-        config: z.array(codeLine),
-        methods: labelled(400),
-        asr: labelled(400),
+        // Label above the code block, e.g. "Four values in .zshrc".
+        codeLabel: z.string().max(40).optional(),
+        code: z.array(codeLine).optional(),
         media: media.optional(),
-        highLatitudes: labelled(400),
-        privacy: labelled(400)
+        rows: z.array(labelled(400)).min(2).max(6)
       }).optional(),
       // The one band the approved design runs without a kicker, so kicker is optional here.
       config: z.object({
@@ -233,7 +236,9 @@ const projectPages = defineCollection({
         link: link.optional(),
         items: z.array(labelled(90)).min(4).max(7)
       }).optional(),
-      colour: z.object({
+      // Three or four short claims, each a title and a sentence. InZsh uses it for
+      // colour accessibility; the role is "the things we promise", not "colour".
+      pillars: z.object({
         kicker,
         heading: z.string(),
         cards: z.array(z.object({ title: z.string(), body: z.string() })).min(3).max(4)

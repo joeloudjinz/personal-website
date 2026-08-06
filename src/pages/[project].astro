@@ -18,7 +18,7 @@ interface Props {
 
 const {page} = Astro.props;
 const {
-    hero, glance, why, prayer, config, steps, gallery, specs, colour, verification, faq, closing, credit
+    hero, glance, why, deepDive, config, steps, gallery, specs, pillars, verification, faq, closing, credit
 } = page.data;
 
 const renderLines = (lines: CodeLine[]) =>
@@ -65,17 +65,14 @@ const closingHeading = splitWash(closing.heading, closing.wash);
                 </div>
         )}
 
-        {prayer && (
+        {deepDive && (
                 <div>
-                    <p class='kicker'>{prayer.kicker}</p>
-                    <h2>{prayer.heading}</h2>
-                    <p>{prayer.standfirst}</p>
-                    {prayer.configLabel && <p>{prayer.configLabel}</p>}
-                    <pre>{renderLines(prayer.config)}</pre>
-                    <p><b>{prayer.methods.label}</b> {prayer.methods.value}</p>
-                    <p><b>{prayer.asr.label}</b> {prayer.asr.value}</p>
-                    <p><b>{prayer.highLatitudes.label}</b> {prayer.highLatitudes.value}</p>
-                    <p><b>{prayer.privacy.label}</b> {prayer.privacy.value}</p>
+                    <p class='kicker'>{deepDive.kicker}</p>
+                    <h2>{deepDive.heading}</h2>
+                    <p>{deepDive.standfirst}</p>
+                    {deepDive.codeLabel && <p>{deepDive.codeLabel}</p>}
+                    {deepDive.code && <pre>{renderLines(deepDive.code)}</pre>}
+                    {deepDive.rows.map((row) => <p><b>{row.label}</b> {row.value}</p>)}
                 </div>
         )}
 
@@ -146,11 +143,11 @@ const closingHeading = splitWash(closing.heading, closing.wash);
                 </div>
         )}
 
-        {colour && (
+        {pillars && (
                 <div>
-                    <p class='kicker'>{colour.kicker}</p>
-                    <h2>{colour.heading}</h2>
-                    {colour.cards.map((card) => <div><h3>{card.title}</h3><p>{card.body}</p></div>)}
+                    <p class='kicker'>{pillars.kicker}</p>
+                    <h2>{pillars.heading}</h2>
+                    {pillars.cards.map((card) => <div><h3>{card.title}</h3><p>{card.body}</p></div>)}
                 </div>
         )}
 
