@@ -29,9 +29,14 @@ const isSubdomain = variant === 'subdomain';
 // width. Measured at 375px (327px of nav content box): logo, rule, name, the
 // full "‹ abdellahaddoun.com" and the marks together need 361.7px and overflow
 // by 34.7px; dropping the marks lands on exactly 327px, which truncates the
-// project name to an ellipsis; dropping the marks AND shortening the label to
-// "‹ home" needs 279.9px and leaves 47.1px of slack with the name intact. The
-// short label is load-bearing, not a nicety.
+// project name; dropping the marks AND shortening the label to "‹ home" needs
+// 279.9px. The short label is load-bearing, not a nicety.
+//
+// That leaves the name ~130px at 375px, and the schema allows 12 characters.
+// At Fraunces 22 a 12-character name wants ~147px and truncates, so the name
+// drops to 18px below md, where 12 characters need ~121px and fit. Only
+// pathological all-cap-W/M strings still overflow (~183px), which no product
+// name is. At md the padding doubles to 48px and 22px is comfortable again.
 
 const menu = [
     {link: '/', label: 'Home'},
@@ -65,7 +70,7 @@ const {href: siteHref, host: siteHost} = mainSite(Astro.site);
         {isSubdomain && (
                 <Fragment>
                     <span class='w-px h-6 bg-hairline shrink-0' aria-hidden='true'></span>
-                    <span class='font-display text-[22px] font-semibold text-strong mr-auto truncate'>
+                    <span class='font-display text-[18px] md:text-[22px] font-semibold text-strong mr-auto truncate'>
                         {projectName}
                     </span>
                 </Fragment>
