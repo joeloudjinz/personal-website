@@ -1,5 +1,6 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders'; // Not available with legacy API
+import { PROJECT_PAGES_BASE, PROJECT_PAGES_PATTERN } from './utils/projectPagesSource';
 
 const blog = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/blog" }),
@@ -102,7 +103,10 @@ const codeLine = z.object({ prompt: z.boolean().default(false), text: z.string()
 export type CodeLine = z.infer<typeof codeLine>;
 
 const projectPages = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: "./src/content/projectpages" }),
+  // Pattern and base come from projectPagesSource.ts, shared with the build-time
+  // read that keeps these pages out of the sitemap. If the two disagreed, a page
+  // could be generated and then advertised on the wrong host.
+  loader: glob({ pattern: PROJECT_PAGES_PATTERN, base: PROJECT_PAGES_BASE }),
   schema: ({ image }) => {
     const cta = (labelMax: number) => z.object({ label: z.string().max(labelMax), href: z.string() });
     const link = z.object({ label: z.string().max(40), href: z.string() });
