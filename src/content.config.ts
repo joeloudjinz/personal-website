@@ -100,6 +100,8 @@ const projectPages = defineCollection({
   schema: ({ image }) => {
     const cta = z.object({ label: z.string().max(22), href: z.string() });
     const link = z.object({ label: z.string().max(40), href: z.string() });
+    // A row whose label is page copy too, not a template constant: "Privacy", "Asr:", …
+    const labelled = z.object({ label: z.string().max(40), value: z.string() });
 
     return z.object({
       slug: z.string(),
@@ -133,17 +135,25 @@ const projectPages = defineCollection({
         // Label above the config block, e.g. "Four values in .zshrc".
         configLabel: z.string().max(40).optional(),
         config: z.array(z.object({ prompt: z.boolean().default(false), text: z.string() })),
-        methods: z.string(),
-        asr: z.string(),
+        methods: labelled,
+        asr: labelled,
         media: z.object({ src: image(), alt: z.string() }).optional(),
-        highLatitudes: z.string(),
-        privacy: z.string()
+        highLatitudes: labelled,
+        privacy: labelled
       }).optional(),
       // The one band the approved design runs without a kicker, so kicker is optional here.
       config: z.object({
         kicker: z.string().max(44).optional(),
         heading: z.string(),
         intro: z.string(),
+        // Column headers are copy, not derivable from the keys: "fallback" prints
+        // as "Default" here, and a non-zsh project needs different headers entirely.
+        knobHeaders: z.object({
+          name: z.string().max(24),
+          values: z.string().max(24),
+          fallback: z.string().max(24),
+          effect: z.string().max(24)
+        }),
         knobs: z.array(z.object({
           name: z.string(),
           values: z.array(z.string()),

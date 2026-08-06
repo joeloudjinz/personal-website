@@ -57,10 +57,10 @@ const renderLines = (lines: {prompt: boolean; text: string}[]) =>
                     <p>{prayer.standfirst}</p>
                     {prayer.configLabel && <p>{prayer.configLabel}</p>}
                     <pre>{renderLines(prayer.config)}</pre>
-                    <p>{prayer.methods}</p>
-                    <p>{prayer.asr}</p>
-                    <p>{prayer.highLatitudes}</p>
-                    <p>{prayer.privacy}</p>
+                    <p><b>{prayer.methods.label}</b> {prayer.methods.value}</p>
+                    <p><b>{prayer.asr.label}</b> {prayer.asr.value}</p>
+                    <p><b>{prayer.highLatitudes.label}</b> {prayer.highLatitudes.value}</p>
+                    <p><b>{prayer.privacy.label}</b> {prayer.privacy.value}</p>
                 </div>
         )}
 
@@ -70,6 +70,14 @@ const renderLines = (lines: {prompt: boolean; text: string}[]) =>
                     <h2>{config.heading}</h2>
                     <p>{config.intro}</p>
                     <table>
+                        <thead>
+                        <tr>
+                            <th>{config.knobHeaders.name}</th>
+                            <th>{config.knobHeaders.values}</th>
+                            <th>{config.knobHeaders.fallback}</th>
+                            <th>{config.knobHeaders.effect}</th>
+                        </tr>
+                        </thead>
                         <tbody>
                         {config.knobs.map((knob) => (
                                 <tr>
