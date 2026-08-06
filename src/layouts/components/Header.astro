@@ -5,18 +5,20 @@ import LogoDark from '@src/assets/img/logo-transparent.png';
 import SocialLinks from '@src/components/SocialLinks.astro';
 import {NICKNAME} from '../../consts';
 
-interface Props {
-    /**
-     * 'site' is the main-site nav. 'subdomain' is the chrome for a project
-     * showcase page served from its own host: the four main-site links are not
-     * reachable relative URLs there, so it names the project and offers the way
-     * back instead. Same glass construction either way — the sticky bar, the
-     * frosted backdrop, the hairline and the theme toggle live here once.
-     */
-    variant?: 'site' | 'subdomain';
-    /** The product noun shown beside the logo. Required by the subdomain variant. */
-    projectName?: string;
-}
+/**
+ * 'site' is the main-site nav. 'subdomain' is the chrome for a project showcase
+ * page served from its own host: the four main-site links are not reachable
+ * relative URLs there, so it names the project and offers the way back instead.
+ * Same glass construction either way — the sticky bar, the frosted backdrop, the
+ * hairline and the theme toggle live here once.
+ *
+ * A union rather than two optional fields: the subdomain variant renders
+ * projectName beside a separator, so omitting it would draw a divider followed
+ * by an empty span. Making that unrepresentable beats documenting it.
+ */
+type Props =
+    | {variant?: 'site'; projectName?: never}
+    | {variant: 'subdomain'; projectName: string};
 
 const {variant = 'site', projectName} = Astro.props;
 const isSubdomain = variant === 'subdomain';

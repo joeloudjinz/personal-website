@@ -4,7 +4,7 @@ import Header from './components/Header.astro';
 import Footer from './components/Footer.astro';
 import {ClientRouter} from 'astro:transitions';
 
-interface Props {
+interface PageProps {
 	title: string;
 	description: string;
 	image?: string;
@@ -18,22 +18,36 @@ interface Props {
 	 * other than Astro.site need it — see BaseHead.
 	 */
 	canonical?: string;
-	/**
-	 * Which header/footer pair to frame the page with. 'subdomain' drops the
-	 * main-site nav for chrome that names the project and points back home.
-	 */
-	chrome?: 'site' | 'subdomain';
-	/** Named beside the logo by the subdomain chrome. */
-	projectName?: string;
-	/** Attribution line rendered above the footer's signature row. */
-	credit?: string;
 }
+
+/**
+ * Which header/footer pair frames the page. 'subdomain' drops the main-site nav
+ * for chrome that names the project and points back home.
+ *
+ * A union so the fields that only mean something to one variant cannot be set on
+ * the other: projectName is required by the subdomain chrome and meaningless to
+ * the site chrome, and a credit line has nowhere to render on a site page. Both
+ * would otherwise be silently ignored.
+ */
+type ChromeProps =
+	| {chrome?: 'site'; projectName?: never; credit?: never}
+	| {chrome: 'subdomain'; projectName: string; credit?: string};
+
+type Props = PageProps & ChromeProps;
 
 const GTAG_MEASUREMENT_ID = import.meta.env.PUBLIC_GTAG_MEASUREMENT_ID;
 const {
 	title, description, image, type, publishedTime, modifiedTime, tags, gradient = 'glow',
-	canonical, chrome = 'site', projectName, credit
+	canonical
 } = Astro.props;
+
+// Narrowed off Astro.props rather than destructured: pulling chrome and
+// projectName into separate consts throws away the correlation the union
+// encodes, and Header would no longer typecheck at the call site.
+const chrome = Astro.props.chrome === 'subdomain'
+	? {variant: 'subdomain', projectName: Astro.props.projectName} as const
+	: {variant: 'site'} as const;
+const credit = Astro.props.chrome === 'subdomain' ? Astro.props.credit : undefined;
 ---
 
 <!doctype html>
@@ -57,11 +71,11 @@ const {
 	</head>
 	<body class={`page-grad-${gradient} min-h-screen flex flex-col`}>
 		<div class='grain-overlay' aria-hidden='true'></div>
-		<Header variant={chrome} projectName={projectName}/>
+		<Header {...chrome}/>
 		<main class='flex-1'>
 			<slot />
 		</main>
-		<Footer variant={chrome} credit={credit} />
+		<Footer variant={chrome.variant} credit={credit} />
 		{GTAG_MEASUREMENT_ID && (
 			<Fragment>
 				<!-- Google tag (gtag.js) -->
