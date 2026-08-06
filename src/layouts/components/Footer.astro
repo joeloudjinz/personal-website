@@ -2,13 +2,48 @@
 import Byline from '@src/components/Byline.astro';
 import SocialLinks from '@src/components/SocialLinks.astro';
 import {FULL_NAME, NICKNAME} from '../../consts';
+
+interface Props {
+    /**
+     * 'site' is the main-site footer. 'subdomain' is the footer for a project
+     * showcase page on its own host: it adds the route back to the main site and
+     * a credit line above the signature row.
+     */
+    variant?: 'site' | 'subdomain';
+    /**
+     * The attribution line a project owes to prior art. Plain text — the
+     * projectPages schema's `credit` field. Rendered above the signature row so
+     * it reads as a note about the project, not as part of the site's own
+     * boilerplate. Omitted entirely when the project has nothing to credit.
+     */
+    credit?: string;
+}
+
+const {variant = 'site', credit} = Astro.props;
+const isSubdomain = variant === 'subdomain';
+
+// From another host, "/" is the subdomain's own root — the way back has to be
+// absolute. Astro.site is the main site either way, so it is the one source.
+const siteHref = Astro.site?.href ?? '/';
+const siteHost = Astro.site?.host ?? '';
+
 const year = new Date().getFullYear();
 ---
 
 <footer class='border-t border-hairline'>
-    <div class='shell flex flex-col sm:flex-row items-center justify-between gap-5 py-8'>
+    {isSubdomain ? (<div class='shell pt-8 pb-10'>
+        {credit && <p class='text-[13px] text-muted max-w-[760px]'>{credit}</p>}
+        <div class:list={['flex flex-col sm:flex-row items-center justify-between gap-5', credit && 'mt-6']}>
+            <Byline/>
+            <div class='flex flex-col sm:flex-row items-center gap-6'>
+                <a href={siteHref} class='arrow-link text-[14px]'>{siteHost} <span class='arrow'>→</span></a>
+                <SocialLinks size={18}/>
+                <p class='text-[13px] text-muted'>© {year} {FULL_NAME} · {NICKNAME}</p>
+            </div>
+        </div>
+    </div>) : (<div class='shell flex flex-col sm:flex-row items-center justify-between gap-5 py-8'>
         <Byline/>
         <SocialLinks size={22}/>
         <p class='text-[13px] text-muted'>© {year} {FULL_NAME} · {NICKNAME}</p>
-    </div>
+    </div>)}
 </footer>
