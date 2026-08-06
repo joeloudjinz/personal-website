@@ -5,6 +5,28 @@ import LogoDark from '@src/assets/img/logo-transparent.png';
 import SocialLinks from '@src/components/SocialLinks.astro';
 import {NICKNAME} from '../../consts';
 
+interface Props {
+    /**
+     * 'site' is the main-site nav. 'subdomain' is the chrome for a project
+     * showcase page served from its own host: the four main-site links are not
+     * reachable relative URLs there, so it names the project and offers the way
+     * back instead. Same glass construction either way — the sticky bar, the
+     * blur, the hairline and the theme toggle live here once.
+     */
+    variant?: 'site' | 'subdomain';
+    /** The product noun shown beside the logo. Required by the subdomain variant. */
+    projectName?: string;
+}
+
+const {variant = 'site', projectName} = Astro.props;
+const isSubdomain = variant === 'subdomain';
+
+// The variant-only markup below is written hugging its `{…}` boundaries — no
+// newline between the expression and the tag it wraps. Astro emits the template's
+// whitespace verbatim and compressHTML collapses each run separately, so an
+// indented conditional would add a space to the site variant's output. Keeping
+// the site variant byte-identical is the whole reason this is one component.
+
 const menu = [
     {link: '/', label: 'Home'},
     {link: '/about/', label: 'About'},
@@ -15,21 +37,30 @@ const menu = [
 const currentPath = Astro.url.pathname;
 const isActive = (link: string) =>
     link === '/' ? currentPath === '/' : currentPath.startsWith(link.replace(/\/$/, ''));
+
+// From another host, "/" is the subdomain's own root — the way back has to be
+// absolute. Astro.site is the main site either way, so it is the one source.
+const siteHref = Astro.site?.href ?? '/';
+const siteHost = Astro.site?.host ?? '';
 ---
 
 <header
         class='sticky top-0 z-50 border-b border-hairline backdrop-blur-[14px]'
         style='background: color-mix(in srgb, var(--surface) 78%, transparent);'
 >
-    <nav class='shell flex items-center justify-between gap-4 py-[18px]' aria-label='Main'>
-        <a href='/' class='flex items-center shrink-0' aria-label='Home'>
+    <nav class='shell flex items-center justify-between gap-4 py-[18px]'
+         aria-label={isSubdomain ? 'Project' : 'Main'}>
+        <a href={isSubdomain ? siteHref : '/'} class='flex items-center shrink-0'
+           aria-label={isSubdomain ? siteHost : 'Home'}>
             <Image src={LogoLight} alt={NICKNAME} width={92} height={92}
                    class='w-[46px] h-[46px] rounded-[12px] dark:hidden'/>
             <Image src={LogoDark} alt={NICKNAME} width={96} height={96}
                    class='h-12 w-12 hidden dark:block'/>
         </a>
 
-        <div class='hidden md:flex items-center gap-6 md:gap-9'>
+        {isSubdomain && (<Fragment><span class='w-px h-6 bg-hairline shrink-0' aria-hidden='true'
+        ></span><span class='font-display text-[22px] font-semibold text-strong mr-auto truncate'
+        >{projectName}</span></Fragment>)}{!isSubdomain && (<div class='hidden md:flex items-center gap-6 md:gap-9'>
             {menu.map((item) => (
                     <a href={item.link}
                        class:list={[
@@ -42,9 +73,11 @@ const isActive = (link: string) =>
                         {item.label}
                     </a>
             ))}
-        </div>
+        </div>)}
 
-        <div class='flex items-center gap-4'>
+        <div class='flex items-center gap-4'>{isSubdomain && (<a href={siteHref}
+                class='hidden sm:inline text-[14px] font-semibold text-info hover:text-accent transition-colors duration-200'
+        >‹ {siteHost}</a>)}
             <SocialLinks/>
 
             <button class='theme-toggle flex items-center rounded-full border border-hairline p-[3px]'
@@ -73,16 +106,16 @@ const isActive = (link: string) =>
             </button>
         </div>
 
-        <button type='button'
+        {!isSubdomain && (<button type='button'
                 class='menu-toggle md:hidden flex flex-col justify-center gap-[5px] shrink-0 p-2 -mr-2'
                 aria-label='Menu' aria-expanded='false' aria-controls='mobileMenu'>
             <span class='menu-bar'></span>
             <span class='menu-bar'></span>
             <span class='menu-bar'></span>
-        </button>
+        </button>)}
     </nav>
 
-    <div id='mobileMenu' class='mobile-menu md:hidden' hidden>
+    {!isSubdomain && (<div id='mobileMenu' class='mobile-menu md:hidden' hidden>
         <nav class='shell flex flex-col py-2' aria-label='Mobile'>
             {menu.map((item) => (
                     <a href={item.link}
@@ -97,7 +130,7 @@ const isActive = (link: string) =>
                     </a>
             ))}
         </nav>
-    </div>
+    </div>)}
 
     <style>
         .toggle-seg {
