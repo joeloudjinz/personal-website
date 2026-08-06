@@ -14,6 +14,14 @@ interface Props {
     modifiedTime?: string;
     type?: 'website' | 'article';
     tags?: string[];
+    /**
+     * Absolute URL this page is authoritative at, for pages that are not served
+     * from Astro.site. A project showcase page is built into this site's dist but
+     * deployed to its own subdomain, so the built-in derivation — Astro.site plus
+     * the build-time pathname — would declare the wrong host as canonical and
+     * hand search engines a duplicate. Omit it and nothing changes.
+     */
+    canonical?: string;
 }
 
 const {
@@ -25,10 +33,18 @@ const {
     publishedTime,
     modifiedTime,
     type = 'website',
-    tags
+    tags,
+    canonical
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const canonicalURL = canonical ? new URL(canonical) : new URL(Astro.url.pathname, Astro.site);
+// og:url and twitter:url have to agree with the canonical, or the share card
+// advertises a host the page does not live on. Astro.url carries the build host,
+// which is right for every page that is served from it — i.e. every page that
+// does not pass an override.
+const pageURL = canonical ? canonicalURL : Astro.url;
+// Stays on Astro.site: the OG image is served from the main site whatever host
+// embeds it, and it is the same file for every page.
 const ogImageURL = new URL(image || '/avatar.png', Astro.site).href;
 const siteName = SITE_TITLE;
 const locale = 'en_US';
@@ -83,7 +99,7 @@ const structuredData = {
 
 <!-- Open Graph / Facebook / LinkedIn -->
 <meta property='og:type' content={type === 'article' ? 'article' : 'website'}/>
-<meta property='og:url' content={Astro.url}/>
+<meta property='og:url' content={pageURL}/>
 <meta property='og:title' content={title}/>
 <meta property='og:description' content={description}/>
 <meta property='og:image' content={ogImageURL}/>
@@ -95,7 +111,7 @@ const structuredData = {
 
 <!-- Twitter -->
 <meta name='twitter:card' content='summary_large_image'/>
-<meta name='twitter:url' content={Astro.url}/>
+<meta name='twitter:url' content={pageURL}/>
 <meta name='twitter:title' content={title}/>
 <meta name='twitter:description' content={description}/>
 <meta name='twitter:image' content={ogImageURL}/>

@@ -13,17 +13,35 @@ interface Props {
 	modifiedTime?: string;
 	tags?: string[];
 	gradient?: 'glow' | 'subtle' | 'warm';
+	/**
+	 * Absolute URL this page is authoritative at. Only pages served from a host
+	 * other than Astro.site need it — see BaseHead.
+	 */
+	canonical?: string;
+	/**
+	 * Which header/footer pair to frame the page with. 'subdomain' drops the
+	 * main-site nav for chrome that names the project and points back home.
+	 */
+	chrome?: 'site' | 'subdomain';
+	/** Named beside the logo by the subdomain chrome. */
+	projectName?: string;
+	/** Attribution line rendered above the footer's signature row. */
+	credit?: string;
 }
 
 const GTAG_MEASUREMENT_ID = import.meta.env.PUBLIC_GTAG_MEASUREMENT_ID;
-const { title, description, image, type, publishedTime, modifiedTime, tags, gradient = 'glow' } = Astro.props;
+const {
+	title, description, image, type, publishedTime, modifiedTime, tags, gradient = 'glow',
+	canonical, chrome = 'site', projectName, credit
+} = Astro.props;
 ---
 
 <!doctype html>
 <html lang='en'>
 	<head>
 		<BaseHead title={title} description={description} image={image} type={type}
-				  publishedTime={publishedTime} modifiedTime={modifiedTime} tags={tags} />
+				  publishedTime={publishedTime} modifiedTime={modifiedTime} tags={tags}
+				  canonical={canonical} />
 		<ClientRouter />
 		<script is:inline>
 			// Runs before paint to avoid a light-mode flash; localStorage wins over OS preference.
@@ -39,11 +57,11 @@ const { title, description, image, type, publishedTime, modifiedTime, tags, grad
 	</head>
 	<body class={`page-grad-${gradient} min-h-screen flex flex-col`}>
 		<div class='grain-overlay' aria-hidden='true'></div>
-		<Header/>
+		<Header variant={chrome} projectName={projectName}/>
 		<main class='flex-1'>
 			<slot />
 		</main>
-		<Footer />
+		<Footer variant={chrome} credit={credit} />
 		{GTAG_MEASUREMENT_ID && (
 			<Fragment>
 				<!-- Google tag (gtag.js) -->
