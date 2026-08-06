@@ -1,6 +1,7 @@
 ---
-// Scaffold route for project showcase pages. The data layer is the point here —
-// the markup below is deliberately minimal and is replaced by the real bands later.
+// Route for project showcase pages. The page frame is real — the subdomain
+// chrome, the canonical, the warm gradient and the band rhythm. What sits inside
+// each band is still scaffolding, replaced by the designed bands later.
 import BaseLayout from '@src/layouts/BaseLayout.astro';
 import type {CodeLine} from '@src/content.config';
 import {BAND_ANCHORS, getProjectPages, splitWash, type ProjectPageEntry} from '@src/utils/projectPages';
@@ -26,10 +27,25 @@ const renderLines = (lines: CodeLine[]) =>
 
 const heroHeading = splitWash(hero.heading, hero.wash);
 const closingHeading = splitWash(closing.heading, closing.wash);
+
+// Section rhythm: every band is full-width so its hairline runs edge to edge,
+// with the 96px side padding coming from .shell inside it. The hero opens the
+// page against the header's own bottom hairline, so only the bands after it
+// carry a top rule — which also means an absent optional band leaves no orphan.
+const band = 'border-t border-hairline';
+const bandInner = 'shell py-[72px]';
+// Matches Prose's anchor offset, so a jump to #get-started clears the sticky nav.
+const anchored = 'scroll-mt-[110px]';
+
+// The page is built into this site's dist but deployed to its own host, so the
+// subdomain root — not the /<slug>/ build URL — is the URL it is authoritative at.
+const canonical = `https://${page.data.subdomain}/`;
 ---
 
-<BaseLayout title={hero.heading} description={hero.promise} gradient='warm'>
-    <section class='shell py-16'>
+<BaseLayout title={hero.heading} description={hero.promise} gradient='warm'
+            canonical={canonical} chrome='subdomain' projectName={page.data.projectName}
+            credit={credit}>
+    <section class={bandInner}>
         <p class='kicker'>{hero.kicker}</p>
         <h1 class='font-display text-4xl md:text-5xl text-strong'>
             {heroHeading
@@ -42,24 +58,30 @@ const closingHeading = splitWash(closing.heading, closing.wash);
             <a class='btn-primary' href={hero.ctaPrimary.href}>{hero.ctaPrimary.label}</a>
             <a class='btn-ghost' href={hero.ctaSecondary.href}>{hero.ctaSecondary.label}</a>
         </p>
+    </section>
 
-        {glance && (
-                <div>
+    {glance && (
+            <section class={band}>
+                <div class={bandInner}>
                     <p class='kicker'>{glance.kicker}</p>
                     <ul>{glance.items.map((item) => <li><b>{item.value}</b> {item.label}</li>)}</ul>
                 </div>
-        )}
+            </section>
+    )}
 
-        {why && (
-                <div>
+    {why && (
+            <section class={band}>
+                <div class={bandInner}>
                     <p class='kicker'>{why.kicker}</p>
                     <h2>{why.heading}</h2>
                     {why.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
                 </div>
-        )}
+            </section>
+    )}
 
-        {deepDive && (
-                <div>
+    {deepDive && (
+            <section class={band}>
+                <div class={bandInner}>
                     <p class='kicker'>{deepDive.kicker}</p>
                     <h2>{deepDive.heading}</h2>
                     <p>{deepDive.standfirst}</p>
@@ -67,10 +89,12 @@ const closingHeading = splitWash(closing.heading, closing.wash);
                     {deepDive.code && <pre>{renderLines(deepDive.code)}</pre>}
                     {deepDive.rows.map((row) => <p><b>{row.label}</b> {row.value}</p>)}
                 </div>
-        )}
+            </section>
+    )}
 
-        {config && (
-                <div>
+    {config && (
+            <section class={band}>
+                <div class={bandInner}>
                     {config.kicker && <p class='kicker'>{config.kicker}</p>}
                     <h2>{config.heading}</h2>
                     <p>{config.intro}</p>
@@ -95,16 +119,26 @@ const closingHeading = splitWash(closing.heading, closing.wash);
                         </tbody>
                     </table>
                     <p>{config.note}</p>
-                    {config.link && <a href={config.link.href}>{config.link.label}</a>}
+                    {config.link && (
+                            <a class='arrow-link' href={config.link.href}>
+                                {config.link.label} <span class='arrow'>→</span>
+                            </a>
+                    )}
                 </div>
-        )}
+            </section>
+    )}
 
-        {steps && (
-                <div id={BAND_ANCHORS.steps}>
+    {steps && (
+            <section class:list={[band, anchored]} id={BAND_ANCHORS.steps}>
+                <div class={bandInner}>
                     <p class='kicker'>{steps.kicker}</p>
                     <h2>{steps.heading}</h2>
                     {steps.intro && <p>{steps.intro}</p>}
-                    {steps.link && <a href={steps.link.href}>{steps.link.label}</a>}
+                    {steps.link && (
+                            <a class='arrow-link' href={steps.link.href}>
+                                {steps.link.label} <span class='arrow'>→</span>
+                            </a>
+                    )}
                     <ol>
                         {steps.items.map((step) => (
                                 <li>
@@ -115,54 +149,79 @@ const closingHeading = splitWash(closing.heading, closing.wash);
                         ))}
                     </ol>
                 </div>
-        )}
+            </section>
+    )}
 
-        {gallery && (
-                <div>
+    {gallery && (
+            <section class={band}>
+                <div class={bandInner}>
                     <p class='kicker'>{gallery.kicker}</p>
                     <h2>{gallery.heading}</h2>
                     {gallery.intro && <p>{gallery.intro}</p>}
+                    {gallery.link && (
+                            <a class='arrow-link' href={gallery.link.href}>
+                                {gallery.link.label} <span class='arrow'>→</span>
+                            </a>
+                    )}
                     <ul>{gallery.items.map((shot) => <li>{shot.caption}</li>)}</ul>
                 </div>
-        )}
+            </section>
+    )}
 
-        {specs && (
-                <div>
+    {specs && (
+            <section class={band}>
+                <div class={bandInner}>
                     <p class='kicker'>{specs.kicker}</p>
                     <h2>{specs.heading}</h2>
                     {specs.intro && <p>{specs.intro}</p>}
-                    {specs.link && <a href={specs.link.href}>{specs.link.label}</a>}
+                    {specs.link && (
+                            <a class='arrow-link' href={specs.link.href}>
+                                {specs.link.label} <span class='arrow'>→</span>
+                            </a>
+                    )}
                     <dl>{specs.items.map((spec) => <><dt>{spec.label}</dt><dd>{spec.value}</dd></>)}</dl>
                 </div>
-        )}
+            </section>
+    )}
 
-        {pillars && (
-                <div>
+    {pillars && (
+            <section class={band}>
+                <div class={bandInner}>
                     <p class='kicker'>{pillars.kicker}</p>
                     <h2>{pillars.heading}</h2>
                     {pillars.cards.map((card) => <div><h3>{card.title}</h3><p>{card.body}</p></div>)}
                 </div>
-        )}
+            </section>
+    )}
 
-        {verification && (
-                <div>
+    {verification && (
+            <section class={band}>
+                <div class={bandInner}>
                     <p class='kicker'>{verification.kicker}</p>
                     <h2>{verification.heading}</h2>
                     {verification.rows.map((row) => <p><b>{row.label}</b> {row.value}</p>)}
                 </div>
-        )}
+            </section>
+    )}
 
-        {faq && (
-                <div>
+    {faq && (
+            <section class={band}>
+                <div class={bandInner}>
                     <p class='kicker'>{faq.kicker}</p>
                     <h2>{faq.heading}</h2>
                     {faq.intro && <p>{faq.intro}</p>}
-                    {faq.link && <a href={faq.link.href}>{faq.link.label}</a>}
+                    {faq.link && (
+                            <a class='arrow-link' href={faq.link.href}>
+                                {faq.link.label} <span class='arrow'>→</span>
+                            </a>
+                    )}
                     <dl>{faq.items.map((item) => <><dt>{item.q}</dt><dd>{item.a}</dd></>)}</dl>
                 </div>
-        )}
+            </section>
+    )}
 
-        <div>
+    <section class={band}>
+        <div class={bandInner}>
             <h2>{closingHeading
                 ? <>{closingHeading.before}<span class='marker-wash'>{closingHeading.washed}</span>{closingHeading.after}</>
                 : closing.heading}</h2>
@@ -173,7 +232,5 @@ const closingHeading = splitWash(closing.heading, closing.wash);
             </p>
             {closing.facts && <p>{closing.facts.join(' · ')}</p>}
         </div>
-
-        {credit && <p>{credit}</p>}
     </section>
 </BaseLayout>
