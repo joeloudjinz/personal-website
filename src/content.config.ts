@@ -102,6 +102,14 @@ const projectPages = defineCollection({
     const link = z.object({ label: z.string().max(40), href: z.string() });
     // A row whose label is page copy too, not a template constant: "Privacy", "Asr:", …
     const labelled = z.object({ label: z.string().max(40), value: z.string() });
+    // The phrase inside a heading that takes the caramel marker. It must be a
+    // visible phrase: .marker-wash carries padding, so a blank wash renders an
+    // empty span that injects 20px of stray space before the heading. A bare
+    // .min(1) would still let " " through, and "".includes() defeats the
+    // cross-field substring check in getProjectPages().
+    const wash = z.string().refine((value) => value.trim().length > 0, {
+      message: 'wash must contain a visible phrase; a blank wash renders an empty, padded marker span'
+    });
 
     return z.object({
       slug: z.string(),
@@ -109,12 +117,14 @@ const projectPages = defineCollection({
       projectName: z.string().max(12),
       hero: z.object({
         kicker: z.string().max(44),
-        // name is the product noun (chips, meta); heading is the full H1 including
-        // its own punctuation, and wash is the phrase inside it that takes the
-        // caramel marker — same split as closing.
+        // The bare product noun, without the hook or punctuation that heading
+        // carries — for places that name the project rather than sell it.
+        // Currently unrendered: Group B should wire it into the subdomain nav
+        // and page chrome, or drop it deliberately.
         name: z.string().max(12),
+        // The full H1, including its own trailing punctuation.
         heading: z.string().max(80),
-        wash: z.string(),
+        wash,
         promise: z.string().max(140),
         status: z.enum(['Stable', 'In progress', 'Maintained', 'Archived']),
         version: z.string().optional(),
@@ -215,7 +225,7 @@ const projectPages = defineCollection({
       }).optional(),
       closing: z.object({
         heading: z.string().max(36),
-        wash: z.string(),
+        wash,
         sub: z.string().max(90),
         ctaPrimary: z.object({ label: z.string().max(18), href: z.string() }),
         ctaSecondary: cta,
