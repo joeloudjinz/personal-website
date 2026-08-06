@@ -90,7 +90,9 @@ steps:
   kicker: "Get started"
   heading: "Three steps in."
   intro: "You’ll need zsh 5.8+ and a Nerd Font — the prompt draws powerline separators. The installer is reversible: ‘--uninstall’ takes everything back out."
-  # steps.link omitted — the approved label is "The install guide" but its href is unconfirmed.
+  link:
+    label: "The install guide"
+    href: "https://github.com/joeloudjinz/inzsh/blob/dev/docs/install.md"
   items:
     - title: "Clone and install"
       lines:
@@ -119,7 +121,9 @@ gallery:
 specs:
   kicker: "Specs · compatibility"
   heading: "The practical part."
-  # specs.link omitted — the approved label is "Known limitations" but its href is unconfirmed.
+  link:
+    label: "Known limitations"
+    href: "https://github.com/joeloudjinz/inzsh/blob/dev/docs/limitations.md"
   items:
     - label: "Requires"
       value: "zsh 5.8+ · a Nerd Font · a supported terminal"
