@@ -145,8 +145,11 @@ const projectPages = defineCollection({
       slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
         message: 'slug must be lowercase kebab-case: it becomes the URL segment'
       }),
-      // A bare hostname. TODO(Group B): build the canonical URL from this — which
-      // is why a scheme, port, path or trailing slash is rejected here.
+      // A bare hostname. src/pages/[project].astro interpolates it into
+      // `https://<subdomain>/` for the page's canonical, og:url and twitter:url —
+      // which is why a scheme, port, path or trailing slash is rejected here:
+      // any of them would produce a malformed URL rather than a wrong one.
+      // The same value is what keeps the page out of the main sitemap.
       subdomain: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)+$/, {
         message: 'subdomain must be a bare lowercase hostname — no scheme, port, path or trailing slash'
       }),
