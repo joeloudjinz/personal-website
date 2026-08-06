@@ -71,6 +71,11 @@
 	/* Type */
 	--font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
 	--font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+	/* How far an anchor target sits below the viewport top, so the sticky header
+	   does not cover it. Anything that can be jumped to by fragment — article
+	   headings, project page bands — reads this rather than restating the number. */
+	--anchor-offset: 110px;
 }
 
 .theme-dark {

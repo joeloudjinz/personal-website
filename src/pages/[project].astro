@@ -34,8 +34,9 @@ const closingHeading = splitWash(closing.heading, closing.wash);
 // carry a top rule — which also means an absent optional band leaves no orphan.
 const band = 'border-t border-hairline';
 const bandInner = 'shell py-[72px]';
-// Matches Prose's anchor offset, so a jump to #get-started clears the sticky nav.
-const anchored = 'scroll-mt-[110px]';
+// Keeps a jump to #get-started clear of the sticky nav. Shares the token with
+// article headings rather than restating the number — see --anchor-offset.
+const anchored = 'scroll-mt-[var(--anchor-offset)]';
 
 // The page is built into this site's dist but deployed to its own host, so the
 // subdomain root — not the /<slug>/ build URL — is the URL it is authoritative at.
