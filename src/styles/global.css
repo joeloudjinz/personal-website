@@ -324,6 +324,9 @@
 	.arrow-link .arrow { display: inline-block; transition: transform var(--dur-base) var(--ease-standard); }
 	.arrow-link:hover { color: var(--accent); }
 	.arrow-link:hover .arrow { transform: translateX(2px); }
+	/* A back link leads with its arrow, so the nudge follows where it points. */
+	.arrow-link .arrow-back { display: inline-block; transition: transform var(--dur-base) var(--ease-standard); }
+	.arrow-link:hover .arrow-back { transform: translateX(-2px); }
 
 	/* Toolbox marquee — duplicated tile set, infinite leftward scroll */
 	.marquee-track {

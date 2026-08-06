@@ -93,9 +93,10 @@ const siteHost = Astro.site?.host ?? '';
 
         <div class='flex items-center gap-4'>
             {isSubdomain && (
-                    <a href={siteHref}
-                       class='shrink-0 text-[14px] font-semibold text-info hover:text-accent transition-colors duration-200'>
-                        ‹ <span class='md:hidden'>home</span><span class='hidden md:inline'>{siteHost}</span>
+                    <a href={siteHref} class='arrow-link shrink-0 text-[14px]'>
+                        <span class='arrow-back'>‹</span>
+                        <span class='md:hidden'>home</span>
+                        <span class='hidden md:inline'>{siteHost}</span>
                     </a>
             )}
             <SocialLinks class={isSubdomain ? 'max-md:hidden' : undefined}/>
