@@ -113,6 +113,10 @@ const projectPages = defineCollection({
       z.object({ label: z.string().max(40), value: z.string().max(valueMax) });
     const kicker = z.string().max(44);
     const media = z.object({ src: image(), alt: z.string() });
+    // Band headings are display type set at one size; past ~60 characters the
+    // line count changes and the band's rhythm breaks. hero, why and closing
+    // carry their own tighter caps because their headings are shaped differently.
+    const bandHeading = z.string().max(60);
     // The phrase inside a heading that takes the caramel marker. It must be a
     // visible phrase: .marker-wash carries padding, so a blank wash renders an
     // empty span that injects 20px of stray space before the heading. A bare
@@ -179,7 +183,7 @@ const projectPages = defineCollection({
       // the fields happen to sit in the schema.
       deepDive: z.object({
         kicker,
-        heading: z.string(),
+        heading: bandHeading,
         standfirst: z.string(),
         // Label above the code block, e.g. "Four values in .zshrc".
         codeLabel: z.string().max(40).optional(),
@@ -190,7 +194,7 @@ const projectPages = defineCollection({
       // The one band the approved design runs without a kicker, so kicker is optional here.
       config: z.object({
         kicker: kicker.optional(),
-        heading: z.string(),
+        heading: bandHeading,
         intro: z.string(),
         // Column headers are copy, not derivable from the keys: "fallback" prints
         // as "Default" here, and a non-zsh project needs different headers entirely.
@@ -211,7 +215,7 @@ const projectPages = defineCollection({
       }).optional(),
       steps: z.object({
         kicker,
-        heading: z.string(),
+        heading: bandHeading,
         intro: z.string().optional(),
         link: link.optional(),
         items: z.array(z.object({
@@ -221,18 +225,19 @@ const projectPages = defineCollection({
         })).min(2).max(4)
       }).optional(),
       // A caption is copy and ships before its capture exists, so src is optional
-      // within an item — Group E fills in the images on the items already here.
+      // within an item. items itself is not optional: a gallery band with a
+      // heading and nothing under it is a mistake, not a staging step.
       gallery: z.object({
         kicker,
-        heading: z.string(),
+        heading: bandHeading,
         intro: z.string().optional(),
         link: link.optional(),
         items: z.array(z.object({ src: image().optional(), caption: z.string().max(70) }))
-          .min(2).max(4).optional()
+          .min(2).max(4)
       }).optional(),
       specs: z.object({
         kicker,
-        heading: z.string(),
+        heading: bandHeading,
         intro: z.string().optional(),
         link: link.optional(),
         items: z.array(labelled(90)).min(4).max(7)
@@ -241,17 +246,17 @@ const projectPages = defineCollection({
       // colour accessibility; the role is "the things we promise", not "colour".
       pillars: z.object({
         kicker,
-        heading: z.string(),
+        heading: bandHeading,
         cards: z.array(z.object({ title: z.string(), body: z.string() })).min(3).max(4)
       }).optional(),
       verification: z.object({
         kicker,
-        heading: z.string(),
+        heading: bandHeading,
         rows: z.array(labelled(200)).min(3).max(5)
       }).optional(),
       faq: z.object({
         kicker,
-        heading: z.string(),
+        heading: bandHeading,
         intro: z.string().optional(),
         link: link.optional(),
         items: z.array(z.object({ q: z.string().max(70), a: z.string() })).min(3).max(6)

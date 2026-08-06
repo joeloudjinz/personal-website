@@ -129,7 +129,7 @@ const closingHeading = splitWash(closing.heading, closing.wash);
                     <p class='kicker'>{gallery.kicker}</p>
                     <h2>{gallery.heading}</h2>
                     {gallery.intro && <p>{gallery.intro}</p>}
-                    {gallery.items && <ul>{gallery.items.map((shot) => <li>{shot.caption}</li>)}</ul>}
+                    <ul>{gallery.items.map((shot) => <li>{shot.caption}</li>)}</ul>
                 </div>
         )}
 
