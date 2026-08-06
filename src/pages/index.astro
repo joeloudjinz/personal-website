@@ -16,7 +16,7 @@ import {getExperiences, isCurrentRole, formatExperienceDate} from '../utils/expe
 // Newest first, current role on top
 const experiences = (await getExperiences()).reverse();
 const skills = (await getCollection('majorSkills')).sort((a, b) => a.data.order - b.data.order);
-const featuredProjects = (await getOrderedProjects()).filter((p) => p.data.isFeatured).slice(0, 2);
+const featuredProjects = (await getOrderedProjects()).filter((p) => p.data.isFeatured);
 const latestPosts = (await getSortedPosts()).slice(0, 4);
 const recommendations = (await getCollection('recommendations')).sort((a, b) => a.data.id - b.data.id);
 const interests = await getCollection('interests');
@@ -120,7 +120,7 @@ const RECOMMENDATIONS_URL = `${LINKEDIN_ACCOUNT}/details/recommendations/`;
                 </div>
                 <a href='/projects/' class='arrow-link text-[15px] shrink-0'>All projects <span class='arrow'>→</span></a>
             </div>
-            <div class='grid md:grid-cols-2 gap-6'>
+            <div class='grid md:grid-cols-3 gap-6'>
                 {featuredProjects.map((project) => (
                         <div class='cardx cardx-hover p-8'>
                             <div class='flex items-center gap-3 flex-wrap mb-4'>
