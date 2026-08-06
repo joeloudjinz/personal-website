@@ -1,16 +1,18 @@
 ---
 // Scaffold route for project showcase pages. The data layer is the point here —
 // the markup below is deliberately minimal and is replaced by the real bands later.
-import {type CollectionEntry, getCollection} from 'astro:content';
 import BaseLayout from '@src/layouts/BaseLayout.astro';
+import {getProjectPages, type ProjectPageEntry} from '@src/utils/projectPages';
 
 export async function getStaticPaths() {
-    const pages = await getCollection('projectPages');
+    // getProjectPages() fails the build if a slug collides with a blog post or a
+    // top-level page — this route is the only thing that puts them in one namespace.
+    const pages = await getProjectPages();
     return pages.map((page) => ({params: {project: page.data.slug}, props: {page}}));
 }
 
 interface Props {
-    page: CollectionEntry<'projectPages'>;
+    page: ProjectPageEntry;
 }
 
 const {page} = Astro.props;
