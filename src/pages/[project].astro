@@ -3,7 +3,7 @@
 // the markup below is deliberately minimal and is replaced by the real bands later.
 import BaseLayout from '@src/layouts/BaseLayout.astro';
 import type {CodeLine} from '@src/content.config';
-import {getProjectPages, type ProjectPageEntry} from '@src/utils/projectPages';
+import {BAND_ANCHORS, getProjectPages, type ProjectPageEntry} from '@src/utils/projectPages';
 
 export async function getStaticPaths() {
     // getProjectPages() fails the build if a slug collides with a blog post or a
@@ -107,7 +107,7 @@ const closingHeading = splitWash(closing.heading, closing.wash);
         )}
 
         {steps && (
-                <div id='get-started'>
+                <div id={BAND_ANCHORS.steps}>
                     <p class='kicker'>{steps.kicker}</p>
                     <h2>{steps.heading}</h2>
                     {steps.intro && <p>{steps.intro}</p>}

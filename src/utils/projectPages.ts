@@ -9,6 +9,34 @@ const RESERVED_SLUGS = ['404', 'about', 'posts', 'projects', 'tags'];
 
 const list = (values: string[]) => values.map((value) => `"${value}"`).join(', ');
 
+type BandKey = keyof ProjectPageEntry['data'];
+
+/**
+ * The in-page anchor each optional band renders when it is present, and the only
+ * record of which "#href" targets are reachable. Renderers must take their id
+ * from here rather than hard-coding it, so that adding a band in a later group
+ * registers its anchor in the same move.
+ */
+export const BAND_ANCHORS = {steps: 'get-started'} as const satisfies Partial<Record<BandKey, string>>;
+
+/**
+ * Walks an entry collecting every {label, href} pair, wherever it sits. A walk
+ * rather than a hand-kept list of CTA and link positions: new bands bring their
+ * own links, and a list would silently stop covering them.
+ */
+function collectHrefs(node: unknown, path: string, found: {path: string; href: string}[]): void {
+  if (Array.isArray(node)) {
+    node.forEach((item, index) => collectHrefs(item, `${path}[${index}]`, found));
+    return;
+  }
+  if (node === null || typeof node !== 'object') return;
+  const record = node as Record<string, unknown>;
+  if (typeof record.href === 'string') found.push({path, href: record.href});
+  for (const [key, value] of Object.entries(record)) {
+    collectHrefs(value, path ? `${path}.${key}` : key, found);
+  }
+}
+
 /**
  * Loads the project showcase pages, enforcing the invariants that hold *between*
  * entries and their surroundings — the ones no single entry's schema can see.
@@ -17,6 +45,10 @@ const list = (values: string[]) => values.map((value) => `"${value}"`).join(', '
  * namespace blog posts occupy through src/pages/[...slug].astro and the static
  * pages occupy by filename. Nothing in Astro complains when those sets overlap;
  * one route simply wins and the other page quietly disappears from the output.
+ *
+ * In-page anchors are the other case: whether "#get-started" resolves depends on
+ * whether the band that emits it is present, which is a fact about the whole
+ * entry rather than about the CTA holding the href.
  *
  * Invariants within a single entry — a wash appearing in its heading, a slug's
  * shape — live in the collection schema instead, so they hold for every consumer
@@ -49,6 +81,26 @@ export async function getProjectPages(): Promise<ProjectPageEntry[]> {
       `[project-pages] Project page slug(s) ${list(collisions)} collide with a blog post slug. ` +
       `Both render at /<slug>/, so one would silently shadow the other. ` +
       `Rename the "slug" field in src/content/projectpages, or the post's "slug" in src/content/blog.`
+    );
+  }
+
+  const deadAnchors = pages.flatMap((page) => {
+    const reachable = new Set<string>(
+      Object.entries(BAND_ANCHORS)
+        .filter(([band]) => page.data[band as BandKey] != null)
+        .map(([, anchor]) => anchor)
+    );
+    const found: {path: string; href: string}[] = [];
+    collectHrefs(page.data, '', found);
+    return found
+      .filter(({href}) => href.startsWith('#') && !reachable.has(href.slice(1)))
+      .map(({path, href}) => `${page.id} (slug "${page.data.slug}") → ${path}: "${href}"`);
+  });
+  if (deadAnchors.length > 0) {
+    throw new Error(
+      `[project-pages] In-page link points at an anchor nothing renders:\n  ${deadAnchors.join('\n  ')}\n` +
+      `Anchors come from bands that are present. Add the band, change the href, ` +
+      `or register the new anchor in BAND_ANCHORS (src/utils/projectPages.ts).`
     );
   }
 
