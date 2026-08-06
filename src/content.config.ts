@@ -121,6 +121,16 @@ const projectPages = defineCollection({
     const wash = z.string().refine((value) => value.trim().length > 0, {
       message: 'wash must contain a visible phrase; a blank wash renders an empty, padded marker span'
     });
+    // heading and wash are siblings, so the substring invariant is an object-level
+    // refinement rather than something a caller has to remember to run. Applied
+    // here it reports through Astro's frontmatter errors and holds for every
+    // consumer of the collection, including components that import it directly.
+    const washIsInHeading = (band: { heading: string; wash: string }) =>
+      band.heading.includes(band.wash);
+    const washIsInHeadingError = {
+      message: 'wash must appear verbatim inside heading, or the marker span renders empty',
+      path: ['wash']
+    };
 
     return z.object({
       // Deliberately an explicit field rather than the glob loader's derived id,
@@ -149,7 +159,7 @@ const projectPages = defineCollection({
         ctaPrimary: cta(18),
         ctaSecondary: cta(22),
         media: media.optional()
-      }),
+      }).refine(washIsInHeading, washIsInHeadingError),
       glance: z.object({
         kicker,
         items: z.array(z.object({ value: z.string().max(12), label: z.string().max(60) }))
@@ -247,7 +257,7 @@ const projectPages = defineCollection({
         ctaPrimary: cta(18),
         ctaSecondary: cta(22),
         facts: z.array(z.string().max(14)).max(4).optional()
-      }),
+      }).refine(washIsInHeading, washIsInHeadingError),
       credit: z.string().optional()
     });
   }

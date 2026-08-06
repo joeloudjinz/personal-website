@@ -10,17 +10,17 @@ const RESERVED_SLUGS = ['404', 'about', 'posts', 'projects', 'tags'];
 const list = (values: string[]) => values.map((value) => `"${value}"`).join(', ');
 
 /**
- * Loads the project showcase pages and validates the cross-field invariants Zod
- * cannot express on its own. Both checks here guard against the same failure
- * mode: something disappears from the page and nothing complains.
+ * Loads the project showcase pages, enforcing the invariants that hold *between*
+ * entries and their surroundings — the ones no single entry's schema can see.
  *
- * 1. Slug uniqueness. Project pages render at /<slug>/ — the same URL namespace
- *    blog posts occupy through src/pages/[...slug].astro. Nothing in Astro
- *    complains when the two sets overlap; one route simply wins and the other
- *    page quietly disappears from the output.
- * 2. Marker wash. A heading's washed phrase has to be a substring of that
- *    heading, or the caramel marker span renders empty and the brand's
- *    signature emphasis silently vanishes while the heading still reads fine.
+ * Slug uniqueness is the case: project pages render at /<slug>/, the same URL
+ * namespace blog posts occupy through src/pages/[...slug].astro and the static
+ * pages occupy by filename. Nothing in Astro complains when those sets overlap;
+ * one route simply wins and the other page quietly disappears from the output.
+ *
+ * Invariants within a single entry — a wash appearing in its heading, a slug's
+ * shape — live in the collection schema instead, so they hold for every consumer
+ * rather than only for callers of this function.
  */
 export async function getProjectPages(): Promise<ProjectPageEntry[]> {
   const pages = await getCollection('projectPages');
@@ -49,19 +49,6 @@ export async function getProjectPages(): Promise<ProjectPageEntry[]> {
       `[project-pages] Project page slug(s) ${list(collisions)} collide with a blog post slug. ` +
       `Both render at /<slug>/, so one would silently shadow the other. ` +
       `Rename the "slug" field in src/content/projectpages, or the post's "slug" in src/content/blog.`
-    );
-  }
-
-  const unwashed = pages.flatMap((page) =>
-    ([['hero', page.data.hero], ['closing', page.data.closing]] as const)
-      .filter(([, band]) => !band.heading.includes(band.wash))
-      .map(([field, band]) =>
-        `${page.id} → ${field}: wash "${band.wash}" is not part of heading "${band.heading}"`)
-  );
-  if (unwashed.length > 0) {
-    throw new Error(
-      `[project-pages] Marker wash does not appear in its heading:\n  ${unwashed.join('\n  ')}\n` +
-      `The wash must be a verbatim substring of the heading, or the marker span renders empty.`
     );
   }
 
