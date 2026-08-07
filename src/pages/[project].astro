@@ -384,9 +384,11 @@ const linkAttrs = (href: string) =>
 
     {verification && (
             <section class={band}>
-                <div class={bandInner}>
-                    <p class='kicker'>{verification.kicker}</p>
-                    <h2>{verification.heading}</h2>
+                <div class:list={[bandInner, split]}>
+                    <div class={stickyColumn}>
+                        <p class='kicker mb-4'>{verification.kicker}</p>
+                        <h2 class={bandHeading}>{verification.heading}</h2>
+                    </div>
                     <DefinitionRows items={verification.rows}/>
                 </div>
             </section>
