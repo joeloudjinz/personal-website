@@ -115,6 +115,16 @@ const anchored = 'scroll-mt-[var(--anchor-offset)]';
  * at the widest viewport: it is 927px at 1023px, the last width before the
  * split. After it the hero tops out at 611px and the deep dive at 607px.
  *
+ * The hero is the one place the arithmetic is a ceiling rather than the answer.
+ * Its heading column is a 1fr track, and a grid track's automatic minimum is its
+ * min-content — which here is the washed phrase, the one string on the page that
+ * cannot wrap. Between 1024 and about 1350 that phrase holds the first column
+ * wider than its fraction and the capture beside it is narrower than the split
+ * says: measured, 341px at 1024 where the fraction gives 444, converging by
+ * 1366 and exact from 1440 up. A `sizes` cannot express min-content, so this
+ * declares the fraction and is occasionally generous — which costs one rung of
+ * the ladder and never costs sharpness. Under-declaring would cost sharpness.
+ *
  * Written as calc rather than as one flat number per band because the value
  * follows the viewport between breakpoints, and a flat number would be right at
  * exactly one width. A browser that cannot parse one of these falls back to
