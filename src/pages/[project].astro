@@ -118,9 +118,26 @@ const linkAttrs = (href: string) =>
 
     {glance && (
             <section class={band}>
-                <div class={bandInner}>
-                    <p class='kicker'>{glance.kicker}</p>
-                    <ul>{glance.items.map((item) => <li><b>{item.value}</b> {item.label}</li>)}</ul>
+                <div class:list={[bandInner, 'reveal']}>
+                    <p class='kicker mb-8'>{glance.kicker}</p>
+                    {/* Equal columns by flex-1 rather than by a column count, because
+                        the band takes three to five facts and the count is the
+                        author's. min-w-0 lets a column be narrower than its longest
+                        word instead of pushing the row past the shell.
+
+                        Stacked below lg: the rules are vertical, so they only mean
+                        anything once the facts sit side by side, and five columns of
+                        a 60-character label need the width lg brings. */}
+                    <ul class='grid gap-8 sm:grid-cols-2 lg:flex lg:gap-0'>
+                        {glance.items.map((item) => (
+                                <li class='lg:flex-1 lg:min-w-0 lg:px-10 lg:border-l lg:border-hairline lg:first:border-l-0 lg:first:pl-0'>
+                                    <p class='font-display text-[34px] font-semibold text-strong leading-tight'>
+                                        {item.value}
+                                    </p>
+                                    <p class='mt-2 text-sm text-muted leading-snug'>{item.label}</p>
+                                </li>
+                        ))}
+                    </ul>
                 </div>
             </section>
     )}
