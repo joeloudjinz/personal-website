@@ -396,16 +396,26 @@ const linkAttrs = (href: string) =>
 
     {faq && (
             <section class={band}>
-                <div class={bandInner}>
-                    <p class='kicker'>{faq.kicker}</p>
-                    <h2>{faq.heading}</h2>
-                    {faq.intro && <p>{faq.intro}</p>}
-                    {faq.link && (
-                            <a class='arrow-link' href={faq.link.href}>
-                                {faq.link.label} <span class='arrow'>→</span>
-                            </a>
-                    )}
-                    <FaqDisclosure items={faq.items}/>
+                <div class:list={[bandInner, split]}>
+                    {/* Not sticky, unlike the other split bands: rows here grow and
+                        collapse under the reader, so a heading pinned beside them
+                        would sit against a column that changes height while it is
+                        being read. */}
+                    <div>
+                        <p class='kicker mb-4'>{faq.kicker}</p>
+                        <h2 class={bandHeading}>{faq.heading}</h2>
+                        {faq.intro && <p class='mt-5 text-base text-muted leading-relaxed'>{faq.intro}</p>}
+                        {faq.link && (
+                                <a class='arrow-link inline-block mt-7 text-[15px]' href={faq.link.href}
+                                   {...linkAttrs(faq.link.href)}>
+                                    {faq.link.label} <span class='arrow'>→</span>
+                                </a>
+                        )}
+                    </div>
+                    {/* Explicit rather than left to the component's default, which
+                        happens to be the same: the design asks for the first answer
+                        open on arrival, and that should read as a decision here. */}
+                    <FaqDisclosure items={faq.items} initialOpen={0}/>
                 </div>
             </section>
     )}
