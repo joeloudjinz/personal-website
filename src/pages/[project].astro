@@ -173,13 +173,40 @@ const linkAttrs = (href: string) =>
 
     {deepDive && (
             <section class={band}>
-                <div class={bandInner}>
-                    <p class='kicker'>{deepDive.kicker}</p>
-                    <h2>{deepDive.heading}</h2>
-                    <p>{deepDive.standfirst}</p>
-                    {deepDive.codeLabel && <p>{deepDive.codeLabel}</p>}
-                    {deepDive.code && <CodeBlock lines={deepDive.code}/>}
-                    <DefinitionRows items={deepDive.rows}/>
+                {/* Three stacked parts at a 44px rhythm: the heading block, the
+                    code-and-capture pair, and the labelled rows under their own
+                    hairline. gap rather than margins, so a part that has no data
+                    leaves no space behind it. */}
+                <div class:list={[bandInner, 'reveal flex flex-col gap-11']}>
+                    <div>
+                        <p class='kicker mb-4'>{deepDive.kicker}</p>
+                        <h2 class:list={[bandHeading, 'mb-5']}>{deepDive.heading}</h2>
+                        <p class:list={[readingCopy, 'max-w-[720px]']}>{deepDive.standfirst}</p>
+                    </div>
+
+                    {(deepDive.code || deepDive.media) && (
+                            <div class='grid lg:grid-cols-[1fr_1.08fr] gap-10 lg:gap-20 items-center'>
+                                {/* min-w-0 so the code block's own horizontal scroll
+                                    is what absorbs a long line, rather than the grid
+                                    track widening to fit it. */}
+                                <div class='min-w-0'>
+                                    {deepDive.codeLabel && <p class='micro-label mb-3'>{deepDive.codeLabel}</p>}
+                                    {deepDive.code && (
+                                            <CodeBlock lines={deepDive.code} copyFor={deepDive.codeLabel}/>
+                                    )}
+                                </div>
+                                {deepDive.media && (
+                                        <MediaFrame src={deepDive.media.src} alt={deepDive.media.alt}
+                                                    label={deepDive.media.alt}/>
+                                )}
+                            </div>
+                    )}
+
+                    {/* The rows carry their own separators between them and none
+                        above the first, so this is the edge the band owes them. */}
+                    <div class='border-t border-hairline'>
+                        <DefinitionRows items={deepDive.rows}/>
+                    </div>
                 </div>
             </section>
     )}
