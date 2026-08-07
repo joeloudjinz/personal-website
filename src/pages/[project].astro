@@ -231,10 +231,16 @@ const canonical = `https://${page.data.subdomain}/`;
                         role='list' because Tailwind's preflight sets list-style:none
                         on every ol and ul, and WebKit drops the list role when it
                         sees that — so without this, VoiceOver never announces the
-                        count. See the same attribute on the steps and gallery lists. */}
+                        count. See the same attribute on the steps and gallery lists.
+
+                        The 40px either side of a column is the gutter between two
+                        facts, so the first drops its left and the last drops its
+                        right and the row starts and ends on the shell's own edges,
+                        like every other band. The last was missing, which left the
+                        row flush left and inset 40px on the right. */}
                     <ul role='list' class='grid gap-8 sm:grid-cols-2 lg:flex lg:gap-0'>
                         {glance.items.map((item) => (
-                                <li class='lg:flex-1 lg:min-w-0 lg:px-10 lg:border-l lg:border-hairline lg:first:border-l-0 lg:first:pl-0'>
+                                <li class='lg:flex-1 lg:min-w-0 lg:px-10 lg:border-l lg:border-hairline lg:first:border-l-0 lg:first:pl-0 lg:last:pr-0'>
                                     <p class='font-display text-[34px] font-semibold text-strong leading-tight'>
                                         {item.value}
                                     </p>
