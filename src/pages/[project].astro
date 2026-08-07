@@ -40,6 +40,10 @@ const closingHeading = splitWash(closing.heading, closing.wash);
  */
 const ConfigHeading = deepDive ? 'h3' : 'h2';
 
+// The schema takes three or four assurance cards; the row is as wide as the
+// count, so three do not leave a fourth cell empty.
+const pillarColumns = pillars?.cards.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4';
+
 // Section rhythm: every band is full-width so its hairline runs edge to edge,
 // with the 96px side padding coming from .shell inside it. The hero opens the
 // page against the header's own bottom hairline, so only the bands after it
@@ -357,10 +361,23 @@ const linkAttrs = (href: string) =>
 
     {pillars && (
             <section class={band}>
-                <div class={bandInner}>
-                    <p class='kicker'>{pillars.kicker}</p>
-                    <h2>{pillars.heading}</h2>
-                    {pillars.cards.map((card) => <div><h3>{card.title}</h3><p>{card.body}</p></div>)}
+                <div class:list={[bandInner, 'reveal']}>
+                    <p class='kicker mb-4'>{pillars.kicker}</p>
+                    <h2 class:list={[bandHeading, 'mb-10']}>{pillars.heading}</h2>
+                    {/* Four across when there are four. Three cards in a four-column
+                        grid leave a hole at the end of the row, so the count comes
+                        from the data — both class names are written out here so the
+                        scanner sees them. */}
+                    <div class:list={['grid gap-6 sm:grid-cols-2', pillarColumns]}>
+                        {pillars.cards.map((card) => (
+                                <div class='cardx p-8'>
+                                    <h3 class='font-display text-[22px] font-semibold text-strong leading-tight mb-3'>
+                                        {card.title}
+                                    </h3>
+                                    <p class='text-[14.5px] leading-relaxed text-muted'>{card.body}</p>
+                                </div>
+                        ))}
+                    </div>
                 </div>
             </section>
     )}
