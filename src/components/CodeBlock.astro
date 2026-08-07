@@ -28,17 +28,19 @@ interface Props {
      * heading it already renders adds no new copy to do this.
      */
     copyFor?: string;
-    /**
-     * Full override of the copy control's accessible name, for a project that
-     * words its chrome differently. `copyFor` is the usual way in.
-     */
-    copyLabel?: string;
     class?: string;
 }
 
-const {lines, copyFor, copyLabel, class: className} = Astro.props;
+const {lines, copyFor, class: className} = Astro.props;
 
-const copyName = copyLabel ?? (copyFor ? `Copy: ${copyFor}` : 'Copy this code block');
+// "Copy" is a universal affordance, not per-project wording — see the
+// content/affordance rule in content.config.ts — so the verb lives here and only
+// the subject comes from the caller. There was a `copyLabel` prop offering a
+// full override of this string; no schema field could reach it, no call site
+// passed it, and the rule it would have served says the string belongs here
+// anyway. A prop that contradicts the rule and has no caller is just a second
+// way to be wrong.
+const copyName = copyFor ? `Copy: ${copyFor}` : 'Copy this code block';
 
 /**
  * What the scroll container is called.

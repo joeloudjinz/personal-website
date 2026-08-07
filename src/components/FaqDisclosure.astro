@@ -17,15 +17,18 @@ interface Props {
      * say — opens none.
      */
     initialOpen?: number;
-    /** Toggle copy. Defaults are the approved wording; a project may reword. */
-    openLabel?: string;
-    closeLabel?: string;
     class?: string;
 }
 
-const {
-    items, initialOpen = 0, openLabel = 'Read the answer ↓', closeLabel = 'Hide ↑', class: className
-} = Astro.props;
+const {items, initialOpen = 0, class: className} = Astro.props;
+
+// The disclosure's own affordance, not the project's copy — see the
+// content/affordance rule in content.config.ts. These were `openLabel` and
+// `closeLabel` props described as "a project may reword", which no schema field
+// could reach and no call site passed: the rule they cited is the one that puts
+// them here rather than in the data.
+const OPEN_LABEL = 'Read the answer ↓';
+const CLOSE_LABEL = 'Hide ↑';
 ---
 
 <div class:list={['faq', className]}>
@@ -37,8 +40,8 @@ const {
                 <summary class='faq-summary'>
                     <span class='faq-question'>{item.q}</span>
                     <span class='faq-toggle' aria-hidden='true'>
-                        <span class='faq-toggle-open'>{openLabel}</span>
-                        <span class='faq-toggle-close'>{closeLabel}</span>
+                        <span class='faq-toggle-open'>{OPEN_LABEL}</span>
+                        <span class='faq-toggle-close'>{CLOSE_LABEL}</span>
                     </span>
                 </summary>
                 {/* The wrapper is the box whose height travels; the padding that

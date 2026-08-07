@@ -33,15 +33,6 @@ interface Props {
      */
     label?: string;
     /**
-     * Placeholder sub-line: what the capture will show.
-     *
-     * TODO: unused. No call site has ever passed it, and after the deep-dive and
-     * hero call sites stopped inventing a `label` there is no path that would.
-     * It and its .media-note rule below are dead weight — delete both unless a
-     * gallery placeholder turns out to want a second line.
-     */
-    description?: string;
-    /**
      * Candidate pixel widths for the srcset, and the layout width the browser
      * picks against. They travel together or not at all: widths with no `sizes`
      * leaves the browser assuming the image fills the viewport, and `sizes` with
@@ -85,7 +76,7 @@ interface Props {
 }
 
 const {
-    src, alt, width, height, label, description, widths, sizes, variants,
+    src, alt, width, height, label, widths, sizes, variants,
     loading = 'lazy', class: className, style
 } = Astro.props;
 
@@ -95,10 +86,10 @@ const ratio = !src && width && height ? `${width} / ${height}` : undefined;
 // which is the right reading of a frame that is holding a placeholder.
 //
 // It is not the right reading of a capture. Every call site that has a src
-// passes a description with it — the gallery did pass alt='' while its items
-// were placeholders and now passes the item's own alt, which is the change that
-// made this a fallback rather than the usual case.
-const altText = alt ?? description ?? label ?? '';
+// passes an alt with it — the gallery did pass alt='' while its items were
+// placeholders and now passes the item's own, which is the change that made
+// this a fallback rather than the usual case.
+const altText = alt ?? label ?? '';
 
 // Whether this asset has to skip the image pipeline. The service decodes one
 // frame and re-encodes it, so an animated GIF would come out the other side as
@@ -191,7 +182,6 @@ const passthroughSrcset = variants?.length && src
                         {ratio && <div class='media-ratio' style={`aspect-ratio: ${ratio};`} aria-hidden='true'></div>}
                         <div class='media-empty'>
                             {label && <p class='kicker'>{label}</p>}
-                            {description && <p class='media-note'>{description}</p>}
                         </div>
                     </Fragment>
             )}
@@ -228,14 +218,4 @@ const passthroughSrcset = variants?.length && src
         text-align: center;
     }
 
-    /* TODO: dead with `description` above — nothing renders .media-note. Delete
-       both together. */
-    .media-note {
-        margin-top: 8px;
-        font-size: 14px;
-        line-height: 1.5;
-        color: var(--text-muted);
-        /* Keeps the sub-line to a readable measure inside a very wide frame. */
-        max-width: 46ch;
-    }
 </style>
