@@ -1,0 +1,68 @@
+---
+// A run of label/value rows: a fixed label column, a fluid value column, a
+// hairline between each. Three bands of a project page are shaped this way —
+// the deep dive's notes, the specs list, the verification list — so the
+// component is the pattern, not any one of them.
+
+interface Props {
+    /**
+     * Structurally the projectPages schema's labelled row. Written out rather
+     * than aliased to one band's type, because no band owns this pattern; the
+     * call sites still fail to typecheck if the schema's shape changes.
+     */
+    items: {label: string; value: string}[];
+    class?: string;
+}
+
+const {items, class: className} = Astro.props;
+---
+
+<dl class:list={['def-rows', className]}>
+    {items.map((item) => (
+            <div class='def-row'>
+                <dt class='def-label'>{item.label}</dt>
+                <dd class='def-value'>{item.value}</dd>
+            </div>
+    ))}
+</dl>
+
+<style>
+    .def-row {
+        display: grid;
+        grid-template-columns: 200px 1fr;
+        gap: 24px;
+        padding: 16px 0;
+        align-items: baseline;
+    }
+
+    /* Between rows only: the band above supplies its own edge, so a rule on the
+       first row would double up with it. */
+    .def-row + .def-row {
+        border-top: 1px solid var(--hairline);
+    }
+
+    /* The .stack-line label treatment — small caps in caramel — at the tracking
+       the handoff specifies for this row. */
+    .def-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--accent);
+    }
+
+    .def-value {
+        font-size: 15.5px;
+        line-height: 1.65;
+        color: var(--text-body);
+    }
+
+    /* A 200px label column leaves too little measure for a paragraph-length
+       value on a phone, so the label moves above it. */
+    @media (max-width: 767px) {
+        .def-row {
+            grid-template-columns: 1fr;
+            gap: 6px;
+        }
+    }
+</style>

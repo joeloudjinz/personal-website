@@ -4,6 +4,7 @@
 // each band is still scaffolding, replaced by the designed bands later.
 import BaseLayout from '@src/layouts/BaseLayout.astro';
 import CodeBlock from '@src/components/CodeBlock.astro';
+import DefinitionRows from '@src/components/DefinitionRows.astro';
 import KnobsTable from '@src/components/KnobsTable.astro';
 import {BAND_ANCHORS, getProjectPages, splitWash, type ProjectPageEntry} from '@src/utils/projectPages';
 
@@ -86,7 +87,7 @@ const canonical = `https://${page.data.subdomain}/`;
                     <p>{deepDive.standfirst}</p>
                     {deepDive.codeLabel && <p>{deepDive.codeLabel}</p>}
                     {deepDive.code && <CodeBlock lines={deepDive.code}/>}
-                    {deepDive.rows.map((row) => <p><b>{row.label}</b> {row.value}</p>)}
+                    <DefinitionRows items={deepDive.rows}/>
                 </div>
             </section>
     )}
@@ -159,7 +160,7 @@ const canonical = `https://${page.data.subdomain}/`;
                                 {specs.link.label} <span class='arrow'>→</span>
                             </a>
                     )}
-                    <dl>{specs.items.map((spec) => <><dt>{spec.label}</dt><dd>{spec.value}</dd></>)}</dl>
+                    <DefinitionRows items={specs.items}/>
                 </div>
             </section>
     )}
@@ -179,7 +180,7 @@ const canonical = `https://${page.data.subdomain}/`;
                 <div class={bandInner}>
                     <p class='kicker'>{verification.kicker}</p>
                     <h2>{verification.heading}</h2>
-                    {verification.rows.map((row) => <p><b>{row.label}</b> {row.value}</p>)}
+                    <DefinitionRows items={verification.rows}/>
                 </div>
             </section>
     )}
