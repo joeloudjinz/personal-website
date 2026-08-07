@@ -4,6 +4,7 @@
 // each band is still scaffolding, replaced by the designed bands later.
 import BaseLayout from '@src/layouts/BaseLayout.astro';
 import CodeBlock from '@src/components/CodeBlock.astro';
+import KnobsTable from '@src/components/KnobsTable.astro';
 import {BAND_ANCHORS, getProjectPages, splitWash, type ProjectPageEntry} from '@src/utils/projectPages';
 
 export async function getStaticPaths() {
@@ -96,26 +97,7 @@ const canonical = `https://${page.data.subdomain}/`;
                     {config.kicker && <p class='kicker'>{config.kicker}</p>}
                     <h2>{config.heading}</h2>
                     <p>{config.intro}</p>
-                    <table>
-                        <thead>
-                        <tr>
-                            <th>{config.knobHeaders.name}</th>
-                            <th>{config.knobHeaders.values}</th>
-                            <th>{config.knobHeaders.fallback}</th>
-                            <th>{config.knobHeaders.effect}</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {config.knobs.map((knob) => (
-                                <tr>
-                                    <td>{knob.name}</td>
-                                    <td>{knob.values.join(' · ')}</td>
-                                    <td>{knob.fallback}</td>
-                                    <td>{knob.effect}</td>
-                                </tr>
-                        ))}
-                        </tbody>
-                    </table>
+                    <KnobsTable headers={config.knobHeaders} knobs={config.knobs}/>
                     <p>{config.note}</p>
                     {config.link && (
                             <a class='arrow-link' href={config.link.href}>

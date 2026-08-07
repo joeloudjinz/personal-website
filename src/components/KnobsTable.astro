@@ -1,0 +1,218 @@
+---
+// A configuration reference table: one row per knob, its accepted values, its
+// default and what it does. The surface treatment is the post-detail comparison
+// table's — card, radius 14, --shadow-soft, internal hairline grid — so a reader
+// arriving from an article recognises it.
+//
+// Column headers are data, never constants: "fallback" prints as "Default" for
+// this project and as something else for the next one.
+import type {ProjectPageEntry} from '@src/utils/projectPages';
+
+type ConfigBand = NonNullable<ProjectPageEntry['data']['config']>;
+
+interface Props {
+    /** The four column headings, as authored. */
+    headers: ConfigBand['knobHeaders'];
+    knobs: ConfigBand['knobs'];
+    class?: string;
+}
+
+const {headers, knobs, class: className} = Astro.props;
+
+// Paired here rather than in the template so the cell order and the header order
+// cannot drift apart, and so the stacked layout's per-cell label is the same
+// string as the column heading it stands in for.
+const columns = [headers.name, headers.values, headers.fallback, headers.effect];
+---
+
+{/* The ARIA roles are redundant while this is laid out as a table and load-bearing
+    once it is not: below 1100px the rows restack, and `display: block` on a table
+    element drops the implicit table semantics in every major browser. Stated
+    explicitly, the header/cell association survives the restack. */}
+<table class:list={['knobs cardx', className]} role='table'>
+    <colgroup>
+        <col class='col-name'/>
+        <col class='col-values'/>
+        <col class='col-fallback'/>
+        <col/>
+    </colgroup>
+    <thead role='rowgroup'>
+        <tr role='row'>
+            {columns.map((heading) => <th scope='col' role='columnheader'>{heading}</th>)}
+        </tr>
+    </thead>
+    <tbody role='rowgroup'>
+        {knobs.map((knob) => (
+                <tr role='row'>
+                    <td role='cell'>
+                        <span class='cell-label' aria-hidden='true'>{headers.name}</span>
+                        <span class='knob-name'>{knob.name}</span>
+                    </td>
+                    <td role='cell'>
+                        <span class='cell-label' aria-hidden='true'>{headers.values}</span>
+                        {/* Flex, not inline spans with margins: a middle dot painted by
+                            ::before on the following value has no break opportunity around
+                            it, so an inline run would refuse to wrap and overflow the cell.
+                            This is the .stack-line technique — the dot rides at the START
+                            of each value after the first, so it can never wrap onto a line
+                            by itself. */}
+                        <span class='knob-values'>
+                            {knob.values.map((value) => <span class='knob-value'>{value}</span>)}
+                        </span>
+                    </td>
+                    <td role='cell'>
+                        <span class='cell-label' aria-hidden='true'>{headers.fallback}</span>
+                        <span class='knob-fallback'>{knob.fallback}</span>
+                    </td>
+                    <td role='cell'>
+                        <span class='cell-label' aria-hidden='true'>{headers.effect}</span>
+                        <span class='knob-effect'>{knob.effect}</span>
+                    </td>
+                </tr>
+        ))}
+    </tbody>
+</table>
+
+<style>
+    .knobs {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        /* Clips the header row's fill to the card radius. */
+        overflow: hidden;
+        table-layout: fixed;
+    }
+
+    .col-name { width: 250px; }
+    .col-values { width: 210px; }
+    .col-fallback { width: 90px; }
+
+    /* 12px either side of the internal rules makes the 24px gap the design asks
+       for; the outer edges carry the row's own 24px. */
+    .knobs th,
+    .knobs td {
+        text-align: left;
+        vertical-align: baseline;
+        padding: 14px 12px;
+        border-bottom: 1px solid var(--hairline);
+    }
+
+    .knobs th:first-child,
+    .knobs td:first-child { padding-left: 24px; }
+
+    .knobs th:last-child,
+    .knobs td:last-child { padding-right: 24px; }
+
+    .knobs th:not(:last-child),
+    .knobs td:not(:last-child) { border-right: 1px solid var(--hairline); }
+
+    .knobs tbody tr:last-child td { border-bottom: 0; }
+
+    .knobs th {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+    }
+
+    /* The stacked layout's per-column label. Hidden here because the header row
+       is doing that job, and aria-hidden throughout because the real <th> is
+       what a screen reader should hear. */
+    .cell-label { display: none; }
+
+    .knob-name,
+    .knob-values,
+    .knob-fallback {
+        font-family: var(--font-mono);
+        font-size: 13.5px;
+    }
+
+    .knob-name {
+        font-weight: 600;
+        color: var(--text-strong);
+        /* Knob names are single unbroken identifiers and the narrow layout has no
+           column to spill into. */
+        overflow-wrap: anywhere;
+    }
+
+    .knob-values {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        column-gap: 7px;
+        color: var(--text-body);
+    }
+
+    .knob-value + .knob-value::before {
+        content: '·';
+        color: var(--accent);
+        margin-right: 7px;
+    }
+
+    .knob-fallback { color: var(--text-muted); }
+
+    .knob-effect {
+        font-size: 14px;
+        line-height: 1.55;
+        color: var(--text-muted);
+    }
+
+    /* Below the shell's widest step the four fixed columns no longer fit: 250 +
+       210 + 90 + gaps + padding is 670px before the effect column gets a single
+       pixel, which is what made the scaffolding table run 163px past the viewport
+       at 375px. Each row becomes a stack of label/value pairs instead — the
+       label above the value rather than beside it, because a side-by-side pair
+       leaves too little for a 21-character knob name at 320px. */
+    @media (max-width: 1099px) {
+        .knobs,
+        .knobs tbody,
+        .knobs tr,
+        .knobs th,
+        .knobs td {
+            display: block;
+        }
+
+        /* Column definitions have no meaning once the rows are stacked, and a
+           table-column box outside a table gets an anonymous wrapper. */
+        .knobs colgroup { display: none; }
+
+        /* Visually gone, still in the accessibility tree: the roles above pair
+           these headers with their cells, so they must not be display:none. */
+        .knobs thead {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip-path: inset(50%);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .knobs tr {
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--hairline);
+        }
+
+        .knobs tbody tr:last-child { border-bottom: 0; }
+
+        .knobs td {
+            padding: 0;
+            border: 0;
+        }
+
+        .knobs td + td { margin-top: 10px; }
+
+        .cell-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+    }
+</style>
