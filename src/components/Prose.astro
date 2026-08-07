@@ -112,7 +112,13 @@
 		margin: 0;
 	}
 
+	/* The site's mono stack, not the browser's. --font-mono exists so everything
+	   set in monospace lands on one face; leaving article code off it meant a
+	   blog post's `INZSH_PRESET` and a project page's rendered the same string in
+	   two different typefaces. Set on `code` rather than on `pre`, so the inline
+	   and block cases are one declaration — `.article pre code` inherits it. */
 	.article code {
+		font-family: var(--font-mono);
 		font-size: .85em;
 		background: var(--surface-soft);
 		border: 1px solid var(--hairline);
