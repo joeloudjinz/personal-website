@@ -124,19 +124,27 @@ const anchored = 'scroll-mt-[var(--anchor-offset)]';
  * says: measured, 341px at 1024 where the fraction gives 444, converging by
  * 1366 and exact from 1440 up. A `sizes` cannot express min-content, so this
  * declares the fraction and is occasionally generous. Under-declaring would
- * cost sharpness; over-declaring costs at most a rung, which is why the hero's
- * own ladder has a rung in the middle of it.
+ * cost sharpness; over-declaring costs at most a rung — and the hero's ladder
+ * is two rungs now, so that one rung is the whole distance between them.
  *
  * The generosity was measured against a tightening rather than assumed harmless,
  * and the one case where it still changes a pick cannot be tightened out. At
  * 1280 the capture is drawn 499px, so a DPR-2 screen needs 998 — two pixels
- * under the 1000 rung. The fraction declares 527 and takes the 1500 instead. A
- * floor derived from the phrase's own metrics gets that to 1002; the exact
- * measured floor gets it to 1002 as well. Nothing short of pixel-exact crosses
- * back under 1000, and nothing about a 1fr track is pixel-exact across projects.
- * So the pick at that one width belongs to where the rungs are, not to slack
- * here — and a floor keyed to this entry's heading would silently under-declare
- * for the next project's, which is the direction that ships soft pictures.
+ * under the 1000 rung. The fraction declares 527, asks for 1055, and takes the
+ * 2000. A floor derived from the phrase's own metrics gets that to 1002; the
+ * exact measured floor gets it to 1002 as well. Nothing short of pixel-exact
+ * crosses back under 1000, and nothing about a 1fr track is pixel-exact across
+ * projects. So the pick at that one width belongs to where the rungs are, not
+ * to slack here — and a floor keyed to this entry's heading would silently
+ * under-declare for the next project's, which is the direction that ships soft
+ * pictures.
+ *
+ * What that costs went up when the hand-rolled middle rung came out. The miss
+ * used to be a step to a 1.5x file, 378 KiB; it is now a step to the largest
+ * one, 789 KiB over what 998 device pixels actually needed. That is the
+ * sharpest instance of the gap recorded beside the entry's variants, and it
+ * closes when the tapes can be rendered somewhere between 1x and 2x — which is
+ * upstream's to offer, not ours to fake.
  *
  * Written as calc rather than as one flat number per band because the value
  * follows the viewport between breakpoints, and a flat number would be right at
