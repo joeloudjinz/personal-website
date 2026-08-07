@@ -35,6 +35,19 @@ const closingHeading = splitWash(closing.heading, closing.wash);
 // carry a top rule — which also means an absent optional band leaves no orphan.
 const band = 'border-t border-hairline';
 const bandInner = 'shell py-[72px]';
+
+// Five bands share one shape: a label column that stays with the reader while a
+// longer column scrolls past it. The 420px column and the 80px gap are the
+// design's; below lg they collapse, because 420px of the remaining width would
+// leave the content column narrower than the label beside it.
+const split = 'grid lg:grid-cols-[420px_1fr] gap-12 lg:gap-20 reveal';
+// top-28 is 112px, matching the sticky header's own clearance elsewhere on the site.
+const stickyColumn = 'lg:sticky lg:top-28 self-start';
+// A band's own H2: Fraunces 44, one step down before there is room for it.
+const bandHeading = 'font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight';
+// Reading copy — the standfirsts and paragraphs a visitor is meant to read
+// through, as opposed to the muted register labels and notes are set in.
+const readingCopy = 'text-[17px] leading-[1.7] text-body';
 // Keeps a jump to #get-started clear of the sticky nav. Shares the token with
 // article headings rather than restating the number — see --anchor-offset.
 const anchored = 'scroll-mt-[var(--anchor-offset)]';
@@ -144,10 +157,16 @@ const linkAttrs = (href: string) =>
 
     {why && (
             <section class={band}>
-                <div class={bandInner}>
-                    <p class='kicker'>{why.kicker}</p>
-                    <h2>{why.heading}</h2>
-                    {why.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+                <div class:list={[bandInner, split]}>
+                    <div class={stickyColumn}>
+                        <p class='kicker mb-4'>{why.kicker}</p>
+                        <h2 class={bandHeading}>{why.heading}</h2>
+                    </div>
+                    {/* --text-body, not muted: this is the band a reader actually
+                        reads, and the muted ramp is for labels beside a value. */}
+                    <div class='max-w-[720px] flex flex-col gap-6'>
+                        {why.paragraphs.map((paragraph) => <p class={readingCopy}>{paragraph}</p>)}
+                    </div>
                 </div>
             </section>
     )}
