@@ -169,13 +169,34 @@
 		.shell { padding-inline: 96px; }
 	}
 
-	/* Kicker / eyebrow label */
+	/* The site's micro-label treatment: 11px Inter, semibold, small caps. Four
+	   places had grown a byte-identical copy of it — a knobs table's column
+	   headings, that table's stacked per-cell labels, a definition row's label,
+	   and the kicker. Declared once for both names rather than as a base class
+	   .kicker then has to be paired with, so no existing markup changes.
+	   Tracking and colour are the parts that vary by role, so each name states
+	   its own below.
+
+	   Component styles are unlayered and therefore outrank everything in this
+	   layer whatever the specificity, so a consumer overrides either of these by
+	   restating it in its own scoped block. */
+	.micro-label,
 	.kicker {
 		font-family: var(--font-sans);
 		font-size: 11px;
 		font-weight: 600;
-		letter-spacing: .16em;
 		text-transform: uppercase;
+	}
+
+	/* The default: tight tracking, muted — a label standing beside its own value. */
+	.micro-label {
+		letter-spacing: .08em;
+		color: var(--text-muted);
+	}
+
+	/* Kicker / eyebrow label — widest tracking of the family, in caramel. */
+	.kicker {
+		letter-spacing: .16em;
 		color: var(--accent);
 	}
 

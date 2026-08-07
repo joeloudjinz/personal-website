@@ -43,18 +43,18 @@ const columns = [headers.name, headers.values, headers.fallback, headers.effect]
     </colgroup>
     <thead role='rowgroup'>
         <tr role='row'>
-            {columns.map((heading) => <th scope='col' role='columnheader'>{heading}</th>)}
+            {columns.map((heading) => <th scope='col' role='columnheader' class='micro-label'>{heading}</th>)}
         </tr>
     </thead>
     <tbody role='rowgroup'>
         {knobs.map((knob) => (
                 <tr role='row'>
                     <td role='cell'>
-                        <span class='cell-label' aria-hidden='true'>{headers.name}</span>
+                        <span class='cell-label micro-label' aria-hidden='true'>{headers.name}</span>
                         <span class='knob-name'>{knob.name}</span>
                     </td>
                     <td role='cell'>
-                        <span class='cell-label' aria-hidden='true'>{headers.values}</span>
+                        <span class='cell-label micro-label' aria-hidden='true'>{headers.values}</span>
                         {/* Flex, not inline spans with margins: a middle dot painted by
                             ::before on the following value has no break opportunity around
                             it, so an inline run would refuse to wrap and overflow the cell.
@@ -66,11 +66,11 @@ const columns = [headers.name, headers.values, headers.fallback, headers.effect]
                         </span>
                     </td>
                     <td role='cell'>
-                        <span class='cell-label' aria-hidden='true'>{headers.fallback}</span>
+                        <span class='cell-label micro-label' aria-hidden='true'>{headers.fallback}</span>
                         <span class='knob-fallback'>{knob.fallback}</span>
                     </td>
                     <td role='cell'>
-                        <span class='cell-label' aria-hidden='true'>{headers.effect}</span>
+                        <span class='cell-label micro-label' aria-hidden='true'>{headers.effect}</span>
                         <span class='knob-effect'>{knob.effect}</span>
                     </td>
                 </tr>
@@ -133,13 +133,10 @@ const columns = [headers.name, headers.values, headers.fallback, headers.effect]
 
     .knobs td + td { margin-top: 10px; }
 
+    /* Type comes from .micro-label in global.css, which both this and the stacked
+       label below carry in the markup. Only the delta lives here. */
     .knobs th {
         text-align: left;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: .08em;
-        text-transform: uppercase;
-        color: var(--text-muted);
     }
 
     /* The stacked layout's per-column label — the label above its value rather
@@ -148,11 +145,6 @@ const columns = [headers.name, headers.values, headers.fallback, headers.effect]
        real <th> is what a screen reader should hear. */
     .cell-label {
         display: block;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: .08em;
-        text-transform: uppercase;
-        color: var(--text-muted);
         margin-bottom: 4px;
     }
 

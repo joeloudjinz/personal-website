@@ -20,7 +20,7 @@ const {items, class: className} = Astro.props;
 <dl class:list={['def-rows', className]}>
     {items.map((item) => (
             <div class='def-row'>
-                <dt class='def-label'>{item.label}</dt>
+                <dt class='def-label micro-label'>{item.label}</dt>
                 <dd class='def-value'>{item.value}</dd>
             </div>
     ))}
@@ -44,13 +44,10 @@ const {items, class: className} = Astro.props;
         border-top: 1px solid var(--hairline);
     }
 
-    /* The .stack-line label treatment — small caps in caramel — at the tracking
-       the handoff specifies for this row. */
+    /* .micro-label in the markup carries the shared treatment; the handoff asks
+       for this row's label in caramel rather than the muted default, and that
+       one declaration is the whole difference. */
     .def-label {
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: .08em;
-        text-transform: uppercase;
         color: var(--accent);
     }
 
