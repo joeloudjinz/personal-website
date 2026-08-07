@@ -221,9 +221,19 @@ const projectPages = defineCollection({
         kicker,
         heading: bandHeading,
         standfirst: z.string(),
-        // Label above the code block, e.g. "Four values in .zshrc".
-        codeLabel: z.string().max(40).optional(),
-        code: z.array(codeLine).optional(),
+        // The block and its label are one optional object, not two independent
+        // optionals. The label is what tells this block's copy control apart
+        // from the ones the steps band renders — several controls on a page all
+        // named "Copy this code block" are indistinguishable in a screen
+        // reader's list of controls, which is the defect the label exists to
+        // fix. Nested, a block without a label cannot be written down; as two
+        // sibling optionals it merely had not been written down yet.
+        code: z.object({
+          // e.g. "Four values in .zshrc" — drawn above the block, and the
+          // subject of its copy control's accessible name.
+          label: z.string().max(40),
+          lines: z.array(codeLine)
+        }).optional(),
         media: media.optional(),
         rows: z.array(labelled(400)).min(2).max(6)
       }).optional(),

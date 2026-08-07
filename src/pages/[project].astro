@@ -245,9 +245,15 @@ const linkAttrs = (href: string) => {
                                     is what absorbs a long line, rather than the grid
                                     track widening to fit it. */}
                                 <div class:list={['min-w-0', !deepDive.media && 'max-w-[720px]']}>
-                                    {deepDive.codeLabel && <p class='micro-label mb-3'>{deepDive.codeLabel}</p>}
                                     {deepDive.code && (
-                                            <CodeBlock lines={deepDive.code} copyFor={deepDive.codeLabel}/>
+                                            <Fragment>
+                                                {/* One string, drawn once and spoken once: the
+                                                    visible label above the block is also what
+                                                    names its copy control. */}
+                                                <p class='micro-label mb-3'>{deepDive.code.label}</p>
+                                                <CodeBlock lines={deepDive.code.lines}
+                                                           copyFor={deepDive.code.label}/>
+                                            </Fragment>
                                     )}
                                 </div>
                                 {deepDive.media && (

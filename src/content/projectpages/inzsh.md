@@ -37,13 +37,14 @@ deepDive:
   kicker: "Prayer times · computed locally"
   heading: "Prayer times, in the prompt."
   standfirst: "Optional, and off unless configured. When it’s on, the times are computed on your machine using standard astronomical methods."
-  codeLabel: "Four values in .zshrc"
   code:
-    - text: "INZSH_SALAH_LAT=21.4225"
-    - text: "INZSH_SALAH_LON=39.8262"
-    - text: "INZSH_SALAH_METHOD=mwl"
-    - text: "INZSH_SALAH_ASR=shafi"
-    - text: "# standard · shafi · hanafi"
+    label: "Four values in .zshrc"
+    lines:
+      - text: "INZSH_SALAH_LAT=21.4225"
+      - text: "INZSH_SALAH_LON=39.8262"
+      - text: "INZSH_SALAH_METHOD=mwl"
+      - text: "INZSH_SALAH_ASR=shafi"
+      - text: "# standard · shafi · hanafi"
   # TODO(Group E): deepDive.media — the 1000 × 200 prayer-times capture is not generated yet.
   rows:
     - label: "Methods:"
