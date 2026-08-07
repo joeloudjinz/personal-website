@@ -56,6 +56,11 @@ const closingHeading = splitWash(closing.heading, closing.wash);
 const configIsSubsection = Boolean(deepDive);
 const ConfigHeading = configIsSubsection ? 'h3' : 'h2';
 
+// Whether the deep dive's code-and-capture pair is a spread or a single thing at
+// its own measure. Both halves are optional and independently so, so "both are
+// present" is the only condition under which two columns have two occupants.
+const deepDiveIsSplit = Boolean(deepDive?.code && deepDive?.media);
+
 // The schema takes three or four assurance cards; the row is as wide as the
 // count, so three do not leave a fourth cell empty.
 const pillarColumns = pillars?.cards.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4';
@@ -273,30 +278,35 @@ const linkAttrs = (href: string) => {
                         <p class:list={[readingCopy, 'max-w-[720px]']}>{deepDive.standfirst}</p>
                     </div>
 
-                    {/* The pair only splits into two columns when there is something
-                        to put in the second one. Left as a fixed split, a band with
-                        no capture would hold its code against an empty half — the
-                        same reason the hero has a centred variant rather than a
-                        column of air. Alone, the code keeps the standfirst's measure
-                        instead of stretching across the whole shell. */}
+                    {/* The pair splits into two columns only when both halves have
+                        something in them — see deepDiveIsSplit. Both are optional
+                        and independently so, and a split keyed to either one alone
+                        pins the half that exists against a column of air. That is
+                        the same rule the hero encodes with its centred variant: a
+                        spread is for two things, and one thing gets the measure.
+
+                        Which measure depends on which one it is. The code keeps the
+                        standfirst's 720px, because a terminal line set across the
+                        whole shell is a line nobody tracks back. A capture takes the
+                        full width, for the reason the gallery band states at length:
+                        these are wide strips, and a strip held to 720px is a picture
+                        of a terminal nobody can read. */}
                     {(deepDive.code || deepDive.media) && (
                             <div class:list={['grid gap-10',
-                                              deepDive.media && 'lg:grid-cols-[1fr_1.08fr] lg:gap-20 items-center']}>
-                                {/* min-w-0 so the code block's own horizontal scroll
-                                    is what absorbs a long line, rather than the grid
-                                    track widening to fit it. */}
-                                <div class:list={['min-w-0', !deepDive.media && 'max-w-[720px]']}>
-                                    {deepDive.code && (
-                                            <Fragment>
-                                                {/* One string, drawn once and spoken once: the
-                                                    visible label above the block is also what
-                                                    names its copy control. */}
-                                                <p class='micro-label mb-3'>{deepDive.code.label}</p>
-                                                <CodeBlock lines={deepDive.code.lines}
-                                                           copyFor={deepDive.code.label}/>
-                                            </Fragment>
-                                    )}
-                                </div>
+                                              deepDiveIsSplit && 'lg:grid-cols-[1fr_1.08fr] lg:gap-20 items-center']}>
+                                {deepDive.code && (
+                                        // min-w-0 so the code block's own horizontal scroll is
+                                        // what absorbs a long line, rather than the grid track
+                                        // widening to fit it.
+                                        <div class:list={['min-w-0', !deepDiveIsSplit && 'max-w-[720px]']}>
+                                            {/* One string, drawn once and spoken once: the
+                                                visible label above the block is also what
+                                                names its copy control. */}
+                                            <p class='micro-label mb-3'>{deepDive.code.label}</p>
+                                            <CodeBlock lines={deepDive.code.lines}
+                                                       copyFor={deepDive.code.label}/>
+                                        </div>
+                                )}
                                 {deepDive.media && (
                                         <MediaFrame src={deepDive.media.src} alt={deepDive.media.alt}
                                                     label={deepDive.media.alt}/>
