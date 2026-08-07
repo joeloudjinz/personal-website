@@ -12,11 +12,13 @@
 // tailwind.config.mjs before writing one.
 import BaseLayout from '@src/layouts/BaseLayout.astro';
 import ArrowLink from '@src/components/ArrowLink.astro';
+import BandHeader from '@src/components/BandHeader.astro';
 import CodeBlock from '@src/components/CodeBlock.astro';
 import DefinitionRows from '@src/components/DefinitionRows.astro';
 import FaqDisclosure from '@src/components/FaqDisclosure.astro';
 import KnobsTable from '@src/components/KnobsTable.astro';
 import MediaFrame from '@src/components/MediaFrame.astro';
+import {bandHeading} from '@src/utils/bandStyles';
 import {linkAttrs} from '@src/utils/links';
 import {BAND_ANCHORS, getProjectPages, splitWash, type ProjectPageEntry} from '@src/utils/projectPages';
 
@@ -85,8 +87,6 @@ const split = 'grid lg:grid-cols-[420px_1fr] gap-12 lg:gap-20 reveal';
 // the bare form appears in no class list, so writing it here would emit a rule
 // applying to nothing — see the byte-scan note in tailwind.config.mjs.
 const stickyColumn = 'lg:sticky lg:top-28 self-start';
-// A band's own H2: Fraunces 44, one step down before there is room for it.
-const bandHeading = 'font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight';
 // The configuration band's own heading — the subsection step when there is a
 // band above it, otherwise a band heading like any other. See configIsSubsection.
 const configHeading = configIsSubsection
@@ -241,10 +241,7 @@ const canonical = `https://${page.data.subdomain}/`;
     {why && (
             <section class={band}>
                 <div class:list={[bandInner, split]}>
-                    <div class={stickyColumn}>
-                        <p class='kicker mb-4'>{why.kicker}</p>
-                        <h2 class={bandHeading}>{why.heading}</h2>
-                    </div>
+                    <BandHeader kicker={why.kicker} heading={why.heading} class={stickyColumn}/>
                     {/* --text-body, not muted: this is the band a reader actually
                         reads, and the muted ramp is for labels beside a value. */}
                     <div class='max-w-[720px] flex flex-col gap-6'>
@@ -335,12 +332,8 @@ const canonical = `https://${page.data.subdomain}/`;
     {steps && (
             <section class:list={[band, anchored]} id={BAND_ANCHORS.steps}>
                 <div class:list={[bandInner, split]}>
-                    <div class={stickyColumn}>
-                        <p class='kicker mb-4'>{steps.kicker}</p>
-                        <h2 class:list={[bandHeading, 'mb-5']}>{steps.heading}</h2>
-                        {steps.intro && <p class='text-base text-muted leading-relaxed mb-7'>{steps.intro}</p>}
-                        {steps.link && <ArrowLink href={steps.link.href} label={steps.link.label}/>}
-                    </div>
+                    <BandHeader kicker={steps.kicker} heading={steps.heading} intro={steps.intro}
+                                link={steps.link} class={stickyColumn}/>
                     {/* The number beside each step is drawn, so it is hidden from
                         assistive tech and the <ol> is what carries the sequence.
                         Zero-padded and tabular so the column reads as a run rather
@@ -426,12 +419,8 @@ const canonical = `https://${page.data.subdomain}/`;
     {specs && (
             <section class={band}>
                 <div class:list={[bandInner, split]}>
-                    <div class={stickyColumn}>
-                        <p class='kicker mb-4'>{specs.kicker}</p>
-                        <h2 class:list={[bandHeading, 'mb-5']}>{specs.heading}</h2>
-                        {specs.intro && <p class='text-base text-muted leading-relaxed mb-7'>{specs.intro}</p>}
-                        {specs.link && <ArrowLink href={specs.link.href} label={specs.link.label}/>}
-                    </div>
+                    <BandHeader kicker={specs.kicker} heading={specs.heading} intro={specs.intro}
+                                link={specs.link} class={stickyColumn}/>
                     <DefinitionRows items={specs.items}/>
                 </div>
             </section>
@@ -464,10 +453,8 @@ const canonical = `https://${page.data.subdomain}/`;
     {verification && (
             <section class={band}>
                 <div class:list={[bandInner, split]}>
-                    <div class={stickyColumn}>
-                        <p class='kicker mb-4'>{verification.kicker}</p>
-                        <h2 class={bandHeading}>{verification.heading}</h2>
-                    </div>
+                    <BandHeader kicker={verification.kicker} heading={verification.heading}
+                                class={stickyColumn}/>
                     <DefinitionRows items={verification.rows}/>
                 </div>
             </section>
@@ -476,16 +463,12 @@ const canonical = `https://${page.data.subdomain}/`;
     {faq && (
             <section class={band}>
                 <div class:list={[bandInner, split]}>
-                    {/* Not sticky, unlike the other split bands: rows here grow and
-                        collapse under the reader, so a heading pinned beside them
-                        would sit against a column that changes height while it is
-                        being read. */}
-                    <div>
-                        <p class='kicker mb-4'>{faq.kicker}</p>
-                        <h2 class={bandHeading}>{faq.heading}</h2>
-                        {faq.intro && <p class='mt-5 text-base text-muted leading-relaxed'>{faq.intro}</p>}
-                        {faq.link && <ArrowLink href={faq.link.href} label={faq.link.label} class='mt-7'/>}
-                    </div>
+                    {/* No stickyColumn, unlike the other split bands: rows here grow
+                        and collapse under the reader, so a heading pinned beside
+                        them would sit against a column that changes height while it
+                        is being read. */}
+                    <BandHeader kicker={faq.kicker} heading={faq.heading} intro={faq.intro}
+                                link={faq.link}/>
                     {/* Explicit rather than left to the component's default, which
                         happens to be the same: the design asks for the first answer
                         open on arrival, and that should read as a decision here. */}
