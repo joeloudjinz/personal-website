@@ -115,10 +115,15 @@ const anchored = 'scroll-mt-[var(--anchor-offset)]';
  * at the widest viewport: it is 927px at 1023px, the last width before the
  * split. After it the hero tops out at 611px and the deep dive at 607px.
  *
- * Written as calc rather than as a rounded constant because the value follows
- * the viewport between breakpoints, and a constant would be right at exactly one
- * width per band. A browser that cannot parse one of these falls back to
+ * Written as calc rather than as one flat number per band because the value
+ * follows the viewport between breakpoints, and a flat number would be right at
+ * exactly one width. A browser that cannot parse one of these falls back to
  * assuming the full viewport, which over-fetches rather than under-fetches.
+ *
+ * (And written without the word for "a number with its decimals dropped",
+ * which is also a Tailwind utility — see the byte-scan note at the top of this
+ * file. Prose here is scanned as bytes, and that one word added a live rule to
+ * the stylesheet every page loads.)
  */
 const galleryWidth = [
     '(min-width: 1100px) calc(min(1440px, 100vw) - 192px)',
