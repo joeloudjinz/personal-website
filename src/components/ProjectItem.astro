@@ -1,6 +1,7 @@
 ---
 import type {ProjectCollectionEntry} from '../utils/projects';
 import {projectLead} from '../utils/projects';
+import {linkAttrs} from '../utils/links';
 import {render} from 'astro:content';
 import StackLine from './StackLine.astro';
 
@@ -22,13 +23,18 @@ const {
 // holds a `class`, so it emits its scope class on the element to be safe —
 // which put a dead `class="astro-…"` on all nine card titles, matching no rule
 // in the stylesheet. index.astro has no scoped styles and spreads it happily.
-const {href: leadHref, rel: leadRel} = projectLead(project);
+const {href: leadHref, target: leadTarget, rel: leadRel} = projectLead(project);
+
+// The footer's own link to the showcase page takes the same decision from the
+// same place. linkAttrs('') is {}, so this reads unconditionally without a
+// second null check. Unpacked rather than spread, for the reason above.
+const {target: pageTarget, rel: pageRel} = linkAttrs(projectPageLink ?? '');
 ---
 
 <article class='cardx cardx-hover p-8'>
     <div class='flex items-center gap-3 flex-wrap mb-4'>
         <h2 class='font-display text-[26px] font-semibold text-strong leading-tight'>
-            <a href={leadHref} target='_blank' rel={leadRel}>{name}</a>
+            <a href={leadHref} target={leadTarget} rel={leadRel}>{name}</a>
         </h2>
         {isUnderConstruction && <span class='badge-accent badge-pulse'>In progress</span>}
     </div>
@@ -49,7 +55,7 @@ const {href: leadHref, rel: leadRel} = projectLead(project);
                 repeated where the title goes. It leads because a project that
                 has a page of its own is asking to be read there first. */}
             {projectPageLink && (
-                    <a href={projectPageLink} target='_blank' class='arrow-link text-sm'>
+                    <a href={projectPageLink} target={pageTarget} rel={pageRel} class='arrow-link text-sm'>
                         View the project page <span class='arrow'>→</span>
                     </a>
             )}

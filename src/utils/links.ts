@@ -37,7 +37,16 @@
  */
 const NEW_TAB = {target: '_blank', rel: 'noopener noreferrer'};
 
-export function linkAttrs(rawHref: string) {
+/**
+ * The return type is declared rather than inferred, and the two optional
+ * properties are the reason. Inferred, this is the union `{target, rel} | {}`,
+ * which spreads onto an element fine — how every caller used it — but cannot be
+ * destructured: `{}` has no `target` to take. A caller that needs the attributes
+ * as values rather than as a spread had to cast. Two do: ProjectItem draws its
+ * anchors inside a component with scoped styles, where a spread makes Astro emit
+ * a scope class the stylesheet has no rule for.
+ */
+export function linkAttrs(rawHref: string): {target?: string; rel?: string} {
   // A YAML scalar may legally carry leading whitespace, and " https://x" would
   // otherwise fail both tests below and ship as a same-tab off-site link. Only
   // the classification is trimmed; the href attribute keeps what was authored,
