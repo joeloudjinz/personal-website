@@ -6,8 +6,8 @@
 // attribute rather than replacing markup.
 //
 // The frame has no ratio of its own. It takes the ratio of the asset that
-// belongs in it — the two captures this site is waiting on are 1000×480 and
-// 1000×200, and a shared 16:10 would letterbox one and crop the other.
+// belongs in it — the captures this site ships are 25:12 and 5:1, and a shared
+// 16:10 would letterbox one and crop the other.
 import {Image} from 'astro:assets';
 import type {ImageMetadata} from 'astro';
 
@@ -86,17 +86,34 @@ const {
 
 const ratio = !src && width && height ? `${width} / ${height}` : undefined;
 // Empty string rather than undefined at the end of the chain: an img with no alt
-// attribute is announced by its filename, whereas alt="" marks it decorative.
-// A capture whose caption already describes it wants exactly that — see the
-// gallery call site, which passes alt='' on purpose.
+// attribute is announced by its filename, whereas alt="" marks it decorative,
+// which is the right reading of a frame that is holding a placeholder.
+//
+// It is not the right reading of a capture. Every call site that has a src
+// passes a description with it — the gallery did pass alt='' while its items
+// were placeholders and now passes the item's own alt, which is the change that
+// made this a fallback rather than the usual case.
 const altText = alt ?? description ?? label ?? '';
 
 // Whether this asset has to skip the image pipeline. The service decodes one
 // frame and re-encodes it, so an animated GIF would come out the other side as
 // a still — but that is a fact about GIF, not about "captures". Read off the
 // asset's own metadata rather than assumed for the whole component: of the five
-// captures this page is waiting on, exactly one is a GIF, and the other four
-// would otherwise ship at source size in source format for its sake.
+// captures on this page exactly one is a GIF, and the other four would
+// otherwise ship at source size in source format for its sake.
+//
+// This read is NOT why the originals of the four stills are in dist alongside
+// their WebP, which is the obvious suspicion and was measured to be wrong.
+// Astro's metadata is a Proxy that flags an asset as referenced on any property
+// get, and a flagged original survives the build — but taking the flagless path
+// its own image service uses (`src.clone`, astro/dist/assets/internal.js) does
+// not remove them. The flag is set long before this file: an `image()` in a
+// content collection is imported with a query string appended, and the assets
+// plugin marks EVERY query-string import as referenced on sight
+// (astro/dist/assets/vite-plugin-assets.js). So the originals of collection
+// images are kept unconditionally, whatever a component does or does not read.
+// They are unreferenced weight in the deploy, not page weight; the fix is not
+// available from here.
 const unoptimisable = src?.format === 'gif';
 
 // The ladder the pipeline is asked for, with anything wider than the source
