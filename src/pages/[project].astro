@@ -159,8 +159,26 @@ const linkAttrs = (href: string) => {
                     leaves the widths between them untested; scaling with the
                     viewport keeps the phrase inside the shell at every width and
                     still reaches 72px by 848px, which is where the design's
-                    two-column widths begin. */}
-                <h1 class:list={['font-display text-[clamp(34px,8.5vw,72px)] font-semibold text-strong tracking-[-0.015em] leading-[1.1] mb-7 max-w-[900px]',
+                    two-column widths begin.
+
+                    The floor is 30px rather than the 34px Fraunces alone would
+                    allow, because Fraunces is not what draws the first paint.
+                    It loads with display=swap, so the phrase is set in Georgia —
+                    the next family in the stack — until the webfont lands, and
+                    Georgia is the wider face. Measured at 320px, where the shell
+                    leaves a 272px content box: the span is 263px in Fraunces at
+                    34px and 285px in Georgia, so 34px spent the whole swap
+                    window 13px into the 24px gutter. Nothing scrolled — the
+                    document stayed 320 wide — which is exactly why the clamp,
+                    not the scrollbar, has to be the thing that catches it. At
+                    30px Georgia measures 254px, leaving 18px, and Fraunces 232px.
+                    Georgia is the case that sets the floor: the rest of the
+                    stack — Times New Roman, then the generic serif — sets the
+                    same phrase at 238px where Georgia needs 285px.
+
+                    Below 353px the floor is what applies; above it the viewport
+                    term takes over and the top end is unchanged. */}
+                <h1 class:list={['font-display text-[clamp(30px,8.5vw,72px)] font-semibold text-strong tracking-[-0.015em] leading-[1.1] mb-7 max-w-[900px]',
                                  !hero.media && 'mx-auto']}>
                     {heroHeading
                         ? <>{heroHeading.before}<span
@@ -490,7 +508,13 @@ const linkAttrs = (href: string) => {
         <div class='shell py-24 text-center reveal'>
             {/* Same clamp as the hero, one step lower at the top end: the washed
                 phrase cannot wrap, so its width follows the font-size and the
-                narrowest viewport is what sets the floor. */}
+                narrowest viewport is what sets the floor. The floor is the
+                hero's 30px, and for the hero's reason — it has to hold in the
+                Georgia fallback display=swap paints first, not just in Fraunces.
+                This entry's phrase is nowhere near the edge either way ("system"
+                is 124px in Georgia at 320px, against a 272px content box), but
+                the schema lets a closing heading run to 36 characters and the
+                floor is where that has to be absorbed. */}
             <h2 class='font-display text-[clamp(30px,7vw,56px)] font-semibold text-strong tracking-[-0.015em] leading-[1.15]'>
                 {closingHeading
                     ? <>{closingHeading.before}<span
