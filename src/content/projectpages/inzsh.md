@@ -17,14 +17,21 @@ hero:
     href: "https://github.com/joeloudjinz/inzsh"
   media:
     src: "../../assets/img/inzsh/showcase-2000.gif"
-    # The same tape at two smaller sizes. An animated capture skips the image
-    # pipeline, so these are the only candidates it has — 652 KiB, 1.05 MiB and
-    # 1.39 MiB. The middle one is not decoration: without it a tablet asking for
-    # 1340 device pixels jumped straight to the largest file. See variants in
-    # content.config.ts.
+    # The same tape at 1x. An animated capture skips the image pipeline, so
+    # rendered files are the only candidates it has — 650 KiB and 1.41 MiB. See
+    # variants in content.config.ts.
+    #
+    # Two rungs rather than three, and the gap between them is real. Upstream's
+    # SCALE takes 2, 3 or 4 and nothing between — SCALE=1.5 is refused before a
+    # frame is drawn — so the 1.5x rung we used to ship was one we rendered
+    # ourselves. Re-rolling it here would cost the reproduction claim the
+    # verification band makes, which is the more valuable of the two. Measured:
+    # a 768, 1280 or 1440 viewport at DPR 2 now takes the 2000 where it took the
+    # 1500, +410 KiB. A 320 viewport is unaffected — it took the 1000 before and
+    # takes it now. Closing that gap is a request to the upstream project, not
+    # something to work around here.
     variants:
       - "../../assets/img/inzsh/showcase-1000.gif"
-      - "../../assets/img/inzsh/showcase-1500.gif"
     alt: "A recording of the InZsh prompt. Coordinates for Mecca are set and a prayer segment appears on the right of the prompt, reading Maghrib 17:50 beside the clock. A directory is created and entered, a repository is opened and its branch shown, a failing command marks the prompt with a cross, then the surface and separator styles change and the prompt is redrawn from the dark sharp preset into the light warm one."
 glance:
   kicker: "At a glance"
@@ -56,7 +63,7 @@ deepDive:
       - text: "INZSH_SALAH_ASR=shafi"
       - text: "# standard · shafi · hanafi"
   media:
-    src: "../../assets/img/inzsh/salah.png"
+    src: "../../assets/img/inzsh/shot-salah.png"
     alt: "A terminal showing the coordinates being set and the prompt redrawn beneath them. The prompt's right-hand end now reads Maghrib 17:50 next to the clock at 15:34 — the next prayer and the time it falls, computed from the coordinates on the line above."
   rows:
     - label: "Methods:"
