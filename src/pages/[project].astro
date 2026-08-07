@@ -1,7 +1,15 @@
 ---
-// Route for project showcase pages. The page frame is real — the subdomain
-// chrome, the canonical, the warm gradient and the band rhythm. What sits inside
-// each band is still scaffolding, replaced by the designed bands later.
+// Route for project showcase pages: the subdomain chrome, the canonical, the
+// warm gradient, and the bands themselves.
+//
+// Every string a visitor reads comes from the entry — kickers, headings, intros,
+// labels, CTA wording, link text, even the gallery's placeholder copy. Nothing
+// user-facing is written here, because the point of the collection is that the
+// second project costs one markdown file. A band renders only when its field is
+// present, so a page ships with the parts it has copy for and no orphan rules.
+//
+// Comments in this file are scanned as raw bytes by Tailwind — see the note in
+// tailwind.config.mjs before writing one.
 import BaseLayout from '@src/layouts/BaseLayout.astro';
 import CodeBlock from '@src/components/CodeBlock.astro';
 import DefinitionRows from '@src/components/DefinitionRows.astro';
@@ -35,7 +43,7 @@ const closingHeading = splitWash(closing.heading, closing.wash);
  * The design draws it as a subsection rather than a band of its own: no kicker,
  * a short caramel rule instead, and display type a step down from the other
  * bands. That is an h3 under the deep dive's h2 — but both bands are optional,
- * and an h3 with no h2 above it is a hole in the outline rather than a nesting.
+ * and an h3 with no h2 above it is a gap in the heading order, not a nesting.
  * So the level follows what is actually on the page.
  */
 const ConfigHeading = deepDive ? 'h3' : 'h2';
@@ -264,10 +272,10 @@ const linkAttrs = (href: string) =>
                                 </a>
                         )}
                     </div>
-                    {/* The ordinal is drawn, so it is hidden from assistive tech and
-                        the <ol> is what carries the sequence. Zero-padded and
-                        tabular so the column reads as a run rather than as digits
-                        of different widths. */}
+                    {/* The number beside each step is drawn, so it is hidden from
+                        assistive tech and the <ol> is what carries the sequence.
+                        Zero-padded and tabular so the column reads as a run rather
+                        than as digits of different widths. */}
                     <ol class='flex flex-col gap-9'>
                         {steps.items.map((step, index) => (
                                 <li class='grid grid-cols-[56px_1fr] gap-6'>
@@ -364,10 +372,11 @@ const linkAttrs = (href: string) =>
                 <div class:list={[bandInner, 'reveal']}>
                     <p class='kicker mb-4'>{pillars.kicker}</p>
                     <h2 class:list={[bandHeading, 'mb-10']}>{pillars.heading}</h2>
-                    {/* Four across when there are four. Three cards in a four-column
-                        grid leave a hole at the end of the row, so the count comes
-                        from the data — both class names are written out here so the
-                        scanner sees them. */}
+                    {/* Four across when there are four; three when there are three,
+                        so a row of three does not leave a fourth cell empty. The
+                        two class names are literals in the ternary above rather
+                        than an interpolated count, which the byte scanner would
+                        never see. */}
                     <div class:list={['grid gap-6 sm:grid-cols-2', pillarColumns]}>
                         {pillars.cards.map((card) => (
                                 <div class='cardx p-8'>
