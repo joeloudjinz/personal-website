@@ -140,10 +140,16 @@ const rows = lines.map((line) => {
         transform: translateY(1px);
     }
 
-    /* The page's focus ring is the browser default, which is tuned for the page
-       background — this box is dark in both modes, so it states its own. */
+    /* The browser's default focus indicator is tuned for the page background;
+       this box is dark in both modes, so it states its own.
+
+       Longhands rather than the shorthand: Tailwind scans this file as raw bytes
+       and the shorthand's property name is also a utility name, so writing it
+       here would emit a dead rule into the stylesheet every page loads. */
     .code-copy:focus-visible {
-        outline: 2px solid var(--caramel-bright);
+        outline-width: 2px;
+        outline-style: solid;
+        outline-color: var(--caramel-bright);
         outline-offset: 3px;
         border-radius: 6px;
     }
@@ -191,20 +197,23 @@ const rows = lines.map((line) => {
             const target = event.target;
             if (!(target instanceof Element)) return;
             const button = target.closest('[data-code-copy]');
-            const block = button?.closest('[data-code-block]');
-            if (!button || !block) return;
+            // Not named `block`: Tailwind reads this file as raw bytes, and the
+            // negation in the guard below would read as an important-flagged
+            // display utility and emit a dead rule into every page's stylesheet.
+            const codeBox = button?.closest('[data-code-block]');
+            if (!button || !codeBox) return;
 
             // Read the text out of the DOM rather than a duplicated data attribute:
             // one copy of the code in the HTML, and the prompt markers — which live
             // in their own spans — are left behind, so what lands on the clipboard
             // is paste-ready.
-            const text = Array.from(block.querySelectorAll('.code-text'))
+            const text = Array.from(codeBox.querySelectorAll('.code-text'))
                 .map((line) => line.textContent ?? '')
                 .join('\n');
 
             navigator.clipboard.writeText(text).then(() => {
                 button.classList.add('is-copied');
-                const status = block.querySelector('[data-code-status]');
+                const status = codeBox.querySelector('[data-code-status]');
                 if (status) status.textContent = 'Copied to clipboard';
 
                 const pending = timers.get(button);
