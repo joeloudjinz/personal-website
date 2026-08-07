@@ -213,16 +213,21 @@ verification:
   kicker: "Verification · 52 spec files"
   heading: "Built not to break."
   rows:
-    # Two rows rather than one because the claim has two halves and only the first
-    # was ever true as written. Fixtures and no hand-editing hold exactly as stated.
-    # The reproduction recipe did not: ‘make shots’ renders three of these tapes at
-    # their pinned size and ‘make demo’ writes GIFs to demo-out, so neither command
-    # rebuilds a file shipped here — the shipped ones are the same tapes with their
-    # pinned dimensions scaled up. A band about trustworthiness cannot round that off.
+    # Still two rows, but the second is a recipe that runs now. It had to be
+    # written as a disclaimer once: ‘make shots’ rendered three tapes at their
+    # pinned size, ‘make demo’ wrote GIFs into a scratch directory, and there was
+    # no scale knob, so no command named here rebuilt a file the page shipped.
+    #
+    # At b9693ff all three are gone. ‘shots’ writes four stills into docs/assets,
+    # ‘demo’ publishes the showcase it renders, and SCALE re-renders each tape at
+    # multiplied pinned dimensions. Every file in src/assets/img/inzsh came out of
+    # those two commands — checked by running them, not by reading the Makefile.
+    #
+    # The first row was true as written and is untouched.
     - label: "Fixtures"
       value: "Every still and recording here is rendered from the project’s VHS tapes in the pinned fixture environment — fixed repository, clock and identity — and nothing is hand-edited or cropped."
     - label: "Rebuilding"
-      value: "‘make shots’ and ‘make demo’ rebuild these frames from the same tapes at the tapes’ own pinned size. The files here are those tapes rendered for high-density screens."
+      value: "‘make shots’ and ‘make demo’ rebuild every file on this page from those tapes. ‘SCALE’ renders them larger — the 2× captures here are ‘SCALE=2’."
     - label: "Test suites"
       value: "52 spec files across unit, render, pty terminal-grid, installer and perf-budget suites — plus golden files that fail when the prompt changes shape."
     - label: "CI"
