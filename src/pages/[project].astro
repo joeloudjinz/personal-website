@@ -312,12 +312,18 @@ const canonical = `https://${page.data.subdomain}/`;
     {config && (
             <section class={band}>
                 <div class:list={[bandInner, 'reveal']}>
-                    {config.kicker && <p class='kicker mb-4'>{config.kicker}</p>}
-                    {/* A short caramel rule where the other bands carry a kicker.
-                        It is the mark that says "still the same subject" — which is
-                        also what the heading's level and size say, whenever there
-                        is a band above them to be a step down from. */}
-                    <span class='block w-[34px] h-[3px] bg-accent mb-5' aria-hidden='true'></span>
+                    {/* The rule stands IN PLACE OF a kicker — it is the mark that
+                        says "still the same subject", which is also what the
+                        heading's level and size say whenever there is a band above
+                        them to be a step down from. So it is one or the other, not
+                        both: the schema makes this band's kicker optional because
+                        the approved design runs it without one, and a project that
+                        does declare a kicker has said what the rule was there to
+                        say. Drawn unconditionally it stacked a caramel dash under
+                        the kicker of any band that had both. */}
+                    {config.kicker
+                        ? <p class='kicker mb-4'>{config.kicker}</p>
+                        : <span class='block w-[34px] h-[3px] bg-accent mb-5' aria-hidden='true'></span>}
                     <ConfigHeading class:list={[configHeading, 'mb-4']}>
                         {config.heading}
                     </ConfigHeading>
