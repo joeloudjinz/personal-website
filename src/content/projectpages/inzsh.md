@@ -151,7 +151,7 @@ gallery:
       height: 200
     - src: "../../assets/img/inzsh/shot-warm.png"
       caption: "The warm preset — light, editorial."
-      alt: "The same prompt on cream: the same segments in the same order, drawn as sand-coloured blocks with dark brown type, and the branch segment in deep red. Maghrib 17:50 and the clock at 15:34 are ranged right, as before."
+      alt: "The same prompt on white: the same segments in the same order, drawn as sand-coloured blocks with dark brown type, and the branch segment in deep red. Maghrib 17:50 and the clock at 15:34 are ranged right, as before."
       width: 1000
       height: 200
     - src: "../../assets/img/inzsh/shot-256.png"
