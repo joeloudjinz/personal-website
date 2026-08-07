@@ -140,8 +140,17 @@ const {
         window.__faqDisclosureBound = true;
 
         const DURATION = 320;
-        const EASING = 'cubic-bezier(.22,.61,.36,1)';
         const running = new WeakMap<Element, {animation: Animation; opening: boolean}>();
+
+        /**
+         * The site's standard ease, read from the token rather than restated as a
+         * literal here — a second copy of the curve is a second thing to change.
+         * Read per click, not once at bind time: a deferred module can run before
+         * the stylesheet has been applied, and the property would resolve empty.
+         */
+        const standardEase = () =>
+            getComputedStyle(document.documentElement).getPropertyValue('--ease-standard').trim()
+            || 'ease-out';
 
         document.addEventListener('click', (event) => {
             const target = event.target;
@@ -187,7 +196,7 @@ const {
 
             const animation = wrap.animate(
                 [{height: `${from}px`}, {height: `${opening ? wrap.scrollHeight : 0}px`}],
-                {duration: DURATION, easing: EASING}
+                {duration: DURATION, easing: standardEase()}
             );
             running.set(details, {animation, opening});
 
