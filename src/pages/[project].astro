@@ -243,8 +243,13 @@ const linkAttrs = (href: string) => {
 
                         Stacked below lg: the rules are vertical, so they only mean
                         anything once the facts sit side by side, and five columns of
-                        a 60-character label need the width lg brings. */}
-                    <ul class='grid gap-8 sm:grid-cols-2 lg:flex lg:gap-0'>
+                        a 60-character label need the width lg brings.
+
+                        role='list' because Tailwind's preflight sets list-style:none
+                        on every ol and ul, and WebKit drops the list role when it
+                        sees that — so without this, VoiceOver never announces the
+                        count. See the same attribute on the steps and gallery lists. */}
+                    <ul role='list' class='grid gap-8 sm:grid-cols-2 lg:flex lg:gap-0'>
                         {glance.items.map((item) => (
                                 <li class='lg:flex-1 lg:min-w-0 lg:px-10 lg:border-l lg:border-hairline lg:first:border-l-0 lg:first:pl-0'>
                                     <p class='font-display text-[34px] font-semibold text-strong leading-tight'>
@@ -374,10 +379,18 @@ const linkAttrs = (href: string) => {
                     {/* The number beside each step is drawn, so it is hidden from
                         assistive tech and the <ol> is what carries the sequence.
                         Zero-padded and tabular so the column reads as a run rather
-                        than as digits of different widths. */}
-                    <ol class='flex flex-col gap-9'>
+                        than as digits of different widths.
+
+                        Which means the sequence has to survive, and here it needs
+                        both roles rather than one. Tailwind's preflight sets
+                        list-style:none, which is enough on its own for WebKit to
+                        drop the list role; and each row is display:grid for its
+                        number column, which replaces the item's list-item display
+                        and takes the listitem role with it. Between the two, the
+                        drawn "01" is aria-hidden and nothing else says "1 of 3". */}
+                    <ol role='list' class='flex flex-col gap-9'>
                         {steps.items.map((step, index) => (
-                                <li class='grid grid-cols-[56px_1fr] gap-6'>
+                                <li role='listitem' class='grid grid-cols-[56px_1fr] gap-6'>
                                     <span class='font-display text-[27px] font-semibold text-accent leading-none tabular-nums'
                                           aria-hidden='true'>{String(index + 1).padStart(2, '0')}</span>
                                     <div class='min-w-0'>
@@ -422,7 +435,9 @@ const linkAttrs = (href: string) => {
                         at 1248px. That is the `sizes` a responsive srcset would
                         need; MediaFrame emits no srcset today, so nothing consumes
                         it yet. */}
-                    <ol class='mt-10 flex flex-col gap-10'>
+                    {/* role='list' for the reason the glance band states: preflight
+                        strips list-style, and WebKit reads that as "not a list". */}
+                    <ol role='list' class='mt-10 flex flex-col gap-10'>
                         {gallery.items.map((shot, index) => (
                                 <li>
                                     <figure>
