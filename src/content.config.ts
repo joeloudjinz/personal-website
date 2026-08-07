@@ -144,7 +144,7 @@ const projectPages = defineCollection({
     const link = z.object({ label: z.string().max(40), href: z.string() });
     // A row whose label is page copy too, not a template constant: "Privacy", "Asr:", …
     // The value cap is per-site: these rows carry anything from a one-word licence
-    // to a full paragraph, and the cap exists to protect the layout, not the prose.
+    // to a full paragraph, and the cap exists to protect the layout, not the copy.
     const labelled = (valueMax: number) =>
       z.object({ label: z.string().max(40), value: z.string().max(valueMax) });
     const kicker = z.string().max(44);
@@ -165,7 +165,7 @@ const projectPages = defineCollection({
     const bandHeading = z.string().max(60);
     // The phrase inside a heading that takes the caramel marker.
     //
-    // Bounded at both ends. It must be a visible phrase: .marker-wash carries
+    // Bounded at both ends. It must be a non-blank phrase: .marker-wash carries
     // padding, so a blank wash renders an empty span that injects 20px of stray
     // space before the heading. A bare .min(1) would still let " " through, and
     // "".includes() defeats the cross-field substring check in getProjectPages().
@@ -179,7 +179,7 @@ const projectPages = defineCollection({
     // markdown file" true of a washed heading.
     const wash = z.string()
       .refine((value) => value.trim().length > 0, {
-        message: 'wash must contain a visible phrase; a blank wash renders an empty, padded marker span'
+        message: 'wash must contain a non-blank phrase; a blank wash renders an empty, padded marker span'
       })
       .refine(washFits, (value) => ({
         message:
@@ -206,7 +206,7 @@ const projectPages = defineCollection({
       // "About" from overwriting dist/about/index.html on a case-insensitive
       // filesystem. The divergence from the blog idiom buys that check.
       slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
-        message: 'slug must be lowercase kebab-case: it becomes the URL segment'
+        message: 'slug must be kebab-case, lower-case only: it becomes the URL segment'
       }),
       // A bare hostname. src/pages/[project].astro interpolates it into
       // `https://<subdomain>/` for the page's canonical, og:url and twitter:url —
@@ -214,7 +214,7 @@ const projectPages = defineCollection({
       // any of them would produce a malformed URL rather than a wrong one.
       // The same value is what keeps the page out of the main sitemap.
       subdomain: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*(?:\.[a-z0-9]+(?:-[a-z0-9]+)*)+$/, {
-        message: 'subdomain must be a bare lowercase hostname — no scheme, port, path or trailing slash'
+        message: 'subdomain must be a bare lower-case hostname — no scheme, port, path or trailing slash'
       }),
       // The product noun on its own, for chrome that names the project rather
       // than sells it: the subdomain nav, meta, breadcrumbs.
@@ -325,7 +325,7 @@ const projectPages = defineCollection({
           // What the capture shows, for a reader who cannot see it.
           //
           // Separate from the caption because the two do different jobs, and the
-          // difference only became visible once there were captures. A caption
+          // difference only showed once there were captures. A caption
           // names which of the three this is — "the warm preset, light,
           // editorial" — and is written to be read beside the image. It says
           // nothing about the prompt in it, and the prompt is what the band is

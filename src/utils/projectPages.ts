@@ -5,7 +5,7 @@ export type ProjectPageEntry = CollectionEntry<'projectPages'>;
 
 /**
  * Top-level route names in src/pages. A project slug matching one of these would
- * be silently swallowed: Astro gives static routes priority over dynamic ones.
+ * be silently swallowed: Astro gives file routes priority over dynamic ones.
  *
  * Derived from the directory rather than hand-listed, so adding a page cannot
  * leave this out of date. Vite resolves the glob at build time, so it costs
@@ -73,8 +73,8 @@ function collectHrefs(node: unknown, path: string, found: {path: string; href: s
  * entries and their surroundings — the ones no single entry's schema can see.
  *
  * Slug uniqueness is the case: project pages render at /<slug>/, the same URL
- * namespace blog posts occupy through src/pages/[...slug].astro and the static
- * pages occupy by filename. Nothing in Astro complains when those sets overlap;
+ * namespace blog posts occupy through src/pages/[...slug].astro and the file
+ * routes occupy by filename. Nothing in Astro complains when those sets overlap;
  * one route simply wins and the other page quietly disappears from the output.
  *
  * In-page anchors are the other case: whether "#get-started" resolves depends on
@@ -102,7 +102,7 @@ export async function getProjectPages(): Promise<ProjectPageEntry[]> {
   if (reserved.length > 0) {
     throw new Error(
       `[project-pages] ${list(reserved)} collide(s) with a top-level page in src/pages. ` +
-      `The static route wins and the project page would never be generated. Rename the "slug" field.`
+      `The file route wins and the project page would never be generated. Rename the "slug" field.`
     );
   }
 
@@ -111,7 +111,7 @@ export async function getProjectPages(): Promise<ProjectPageEntry[]> {
   if (collisions.length > 0) {
     throw new Error(
       `[project-pages] ${list(collisions)} collide(s) with a blog post slug. ` +
-      `Both render at /<slug>/, so one would silently shadow the other. ` +
+      `Both render at /<slug>/, so one would silently mask the other. ` +
       `Rename the "slug" field in src/content/projectpages, or the post's "slug" in src/content/blog.`
     );
   }

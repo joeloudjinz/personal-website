@@ -7,37 +7,74 @@ export default {
      * extracted wherever it appears and its rule is emitted into the bundle every
      * page loads. Nothing flags it: the CSS is valid, just dead.
      *
-     * The hazard is narrower than that makes it sound, and stating it precisely
-     * matters, because writing around it costs more readability than it saves
-     * bytes. A plain English word that happens to also be a utility name is
-     * almost always free: sticky, collapse, static, fixed, table, isolate,
-     * truncate, italic, visible, prose, block, flex, grid, container, absolute,
-     * relative, hidden, inline, underline, uppercase, border, shadow, transform,
-     * filter, contents, invisible and resize are all in the bundle already,
-     * emitted from real class lists in index.astro, about.astro, Prose.astro,
-     * KnobsTable.astro and blog markdown. Writing one in a sentence adds nothing.
+     * THE TEST — "does a class list in src/ contain this exact token?"
      *
-     * What leaks is a token nothing else in src/ uses. Three real cases so far,
-     * all of them a name that no class list contains:
+     * Not "is this word a utility name?", and emphatically NOT "is the rule in
+     * the bundle already?". This comment used to say the second thing: it
+     * carried a list of 27 words called free "because they are all in the
+     * bundle already, emitted from real class lists". Measured against the
+     * built output, 15 of those 27 are in no class list anywhere — they were in
+     * the bundle because they had ALREADY leaked, and the list was quoting the
+     * damage back as proof of safety. Every word it excused cost bytes.
      *
-     *   top-28   Written bare in a comment in [project].astro. The markup only
-     *            ever uses the lg: prefixed form, so the bare rule shipped on
-     *            every page of the site applying to nothing.
-     *   !block   A local variable named `block`, negated as `if (!block)` in
-     *            CodeBlock.astro's handler. Extracted as an important-flagged
-     *            utility. It is named codeBox for that reason.
+     * Measured, not reasoned about. The words that really are free, because a
+     * class list somewhere emits them:
+     *
+     *   sticky truncate italic block flex grid absolute relative hidden
+     *   uppercase border contents
+     *
+     * The words that are NOT, whatever this file used to say:
+     *
+     *   collapse static fixed table isolate visible prose container inline
+     *   underline shadow transform filter invisible resize
+     *
+     * Re-measure rather than trust either list — both go stale the moment a
+     * component stops using a utility. `node deadcss.mjs dist` in the review
+     * notes does it: collect every token from every class="…" in dist, collect
+     * every leading class from the bundle's selectors, and subtract.
+     *
+     * WHAT IT HAS COST, so the size of it is on the record:
+     *
+     *   prose    12,335 bytes — 88 @tailwindcss/typography rules on all 36
+     *            pages, from the last word of one sentence in content.config.ts:
+     *            "…the cap exists to protect the layout, not the prose." It
+     *            says "copy" now. Removing this and four smaller ones took the
+     *            shared bundle from 41,712 to 29,056 bytes, −30.3%.
+     *   top-28   A comment in [project].astro. The markup only ever used the
+     *            lg: prefixed form, so the bare rule applied to nothing.
+     *   !block   A local named `block`, negated as `if (!block)` in
+     *            CodeBlock.astro. Extracted as an important-flagged utility;
+     *            renamed codeBox. `!btn` in Header.astro and `!marquee` in
+     *            ToolboxMarquee.astro are the same bug, still there, 589 bytes.
      *   outline  The `outline: 2px solid …` shorthand in a scoped <style>.
-     *            Written as longhands in CodeBlock.astro for that reason.
-     *   ring     The ordinary English word for a drawn focus indicator, in a
-     *            comment in CodeBlock.astro explaining that block's own one.
-     *            Nothing in src/ uses the utility, so it shipped a box-shadow
-     *            rule on every page. The comment says "indicator" now.
+     *            Longhands in CodeBlock.astro for that reason.
+     *   ring     The ordinary word for a drawn focus indicator, in a comment
+     *            about one. The comment says "indicator" now.
+     *   shadow   "one would silently shadow the other" — a guard's error
+     *            message in projectPages.ts. It says "mask" now.
+     *   lowercase  "must be lowercase kebab-case" — a Zod message in
+     *            content.config.ts. It says "lower-case" now.
      *
-     * So the check is not "is this word a utility name?" — it is "does a class
-     * list in src/ contain this exact token?". If yes, write it plainly. If no,
-     * hyphenate it, rename the identifier, or split the declaration.
+     * TWO SOURCES NO REWRITE FIXES. Both are structural; neither is sloppiness,
+     * and it is worth knowing which leaks are worth chasing and which are the
+     * cost of writing the code correctly:
      *
-     * This file is outside the content glob, so the names above cost nothing here.
+     *   Guard error messages. They are user-facing prose that has to name real
+     *   things — "static route", "lowercase", "shadow" are the accurate words
+     *   for what went wrong. They can usually be reworded without lying, and
+     *   the two above were. Sometimes they cannot.
+     *   Legitimate CSS longhand values. `overflow: visible` and
+     *   `position: static` in KnobsTable.astro restore a visually-hidden thead
+     *   at the wide breakpoint. The values ARE `visible` and `static`; there is
+     *   no other spelling that says so. 52 bytes, deliberately kept — writing
+     *   `overflow: initial` to dodge a byte scanner would cost the next reader
+     *   more than it saves.
+     *
+     * If a token fails the test: hyphenate it, reword it, rename the
+     * identifier, or split the declaration. If it cannot be, leave it and add
+     * it above.
+     *
+     * This file is outside the content glob, so every name here costs nothing.
      */
     content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
     theme: {

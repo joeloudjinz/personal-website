@@ -24,7 +24,7 @@ interface Props {
      * name and they are indistinguishable in a screen reader's list of controls.
      *
      * The subject rather than the whole name, so the only English is the verb,
-     * which lives here beside the visible label it matches. A caller passing a
+     * which lives here beside the on-screen label it matches. A caller passing a
      * heading it already renders adds no new copy to do this.
      */
     copyFor?: string;
@@ -56,8 +56,8 @@ const copyName = copyLabel ?? (copyFor ? `Copy: ${copyFor}` : 'Copy this code bl
  * draws four blocks, which would put four more landmarks beside the four the
  * document already has and make landmark navigation the worse for it.
  *
- * Built from `copyFor` — the subject the caller already renders as the visible
- * label — for the reason the copy control is: four panes all called "Code
+ * Built from `copyFor` — the subject the caller already renders as the
+ * on-screen label — for the reason the copy control is: four panes all called "Code
  * block" are four stops a reader cannot tell apart.
  */
 const paneName = copyFor ? `Code: ${copyFor}` : 'Code block';
@@ -92,7 +92,7 @@ const copyable = rows.some((row) => !row.mark);
                     <span class='code-copy-face code-copy-idle' aria-hidden='true'>Copy</span>
                     <span class='code-copy-face code-copy-done' aria-hidden='true'>✓ Copied</span>
                 </button>
-                {/* The visible swap is aria-hidden, so success is announced here instead. */}
+                {/* The on-screen swap is aria-hidden, so success is announced here instead. */}
                 <span class='sr-only' role='status' data-code-status></span>
             </Fragment>
     )}
@@ -133,7 +133,7 @@ const copyable = rows.some((row) => !row.mark);
         padding-right: 92px;
     }
 
-    /* The pane is a tab stop now, so it owes a reader a visible indicator — and
+    /* The pane is a tab stop now, so it owes a reader an on-screen indicator — and
        it states its own for the reason the copy control does: this box is dark
        in both modes and the browser's default is tuned for the page behind it.
 
@@ -202,8 +202,8 @@ const copyable = rows.some((row) => !row.mark);
     /* The UA's own `[hidden] { display: none }` matches this button at the same
        specificity as the rule above — both are one attribute or class — but it
        is user-agent origin, so an author declaration beats it whatever the
-       specificity. Without this the control would stay visible while JavaScript
-       is off. Restated here rather than relied on. */
+       specificity. Without this the control would stay on screen while
+       JavaScript is off. Restated here rather than relied on. */
     .code-copy[hidden] {
         display: none;
     }
