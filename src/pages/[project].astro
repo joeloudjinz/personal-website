@@ -82,11 +82,12 @@ const bandInner = 'shell py-[72px]';
 // because 420px of the remaining width would leave the content column narrower
 // than the heading beside it.
 const split = 'grid lg:grid-cols-[420px_1fr] gap-12 lg:gap-20 reveal';
-// lg:top-28 is 112px, matching the sticky header's own clearance elsewhere on
-// the site. Named with its prefix because that is the token the class list uses;
-// the bare form appears in no class list, so writing it here would emit a rule
-// applying to nothing — see the byte-scan note in tailwind.config.mjs.
-const stickyColumn = 'lg:sticky lg:top-28 self-start';
+// Pinned under the header at the same clearance a fragment jump leaves, because
+// they are the same distance: both are "clear of the sticky bar". It reads the
+// token rather than the Tailwind step it used to name, which was 112px against
+// an --anchor-offset of 110px, described in this comment as matching, and not.
+// See --anchor-offset in global.css for what the number is made of.
+const stickyColumn = 'lg:sticky lg:top-[var(--anchor-offset)] self-start';
 // The configuration band's own heading — the subsection step when there is a
 // band above it, otherwise a band heading like any other. See configIsSubsection.
 const configHeading = configIsSubsection

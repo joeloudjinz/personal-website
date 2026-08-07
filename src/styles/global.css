@@ -76,10 +76,34 @@
 	   code block and the knobs table cannot drift onto different mono faces. */
 	--font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
 
+	/* The sticky header's own height. Measured off the built page rather than
+	   assumed: 18px of nav padding either side of the logo, plus the 1px
+	   hairline under it. The logo is drawn at 48px in dark and 46px in light, so
+	   the bar is 85px one way and 83px the other, and this is the taller of the
+	   two — clearing the taller can only ever leave a 2px gap, clearing the
+	   shorter leaves the bar drawn over whatever was meant to sit under it.
+
+	   The 2px is the logos' and not this token's to fix, and fixing it is a
+	   change to the site's own chrome rather than to a clearance.
+
+	   .reading-progress has always read this name with an 82px fallback, and
+	   until now nothing declared it. 82px is the nav box without the hairline,
+	   which put the 3px progress bar entirely behind the header in dark mode and
+	   left 2 of its 3 pixels showing in light. */
+	--nav-height: 85px;
+
 	/* How far an anchor target sits below the viewport top, so the sticky header
 	   does not cover it. Anything that can be jumped to by fragment — article
-	   headings, project page bands — reads this rather than restating the number. */
-	--anchor-offset: 110px;
+	   headings, project page bands — reads this rather than restating the
+	   number, as does anything that pins itself under the bar.
+
+	   The header plus the air the design leaves under it, which comes to the
+	   112px the pinned band headings were drawn at. Written as the sum because
+	   the two halves answer to different things: the first is measured off the
+	   chrome and moves when the chrome does, the second is a design decision. It
+	   had been a flat 110px, which claimed to be that same clearance and was 2px
+	   under it. */
+	--anchor-offset: calc(var(--nav-height) + 27px);
 }
 
 .theme-dark {
