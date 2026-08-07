@@ -6,14 +6,19 @@
 //
 // Column headers are data, never constants: "fallback" prints as "Default" for
 // this project and as something else for the next one.
-import type {ProjectPageEntry} from '@src/utils/projectPages';
-
-type ConfigBand = NonNullable<ProjectPageEntry['data']['config']>;
 
 interface Props {
-    /** The four column headings, as authored. */
-    headers: ConfigBand['knobHeaders'];
-    knobs: ConfigBand['knobs'];
+    /**
+     * The four column headings, as authored.
+     *
+     * Structural, like DefinitionRows' rows, rather than aliased to the config
+     * band's type. This is a configuration table, not that band's table — naming
+     * one band's key here would make the component's type break the day the band
+     * is renamed, for a component that never mentions the band anywhere else.
+     * The call site still fails to typecheck if the schema's shape changes.
+     */
+    headers: {name: string; values: string; fallback: string; effect: string};
+    knobs: {name: string; values: string[]; fallback: string; effect: string}[];
     class?: string;
 }
 
