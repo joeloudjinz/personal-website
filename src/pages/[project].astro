@@ -207,12 +207,19 @@ const linkAttrs = (href: string) =>
                         <p class:list={[readingCopy, 'max-w-[720px]']}>{deepDive.standfirst}</p>
                     </div>
 
+                    {/* The pair only splits into two columns when there is something
+                        to put in the second one. Left as a fixed split, a band with
+                        no capture would hold its code against an empty half — the
+                        same reason the hero has a centred variant rather than a
+                        column of air. Alone, the code keeps the standfirst's measure
+                        instead of stretching across the whole shell. */}
                     {(deepDive.code || deepDive.media) && (
-                            <div class='grid lg:grid-cols-[1fr_1.08fr] gap-10 lg:gap-20 items-center'>
+                            <div class:list={['grid gap-10',
+                                              deepDive.media && 'lg:grid-cols-[1fr_1.08fr] lg:gap-20 items-center']}>
                                 {/* min-w-0 so the code block's own horizontal scroll
                                     is what absorbs a long line, rather than the grid
                                     track widening to fit it. */}
-                                <div class='min-w-0'>
+                                <div class:list={['min-w-0', !deepDive.media && 'max-w-[720px]']}>
                                     {deepDive.codeLabel && <p class='micro-label mb-3'>{deepDive.codeLabel}</p>}
                                     {deepDive.code && (
                                             <CodeBlock lines={deepDive.code} copyFor={deepDive.codeLabel}/>
