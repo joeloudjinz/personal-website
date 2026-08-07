@@ -421,16 +421,31 @@ const linkAttrs = (href: string) =>
     )}
 
     <section class={band}>
-        <div class={bandInner}>
-            <h2>{closingHeading
-                ? <>{closingHeading.before}<span class='marker-wash'>{closingHeading.washed}</span>{closingHeading.after}</>
-                : closing.heading}</h2>
-            <p>{closing.sub}</p>
-            <p>
-                <a class='btn-primary' href={closing.ctaPrimary.href}>{closing.ctaPrimary.label}</a>
-                <a class='btn-ghost' href={closing.ctaSecondary.href}>{closing.ctaSecondary.label}</a>
-            </p>
-            {closing.facts && <p>{closing.facts.join(' · ')}</p>}
+        <div class='shell py-24 text-center reveal'>
+            {/* Same clamp as the hero, one step lower at the top end: the washed
+                phrase cannot wrap, so its width follows the font-size and the
+                narrowest viewport is what sets the floor. */}
+            <h2 class='font-display text-[clamp(30px,7vw,56px)] font-semibold text-strong tracking-[-0.015em] leading-[1.15]'>
+                {closingHeading
+                    ? <>{closingHeading.before}<span
+                            class='marker-wash whitespace-nowrap'>{closingHeading.washed}</span>{closingHeading.after}</>
+                    : closing.heading}
+            </h2>
+            <p class='mt-5 text-base text-muted leading-relaxed max-w-[560px] mx-auto'>{closing.sub}</p>
+            <div class='mt-9 flex flex-wrap justify-center gap-4'>
+                <a class='btn btn-primary btn-lg' href={closing.ctaPrimary.href}
+                   {...linkAttrs(closing.ctaPrimary.href)}>{closing.ctaPrimary.label}</a>
+                <a class='btn btn-secondary btn-lg' href={closing.ctaSecondary.href}
+                   {...linkAttrs(closing.ctaSecondary.href)}>{closing.ctaSecondary.label}</a>
+            </div>
+            {/* .stack-line is already the caramel-middle-dot run at 13px muted, and
+                it paints the dot at the start of each item after the first so a dot
+                can never wrap onto a line by itself. Centring is the only delta. */}
+            {closing.facts && (
+                    <p class='stack-line justify-center mt-8'>
+                        {closing.facts.map((fact) => <span class='stack-tag'>{fact}</span>)}
+                    </p>
+            )}
         </div>
     </section>
 </BaseLayout>
