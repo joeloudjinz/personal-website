@@ -125,7 +125,7 @@ config:
 steps:
   kicker: "Get started"
   heading: "Three steps in."
-  intro: "You’ll need zsh 5.8+ and a Nerd Font — the prompt draws powerline separators. The installer is reversible: ‘--uninstall’ takes everything back out."
+  intro: "You’ll need zsh 5.8+ and a Nerd Font (the prompt draws powerline separators). The installer is reversible: ‘--uninstall’ takes everything back out."
   link:
     label: "The install guide"
     href: "https://github.com/joeloudjinz/inzsh/blob/dev/docs/install.md"
@@ -136,12 +136,12 @@ steps:
           text: "git clone https://github.com/joeloudjinz/inzsh.git ~/.inzsh"
         - prompt: true
           text: "cd ~/.inzsh && zsh install.zsh"
-      note: "Idempotent — safe to re-run. It backs up your .zshrc before touching it."
+      note: "Idempotent: safe to re-run. It backs up your .zshrc before touching it."
     - title: "Pick a preset"
       lines:
         - text: "INZSH_PRESET=warm"
-      note: "In .zshrc, above the line that sources the theme — it’s read when the theme loads. The default is sharp."
-    - title: "Optional — prayer times"
+      note: "In .zshrc, above the line that sources the theme: it’s read when the theme loads. The default is sharp."
+    - title: "Optional: prayer times"
       lines:
         - text: "INZSH_SALAH_LAT=21.4225"
         - text: "INZSH_SALAH_LON=39.8262"
@@ -152,7 +152,7 @@ steps:
 gallery:
   kicker: "Gallery"
   heading: "The same prompt, three ways."
-  intro: "‘inzsh-sharp’ is the default — dark. ‘inzsh-warm’ is the light one, warmer and more editorial. Both are drawn from the same semantic roles, and ‘INZSH_PRESET’ picks between them when the theme loads."
+  intro: "‘inzsh-sharp’ is the dark default. ‘inzsh-warm’ is the light one, warmer and more editorial. Both are drawn from the same semantic roles, and ‘INZSH_PRESET’ picks between them when the theme loads."
   pendingLabel: "Capture pending"
   # The captures are here, so width and height no longer do anything — the files'
   # own dimensions take over. They stay as the record of what was commissioned,
@@ -162,12 +162,12 @@ gallery:
   # the note on alt in content.config.ts for why that is two strings and not one.
   items:
     - src: "../../assets/img/inzsh/shot-sharp.png"
-      caption: "The sharp preset — dark, full colour."
+      caption: "The sharp preset: dark, full colour."
       alt: "A prompt on black, drawn as arrow-tipped segments on dark slate-blue: the user joeinz, the host joeinz-pc, the path ~/work, then a branch segment reading main in pink with a mark for uncommitted changes. Ranged right, in segments of their own, Maghrib 17:50 and the clock at 15:34."
       width: 1000
       height: 200
     - src: "../../assets/img/inzsh/shot-warm.png"
-      caption: "The warm preset — light, editorial."
+      caption: "The warm preset: light, editorial."
       alt: "The same prompt on white: the same segments in the same order, drawn as sand-coloured blocks with dark brown type, and the branch segment in deep red. Maghrib 17:50 and the clock at 15:34 are ranged right, as before."
       width: 1000
       height: 200
