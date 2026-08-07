@@ -72,9 +72,8 @@ const {
         display: none;
     }
 
-    /* Longhands rather than the shorthand: Tailwind scans this file as raw bytes
-       and the shorthand's property name is also a utility name, so writing it
-       here would emit a dead rule into the stylesheet every page loads. */
+    /* Longhands rather than the shorthand — see the byte-scan note in
+       tailwind.config.mjs. */
     .faq-summary:focus-visible {
         outline-width: 2px;
         outline-style: solid;
@@ -93,8 +92,6 @@ const {
 
     .faq-toggle {
         margin-left: auto;
-        /* `none` is 0 0 auto — the longhand for it is spelled the same as a
-           utility class, which Tailwind would extract out of this file. */
         flex: none;
         font-size: 14px;
         font-weight: 600;
