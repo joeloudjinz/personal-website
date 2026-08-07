@@ -7,6 +7,7 @@ import CodeBlock from '@src/components/CodeBlock.astro';
 import DefinitionRows from '@src/components/DefinitionRows.astro';
 import FaqDisclosure from '@src/components/FaqDisclosure.astro';
 import KnobsTable from '@src/components/KnobsTable.astro';
+import MediaFrame from '@src/components/MediaFrame.astro';
 import {BAND_ANCHORS, getProjectPages, splitWash, type ProjectPageEntry} from '@src/utils/projectPages';
 
 export async function getStaticPaths() {
@@ -145,7 +146,10 @@ const canonical = `https://${page.data.subdomain}/`;
                                 {gallery.link.label} <span class='arrow'>→</span>
                             </a>
                     )}
-                    <ul>{gallery.items.map((shot) => <li>{shot.caption}</li>)}</ul>
+                    {gallery.items.map((shot) => (
+                            <MediaFrame src={shot.src} alt={shot.caption} label='Capture pending'
+                                        description={shot.caption} width={1000} height={200}/>
+                    ))}
                 </div>
             </section>
     )}

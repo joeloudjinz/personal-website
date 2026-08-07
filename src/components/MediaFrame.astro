@@ -1,0 +1,105 @@
+---
+// The box a capture occupies — whether or not the capture exists yet.
+//
+// With no `src` it draws a labelled placeholder; with one it draws the image.
+// Both are the same call site, so wiring a finished asset in is adding an
+// attribute rather than replacing markup.
+//
+// The frame has no ratio of its own. It takes the ratio of the asset that
+// belongs in it — the two captures this site is waiting on are 1000×480 and
+// 1000×200, and a shared 16:10 would letterbox one and crop the other.
+import type {ImageMetadata} from 'astro';
+
+interface Props {
+    /** The capture. Absent until one is produced. */
+    src?: ImageMetadata;
+    /** Alternative text for the capture. Falls back to the description, then the label. */
+    alt?: string;
+    /**
+     * Intended pixel dimensions of the capture. They exist so a placeholder
+     * reserves the same box the finished asset will fill, which is what stops
+     * the page reflowing when it arrives. Ignored once `src` is set — the file's
+     * own dimensions are authoritative then. Omit both and the frame sizes to
+     * its label instead.
+     */
+    width?: number;
+    height?: number;
+    /** Placeholder label — small caps in caramel. */
+    label: string;
+    /** Placeholder sub-line: what the capture will show. */
+    description?: string;
+    loading?: 'lazy' | 'eager';
+    class?: string;
+}
+
+const {src, alt, width, height, label, description, loading = 'lazy', class: className} = Astro.props;
+
+const ratio = !src && width && height ? `${width} / ${height}` : undefined;
+---
+
+<div class:list={['media-frame rounded-tile', className]}>
+    {src
+            /* A plain <img>, not <Image>: these captures include an animated GIF,
+               and the image service re-encodes one to a single still frame. The
+               width and height attributes carry the file's own ratio, so the box
+               is reserved before a byte of it loads. */
+            ? <img class='media-shot' src={src.src} width={src.width} height={src.height}
+                   alt={alt ?? description ?? label} loading={loading} decoding='async'/>
+            : (
+                    <Fragment>
+                        {/* An empty spacer holds the ratio, rather than the frame
+                            holding it directly. A ratio on the frame turns its
+                            min-height into a transferred MIN-WIDTH — measured, a
+                            5:1 frame with a 140px floor demanded 700px and ran
+                            380px off a 320px screen. It also means the frame can
+                            grow past the ratio when the label needs more room,
+                            instead of clipping it. */}
+                        <div class='media-ratio' style={`aspect-ratio: ${ratio};`} aria-hidden='true'></div>
+                        <div class='media-empty'>
+                            <p class='kicker'>{label}</p>
+                            {description && <p class='media-note'>{description}</p>}
+                        </div>
+                    </Fragment>
+            )}
+</div>
+
+<style>
+    .media-frame {
+        background: var(--surface-soft);
+        border: 1px solid var(--hairline);
+        /* Clips the capture's corners to the frame's radius. */
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+    }
+
+    /* Spacer and label share one cell, so the frame is as tall as whichever needs
+       more and the label stays centred over the reserved box. */
+    .media-frame > * {
+        grid-area: 1 / 1;
+    }
+
+    .media-shot {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .media-ratio {
+        width: 100%;
+    }
+
+    .media-empty {
+        padding: 24px;
+        text-align: center;
+    }
+
+    .media-note {
+        margin-top: 8px;
+        font-size: 14px;
+        line-height: 1.5;
+        color: var(--text-muted);
+        /* Keeps the sub-line to a readable measure inside a very wide frame. */
+        max-width: 46ch;
+    }
+</style>
