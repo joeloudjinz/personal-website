@@ -242,17 +242,17 @@ faq:
   heading: "Fair questions."
   items:
     - q: "What leaves my machine?"
-      a: "Nothing, unless you opt in. There’s no telemetry and there are no network calls by default. The one exception is ‘INZSH_SALAH_AUTOLOCATE=1’, which permits an IP-geolocation query — and even then it only happens when you run ‘inzsh locate’ yourself. Manual coordinates avoid it entirely."
+      a: "Nothing, unless you opt in. There’s no telemetry and there are no network calls by default. The one exception is ‘INZSH_SALAH_AUTOLOCATE=1’, which permits an IP-geolocation query, and even then it only happens when you run ‘inzsh locate’ yourself. Manual coordinates avoid it entirely."
     - q: "How do I uninstall it?"
       a: "The installer is reversible: ‘--uninstall’ takes everything back out. Your .zshrc was backed up at install time."
     - q: "Why do the colours look wrong in tmux?"
-      a: "tmux needs RGB passthrough — set -sa terminal-features ',*:RGB'."
+      a: "tmux needs RGB passthrough: set -sa terminal-features ',*:RGB'."
     - q: "What is ‘inzsh doctor’ for?"
-      a: "It prints one diagnostic block — zsh version, terminal, $TERM, colour depth, locale, Nerd Font, tmux — and never prints your coordinates."
+      a: "It prints one diagnostic block (zsh version, terminal, $TERM, colour depth, locale, Nerd Font, tmux), and never prints your coordinates."
 closing:
   heading: "Give your prompt a system."
   wash: "system"
-  sub: "The installer is reversible — or read the source first."
+  sub: "The installer is reversible, or read the source first."
   ctaPrimary:
     label: "Install InZsh"
     href: "#get-started"
@@ -260,7 +260,7 @@ closing:
     label: "Read the source"
     href: "https://github.com/joeloudjinz/inzsh"
   facts: ["MIT", "no telemetry", "zsh 5.8+"]
-credit: "The segment-rank idea — one integer per segment, controlling both order and visibility — comes from comfyline, by not pua. InZsh is an independent implementation."
+credit: "The segment-rank idea (one integer per segment, controlling both order and visibility) comes from comfyline, by not pua. InZsh is an independent implementation."
 ---
 
 <!-- provisional: FAQ answers 2-4 pending rewrite -->
