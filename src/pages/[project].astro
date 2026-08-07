@@ -154,8 +154,13 @@ const linkAttrs = (href: string) => {
                     rectangle across every fragment of the span, so a two-line
                     wash draws a block over the text between them — and a phrase
                     that cannot wrap is as wide as its font-size makes it. At the
-                    72px the design asks for, "knows the hour" measures 535px and
-                    ran 73px off a 320px screen. Stepping the size at breakpoints
+                    72px the design asks for, held at every width, "knows the
+                    hour" measures 499px set in Fraunces and 581px in the Georgia
+                    fallback — the wider of the two, and so the one that binds —
+                    against the 272px content box a 320px screen leaves inside
+                    the shell. That is 227px and 309px past the content edge, far
+                    enough to scroll the document rather than merely spill into
+                    the gutter. Stepping the size at breakpoints
                     leaves the widths between them untested; scaling with the
                     viewport keeps the phrase inside the shell at every width and
                     still reaches 72px by 848px, which is where the design's
