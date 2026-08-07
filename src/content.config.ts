@@ -246,8 +246,24 @@ const projectPages = defineCollection({
         heading: bandHeading,
         intro: z.string().optional(),
         link: link.optional(),
-        items: z.array(z.object({ src: image().optional(), caption: z.string().max(70) }))
-          .min(2).max(4)
+        // What the placeholder of a not-yet-captured item reads. English chrome
+        // in a template is the thing this collection exists to prevent, and a
+        // placeholder label is chrome — so it is authored per band. Required
+        // rather than optional: a default would have to live in the template,
+        // which is where it must not be.
+        pendingLabel: z.string().max(30),
+        items: z.array(z.object({
+          src: image().optional(),
+          caption: z.string().max(70),
+          // The capture's intended pixel box. Not decoration: with no src the
+          // frame reserves exactly this ratio, so the finished asset drops into
+          // a box already the right shape and the page does not jump. Declared
+          // per item because a gallery may mix a wide hero strip with narrow
+          // ones. Once src is set the file's own dimensions take over and these
+          // are ignored — they stay as the record of what was commissioned.
+          width: z.number().int().positive(),
+          height: z.number().int().positive()
+        })).min(2).max(4)
       }).optional(),
       specs: z.object({
         kicker,

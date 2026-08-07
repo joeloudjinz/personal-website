@@ -146,9 +146,14 @@ const canonical = `https://${page.data.subdomain}/`;
                                 {gallery.link.label} <span class='arrow'>→</span>
                             </a>
                     )}
+                    {/* No alt: MediaFrame already falls back to the description,
+                        which is this same caption. Everything else comes from the
+                        entry — the label because it is copy, the box because the
+                        placeholder has to reserve the shape the capture will fill. */}
                     {gallery.items.map((shot) => (
-                            <MediaFrame src={shot.src} alt={shot.caption} label='Capture pending'
-                                        description={shot.caption} width={1000} height={200}/>
+                            <MediaFrame src={shot.src} label={gallery.pendingLabel}
+                                        description={shot.caption}
+                                        width={shot.width} height={shot.height}/>
                     ))}
                 </div>
             </section>
