@@ -70,7 +70,13 @@ deepDive:
 config:
   # No kicker: this is the one band the approved design runs without one.
   heading: "Configured, not forked."
-  intro: "Every knob is declared — engine and segment knob families, with per-segment overrides. ‘inzsh preset’ switches styles in a running shell, and a narrow-terminal mode keeps the prompt usable in small panes. The engine knobs:"
+  # "a narrow-terminal mode" was the earlier wording, and the product's own
+  # configuration reference says the named steps it describes — full, wide,
+  # narrow, minimal, behind three INZSH_LADDER_*_COLS variables — were removed
+  # rather than tuned, because fitting from real measurements turned out to be
+  # simpler and exact. Nothing on this page may claim a feature the docs record
+  # as deleted, so this now names the three mechanisms that replaced it.
+  intro: "Every knob is declared — engine and segment knob families, with per-segment overrides. ‘inzsh preset’ switches styles in a running shell, and a narrow pane is fitted by measurement rather than by a named step: the path shortens, blocks drop in priority order, and the right-hand group moves down beside the cursor. The engine knobs:"
   knobHeaders:
     name: "Knob"
     values: "Values"
