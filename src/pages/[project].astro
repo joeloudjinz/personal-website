@@ -99,6 +99,56 @@ const readingCopy = 'text-[17px] leading-[1.7] text-body';
 // article headings rather than restating the number — see --anchor-offset.
 const anchored = 'scroll-mt-[var(--anchor-offset)]';
 
+/**
+ * How wide each capture is actually drawn, so the browser can pick a file rather
+ * than be handed the widest one that exists.
+ *
+ * All three start from the shell's content box: the viewport less 24px of
+ * padding a side, less 48px from 768 up, less 96px from 1100 up, against a
+ * 1440px artboard — so it stops growing at 1248px. That is the whole story for
+ * the gallery, whose strips run the full width of the band.
+ *
+ * The hero and the deep dive each hand their capture the wider half of a
+ * 1fr/1.08fr pair from 1024 up, which is 1.08/2.08 of what the gap leaves —
+ * 72px of gap in the hero, 80px in the deep dive. Below 1024 both stack and the
+ * capture takes the content box whole, so the widest either is ever drawn is not
+ * at the widest viewport: it is 927px at 1023px, the last width before the
+ * split. After it the hero tops out at 611px and the deep dive at 607px.
+ *
+ * Written as calc rather than as a rounded constant because the value follows
+ * the viewport between breakpoints, and a constant would be right at exactly one
+ * width per band. A browser that cannot parse one of these falls back to
+ * assuming the full viewport, which over-fetches rather than under-fetches.
+ */
+const galleryWidth = [
+    '(min-width: 1100px) calc(min(1440px, 100vw) - 192px)',
+    '(min-width: 768px) calc(100vw - 96px)',
+    'calc(100vw - 48px)'
+].join(', ');
+const splitWidth = (gap: number) => [
+    `(min-width: 1100px) calc((min(1440px, 100vw) - ${192 + gap}px) * 0.519)`,
+    `(min-width: 1024px) calc((100vw - ${96 + gap}px) * 0.519)`,
+    '(min-width: 768px) calc(100vw - 96px)',
+    'calc(100vw - 48px)'
+].join(', ');
+const heroWidth = splitWidth(72);
+const deepDiveWidth = splitWidth(80);
+
+/**
+ * The rungs the pipeline renders each capture at.
+ *
+ * One ladder for all of them, because they are the same kind of asset at the
+ * same source width, and the widest box on the page — the gallery's 1248px — is
+ * the only one that reaches the top of it. The low rungs are the ones that
+ * matter: a 320px screen leaves a 272px box, which is 544 device pixels on the
+ * phone screens that exist and 816 on the densest, and the frame used to answer
+ * all three with the 2000px original.
+ *
+ * MediaFrame drops any rung wider than the asset, so 2000 is a ceiling rather
+ * than an instruction to upscale.
+ */
+const captureWidths = [400, 600, 900, 1200, 1600, 2000];
+
 // The page is built into this site's dist but deployed to its own host, so the
 // subdomain root — not the /<slug>/ build URL — is the URL it is authoritative at.
 const canonical = `https://${page.data.subdomain}/`;
@@ -207,7 +257,8 @@ const canonical = `https://${page.data.subdomain}/`;
                 capture lands after the words rather than with them. index.astro's
                 two-column hero solves the identical problem the identical way. */}
             {hero.media && (
-                    <MediaFrame src={hero.media.src} alt={hero.media.alt} loading='eager'
+                    <MediaFrame src={hero.media.src} alt={hero.media.alt}
+                                widths={captureWidths} sizes={heroWidth} loading='eager'
                                 style='animation: rise-in var(--dur-slow) var(--ease-standard) 400ms backwards;'/>
             )}
         </div>
@@ -309,7 +360,8 @@ const canonical = `https://${page.data.subdomain}/`;
                                     here carries a src by schema, so the placeholder
                                     branch is unreachable. */}
                                 {deepDive.media && (
-                                        <MediaFrame src={deepDive.media.src} alt={deepDive.media.alt}/>
+                                        <MediaFrame src={deepDive.media.src} alt={deepDive.media.alt}
+                                                    widths={captureWidths} sizes={deepDiveWidth}/>
                                 )}
                             </div>
                     )}
@@ -414,12 +466,10 @@ const canonical = `https://${page.data.subdomain}/`;
                         reserve the shape its capture will fill or the page jumps
                         when the asset lands.
 
-                        Once Group E supplies the assets, the layout width these
-                        occupy is the shell's content box: 100vw - 48px below 768,
-                        - 96px below 1100, then min(1440px, 100vw) - 192px, capping
-                        at 1248px. That is the `sizes` a responsive srcset would
-                        need; MediaFrame emits no srcset today, so nothing consumes
-                        it yet. */}
+                        These are the widest boxes on the page — the full content
+                        shell, so 1248px at the artboard — which is why the ladder
+                        they ask for is the only one that reaches the top of the
+                        source. See galleryWidth and captureWidths. */}
                     {/* role='list' for the reason the glance band states: preflight
                         strips list-style, and WebKit reads that as "not a list". */}
                     <ol role='list' class='mt-10 flex flex-col gap-10'>
@@ -433,7 +483,8 @@ const canonical = `https://${page.data.subdomain}/`;
                                             twice. The entry has one string for this
                                             capture and this is where it belongs. */}
                                         <MediaFrame src={shot.src} alt='' label={gallery.pendingLabel}
-                                                    width={shot.width} height={shot.height}/>
+                                                    width={shot.width} height={shot.height}
+                                                    widths={captureWidths} sizes={galleryWidth}/>
                                         <figcaption class='mt-3 flex items-baseline gap-3'>
                                             <span class='font-display text-[13px] font-semibold text-accent tabular-nums'
                                                   aria-hidden='true'>{String(index + 1).padStart(2, '0')}</span>

@@ -41,6 +41,22 @@ interface Props {
      * gallery placeholder turns out to want a second line.
      */
     description?: string;
+    /**
+     * Candidate pixel widths for the srcset, and the layout width the browser
+     * picks against. They travel together or not at all: widths with no `sizes`
+     * leaves the browser assuming the image fills the viewport, and `sizes` with
+     * no widths describes a choice that was never offered — which is what this
+     * frame shipped before, and why a 2000px capture went whole to a phone.
+     *
+     * Both are the caller's, because neither is a property of a capture. The
+     * width a frame occupies is a fact about the column it sits in, and the same
+     * asset is 611px wide in the hero and 1248px wide in the gallery.
+     *
+     * Candidates above the asset's own width are dropped rather than upscaled:
+     * a rung wider than the source is the source again under another filename.
+     */
+    widths?: number[];
+    sizes?: string;
     loading?: 'lazy' | 'eager';
     class?: string;
     /**
@@ -52,8 +68,8 @@ interface Props {
 }
 
 const {
-    src, alt, width, height, label, description, loading = 'lazy',
-    class: className, style
+    src, alt, width, height, label, description, widths, sizes,
+    loading = 'lazy', class: className, style
 } = Astro.props;
 
 const ratio = !src && width && height ? `${width} / ${height}` : undefined;
@@ -70,6 +86,14 @@ const altText = alt ?? description ?? label ?? '';
 // captures this page is waiting on, exactly one is a GIF, and the other four
 // would otherwise ship at source size in source format for its sake.
 const unoptimisable = src?.format === 'gif';
+
+// The ladder the pipeline is asked for, with anything wider than the source
+// removed. Astro upscales a candidate it is given rather than refusing it, so an
+// unfiltered ladder ships rungs that are the source re-encoded larger: more
+// bytes for a picture that cannot carry them. Dropped to undefined when it
+// empties, because an empty array is an error rather than "no srcset".
+const ladder = src && widths ? widths.filter((candidate) => candidate <= src.width) : undefined;
+const responsive = ladder?.length ? {widths: ladder, sizes} : {};
 ---
 
 <div class:list={['media-frame rounded-tile', className]} style={style}>
@@ -82,8 +106,9 @@ const unoptimisable = src?.format === 'gif';
                     ? <img class='media-shot' src={src.src} width={src.width} height={src.height}
                            alt={altText} loading={loading} decoding='async'/>
                     /* Everything else goes through the pipeline, which re-encodes
-                       to WebP and writes the dimension attributes itself. */
-                    : <Image class='media-shot' src={src} alt={altText} loading={loading}/>)
+                       to WebP, renders the ladder above into a srcset, and writes
+                       the dimension attributes itself. */
+                    : <Image class='media-shot' src={src} alt={altText} loading={loading} {...responsive}/>)
             : (
                     <Fragment>
                         {/* An empty spacer holds the ratio, rather than the frame
