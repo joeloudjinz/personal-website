@@ -196,13 +196,12 @@ const canonical = `https://${page.data.subdomain}/`;
                        {...linkAttrs(hero.ctaSecondary.href)}>{hero.ctaSecondary.label}</a>
                 </div>
             </div>
-            {/* label is MediaFrame's placeholder copy and cannot render here — a
-                hero media entry carries its src or does not exist — so the alt
-                stands in rather than a second authored string nobody would see.
-                Eager: this one is above the fold on every viewport. */}
+            {/* No label: that is MediaFrame's placeholder copy, and a hero media
+                entry carries its src or does not exist, so the placeholder is
+                unreachable from here. Eager — this one is above the fold on every
+                viewport. */}
             {hero.media && (
-                    <MediaFrame src={hero.media.src} alt={hero.media.alt}
-                                label={hero.media.alt} loading='eager'/>
+                    <MediaFrame src={hero.media.src} alt={hero.media.alt} loading='eager'/>
             )}
         </div>
     </section>
@@ -293,9 +292,11 @@ const canonical = `https://${page.data.subdomain}/`;
                                                        copyFor={deepDive.code.label}/>
                                         </div>
                                 )}
+                                {/* No label, for the reason the hero states: media
+                                    here carries a src by schema, so the placeholder
+                                    branch is unreachable. */}
                                 {deepDive.media && (
-                                        <MediaFrame src={deepDive.media.src} alt={deepDive.media.alt}
-                                                    label={deepDive.media.alt}/>
+                                        <MediaFrame src={deepDive.media.src} alt={deepDive.media.alt}/>
                                 )}
                             </div>
                     )}

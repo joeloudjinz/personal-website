@@ -25,9 +25,21 @@ interface Props {
      */
     width?: number;
     height?: number;
-    /** Placeholder label — small caps in caramel. */
-    label: string;
-    /** Placeholder sub-line: what the capture will show. */
+    /**
+     * Placeholder label — small caps in caramel. Optional because it is only
+     * reachable without a `src`: a call site whose src is required by its own
+     * schema can never draw a placeholder, and requiring a label there forced two
+     * of them to invent an argument that could not render.
+     */
+    label?: string;
+    /**
+     * Placeholder sub-line: what the capture will show.
+     *
+     * TODO: unused. No call site has ever passed it, and after the deep-dive and
+     * hero call sites stopped inventing a `label` there is no path that would.
+     * It and its .media-note rule below are dead weight — delete both unless a
+     * gallery placeholder turns out to want a second line.
+     */
     description?: string;
     loading?: 'lazy' | 'eager';
     class?: string;
@@ -36,7 +48,11 @@ interface Props {
 const {src, alt, width, height, label, description, loading = 'lazy', class: className} = Astro.props;
 
 const ratio = !src && width && height ? `${width} / ${height}` : undefined;
-const altText = alt ?? description ?? label;
+// Empty string rather than undefined at the end of the chain: an img with no alt
+// attribute is announced by its filename, whereas alt="" marks it decorative.
+// A capture whose caption already describes it wants exactly that — see the
+// gallery call site, which passes alt='' on purpose.
+const altText = alt ?? description ?? label ?? '';
 
 // Whether this asset has to skip the image pipeline. The service decodes one
 // frame and re-encodes it, so an animated GIF would come out the other side as
@@ -77,7 +93,7 @@ const unoptimisable = src?.format === 'gif';
                             still an empty element carrying a broken declaration. */}
                         {ratio && <div class='media-ratio' style={`aspect-ratio: ${ratio};`} aria-hidden='true'></div>}
                         <div class='media-empty'>
-                            <p class='kicker'>{label}</p>
+                            {label && <p class='kicker'>{label}</p>}
                             {description && <p class='media-note'>{description}</p>}
                         </div>
                     </Fragment>
@@ -115,6 +131,8 @@ const unoptimisable = src?.format === 'gif';
         text-align: center;
     }
 
+    /* TODO: dead with `description` above — nothing renders .media-note. Delete
+       both together. */
     .media-note {
         margin-top: 8px;
         font-size: 14px;
