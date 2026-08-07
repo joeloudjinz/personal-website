@@ -93,6 +93,23 @@ const projects = defineCollection({
 // collection is that project #2 costs one markdown file: nothing that varies
 // between projects may live in a template.
 //
+// Where the line falls, so it stops being argued case by case:
+//
+//   Per-project CONTENT lives in the data. Anything a second project would want
+//   to word differently — a band kicker, a gallery's placeholder label, the
+//   prefix on a version badge — is authored here, and is required rather than
+//   defaulted, because a default has to be written down somewhere and the only
+//   place left is the template.
+//
+//   Universal UI AFFORDANCES live in the component. A copy control's "Copy", a
+//   disclosure's "Read the answer ↓", the header's "Light"/"Dark" read
+//   identically on every project page; they are the same affordance whatever
+//   the project is, and they would be translated once, site-wide. Those belong
+//   beside the behaviour they name, not in every entry.
+//
+// The test is not "is it English?" — it is "would project #2 write it
+// differently?". If yes, it is a field. If no, it is the component's.
+//
 // Nested string fields render as PLAIN TEXT, not markdown. Code identifiers are
 // written with ‘single curly quotes’ — the design system has no inline-code
 // treatment and that is the approved rendering. Backticks would render literally.
@@ -174,7 +191,12 @@ const projectPages = defineCollection({
         wash,
         promise: z.string().max(140),
         status: z.enum(['Stable', 'In progress', 'Maintained', 'Archived']),
-        version: z.string().optional(),
+        // What the version badge reads, verbatim — including the leading ‘v’ if
+        // the project wants one. Not a bare number with a ‘v’ added by the
+        // template: a project that versions as 2024.11 or beta-3 would get
+        // "v2024.11" with no way to opt out, and the prefix is exactly the kind
+        // of per-project wording the rule above puts in the data.
+        version: z.string().max(20).optional(),
         ctaPrimary: cta(18),
         ctaSecondary: cta(22),
         media: media.optional()

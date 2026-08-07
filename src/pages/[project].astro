@@ -136,7 +136,9 @@ const linkAttrs = (href: string) =>
                 </p>
                 <div class:list={['flex flex-wrap items-center gap-3 mb-8', !hero.media && 'justify-center']}>
                     <span class='badge-accent'>{hero.status}</span>
-                    {hero.version && <span class='badge-outline'>v{hero.version}</span>}
+                    {/* Printed as authored — the ‘v’ is the entry's, not this
+                        template's. See the content/affordance rule in content.config.ts. */}
+                    {hero.version && <span class='badge-outline'>{hero.version}</span>}
                 </div>
                 <div class:list={['flex flex-wrap gap-4', !hero.media && 'justify-center']}>
                     <a class='btn btn-primary btn-lg' href={hero.ctaPrimary.href}

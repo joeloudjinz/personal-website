@@ -8,7 +8,7 @@ hero:
   wash: "knows the hour"
   promise: "A calm, configurable zsh prompt — built from a design system, with prayer times computed on your machine."
   status: "In progress"
-  version: "0.1.0"
+  version: "v0.1.0"
   ctaPrimary:
     label: "Install InZsh"
     href: "#get-started"
