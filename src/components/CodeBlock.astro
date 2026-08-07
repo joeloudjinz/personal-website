@@ -119,9 +119,11 @@ const rows = lines.map((line) => {
         color: var(--cream-muted);
         cursor: pointer;
         /* The gradient lets a long line slide under the control instead of
-           colliding with it. */
-        padding-left: 20px;
-        background: linear-gradient(to right, transparent, var(--navy-deep) 20px);
+           colliding with it. Wide enough to read as a fade rather than a cut:
+           at 320px the first line of a four-value block reaches the control, and
+           a 20px ramp chopped it mid-glyph. */
+        padding-left: 36px;
+        background: linear-gradient(to right, transparent, var(--navy-deep) 36px);
         transition: color var(--dur-base) var(--ease-standard),
             transform var(--dur-fast) var(--ease-standard);
     }
