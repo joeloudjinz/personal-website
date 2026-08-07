@@ -234,9 +234,14 @@ const copyable = rows.some((row) => !row.mark);
             // with ✓ is the shell talking back, and pasting "backed up .zshrc"
             // into a terminal is worse than pasting nothing — it is a command the
             // shell will try to run.
+            //
+            // Terminated with a newline, not just separated by them. A join alone
+            // leaves the last command sitting on the prompt waiting for Enter
+            // while every command before it has already run, which is the one
+            // outcome nobody asked for: either all of it runs or none of it does.
             const text = Array.from(codeBox.querySelectorAll('.code-line:not(.is-result) .code-text'))
                 .map((line) => line.textContent ?? '')
-                .join('\n');
+                .join('\n') + '\n';
 
             navigator.clipboard.writeText(text).then(() => {
                 button.classList.add('is-copied');
