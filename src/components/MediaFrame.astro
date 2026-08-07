@@ -58,17 +58,22 @@ interface Props {
     widths?: number[];
     sizes?: string;
     /**
-     * A second render of the same capture at half the pixels, for the formats
-     * the pipeline cannot resize — which today means GIF, for the reason
+     * Further renders of the same capture at smaller sizes, for the formats the
+     * pipeline cannot resize — which today means GIF, for the reason
      * `unoptimisable` states below.
      *
      * An animated capture skips the image service, so `widths` buys it nothing:
-     * the only candidates it can offer are files that already exist. This is the
-     * one its tape produces at its own pinned size, and pairing the two is what
-     * keeps a phone off the 2× recording. Ignored for anything the pipeline
+     * the only candidates it can offer are files somebody rendered. These are
+     * those files, and together with `src` they are the whole ladder. Order does
+     * not matter; they are sorted by width on the way out.
+     *
+     * How many there should be is a question about bytes, not about tidiness. A
+     * rung of the WebP ladder is single-digit kB and a rung here is hundreds:
+     * with only 1000 and 2000 in the set, a tablet asking for 1340 took the 2000
+     * and paid 776 KiB for the privilege. Ignored for anything the pipeline
      * handles, which generates its own ladder from `widths`.
      */
-    srcHalf?: ImageMetadata;
+    variants?: ImageMetadata[];
     loading?: 'lazy' | 'eager';
     class?: string;
     /**
@@ -80,7 +85,7 @@ interface Props {
 }
 
 const {
-    src, alt, width, height, label, description, widths, sizes, srcHalf,
+    src, alt, width, height, label, description, widths, sizes, variants,
     loading = 'lazy', class: className, style
 } = Astro.props;
 
@@ -124,10 +129,15 @@ const unoptimisable = src?.format === 'gif';
 const ladder = src && widths ? widths.filter((candidate) => candidate <= src.width) : undefined;
 const responsive = ladder?.length ? {widths: ladder, sizes} : {};
 
-// Two renders of one source, offered as two rungs. Written out here rather than
-// left to the pipeline because the pipeline never sees this asset — see srcHalf.
-const passthroughSrcset = srcHalf && src
-    ? `${srcHalf.src} ${srcHalf.width}w, ${src.src} ${src.width}w`
+// Every render of one source, offered as the rungs they are. Written out here
+// rather than left to the pipeline because the pipeline never sees this asset —
+// see variants. Sorted so the attribute reads in ladder order whatever order the
+// entry happens to list them in.
+const passthroughSrcset = variants?.length && src
+    ? [...variants, src]
+        .sort((a, b) => a.width - b.width)
+        .map((rung) => `${rung.src} ${rung.width}w`)
+        .join(', ')
     : undefined;
 ---
 

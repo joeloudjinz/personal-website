@@ -122,8 +122,20 @@ const anchored = 'scroll-mt-[var(--anchor-offset)]';
  * wider than its fraction and the capture beside it is narrower than the split
  * says: measured, 341px at 1024 where the fraction gives 444, converging by
  * 1366 and exact from 1440 up. A `sizes` cannot express min-content, so this
- * declares the fraction and is occasionally generous — which costs one rung of
- * the ladder and never costs sharpness. Under-declaring would cost sharpness.
+ * declares the fraction and is occasionally generous. Under-declaring would
+ * cost sharpness; over-declaring costs at most a rung, which is why the hero's
+ * own ladder has a rung in the middle of it.
+ *
+ * The generosity was measured against a tightening rather than assumed harmless,
+ * and the one case where it still changes a pick cannot be tightened out. At
+ * 1280 the capture is drawn 499px, so a DPR-2 screen needs 998 — two pixels
+ * under the 1000 rung. The fraction declares 527 and takes the 1500 instead. A
+ * floor derived from the phrase's own metrics gets that to 1002; the exact
+ * measured floor gets it to 1002 as well. Nothing short of pixel-exact crosses
+ * back under 1000, and nothing about a 1fr track is pixel-exact across projects.
+ * So the pick at that one width belongs to where the rungs are, not to slack
+ * here — and a floor keyed to this entry's heading would silently under-declare
+ * for the next project's, which is the direction that ships soft pictures.
  *
  * Written as calc rather than as one flat number per band because the value
  * follows the viewport between breakpoints, and a flat number would be right at
@@ -140,9 +152,13 @@ const galleryWidth = [
     '(min-width: 768px) calc(100vw - 96px)',
     'calc(100vw - 48px)'
 ].join(', ');
+// 1.08/2.08 to four places. At three it declared 610px where the hero measures
+// 611 — short by less than a pixel, and short is the direction that costs
+// sharpness, so the fraction is written out to more places instead.
+const SPLIT_SHARE = 0.5192;
 const splitWidth = (gap: number) => [
-    `(min-width: 1100px) calc((min(1440px, 100vw) - ${192 + gap}px) * 0.519)`,
-    `(min-width: 1024px) calc((100vw - ${96 + gap}px) * 0.519)`,
+    `(min-width: 1100px) calc((min(1440px, 100vw) - ${192 + gap}px) * ${SPLIT_SHARE})`,
+    `(min-width: 1024px) calc((100vw - ${96 + gap}px) * ${SPLIT_SHARE})`,
     '(min-width: 768px) calc(100vw - 96px)',
     'calc(100vw - 48px)'
 ].join(', ');
@@ -272,7 +288,7 @@ const canonical = `https://${page.data.subdomain}/`;
                 capture lands after the words rather than with them. index.astro's
                 two-column hero solves the identical problem the identical way. */}
             {hero.media && (
-                    <MediaFrame src={hero.media.src} srcHalf={hero.media.srcHalf} alt={hero.media.alt}
+                    <MediaFrame src={hero.media.src} variants={hero.media.variants} alt={hero.media.alt}
                                 widths={captureWidths} sizes={heroWidth} loading='eager'
                                 style='animation: rise-in var(--dur-slow) var(--ease-standard) 400ms backwards;'/>
             )}
