@@ -141,7 +141,17 @@ const projectPages = defineCollection({
     const labelled = (valueMax: number) =>
       z.object({ label: z.string().max(40), value: z.string().max(valueMax) });
     const kicker = z.string().max(44);
-    const media = z.object({ src: image(), alt: z.string() });
+    // A capture and what it says. srcHalf is a second render of the same source at
+    // half the pixels, and exists for one situation: an animated capture never
+    // reaches the image service — one frame is what would come back — so the only
+    // responsive candidates it can offer are files somebody rendered.
+    //
+    // Which means it is read for an animated format and ignored for every other,
+    // and the deciding is MediaFrame's because MediaFrame is where the format is
+    // known. Not enforced here, and not for want of trying: inside a content-layer
+    // schema `image()` has not resolved yet — the value being validated is still
+    // the path, so this file cannot ask what format it turned out to be.
+    const media = z.object({ src: image(), alt: z.string(), srcHalf: image().optional() });
     // Band headings are display type set at one size; past ~60 characters the
     // line count changes and the band's rhythm breaks. hero, why and closing
     // carry their own tighter caps because their headings are shaped differently.

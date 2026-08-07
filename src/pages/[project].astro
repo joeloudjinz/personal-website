@@ -257,7 +257,7 @@ const canonical = `https://${page.data.subdomain}/`;
                 capture lands after the words rather than with them. index.astro's
                 two-column hero solves the identical problem the identical way. */}
             {hero.media && (
-                    <MediaFrame src={hero.media.src} alt={hero.media.alt}
+                    <MediaFrame src={hero.media.src} srcHalf={hero.media.srcHalf} alt={hero.media.alt}
                                 widths={captureWidths} sizes={heroWidth} loading='eager'
                                 style='animation: rise-in var(--dur-slow) var(--ease-standard) 400ms backwards;'/>
             )}

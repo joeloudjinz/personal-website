@@ -17,6 +17,10 @@ hero:
     href: "https://github.com/joeloudjinz/inzsh"
   media:
     src: "../../assets/img/inzsh/showcase.gif"
+    # The same tape at its own pinned size. An animated capture skips the image
+    # pipeline, so this is the smaller candidate a phone is offered — 668 KB
+    # against 1.5 MB. See srcHalf in content.config.ts.
+    srcHalf: "../../assets/img/inzsh/showcase-half.gif"
     alt: "A recording of the InZsh prompt. Coordinates for Mecca are set and a prayer segment appears on the right of the prompt, reading Maghrib 17:50 beside the clock. A directory is created and entered, a repository is opened and its branch shown, a failing command marks the prompt with a cross, then the surface and separator styles change and the prompt is redrawn from the dark sharp preset into the light warm one."
 glance:
   kicker: "At a glance"

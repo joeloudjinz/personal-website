@@ -57,6 +57,18 @@ interface Props {
      */
     widths?: number[];
     sizes?: string;
+    /**
+     * A second render of the same capture at half the pixels, for the formats
+     * the pipeline cannot resize — which today means GIF, for the reason
+     * `unoptimisable` states below.
+     *
+     * An animated capture skips the image service, so `widths` buys it nothing:
+     * the only candidates it can offer are files that already exist. This is the
+     * one its tape produces at its own pinned size, and pairing the two is what
+     * keeps a phone off the 2× recording. Ignored for anything the pipeline
+     * handles, which generates its own ladder from `widths`.
+     */
+    srcHalf?: ImageMetadata;
     loading?: 'lazy' | 'eager';
     class?: string;
     /**
@@ -68,7 +80,7 @@ interface Props {
 }
 
 const {
-    src, alt, width, height, label, description, widths, sizes,
+    src, alt, width, height, label, description, widths, sizes, srcHalf,
     loading = 'lazy', class: className, style
 } = Astro.props;
 
@@ -94,6 +106,12 @@ const unoptimisable = src?.format === 'gif';
 // empties, because an empty array is an error rather than "no srcset".
 const ladder = src && widths ? widths.filter((candidate) => candidate <= src.width) : undefined;
 const responsive = ladder?.length ? {widths: ladder, sizes} : {};
+
+// Two renders of one source, offered as two rungs. Written out here rather than
+// left to the pipeline because the pipeline never sees this asset — see srcHalf.
+const passthroughSrcset = srcHalf && src
+    ? `${srcHalf.src} ${srcHalf.width}w, ${src.src} ${src.width}w`
+    : undefined;
 ---
 
 <div class:list={['media-frame rounded-tile', className]} style={style}>
@@ -104,6 +122,7 @@ const responsive = ladder?.length ? {widths: ladder, sizes} : {};
                        is: they carry the file's own ratio, so the box is
                        reserved before a byte of it loads. */
                     ? <img class='media-shot' src={src.src} width={src.width} height={src.height}
+                           srcset={passthroughSrcset} sizes={passthroughSrcset && sizes}
                            alt={altText} loading={loading} decoding='async'/>
                     /* Everything else goes through the pipeline, which re-encodes
                        to WebP, renders the ladder above into a srcset, and writes
