@@ -1,0 +1,226 @@
+---
+// A rendered terminal capture: prompt markers, success marks, and a copy control.
+//
+// Deliberately dark in BOTH light and dark mode. The rationale from the design
+// handoff is that a terminal capture is an artifact — a photograph of a shell —
+// so it keeps its own register rather than flipping with the page. That is the
+// one place in this codebase where colour does not flow through the semantic
+// aliases; it flows through the BASE ramp tokens instead (--navy-deep,
+// --hair-dark, --cream, --caramel-bright, --sage-bright, --cream-muted), which
+// .theme-dark does not redefine. No raw hex.
+import type {CodeLine} from '@src/content.config';
+
+interface Props {
+    /**
+     * The lines to draw. The shape is the projectPages schema's CodeLine, imported
+     * rather than restated, so a schema change reaches this component as a type
+     * error instead of as a silent mis-render.
+     */
+    lines: CodeLine[];
+    /**
+     * Accessible name for the copy control. The visible label cross-fades between
+     * two words, so the button carries a stable name of its own.
+     */
+    copyLabel?: string;
+    class?: string;
+}
+
+const {lines, copyLabel = 'Copy this code block', class: className} = Astro.props;
+
+/**
+ * A leading check glyph marks a line as a successful result rather than a
+ * command, and is drawn in sage. This is a rendering rule over the text, not a
+ * field: CodeLine carries `prompt` and nothing else, and adding a `success` flag
+ * would make every author of every project page declare it. A capture that
+ * prints "✓ installed" says so in its own text already.
+ */
+const SUCCESS_MARK = /^[✓✔]\s*/;
+
+const rows = lines.map((line) => {
+    const mark = line.text.match(SUCCESS_MARK)?.[0] ?? '';
+    return {prompt: line.prompt, mark, rest: line.text.slice(mark.length)};
+});
+---
+
+<div class:list={['code-block rounded-card', className]} data-code-block>
+    {/* Hidden until the script confirms a usable clipboard, so a reader without
+        JavaScript — or on an insecure origin — is never shown a dead control. */}
+    <button type='button' class='code-copy' data-code-copy hidden aria-label={copyLabel}>
+        <span class='code-copy-face code-copy-idle' aria-hidden='true'>Copy</span>
+        <span class='code-copy-face code-copy-done' aria-hidden='true'>✓ Copied</span>
+    </button>
+    <pre class='code-pre'><code>{rows.map((row) => (
+            <span class='code-line'>{row.prompt && <span class='code-prompt' aria-hidden='true'>{'$ '}</span>}<span class='code-text'>{row.mark && <span class='code-ok'>{row.mark}</span>}{row.rest}</span></span>
+    ))}</code></pre>
+    {/* The visible swap is aria-hidden, so success is announced here instead. */}
+    <span class='sr-only' role='status' data-code-status></span>
+</div>
+
+<style>
+    .code-block {
+        position: relative;
+        background: var(--navy-deep);
+        border: 1px solid var(--hair-dark);
+        padding: 18px 22px;
+    }
+
+    /* white-space is `normal` here and `pre` on each line, NOT `pre` here: the
+       lines are block-level children, so the source formatting of the map above
+       would otherwise print as blank lines between them. */
+    .code-pre {
+        margin: 0;
+        overflow-x: auto;
+        white-space: normal;
+        font-family: var(--font-mono);
+        font-size: 14.5px;
+        line-height: 1.7;
+        color: var(--cream);
+        /* Clears the copy control at the far end of the longest line, so a line
+           scrolled fully right does not end underneath it. */
+        padding-right: 92px;
+    }
+
+    .code-block code {
+        font: inherit;
+        background: none;
+        border: 0;
+        padding: 0;
+    }
+
+    .code-line {
+        display: block;
+        white-space: pre;
+    }
+
+    /* The marker is chrome, not content: it is skipped by the copy handler, kept
+       out of a mouse selection, and hidden from screen readers, so what a reader
+       carries away is the command and nothing else. */
+    .code-prompt {
+        color: var(--caramel-bright);
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    .code-ok {
+        color: var(--sage-bright);
+    }
+
+    .code-copy {
+        position: absolute;
+        top: 18px;
+        right: 22px;
+        /* Both faces occupy one grid cell, so the box is as wide as the wider of
+           the two and cannot resize when they swap. The cross-fade is opacity
+           only — nothing moves. */
+        display: grid;
+        font-family: var(--font-sans);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--cream-muted);
+        cursor: pointer;
+        /* The gradient lets a long line slide under the control instead of
+           colliding with it. */
+        padding-left: 20px;
+        background: linear-gradient(to right, transparent, var(--navy-deep) 20px);
+        transition: color var(--dur-base) var(--ease-standard),
+            transform var(--dur-fast) var(--ease-standard);
+    }
+
+    /* The UA's `[hidden] { display: none }` is a type selector and loses to the
+       class above, which would leave the control visible while JavaScript is off. */
+    .code-copy[hidden] {
+        display: none;
+    }
+
+    .code-copy:hover {
+        color: var(--cream);
+    }
+
+    .code-copy:active {
+        transform: translateY(1px);
+    }
+
+    /* The page's focus ring is the browser default, which is tuned for the page
+       background — this box is dark in both modes, so it states its own. */
+    .code-copy:focus-visible {
+        outline: 2px solid var(--caramel-bright);
+        outline-offset: 3px;
+        border-radius: 6px;
+    }
+
+    .code-copy-face {
+        grid-area: 1 / 1;
+        transition: opacity var(--dur-base) var(--ease-standard);
+    }
+
+    .code-copy-done {
+        color: var(--sage-bright);
+        opacity: 0;
+    }
+
+    .code-copy.is-copied .code-copy-idle {
+        opacity: 0;
+    }
+
+    .code-copy.is-copied .code-copy-done {
+        opacity: 1;
+    }
+</style>
+
+<script>
+    // Bundled, not inline: a page can hold several code blocks and this ships once.
+    // The guard and the astro:page-load hook mirror how the rest of the site binds
+    // behaviour across View Transitions navigations.
+    if (!window.__codeCopyBound) {
+        window.__codeCopyBound = true;
+
+        const REVERT_MS = 1600;
+        const timers = new WeakMap<Element, number>();
+
+        /**
+         * Reveals the copy controls. Clipboard access needs a secure context, so a
+         * page served over plain http gets no button rather than a failing one.
+         */
+        const enableCopy = () => {
+            if (!navigator.clipboard?.writeText) return;
+            document.querySelectorAll('[data-code-copy][hidden]')
+                .forEach((button) => button.removeAttribute('hidden'));
+        };
+
+        document.addEventListener('click', (event) => {
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+            const button = target.closest('[data-code-copy]');
+            const block = button?.closest('[data-code-block]');
+            if (!button || !block) return;
+
+            // Read the text out of the DOM rather than a duplicated data attribute:
+            // one copy of the code in the HTML, and the prompt markers — which live
+            // in their own spans — are left behind, so what lands on the clipboard
+            // is paste-ready.
+            const text = Array.from(block.querySelectorAll('.code-text'))
+                .map((line) => line.textContent ?? '')
+                .join('\n');
+
+            navigator.clipboard.writeText(text).then(() => {
+                button.classList.add('is-copied');
+                const status = block.querySelector('[data-code-status]');
+                if (status) status.textContent = 'Copied to clipboard';
+
+                const pending = timers.get(button);
+                if (pending) clearTimeout(pending);
+                timers.set(button, window.setTimeout(() => {
+                    timers.delete(button);
+                    button.classList.remove('is-copied');
+                    if (status) status.textContent = '';
+                }, REVERT_MS));
+            }).catch(() => {
+                // A denied clipboard permission leaves the label alone; the code is
+                // still selectable by hand.
+            });
+        });
+
+        enableCopy();
+        document.addEventListener('astro:page-load', enableCopy);
+    }
+</script>

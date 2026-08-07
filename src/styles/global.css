@@ -71,6 +71,10 @@
 	/* Type */
 	--font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
 	--font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	/* Monospace is a stack, not a webfont: nothing here is downloaded, so a
+	   terminal capture and a config identifier cost no extra bytes. Shared so the
+	   code block and the knobs table cannot drift onto different mono faces. */
+	--font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
 
 	/* How far an anchor target sits below the viewport top, so the sticky header
 	   does not cover it. Anything that can be jumped to by fragment — article

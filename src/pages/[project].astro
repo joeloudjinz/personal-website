@@ -3,7 +3,7 @@
 // chrome, the canonical, the warm gradient and the band rhythm. What sits inside
 // each band is still scaffolding, replaced by the designed bands later.
 import BaseLayout from '@src/layouts/BaseLayout.astro';
-import type {CodeLine} from '@src/content.config';
+import CodeBlock from '@src/components/CodeBlock.astro';
 import {BAND_ANCHORS, getProjectPages, splitWash, type ProjectPageEntry} from '@src/utils/projectPages';
 
 export async function getStaticPaths() {
@@ -21,9 +21,6 @@ const {page} = Astro.props;
 const {
     hero, glance, why, deepDive, config, steps, gallery, specs, pillars, verification, faq, closing, credit
 } = page.data;
-
-const renderLines = (lines: CodeLine[]) =>
-    lines.map((line) => (line.prompt ? '$ ' : '') + line.text).join('\n');
 
 const heroHeading = splitWash(hero.heading, hero.wash);
 const closingHeading = splitWash(closing.heading, closing.wash);
@@ -87,7 +84,7 @@ const canonical = `https://${page.data.subdomain}/`;
                     <h2>{deepDive.heading}</h2>
                     <p>{deepDive.standfirst}</p>
                     {deepDive.codeLabel && <p>{deepDive.codeLabel}</p>}
-                    {deepDive.code && <pre>{renderLines(deepDive.code)}</pre>}
+                    {deepDive.code && <CodeBlock lines={deepDive.code}/>}
                     {deepDive.rows.map((row) => <p><b>{row.label}</b> {row.value}</p>)}
                 </div>
             </section>
@@ -144,7 +141,7 @@ const canonical = `https://${page.data.subdomain}/`;
                         {steps.items.map((step) => (
                                 <li>
                                     <h3>{step.title}</h3>
-                                    <pre>{renderLines(step.lines)}</pre>
+                                    <CodeBlock lines={step.lines}/>
                                     {step.note && <p>{step.note}</p>}
                                 </li>
                         ))}
