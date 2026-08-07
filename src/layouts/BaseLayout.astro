@@ -59,6 +59,23 @@ const footerProps = Astro.props.chrome === 'subdomain'
 				  publishedTime={publishedTime} modifiedTime={modifiedTime} tags={tags}
 				  canonical={canonical} />
 		<ClientRouter />
+		{/* A chosen theme does not survive the hop to a project page's subdomain,
+			and that is accepted rather than overlooked.
+
+			localStorage is keyed by origin, so a visitor who picked dark on
+			abdellahaddoun.com arrives at inzsh.abdellahaddoun.com with nothing
+			stored. What they get is not a light-mode default — the script below
+			falls back to the OS preference, which for most people who chose dark
+			is dark — so the failure is "the site forgot", not "the site is
+			wrong", and the page's own header carries the switch.
+
+			A cookie on .abdellahaddoun.com would carry the choice across, and it
+			is the only thing that would. It is also a change to the pre-paint
+			script on every page of the site, it makes the theme a request header
+			rather than a client-side fact, and it cannot be tested until the
+			subdomain exists. Not worth spending shared chrome on before there is
+			a second origin to test it against. Revisit when the subdomain is
+			live. */}
 		<script is:inline>
 			// Runs before paint to avoid a light-mode flash; localStorage wins over OS preference.
 			const applyTheme = () => {
