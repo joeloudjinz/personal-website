@@ -64,16 +64,16 @@ deepDive:
       - text: "# standard · shafi · hanafi"
   media:
     src: "../../assets/img/inzsh/shot-salah.png"
-    alt: "A single row of prompt on black, with the prayer times as its subject rather than a detail: joeinz, joeinz-pc, the path ~/work and a branch segment reading main in pink with a mark for uncommitted changes, then the cursor. Ranged right, in segments of their own, Maghrib · 17:50 and the clock at 15:34 — the next prayer and the time it falls, computed on the machine from the Mecca coordinates."
+    alt: "A single row of prompt on black, with the prayer times as its subject rather than a detail: joeinz, joeinz-pc, the path ~/work and a branch segment reading main in pink with a mark for uncommitted changes, then the cursor. Ranged right, in segments of their own, Maghrib · 17:50 and the clock at 15:34: the next prayer and the time it falls, computed on the machine from the Mecca coordinates."
   rows:
     - label: "Methods:"
-      value: "MWL · ISNA · UmmAlQura · Egyptian · Karachi · Algeria — default MWL. Aliases like Makkah, Mecca or Egypt work; case, spacing and punctuation are ignored."
+      value: "MWL · ISNA · UmmAlQura · Egyptian · Karachi · Algeria; default MWL. Aliases like Makkah, Mecca or Egypt work; case, spacing and punctuation are ignored."
     - label: "Asr:"
-      value: "standard · shafi · hanafi — default standard."
+      value: "standard · shafi · hanafi; default standard."
     - label: "High latitudes"
-      value: "‘INZSH_SALAH_HIGHLAT’ takes angle · seventh · middle · none — default angle. It decides what happens at latitudes where the sun never reaches the depression angle and fajr or isha would otherwise not exist; ‘none’ leaves the prayer absent rather than inventing one."
+      value: "‘INZSH_SALAH_HIGHLAT’ takes angle · seventh · middle · none; default angle. It decides what happens at latitudes where the sun never reaches the depression angle and fajr or isha would otherwise not exist; ‘none’ leaves the prayer absent rather than inventing one."
     - label: "Privacy"
-      value: "No telemetry, and no network calls by default. One opt-in exception: ‘INZSH_SALAH_AUTOLOCATE=1’ permits a query to a third-party IP geolocation service — which means your IP is sent to it. Even then, the theme never makes the request on its own; you run ‘inzsh locate’ when you want the stored position refreshed. Set the coordinates manually and none of this applies."
+      value: "No telemetry, and no network calls by default. One opt-in exception: ‘INZSH_SALAH_AUTOLOCATE=1’ permits a query to a third-party IP geolocation service, which means your IP is sent to it. Even then, the theme never makes the request on its own; you run ‘inzsh locate’ when you want the stored position refreshed. Set the coordinates manually and none of this applies."
 config:
   # No kicker: this is the one band the approved design runs without one.
   heading: "Configured, not forked."
@@ -83,7 +83,7 @@ config:
   # rather than tuned, because fitting from real measurements turned out to be
   # simpler and exact. Nothing on this page may claim a feature the docs record
   # as deleted, so this now names the three mechanisms that replaced it.
-  intro: "Every knob is declared — engine and segment knob families, with per-segment overrides. ‘inzsh preset’ switches styles in a running shell, and a narrow pane is fitted by measurement rather than by a named step: the path shortens, blocks drop in priority order, and the right-hand group moves down beside the cursor. The engine knobs:"
+  intro: "Every knob is declared: engine and segment knob families, with per-segment overrides. ‘inzsh preset’ switches styles in a running shell, and a narrow pane is fitted by measurement rather than by a named step: the path shortens, blocks drop in priority order, and the right-hand group moves down beside the cursor. The engine knobs:"
   knobHeaders:
     name: "Knob"
     values: "Values"
@@ -93,7 +93,7 @@ config:
     - name: "INZSH_PRESET"
       values: ["sharp", "warm"]
       fallback: "sharp"
-      effect: "Which register is drawn. Read once, when the theme is sourced — set it in .zshrc above the line that sources the theme."
+      effect: "Which register is drawn. Read once, when the theme is sourced. Set it in .zshrc above the line that sources the theme."
     - name: "INZSH_SURFACE_MODE"
       values: ["alternate", "ramp", "flat", "hue"]
       fallback: "alternate"
