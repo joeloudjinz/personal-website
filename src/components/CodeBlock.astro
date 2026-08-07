@@ -146,8 +146,11 @@ const copyable = rows.some((row) => !row.mark);
             transform var(--dur-fast) var(--ease-standard);
     }
 
-    /* The UA's `[hidden] { display: none }` is a type selector and loses to the
-       class above, which would leave the control visible while JavaScript is off. */
+    /* The UA's own `[hidden] { display: none }` matches this button at the same
+       specificity as the rule above — both are one attribute or class — but it
+       is user-agent origin, so an author declaration beats it whatever the
+       specificity. Without this the control would stay visible while JavaScript
+       is off. Restated here rather than relied on. */
     .code-copy[hidden] {
         display: none;
     }
