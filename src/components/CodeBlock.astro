@@ -18,14 +18,27 @@ interface Props {
      */
     lines: CodeLine[];
     /**
-     * Accessible name for the copy control. The visible label cross-fades between
-     * two words, so the button carries a stable name of its own.
+     * What this block holds, in the author's words — "Clone and install", "Four
+     * values in .zshrc". A page carries several of these controls, and without
+     * something to tell them apart every one of them has the same accessible
+     * name and they are indistinguishable in a screen reader's list of controls.
+     *
+     * The subject rather than the whole name, so the only English is the verb,
+     * which lives here beside the visible label it matches. A caller passing a
+     * heading it already renders adds no new copy to do this.
+     */
+    copyFor?: string;
+    /**
+     * Full override of the copy control's accessible name, for a project that
+     * words its chrome differently. `copyFor` is the usual way in.
      */
     copyLabel?: string;
     class?: string;
 }
 
-const {lines, copyLabel = 'Copy this code block', class: className} = Astro.props;
+const {lines, copyFor, copyLabel, class: className} = Astro.props;
+
+const copyName = copyLabel ?? (copyFor ? `Copy: ${copyFor}` : 'Copy this code block');
 
 /**
  * A leading check glyph marks a line as a successful result rather than a
@@ -53,7 +66,7 @@ const copyable = rows.some((row) => !row.mark);
                 {/* Hidden until the script confirms a usable clipboard, so a reader
                     without JavaScript — or on an insecure origin — is never shown a
                     dead control. */}
-                <button type='button' class='code-copy' data-code-copy hidden aria-label={copyLabel}>
+                <button type='button' class='code-copy' data-code-copy hidden aria-label={copyName}>
                     <span class='code-copy-face code-copy-idle' aria-hidden='true'>Copy</span>
                     <span class='code-copy-face code-copy-done' aria-hidden='true'>✓ Copied</span>
                 </button>
