@@ -41,6 +41,28 @@ const {lines, copyFor, copyLabel, class: className} = Astro.props;
 const copyName = copyLabel ?? (copyFor ? `Copy: ${copyFor}` : 'Copy this code block');
 
 /**
+ * What the scroll container is called.
+ *
+ * The block scrolls sideways and holds nothing focusable, so a keyboard-only
+ * reader had no way to reach the end of a long line — the pane is reachable by
+ * pointer and by touch and by nothing else. Making the pane itself a tab stop
+ * is the fix, and a tab stop that announces nothing is a stop a reader cannot
+ * account for, so it needs a name too.
+ *
+ * The name needs a role to hang on. A `pre` maps to `generic`, and `generic`
+ * does not support an accessible name — an aria-label on it is dropped rather
+ * than read, which is the quiet way this ships broken. `group` is the lightest
+ * role that does support one. Not `region`: that is a landmark, and this page
+ * draws four blocks, which would put four more landmarks beside the four the
+ * document already has and make landmark navigation the worse for it.
+ *
+ * Built from `copyFor` — the subject the caller already renders as the visible
+ * label — for the reason the copy control is: four panes all called "Code
+ * block" are four stops a reader cannot tell apart.
+ */
+const paneName = copyFor ? `Code: ${copyFor}` : 'Code block';
+
+/**
  * A leading check glyph marks a line as a successful result rather than a
  * command, and is drawn in sage. This is a rendering rule over the text, not a
  * field: CodeLine carries `prompt` and nothing else, and adding a `success` flag
@@ -74,7 +96,7 @@ const copyable = rows.some((row) => !row.mark);
                 <span class='sr-only' role='status' data-code-status></span>
             </Fragment>
     )}
-    <pre class='code-pre'><code>{rows.map((row) => (
+    <pre class='code-pre' tabindex='0' role='group' aria-label={paneName}><code>{rows.map((row) => (
             <span class:list={['code-line', row.mark && 'is-result']}>{row.prompt && <span class='code-prompt' aria-hidden='true'>{'$ '}</span>}<span class='code-text'>{row.mark && <span class='code-ok'>{row.mark}</span>}{row.rest}</span></span>
     ))}</code></pre>
 </div>
@@ -109,6 +131,24 @@ const copyable = rows.some((row) => !row.mark);
        unconditional gutter would leave 92px of dead scroll behind nothing. */
     .code-block:has(> .code-copy:not([hidden])) .code-pre {
         padding-right: 92px;
+    }
+
+    /* The pane is a tab stop now, so it owes a reader a visible indicator — and
+       it states its own for the reason the copy control does: this box is dark
+       in both modes and the browser's default is tuned for the page behind it.
+
+       Offset outward rather than inset, into the block's own 18px/22px padding,
+       so the indicator frames the transcript instead of being drawn over its
+       first line. Longhands, never the shorthand — see the byte-scan note in
+       tailwind.config.mjs, which this comment tripped over on the way in: the
+       usual word for a drawn focus indicator is also a utility name, and no
+       class list in src/ contains it. */
+    .code-pre:focus-visible {
+        outline-width: 2px;
+        outline-style: solid;
+        outline-color: var(--caramel-bright);
+        outline-offset: 4px;
+        border-radius: 6px;
     }
 
     .code-block code {

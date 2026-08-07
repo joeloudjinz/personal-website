@@ -28,6 +28,10 @@ export default {
      *            utility. It is named codeBox for that reason.
      *   outline  The `outline: 2px solid …` shorthand in a scoped <style>.
      *            Written as longhands in CodeBlock.astro for that reason.
+     *   ring     The ordinary English word for a drawn focus indicator, in a
+     *            comment in CodeBlock.astro explaining that block's own one.
+     *            Nothing in src/ uses the utility, so it shipped a box-shadow
+     *            rule on every page. The comment says "indicator" now.
      *
      * So the check is not "is this word a utility name?" — it is "does a class
      * list in src/ contain this exact token?". If yes, write it plainly. If no,
