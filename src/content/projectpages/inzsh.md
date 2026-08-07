@@ -4,9 +4,9 @@ subdomain: "inzsh.abdellahaddoun.com"
 projectName: "InZsh"
 hero:
   kicker: "Zsh prompt theme · a Joe Inz project"
-  heading: "InZsh — a prompt that knows the hour."
+  heading: "InZsh: a prompt that knows the hour."
   wash: "knows the hour"
-  promise: "A calm, configurable zsh prompt — built from a design system, with prayer times computed on your machine."
+  promise: "A calm, configurable zsh prompt, built from a design system, with prayer times computed on your machine."
   status: "In progress"
   version: "v0.1.0"
   ctaPrimary:
@@ -48,8 +48,8 @@ why:
   kicker: "Why it exists"
   heading: "Most prompts are palettes. This one is a system."
   paragraphs:
-    - "Most prompt themes are a set of colours that happened to look nice together — and they usually do, on the terminal they were designed in. InZsh starts from the other end: every colour in the prompt is a semantic role from the JoeInz design system, with a contrast ratio that’s verified, not eyeballed."
-    - "The other reason is simpler. I wanted prayer times in my prompt, and no theme does that — not as a plugin calling a web API, and not computed on the machine from coordinates I set once. So I built it."
+    - "Most prompt themes are a set of colours that happened to look nice together, and they usually do, on the terminal they were designed in. InZsh starts from the other end: every colour in the prompt is a semantic role from the JoeInz design system, with a contrast ratio that’s verified, not eyeballed."
+    - "The other reason is simpler. I wanted prayer times in my prompt, and no theme does that: not as a plugin calling a web API, and not computed on the machine from coordinates I set once. So I built it."
 deepDive:
   kicker: "Prayer times · computed locally"
   heading: "Prayer times, in the prompt."
