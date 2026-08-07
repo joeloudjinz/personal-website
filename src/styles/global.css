@@ -200,6 +200,17 @@
 		color: var(--accent);
 	}
 
+	/* The value half of a labelled row: 15.5px on a 1.65 leading, in body ink.
+	   Here rather than scoped inside DefinitionRows for the reason .micro-label
+	   is here — a second place draws it. A project page's configuration band ends
+	   in a note that is a row's value in everything but its label, and it had a
+	   byte-identical copy of these three declarations written inline. */
+	.def-value {
+		font-size: 15.5px;
+		line-height: 1.65;
+		color: var(--text-body);
+	}
+
 	/* Caramel marker wash behind key phrases. Painted by a pseudo-element inset
 	   vertically (em-scaled) so washes on adjacent lines can never overlap.
 	   Washed phrases must not wrap: pair multi-word phrases with whitespace-nowrap. */

@@ -51,13 +51,11 @@ const {items, class: className} = Astro.props;
         color: var(--accent);
     }
 
-    .def-value {
-        font-size: 15.5px;
-        line-height: 1.65;
-        color: var(--text-body);
-    }
+    /* .def-value itself lives in global.css beside .micro-label, and for the same
+       reason: the configuration band's closing note draws the identical treatment
+       without being a row. Nothing about it is scoped to this component.
 
-    /* A 200px label column leaves too little measure for a paragraph-length value
+       A 200px label column leaves too little measure for a paragraph-length value
        on a phone, so the label only moves beside its value once there is room —
        768px, the same breakpoint .shell steps its padding at. */
     @media (min-width: 768px) {
