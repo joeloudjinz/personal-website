@@ -179,8 +179,10 @@ const copyable = rows.some((row) => !row.mark);
     /* The browser's default focus indicator is tuned for the page background;
        this box is dark in both modes, so it states its own.
 
-       Longhands rather than the shorthand — see the byte-scan note in
-       tailwind.config.mjs. */
+       Longhands rather than the shorthand, and measured: the shorthand property
+       name is a token no class list in src/ contains, so writing it here ships a
+       stray rule site-wide. tailwind.config.mjs names it — that file is outside
+       the content glob, so it can afford to. */
     .code-copy:focus-visible {
         outline-width: 2px;
         outline-style: solid;
@@ -232,9 +234,11 @@ const copyable = rows.some((row) => !row.mark);
             const target = event.target;
             if (!(target instanceof Element)) return;
             const button = target.closest('[data-code-copy]');
-            // Named codeBox rather than the obvious noun, which the guard below
-            // would negate into something Tailwind reads as an important-flagged
-            // utility — see the byte-scan note in tailwind.config.mjs.
+            // Named codeBox rather than the obvious noun, and measured: negated
+            // in the guard below, that noun becomes a token no class list in
+            // src/ contains, and ships a stray important-flagged display rule
+            // site-wide. tailwind.config.mjs names it — that file is outside the
+            // content glob, so it can afford to.
             const codeBox = button?.closest('[data-code-block]');
             if (!button || !codeBox) return;
 

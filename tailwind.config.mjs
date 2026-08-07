@@ -2,14 +2,38 @@
 export default {
     darkMode: ['selector', '.theme-dark'],
     /**
-     * Tailwind scans these files as raw bytes. It has no idea what a comment is,
-     * so a bare utility name written as English prose — "blur", "truncate",
-     * "container", "table", "fixed", "grid" — is extracted as a class and its
-     * rule is emitted into the bundle every page loads. Nothing flags it: the
-     * CSS is valid, just dead.
+     * Tailwind scans these files as raw bytes. It has no idea what a comment, a
+     * string or an identifier is, so a token that looks like a utility name is
+     * extracted wherever it appears and its rule is emitted into the bundle every
+     * page loads. Nothing flags it: the CSS is valid, just dead.
      *
-     * When writing a comment in a scanned file, avoid bare utility names or put
-     * them in a form Tailwind will not match (hyphenate, or write `.blur`).
+     * The hazard is narrower than that makes it sound, and stating it precisely
+     * matters, because writing around it costs more readability than it saves
+     * bytes. A plain English word that happens to also be a utility name is
+     * almost always free: sticky, collapse, static, fixed, table, isolate,
+     * truncate, italic, visible, prose, block, flex, grid, container, absolute,
+     * relative, hidden, inline, underline, uppercase, border, shadow, transform,
+     * filter, contents, invisible and resize are all in the bundle already,
+     * emitted from real class lists in index.astro, about.astro, Prose.astro,
+     * KnobsTable.astro and blog markdown. Writing one in a sentence adds nothing.
+     *
+     * What leaks is a token nothing else in src/ uses. Three real cases so far,
+     * all of them a name that no class list contains:
+     *
+     *   top-28   Written bare in a comment in [project].astro. The markup only
+     *            ever uses the lg: prefixed form, so the bare rule shipped on
+     *            every page of the site applying to nothing.
+     *   !block   A local variable named `block`, negated as `if (!block)` in
+     *            CodeBlock.astro's handler. Extracted as an important-flagged
+     *            utility. It is named codeBox for that reason.
+     *   outline  The `outline: 2px solid …` shorthand in a scoped <style>.
+     *            Written as longhands in CodeBlock.astro for that reason.
+     *
+     * So the check is not "is this word a utility name?" — it is "does a class
+     * list in src/ contain this exact token?". If yes, write it plainly. If no,
+     * hyphenate it, rename the identifier, or split the declaration.
+     *
+     * This file is outside the content glob, so the names above cost nothing here.
      */
     content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
     theme: {

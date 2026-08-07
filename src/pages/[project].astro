@@ -78,10 +78,10 @@ const bandInner = 'shell py-[72px]';
 // because 420px of the remaining width would leave the content column narrower
 // than the heading beside it.
 const split = 'grid lg:grid-cols-[420px_1fr] gap-12 lg:gap-20 reveal';
-// Pinned 112px down, matching the sticky header's own clearance elsewhere on the
-// site. The utility's name is deliberately not spelled out in this sentence: a
-// bare one in a comment is extracted and emitted as a real rule — see the
-// byte-scan note in tailwind.config.mjs, and the class list below for the value.
+// lg:top-28 is 112px, matching the sticky header's own clearance elsewhere on
+// the site. Named with its prefix because that is the token the class list uses;
+// the bare form appears in no class list, so writing it here would emit a rule
+// applying to nothing — see the byte-scan note in tailwind.config.mjs.
 const stickyColumn = 'lg:sticky lg:top-28 self-start';
 // A band's own H2: Fraunces 44, one step down before there is room for it.
 const bandHeading = 'font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight';
