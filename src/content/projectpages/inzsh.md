@@ -186,11 +186,11 @@ specs:
     - label: "Requires"
       value: "zsh 5.8+ · a Nerd Font · a supported terminal"
     - label: "Full colour"
-      value: "Ghostty · iTerm2 · kitty · Alacritty · WezTerm — the design target"
+      value: "Ghostty · iTerm2 · kitty · Alacritty · WezTerm (the design target)"
     - label: "256 colours"
-      value: "macOS Terminal.app — palette tuned for it; close, not identical"
+      value: "macOS Terminal.app: palette tuned for it; close, not identical"
     - label: "tmux"
-      value: "Needs RGB passthrough — set -sa terminal-features ',*:RGB'"
+      value: "Needs RGB passthrough: set -sa terminal-features ',*:RGB'"
     - label: "Not supported"
       value: "Linux TTY and other bare consoles"
     - label: "Optional"
@@ -202,13 +202,13 @@ pillars:
   heading: "It stays readable."
   cards:
     - title: "AA, verified."
-      body: "Every foreground/background pairing is checked against WCAG AA — in both presets, at both colour depths."
+      body: "Every foreground/background pairing is checked against WCAG AA, in both presets, at both colour depths."
     - title: "Checked for colour-blindness."
       body: "The palette is run under protanopia, deuteranopia and tritanopia simulation."
     - title: "Never colour alone."
-      body: "No state is signalled by colour only — each one carries a glyph."
+      body: "No state is signalled by colour only; each one carries a glyph."
     - title: "An honest fallback."
-      body: "256-colour terminals get a hand-tuned palette that holds the theme’s shape. It’s close rather than identical — and says so."
+      body: "256-colour terminals get a hand-tuned palette that holds the theme’s shape. It’s close rather than identical, and says so."
 verification:
   kicker: "Verification · 52 spec files"
   heading: "Built not to break."
@@ -225,15 +225,15 @@ verification:
     #
     # The first row was true as written and is untouched.
     - label: "Fixtures"
-      value: "Every still and recording here is rendered from the project’s VHS tapes in the pinned fixture environment — fixed repository, clock and identity — and nothing is hand-edited or cropped."
+      value: "Every still and recording here is rendered from the project’s VHS tapes in the pinned fixture environment (fixed repository, clock and identity), and nothing is hand-edited or cropped."
     - label: "Rebuilding"
-      value: "‘make shots’ and ‘make demo’ rebuild every file on this page from those tapes. ‘SCALE’ renders them larger — the 2× captures here are ‘SCALE=2’."
+      value: "‘make shots’ and ‘make demo’ rebuild every file on this page from those tapes. ‘SCALE’ renders them larger: the 2× captures here are ‘SCALE=2’."
     - label: "Test suites"
-      value: "52 spec files across unit, render, pty terminal-grid, installer and perf-budget suites — plus golden files that fail when the prompt changes shape."
+      value: "52 spec files across unit, render, pty terminal-grid, installer and perf-budget suites, plus golden files that fail when the prompt changes shape."
     - label: "CI"
       value: "Runs on Linux and macOS, against zsh 5.8."
     - label: "Diagnostics"
-      value: "‘inzsh doctor’ prints one diagnostic block — zsh version, terminal, $TERM, colour depth, locale, Nerd Font, tmux — and never prints your coordinates."
+      value: "‘inzsh doctor’ prints one diagnostic block (zsh version, terminal, $TERM, colour depth, locale, Nerd Font, tmux), and never prints your coordinates."
 # <!-- provisional: FAQ answers 2-4 pending rewrite -->
 # Only the first answer is approved copy. Answers 2-4 are placeholders assembled
 # from facts stated elsewhere on this page; the user has deferred rewriting them.
