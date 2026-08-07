@@ -127,7 +127,11 @@ const linkAttrs = (href: string) => {
     <section class='shell pt-[88px] pb-[72px]'>
         <div class:list={['grid gap-12',
                           hero.media && 'lg:grid-cols-[1fr_1.08fr] lg:gap-[72px] items-center']}>
-            <div class:list={['cascade', !hero.media && 'text-center max-w-[900px] mx-auto']}>
+            {/* The 900px measure the design calls for is on the H1, where it was
+                drawn — not here. On the wrapper it silently capped the promise,
+                the badges and the buttons too, which happen to be narrower than
+                900px and so never showed it. */}
+            <div class:list={['cascade', !hero.media && 'text-center']}>
                 <p class='kicker mb-6'>{hero.kicker}</p>
                 {/* text-wrap: balance comes from the base layer, which sets it on
                     every h1 — the centred variant wants it and already has it.
@@ -143,7 +147,8 @@ const linkAttrs = (href: string) => {
                     viewport keeps the phrase inside the shell at every width and
                     still reaches 72px by 848px, which is where the design's
                     two-column widths begin. */}
-                <h1 class='font-display text-[clamp(34px,8.5vw,72px)] font-semibold text-strong tracking-[-0.015em] leading-[1.1] mb-7'>
+                <h1 class:list={['font-display text-[clamp(34px,8.5vw,72px)] font-semibold text-strong tracking-[-0.015em] leading-[1.1] mb-7 max-w-[900px]',
+                                 !hero.media && 'mx-auto']}>
                     {heroHeading
                         ? <>{heroHeading.before}<span
                                 class='marker-wash whitespace-nowrap'>{heroHeading.washed}</span>{heroHeading.after}</>
