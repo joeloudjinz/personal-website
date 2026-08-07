@@ -285,24 +285,53 @@ const linkAttrs = (href: string) =>
 
     {gallery && (
             <section class={band}>
-                <div class={bandInner}>
-                    <p class='kicker'>{gallery.kicker}</p>
-                    <h2>{gallery.heading}</h2>
-                    {gallery.intro && <p>{gallery.intro}</p>}
+                <div class:list={[bandInner, 'reveal']}>
+                    <p class='kicker mb-4'>{gallery.kicker}</p>
+                    <h2 class:list={[bandHeading, 'mb-5']}>{gallery.heading}</h2>
+                    {gallery.intro && <p class:list={[readingCopy, 'max-w-[720px]']}>{gallery.intro}</p>}
                     {gallery.link && (
-                            <a class='arrow-link' href={gallery.link.href}>
+                            <a class='arrow-link inline-block mt-5 text-[15px]' href={gallery.link.href}
+                               {...linkAttrs(gallery.link.href)}>
                                 {gallery.link.label} <span class='arrow'>→</span>
                             </a>
                     )}
-                    {/* No alt: MediaFrame already falls back to the description,
-                        which is this same caption. Everything else comes from the
-                        entry — the label because it is copy, the box because the
-                        placeholder has to reserve the shape the capture will fill. */}
-                    {gallery.items.map((shot) => (
-                            <MediaFrame src={shot.src} label={gallery.pendingLabel}
-                                        description={shot.caption}
-                                        width={shot.width} height={shot.height}/>
-                    ))}
+                    {/* One capture per row, at the full width of the shell. These are
+                        5:1 strips: three across would leave each one 400px wide and
+                        80px tall at the widest viewport, which is a picture of a
+                        terminal nobody can read. A grid is the wrong instrument for
+                        this ratio however many of them there are.
+
+                        The box comes from the entry, because a placeholder has to
+                        reserve the shape its capture will fill or the page jumps
+                        when the asset lands.
+
+                        Once Group E supplies the assets, the layout width these
+                        occupy is the shell's content box: 100vw - 48px below 768,
+                        - 96px below 1100, then min(1440px, 100vw) - 192px, capping
+                        at 1248px. That is the `sizes` a responsive srcset would
+                        need; MediaFrame emits no srcset today, so nothing consumes
+                        it yet. */}
+                    <ol class='mt-10 flex flex-col gap-10'>
+                        {gallery.items.map((shot, index) => (
+                                <li>
+                                    <figure>
+                                        {/* alt is empty by intent, not by omission: the
+                                            caption below is the figure's description and
+                                            is already in the accessibility tree, so a
+                                            copy of it on the image would be read out
+                                            twice. The entry has one string for this
+                                            capture and this is where it belongs. */}
+                                        <MediaFrame src={shot.src} alt='' label={gallery.pendingLabel}
+                                                    width={shot.width} height={shot.height}/>
+                                        <figcaption class='mt-3 flex items-baseline gap-3'>
+                                            <span class='font-display text-[13px] font-semibold text-accent tabular-nums'
+                                                  aria-hidden='true'>{String(index + 1).padStart(2, '0')}</span>
+                                            <span class='text-sm text-muted leading-snug'>{shot.caption}</span>
+                                        </figcaption>
+                                    </figure>
+                                </li>
+                        ))}
+                    </ol>
                 </div>
             </section>
     )}
