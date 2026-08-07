@@ -196,8 +196,16 @@ verification:
   kicker: "Verification · 52 spec files"
   heading: "Built not to break."
   rows:
+    # Two rows rather than one because the claim has two halves and only the first
+    # was ever true as written. Fixtures and no hand-editing hold exactly as stated.
+    # The reproduction recipe did not: ‘make shots’ renders three of these tapes at
+    # their pinned size and ‘make demo’ writes GIFs to demo-out, so neither command
+    # rebuilds a file shipped here — the shipped ones are the same tapes with their
+    # pinned dimensions scaled up. A band about trustworthiness cannot round that off.
     - label: "Fixtures"
-      value: "Every still and recording on this page is generated from fixtures — ‘make shots’ and ‘make demo’ rebuild them. Nothing is hand-edited."
+      value: "Every still and recording here is rendered from the project’s VHS tapes in the pinned fixture environment — fixed repository, clock and identity — and nothing is hand-edited or cropped."
+    - label: "Rebuilding"
+      value: "‘make shots’ and ‘make demo’ rebuild these frames from the same tapes at the tapes’ own pinned size. The files here are those tapes rendered for high-density screens."
     - label: "Test suites"
       value: "52 spec files across unit, render, pty terminal-grid, installer and perf-budget suites — plus golden files that fail when the prompt changes shape."
     - label: "CI"
