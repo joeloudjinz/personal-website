@@ -99,6 +99,13 @@ const projects = defineCollection({
 // One line of a rendered code block. Exported as a type so the render helpers that
 // consume it — the scaffold's renderLines today, Group C's code-block component
 // tomorrow — derive their signature from the schema instead of restating it.
+//
+// `prompt: true` draws a caramel ‘$’ before the line, marking it as something you
+// type. There is no third field for output, because a transcript already says so
+// in its own text: a line whose text OPENS with ✓ or ✔ is drawn as a success mark
+// in sage, and is left out of what the Copy control puts on the clipboard —
+// alongside the ‘$’ markers — so a copied block pastes into a shell and runs.
+// Write the glyph as the first character of `text`; anywhere else it is just text.
 const codeLine = z.object({ prompt: z.boolean().default(false), text: z.string() });
 export type CodeLine = z.infer<typeof codeLine>;
 
