@@ -1,6 +1,13 @@
 ---
 name: "InZsh"
 demoLink: "https://github.com/joeloudjinz/inzsh"
+# The showcase page. Site-relative on purpose: the page is destined for
+# inzsh.abdellahaddoun.com and says so in its canonical, but that host does not
+# exist yet — an absolute link to it would be a dead link on the live site from
+# the moment this ships. The page is built into this site's dist and deployed
+# with it, so /inzsh/ is a real, working page today and stays one after the
+# subdomain lands. Swap this one line for the absolute URL when it does.
+projectPageLink: "/inzsh/"
 isUnderConstruction: true
 isFeatured: true
 version: "0.1.0"

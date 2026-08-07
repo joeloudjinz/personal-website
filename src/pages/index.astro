@@ -10,7 +10,7 @@ import StackLine from '../components/StackLine.astro';
 import ToolboxMarquee from '../components/ToolboxMarquee.astro';
 import ContactBlock from '../components/ContactBlock.astro';
 import {getSortedPosts} from '../utils/posts';
-import {getOrderedProjects} from '../utils/projects';
+import {getOrderedProjects, projectLead} from '../utils/projects';
 import {getExperiences, isCurrentRole, formatExperienceDate} from '../utils/experiences';
 
 // Newest first, current role on top
@@ -128,7 +128,11 @@ const RECOMMENDATIONS_URL = `${LINKEDIN_ACCOUNT}/details/recommendations/`;
                         <div class='cardx cardx-hover p-8'>
                             <div class='flex items-center gap-3 flex-wrap mb-4'>
                                 <h3 class='font-display text-[26px] font-semibold text-strong'>
-                                    <a href={project.data.demoLink} target='_blank' rel={project.data.demoLinkRel}>
+                                    {/* Showcase page when the project has one,
+                                        repository otherwise — the same decision
+                                        the gallery card makes, made in one
+                                        place. See projectLead. */}
+                                    <a {...projectLead(project)} target='_blank'>
                                         {project.data.name}
                                     </a>
                                 </h3>
