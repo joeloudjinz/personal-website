@@ -8,6 +8,7 @@
 // The frame has no ratio of its own. It takes the ratio of the asset that
 // belongs in it — the two captures this site is waiting on are 1000×480 and
 // 1000×200, and a shared 16:10 would letterbox one and crop the other.
+import {Image} from 'astro:assets';
 import type {ImageMetadata} from 'astro';
 
 interface Props {
@@ -35,16 +36,29 @@ interface Props {
 const {src, alt, width, height, label, description, loading = 'lazy', class: className} = Astro.props;
 
 const ratio = !src && width && height ? `${width} / ${height}` : undefined;
+const altText = alt ?? description ?? label;
+
+// Whether this asset has to skip the image pipeline. The service decodes one
+// frame and re-encodes it, so an animated GIF would come out the other side as
+// a still — but that is a fact about GIF, not about "captures". Read off the
+// asset's own metadata rather than assumed for the whole component: of the five
+// captures this page is waiting on, exactly one is a GIF, and the other four
+// would otherwise ship at source size in source format for its sake.
+const unoptimisable = src?.format === 'gif';
 ---
 
 <div class:list={['media-frame rounded-tile', className]}>
     {src
-            /* A plain <img>, not <Image>: these captures include an animated GIF,
-               and the image service re-encodes one to a single still frame. The
-               width and height attributes carry the file's own ratio, so the box
-               is reserved before a byte of it loads. */
-            ? <img class='media-shot' src={src.src} width={src.width} height={src.height}
-                   alt={alt ?? description ?? label} loading={loading} decoding='async'/>
+            ? (unoptimisable
+                    /* Straight through, animation intact. The width and height
+                       attributes are written by hand here because nothing else
+                       is: they carry the file's own ratio, so the box is
+                       reserved before a byte of it loads. */
+                    ? <img class='media-shot' src={src.src} width={src.width} height={src.height}
+                           alt={altText} loading={loading} decoding='async'/>
+                    /* Everything else goes through the pipeline, which re-encodes
+                       to WebP and writes the dimension attributes itself. */
+                    : <Image class='media-shot' src={src} alt={altText} loading={loading}/>)
             : (
                     <Fragment>
                         {/* An empty spacer holds the ratio, rather than the frame
