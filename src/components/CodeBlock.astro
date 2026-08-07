@@ -85,8 +85,16 @@ const copyable = rows.some((row) => !row.mark);
         font-size: 14.5px;
         line-height: 1.7;
         color: var(--cream);
-        /* Clears the copy control at the far end of the longest line, so a line
-           scrolled fully right does not end underneath it. */
+    }
+
+    /* Clears the copy control at the far end of the longest line, so a line
+       scrolled fully right does not end underneath it.
+
+       Conditional on the control actually being rendered, and read off the
+       control's own state rather than a second flag: with JavaScript off — or a
+       block that is all transcript — the button never appears, and an
+       unconditional gutter would leave 92px of dead scroll behind nothing. */
+    .code-block:has(> .code-copy:not([hidden])) .code-pre {
         padding-right: 92px;
     }
 
