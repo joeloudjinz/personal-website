@@ -14,12 +14,12 @@ import BaseLayout from '@src/layouts/BaseLayout.astro';
 import ArrowLink from '@src/components/ArrowLink.astro';
 import BandHeader from '@src/components/BandHeader.astro';
 import CodeBlock from '@src/components/CodeBlock.astro';
+import CtaPair from '@src/components/CtaPair.astro';
 import DefinitionRows from '@src/components/DefinitionRows.astro';
 import FaqDisclosure from '@src/components/FaqDisclosure.astro';
 import KnobsTable from '@src/components/KnobsTable.astro';
 import MediaFrame from '@src/components/MediaFrame.astro';
 import {bandHeading} from '@src/utils/bandStyles';
-import {linkAttrs} from '@src/utils/links';
 import {BAND_ANCHORS, getProjectPages, splitWash, type ProjectPageEntry} from '@src/utils/projectPages';
 
 export async function getStaticPaths() {
@@ -103,8 +103,10 @@ const anchored = 'scroll-mt-[var(--anchor-offset)]';
 // subdomain root — not the /<slug>/ build URL — is the URL it is authoritative at.
 const canonical = `https://${page.data.subdomain}/`;
 
-// The four CTA buttons below still spread linkAttrs by hand; every other authored
-// href on the page goes through ArrowLink, which owns the call. See src/utils/links.ts.
+// No href reaches an <a> from this file. Every authored link goes through
+// ArrowLink or CtaPair, and both call linkAttrs on the way — so "an off-site link
+// opens in a new tab" is a property of the components rather than a rule each
+// call site has to remember. See src/utils/links.ts for what that decides.
 ---
 
 <BaseLayout title={hero.heading} description={hero.promise} gradient='warm'
@@ -189,12 +191,8 @@ const canonical = `https://${page.data.subdomain}/`;
                         template's. See the content/affordance rule in content.config.ts. */}
                     {hero.version && <span class='badge-outline'>{hero.version}</span>}
                 </div>
-                <div class:list={['flex flex-wrap gap-4', !hero.media && 'justify-center']}>
-                    <a class='btn btn-primary btn-lg' href={hero.ctaPrimary.href}
-                       {...linkAttrs(hero.ctaPrimary.href)}>{hero.ctaPrimary.label}</a>
-                    <a class='btn btn-secondary btn-lg' href={hero.ctaSecondary.href}
-                       {...linkAttrs(hero.ctaSecondary.href)}>{hero.ctaSecondary.label}</a>
-                </div>
+                <CtaPair primary={hero.ctaPrimary} secondary={hero.ctaSecondary}
+                         centred={!hero.media}/>
             </div>
             {/* No label: that is MediaFrame's placeholder copy, and a hero media
                 entry carries its src or does not exist, so the placeholder is
@@ -531,12 +529,7 @@ const canonical = `https://${page.data.subdomain}/`;
                     : closing.heading}
             </h2>
             <p class='mt-5 text-base text-muted leading-relaxed max-w-[560px] mx-auto'>{closing.sub}</p>
-            <div class='mt-9 flex flex-wrap justify-center gap-4'>
-                <a class='btn btn-primary btn-lg' href={closing.ctaPrimary.href}
-                   {...linkAttrs(closing.ctaPrimary.href)}>{closing.ctaPrimary.label}</a>
-                <a class='btn btn-secondary btn-lg' href={closing.ctaSecondary.href}
-                   {...linkAttrs(closing.ctaSecondary.href)}>{closing.ctaSecondary.label}</a>
-            </div>
+            <CtaPair primary={closing.ctaPrimary} secondary={closing.ctaSecondary} centred class='mt-9'/>
             {/* .stack-line is already the caramel-middle-dot run at 13px muted, and
                 it paints the dot at the start of each item after the first so a dot
                 can never wrap onto a line by itself. Centring is the only delta. */}
