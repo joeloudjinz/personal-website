@@ -64,7 +64,7 @@ deepDive:
       - text: "# standard · shafi · hanafi"
   media:
     src: "../../assets/img/inzsh/shot-salah.png"
-    alt: "A terminal showing the coordinates being set and the prompt redrawn beneath them. The prompt's right-hand end now reads Maghrib 17:50 next to the clock at 15:34 — the next prayer and the time it falls, computed from the coordinates on the line above."
+    alt: "A single row of prompt on black, with the prayer times as its subject rather than a detail: joeinz, joeinz-pc, the path ~/work and a branch segment reading main in pink with a mark for uncommitted changes, then the cursor. Ranged right, in segments of their own, Maghrib · 17:50 and the clock at 15:34 — the next prayer and the time it falls, computed on the machine from the Mecca coordinates."
   rows:
     - label: "Methods:"
       value: "MWL · ISNA · UmmAlQura · Egyptian · Karachi · Algeria — default MWL. Aliases like Makkah, Mecca or Egypt work; case, spacing and punctuation are ignored."
