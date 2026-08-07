@@ -51,21 +51,37 @@ export function splitWash(heading: string, wash: string): {before: string; washe
 export const BAND_ANCHORS = {steps: 'get-started'} as const satisfies Partial<Record<BandKey, string>>;
 
 /**
- * Walks an entry collecting every {label, href} pair, wherever it sits. A walk
- * rather than a hand-kept list of CTA and link positions: new bands bring their
- * own links, and a list would silently stop covering them.
+ * Depth-first walk of an entry's data, calling `visit` with every object in it
+ * and the dotted path that reaches it.
+ *
+ * A walk rather than a hand-kept list of positions: new bands bring their own
+ * links and their own media, and a list would silently stop covering them.
+ * Shared by the guards below because they look for different shapes in the same
+ * tree, and a second copy of the traversal is a second place for a new band's
+ * nesting to be missed by one of them and not the other.
  */
-function collectHrefs(node: unknown, path: string, found: {path: string; href: string}[]): void {
+function walkObjects(
+  node: unknown,
+  path: string,
+  visit: (record: Record<string, unknown>, path: string) => void
+): void {
   if (Array.isArray(node)) {
-    node.forEach((item, index) => collectHrefs(item, `${path}[${index}]`, found));
+    node.forEach((item, index) => walkObjects(item, `${path}[${index}]`, visit));
     return;
   }
   if (node === null || typeof node !== 'object') return;
   const record = node as Record<string, unknown>;
-  if (typeof record.href === 'string') found.push({path, href: record.href});
+  visit(record, path);
   for (const [key, value] of Object.entries(record)) {
-    collectHrefs(value, path ? `${path}.${key}` : key, found);
+    walkObjects(value, path ? `${path}.${key}` : key, visit);
   }
+}
+
+/** Every {label, href} pair in an entry, wherever it sits. */
+function collectHrefs(data: unknown, found: {path: string; href: string}[]): void {
+  walkObjects(data, '', (record, path) => {
+    if (typeof record.href === 'string') found.push({path, href: record.href});
+  });
 }
 
 /**
@@ -123,7 +139,7 @@ export async function getProjectPages(): Promise<ProjectPageEntry[]> {
         .map(([, anchor]) => anchor)
     );
     const found: {path: string; href: string}[] = [];
-    collectHrefs(page.data, '', found);
+    collectHrefs(page.data, found);
     return found
       .filter(({href}) => href.startsWith('#') && !reachable.has(href.slice(1)))
       .map(({path, href}) => `${page.filePath ?? page.id} → ${path}: "${href}"`);
@@ -133,6 +149,49 @@ export async function getProjectPages(): Promise<ProjectPageEntry[]> {
       `[project-pages] In-page link points at an anchor nothing renders:\n  ${deadAnchors.join('\n  ')}\n` +
       `Anchors come from bands that are present. Add the band, change the href, ` +
       `or register the new anchor in BAND_ANCHORS (src/utils/projectPages.ts).`
+    );
+  }
+
+  /**
+   * `variants` that will never be read.
+   *
+   * They exist for one situation: an animated capture skips the image service —
+   * one frame is what would come back — so the only responsive candidates it can
+   * offer are files somebody rendered by hand. MediaFrame therefore reads them
+   * when the asset is a GIF and ignores them for everything else, which is
+   * correct and is also completely silent. An author who renders three sizes of
+   * a PNG gets no srcset from them, no error, and no way to tell.
+   *
+   * The schema cannot catch this and says so: inside a content-layer schema
+   * `image()` has not resolved, so the value being validated is still a path and
+   * the format is not knowable. Here it is — these entries carry resolved
+   * ImageMetadata — which makes this the first place the question can be asked.
+   *
+   * The condition mirrors MediaFrame's exactly. If that component ever learns a
+   * second animated format, this has to learn it in the same move, or a legal
+   * entry starts failing the build.
+   */
+  const ignoredVariants = pages.flatMap((page) => {
+    const found: string[] = [];
+    walkObjects(page.data, '', (record, path) => {
+      const variants = record.variants;
+      const src = record.src as {format?: string} | undefined;
+      if (!Array.isArray(variants) || variants.length === 0) return;
+      if (!src || typeof src !== 'object' || src.format === 'gif') return;
+      found.push(
+        `${page.filePath ?? page.id} → ${path}: src is ${src.format ?? 'an unknown format'}, ` +
+        `so ${variants.length} hand-rendered variant(s) would be dropped`
+      );
+    });
+    return found;
+  });
+  if (ignoredVariants.length > 0) {
+    throw new Error(
+      `[project-pages] "variants" declared on a capture that does not use them:\n  ` +
+      `${ignoredVariants.join('\n  ')}\n` +
+      `Only an animated capture needs hand-rendered rungs, because it skips the image ` +
+      `service; every other format gets its ladder generated from the "widths" its call ` +
+      `site passes. Remove the variants, or check the asset is the animated one you meant.`
     );
   }
 
