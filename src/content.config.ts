@@ -1,6 +1,7 @@
 import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders'; // Not available with legacy API
 import { PROJECT_PAGES_BASE, PROJECT_PAGES_PATTERN } from './utils/projectPagesSource';
+import { WASH_BUDGET_PX, washFits, washWidthAtFloor } from './utils/washFit';
 
 const blog = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/blog" }),
@@ -145,14 +146,31 @@ const projectPages = defineCollection({
     // line count changes and the band's rhythm breaks. hero, why and closing
     // carry their own tighter caps because their headings are shaped differently.
     const bandHeading = z.string().max(60);
-    // The phrase inside a heading that takes the caramel marker. It must be a
-    // visible phrase: .marker-wash carries padding, so a blank wash renders an
-    // empty span that injects 20px of stray space before the heading. A bare
-    // .min(1) would still let " " through, and "".includes() defeats the
-    // cross-field substring check in getProjectPages().
-    const wash = z.string().refine((value) => value.trim().length > 0, {
-      message: 'wash must contain a visible phrase; a blank wash renders an empty, padded marker span'
-    });
+    // The phrase inside a heading that takes the caramel marker.
+    //
+    // Bounded at both ends. It must be a visible phrase: .marker-wash carries
+    // padding, so a blank wash renders an empty span that injects 20px of stray
+    // space before the heading. A bare .min(1) would still let " " through, and
+    // "".includes() defeats the cross-field substring check in getProjectPages().
+    //
+    // And it must fit the narrowest viewport. The wash is the one string on the
+    // page that cannot wrap, so its width is not something layout can absorb —
+    // see src/utils/washFit.ts, which carries the metrics and the reasoning. The
+    // bound is on rendered width rather than on character count because case
+    // dominates length: "knows the hours" (15) fits and "ZERO OVERHEAD" (13)
+    // overflows by 30px. This is the check that makes "project #2 costs one
+    // markdown file" true of a washed heading.
+    const wash = z.string()
+      .refine((value) => value.trim().length > 0, {
+        message: 'wash must contain a visible phrase; a blank wash renders an empty, padded marker span'
+      })
+      .refine(washFits, (value) => ({
+        message:
+          `wash "${value}" renders ${washWidthAtFloor(value)}px wide at the 30px clamp floor, ` +
+          `over the ${WASH_BUDGET_PX}px a 320px screen leaves it. A washed phrase cannot wrap, ` +
+          `so this runs off the screen rather than reflowing. Shorten it, or move some of the ` +
+          `words out of the wash and into the unwashed part of the heading.`
+      }));
     // heading and wash are siblings, so the substring invariant is an object-level
     // refinement rather than something a caller has to remember to run. Applied
     // here it reports through Astro's frontmatter errors and holds for every

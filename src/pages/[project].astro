@@ -165,11 +165,10 @@ const linkAttrs = (href: string) => {
                     against the 272px content box a 320px screen leaves inside
                     the shell. That is 227px and 309px past the content edge, far
                     enough to scroll the document rather than merely spill into
-                    the gutter. Stepping the size at breakpoints
-                    leaves the widths between them untested; scaling with the
-                    viewport keeps the phrase inside the shell at every width and
-                    still reaches 72px by 848px, which is where the design's
-                    two-column widths begin.
+                    the gutter. Stepping the size at breakpoints leaves the
+                    widths between them untested; scaling with the viewport
+                    reaches 72px by 848px, where the design's two-column widths
+                    begin, and holds every width below it.
 
                     The floor is 30px rather than the 34px Fraunces alone would
                     allow, because Fraunces is not what draws the first paint.
@@ -187,7 +186,17 @@ const linkAttrs = (href: string) => {
                     same phrase at 238px where Georgia needs 285px.
 
                     Below 353px the floor is what applies; above it the viewport
-                    term takes over and the top end is unchanged. */}
+                    term takes over and the top end is unchanged.
+
+                    What the clamp does NOT do is bound the phrase. A font-size
+                    is half the width; the string is the other half, and 30px is
+                    already the smallest the design allows — below it the heading
+                    stops being one. So the floor buys a phrase that fits inside
+                    250px at 30px in Georgia, and nothing wider. That bound is
+                    enforced where the string is authored, not here: see the wash
+                    refinement in content.config.ts and the metrics in
+                    src/utils/washFit.ts. Left to the clamp alone, a legal wash
+                    scrolled the document by 278px at 320px. */}
                 <h1 class:list={['font-display text-[clamp(30px,8.5vw,72px)] font-semibold text-strong tracking-[-0.015em] leading-[1.1] mb-7 max-w-[900px]',
                                  !hero.media && 'mx-auto']}>
                     {heroHeading
@@ -521,15 +530,18 @@ const linkAttrs = (href: string) => {
 
     <section class={band}>
         <div class='shell py-24 text-center reveal'>
-            {/* Same clamp as the hero, one step lower at the top end: the washed
-                phrase cannot wrap, so its width follows the font-size and the
-                narrowest viewport is what sets the floor. The floor is the
-                hero's 30px, and for the hero's reason — it has to hold in the
-                Georgia fallback display=swap paints first, not just in Fraunces.
-                This entry's phrase is nowhere near the edge either way ("system"
-                is 124px in Georgia at 320px, against a 272px content box), but
-                the schema lets a closing heading run to 36 characters and the
-                floor is where that has to be absorbed. */}
+            {/* Same clamp as the hero, one step lower at the top end, and the
+                same 30px floor for the same reason — the washed phrase cannot
+                wrap, so its width follows the font-size, and the size has to
+                hold in the Georgia fallback display=swap paints first rather
+                than only in Fraunces.
+
+                Sharing the floor is what lets the two headings share one bound
+                on their wash: 250px at 30px in Georgia, checked in the schema.
+                The floor cannot absorb an arbitrary phrase and never could — a
+                36-character closing wash, which the heading cap alone permits,
+                scrolled the document by 278px at 320px. This entry's "system" is
+                125px, well inside it. */}
             <h2 class='font-display text-[clamp(30px,7vw,56px)] font-semibold text-strong tracking-[-0.015em] leading-[1.15]'>
                 {closingHeading
                     ? <>{closingHeading.before}<span
