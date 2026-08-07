@@ -225,7 +225,28 @@ const projectPages = defineCollection({
         heading: z.string().max(80),
         wash,
         promise: z.string().max(140),
-        status: z.enum(['Stable', 'In progress', 'Maintained', 'Archived']),
+        // What the status badge reads, verbatim. A bounded string, not an
+        // enum — and the argument is the one made twelve lines below for
+        // `version`, applied to the field it was skipped on.
+        //
+        // It was z.enum(['Stable', 'In progress', 'Maintained', 'Archived']),
+        // which made "Beta", "Alpha", "Release candidate" and "Deprecated"
+        // schema edits. That is the one visitor-facing string on the page that
+        // project #2 could not reword, in a collection whose stated purpose is
+        // that project #2 costs one markdown file. The test in the header —
+        // "would project #2 write it differently?" — has an obvious answer for
+        // a release-stage label, and four English words in a template is
+        // exactly the shape this file exists to keep out.
+        //
+        // Capped where `version` is, because they are drawn as a pair of pills
+        // in one wrapping row and neither should be the one that blows it up.
+        // 20 characters is 'Release candidate' with room to spare, and about
+        // 208px set in the badge's 11px uppercase — inside the 272px a 320px
+        // screen leaves. Non-blank for the reason `wash` is: an empty badge is
+        // a padded pill with nothing in it, and .min(1) alone admits " ".
+        status: z.string().max(20).refine((value) => value.trim().length > 0, {
+          message: 'status must contain a non-blank label; a blank one renders an empty, padded badge'
+        }),
         // What the version badge reads, verbatim — including the leading ‘v’ if
         // the project wants one. Not a bare number with a ‘v’ added by the
         // template: a project that versions as 2024.11 or beta-3 would get
