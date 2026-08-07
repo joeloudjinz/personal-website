@@ -59,7 +59,7 @@ export function readProjectPageSlugs(projectRoot: URL): string[] {
       throw new Error(
         `[project-pages] ${PROJECT_PAGES_BASE}/${entry} has no top-level "slug" field, so its ` +
         `generated URL cannot be excluded from the sitemap. The collection schema requires one — ` +
-        `if it moved or was renamed, update the pattern in src/utils/projectPagesBuild.ts.`
+        `if the directory or the extensions moved, update src/utils/projectPagesSource.ts.`
       );
     }
     return slug;

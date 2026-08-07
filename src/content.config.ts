@@ -121,9 +121,10 @@ const projects = defineCollection({
 // Nested string fields render as PLAIN TEXT, not markdown. Code identifiers are
 // written with ‘single curly quotes’ — the design system has no inline-code
 // treatment and that is the approved rendering. Backticks would render literally.
-// One line of a rendered code block. Exported as a type so the render helpers that
-// consume it — the scaffold's renderLines today, Group C's code-block component
-// tomorrow — derive their signature from the schema instead of restating it.
+// One line of a rendered code block. Exported as a type so the component that
+// draws it — src/components/CodeBlock.astro — derives its prop signature from
+// this schema instead of restating it, and a change here reaches it as a type
+// error rather than as a silent mis-render.
 //
 // `prompt: true` draws a caramel ‘$’ before the line, marking it as something you
 // type. There is no third field for output, because a transcript already says so
@@ -174,9 +175,14 @@ const projectPages = defineCollection({
     // page that cannot wrap, so its width is not something layout can absorb —
     // see src/utils/washFit.ts, which carries the metrics and the reasoning. The
     // bound is on rendered width rather than on character count because case
-    // dominates length: "knows the hours" (15) fits and "ZERO OVERHEAD" (13)
-    // overflows by 30px. This is the check that makes "project #2 costs one
+    // dominates length: "knows the hour" (14) is 240px and fits, and "ZERO
+    // OVERHEAD" — one character shorter — is 291px and overflows the 250px
+    // budget by 41px. This is the check that makes "project #2 costs one
     // markdown file" true of a washed heading.
+    //
+    // Those numbers come from washFit.ts's own table; recompute them there
+    // rather than editing them here. This sentence used to offer "knows the
+    // hours" (15) as the example that fits — it is 255px and fails.
     const wash = z.string()
       .refine((value) => value.trim().length > 0, {
         message: 'wash must contain a non-blank phrase; a blank wash renders an empty, padded marker span'

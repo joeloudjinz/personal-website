@@ -15,9 +15,15 @@
  * document overflow — scrollWidth 598 against a 320px viewport.
  *
  * A character count cannot express this bound, because width follows case far
- * more than length: at the floor, "knows the hours" (15 characters) fits, and
- * "ZERO OVERHEAD" (13) overflows by 30px. So the bound is on width, computed from
- * the metrics below.
+ * more than length. At the floor, and computed from the table below: "knows the
+ * hour" (14 characters) is 240px and fits, while "ZERO OVERHEAD" — one character
+ * SHORTER — is 291px and overflows the 250px budget by 41px. So the bound is on
+ * width, computed from the metrics below.
+ *
+ * Both figures are derived from ADVANCE_GROUPS, not remembered. An earlier
+ * version of this paragraph offered "knows the hours" (15) as the example that
+ * fits; it is 255px and fails, so an author copying it got a build error from
+ * the sentence explaining the rule. Recompute rather than edit these.
  *
  * Scope, stated because it is narrower than it looks: the table covers ASCII
  * letters, digits and the punctuation these headings use. Anything else — an

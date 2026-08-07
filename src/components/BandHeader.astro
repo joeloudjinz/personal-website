@@ -12,12 +12,22 @@
 // put 20px above its link; the FAQ, written with top margins, put 28px above the
 // same thing in the same position.
 //
-// Settled here as: space belongs to the element below it, and there are two
-// gaps. 20px under the kicker and under the heading, because a standfirst
-// continues the sentence the heading started. 28px above the link, because a
-// link is a separate affordance rather than the next line of the paragraph.
+// Settled here as: space belongs to the element below it. Three gaps, widening
+// as the relationship loosens — read the numbers off the markup below, which is
+// where they are, rather than trusting this list:
+//
+//   mt-4, 16px  heading under the kicker. An eyebrow belongs to the heading it
+//               labels, so it sits closest.
+//   mt-5, 20px  standfirst under the heading, because it continues the sentence
+//               the heading started.
+//   mt-7, 28px  link under whatever precedes it, because a link is a separate
+//               affordance rather than the next line of the paragraph.
+//
 // Top margins throughout, so an absent standfirst leaves nothing behind it
 // without a second rule saying so.
+//
+// (This said "two gaps, 20px under the kicker and under the heading" while the
+// markup said mt-4 then mt-5. The markup was right and is what ships.)
 import ArrowLink from '@src/components/ArrowLink.astro';
 import {bandHeading} from '@src/utils/bandStyles';
 
