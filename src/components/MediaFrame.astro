@@ -43,9 +43,18 @@ interface Props {
     description?: string;
     loading?: 'lazy' | 'eager';
     class?: string;
+    /**
+     * Placement and entrance, like `class` — the frame's own look is not the
+     * caller's. The hero uses it for an animation delay, which has to be a value
+     * rather than a class because it is one number at one call site.
+     */
+    style?: string;
 }
 
-const {src, alt, width, height, label, description, loading = 'lazy', class: className} = Astro.props;
+const {
+    src, alt, width, height, label, description, loading = 'lazy',
+    class: className, style
+} = Astro.props;
 
 const ratio = !src && width && height ? `${width} / ${height}` : undefined;
 // Empty string rather than undefined at the end of the chain: an img with no alt
@@ -63,7 +72,7 @@ const altText = alt ?? description ?? label ?? '';
 const unoptimisable = src?.format === 'gif';
 ---
 
-<div class:list={['media-frame rounded-tile', className]}>
+<div class:list={['media-frame rounded-tile', className]} style={style}>
     {src
             ? (unoptimisable
                     /* Straight through, animation intact. The width and height

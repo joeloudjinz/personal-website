@@ -199,9 +199,18 @@ const canonical = `https://${page.data.subdomain}/`;
             {/* No label: that is MediaFrame's placeholder copy, and a hero media
                 entry carries its src or does not exist, so the placeholder is
                 unreachable from here. Eager — this one is above the fold on every
-                viewport. */}
+                viewport.
+
+                The entrance is declared here rather than inherited. .cascade only
+                animates its own children, and this is the cascade's sibling, not
+                one of its five rows — putting it inside would break the nth-child
+                delays the cascade is built on. So it takes the same animation
+                explicitly, at 400ms: one step past the last row's 320ms, so the
+                capture lands after the words rather than with them. index.astro's
+                two-column hero solves the identical problem the identical way. */}
             {hero.media && (
-                    <MediaFrame src={hero.media.src} alt={hero.media.alt} loading='eager'/>
+                    <MediaFrame src={hero.media.src} alt={hero.media.alt} loading='eager'
+                                style='animation: rise-in var(--dur-slow) var(--ease-standard) 400ms backwards;'/>
             )}
         </div>
     </section>
