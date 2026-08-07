@@ -469,7 +469,13 @@ const canonical = `https://${page.data.subdomain}/`;
                                           aria-hidden='true'>{String(index + 1).padStart(2, '0')}</span>
                                     <div class='min-w-0'>
                                         <h3 class='text-base font-semibold text-strong mb-3'>{step.title}</h3>
-                                        <CodeBlock lines={step.lines} copyFor={step.title}/>
+                                        {/* A step need not have anything to type —
+                                            "Download the app" is a step. With no
+                                            block the heading's bottom margin and
+                                            the note's top margin collapse to one
+                                            gap, so the row closes up rather than
+                                            leaving a hole where the block was. */}
+                                        {step.lines && <CodeBlock lines={step.lines} copyFor={step.title}/>}
                                         {step.note && (
                                                 <p class='mt-3 text-sm text-muted leading-relaxed'>{step.note}</p>
                                         )}

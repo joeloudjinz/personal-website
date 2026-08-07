@@ -80,8 +80,19 @@ const rows = lines.map((line) => {
 // A block of nothing but transcript has nothing to paste, so it gets no control
 // rather than one that hands over a shell's own output.
 const copyable = rows.some((row) => !row.mark);
+
+// No lines, no block. The schema requires at least one wherever a block can be
+// authored, so this is the second lock rather than the first — but it is the one
+// that holds for any caller, including a future band that builds `lines` itself.
+//
+// Worth a guard rather than "it renders empty and who cares", because it does
+// not render empty: the frame is 38px of navy with padding and a border, and
+// the pane is a tab stop with an accessible name, so an empty array buys a
+// keyboard user a stop that announces a code block containing nothing.
+const isEmpty = rows.length === 0;
 ---
 
+{!isEmpty && (
 <div class:list={['code-block rounded-card', className]} data-code-block>
     {copyable && (
             <Fragment>
@@ -100,6 +111,7 @@ const copyable = rows.some((row) => !row.mark);
             <span class:list={['code-line', row.mark && 'is-result']}>{row.prompt && <span class='code-prompt' aria-hidden='true'>{'$ '}</span>}<span class='code-text'>{row.mark && <span class='code-ok'>{row.mark}</span>}{row.rest}</span></span>
     ))}</code></pre>
 </div>
+)}
 
 <style>
     .code-block {

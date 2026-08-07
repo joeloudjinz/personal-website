@@ -267,7 +267,12 @@ const projectPages = defineCollection({
           // e.g. "Four values in .zshrc" — drawn above the block, and the
           // subject of its copy control's accessible name.
           label: z.string().max(40),
-          lines: z.array(codeLine)
+          // At least one. `code` as a whole is optional, so a project with
+          // nothing to show omits it; declaring the block and leaving it empty
+          // is the case this rejects. An empty block is not blank — it renders
+          // a bare navy bar and, since the pane is a keyboard tab stop, a stop
+          // that announces "Code: <label>, group" over nothing at all.
+          lines: z.array(codeLine).min(1)
         }).optional(),
         media: media.optional(),
         rows: z.array(labelled(400)).min(2).max(6)
@@ -301,7 +306,19 @@ const projectPages = defineCollection({
         link: link.optional(),
         items: z.array(z.object({
           title: z.string().max(26),
-          lines: z.array(codeLine),
+          // Optional, and at least one line when it is there.
+          //
+          // Optional because "three steps in" is not a CLI-only shape: a step
+          // reading "Download the app" or "Open your first book" has nothing to
+          // type, and a required array made that project write `lines: []` —
+          // which passed the schema, passed every guard, built clean, and drew
+          // an empty navy bar per step with an empty keyboard tab stop in it,
+          // announcing "Code: Download the app, group" over nothing.
+          //
+          // A step with no lines is now a title and its note, which is what
+          // such a step is. CodeBlock refuses an empty array as well, so no
+          // call site can reintroduce the bar by another route.
+          lines: z.array(codeLine).min(1).optional(),
           note: z.string().max(110).optional()
         })).min(2).max(4)
       }).optional(),
