@@ -11,11 +11,13 @@
 // Comments in this file are scanned as raw bytes by Tailwind — see the note in
 // tailwind.config.mjs before writing one.
 import BaseLayout from '@src/layouts/BaseLayout.astro';
+import ArrowLink from '@src/components/ArrowLink.astro';
 import CodeBlock from '@src/components/CodeBlock.astro';
 import DefinitionRows from '@src/components/DefinitionRows.astro';
 import FaqDisclosure from '@src/components/FaqDisclosure.astro';
 import KnobsTable from '@src/components/KnobsTable.astro';
 import MediaFrame from '@src/components/MediaFrame.astro';
+import {linkAttrs} from '@src/utils/links';
 import {BAND_ANCHORS, getProjectPages, splitWash, type ProjectPageEntry} from '@src/utils/projectPages';
 
 export async function getStaticPaths() {
@@ -101,35 +103,8 @@ const anchored = 'scroll-mt-[var(--anchor-offset)]';
 // subdomain root — not the /<slug>/ build URL — is the URL it is authoritative at.
 const canonical = `https://${page.data.subdomain}/`;
 
-/**
- * New-tab attributes for a link that leaves the site.
- *
- * Stated here because nothing else states them: autoNewTabExternalLinks is a
- * rehype plugin, so it rewrites links that came from markdown and never sees an
- * .astro template. Every href on this page is authored data and may point
- * anywhere, so this is the single place that decides "does this link leave the
- * site", for every shape the schema's bare-string href permits:
- *
- *   #get-started        same page      — stays
- *   /about, docs.md     site-relative  — stays
- *   //github.com/foo    off-site       — LEAVES; protocol-relative, and it has
- *                                        no scheme to test for, so a scheme
- *                                        test alone silently keeps it in-tab
- *                                        with no rel= against window.opener
- *   https://github.com  off-site       — leaves
- *   mailto:, tel:       handed off     — stays; the OS takes it, and _blank
- *                                        leaves an empty tab behind
- *
- * So: protocol-relative first, then http(s) only. Any other scheme — mailto,
- * tel, sms — is a handoff, not a navigation, and gets nothing.
- */
-const NEW_TAB = {target: '_blank', rel: 'noopener noreferrer'};
-const linkAttrs = (href: string) => {
-    if (href.startsWith('//')) return NEW_TAB;
-    const scheme = href.match(/^([a-z][a-z0-9+.-]*):/i)?.[1].toLowerCase();
-    if (!scheme) return {};
-    return scheme === 'http' || scheme === 'https' ? NEW_TAB : {};
-};
+// The four CTA buttons below still spread linkAttrs by hand; every other authored
+// href on the page goes through ArrowLink, which owns the call. See src/utils/links.ts.
 ---
 
 <BaseLayout title={hero.heading} description={hero.promise} gradient='warm'
@@ -352,12 +327,7 @@ const linkAttrs = (href: string) => {
                     <p class='text-base text-muted leading-relaxed max-w-[820px] mb-8'>{config.intro}</p>
                     <KnobsTable headers={config.knobHeaders} knobs={config.knobs}/>
                     <p class='mt-6 text-[15.5px] leading-[1.65] text-body max-w-[820px]'>{config.note}</p>
-                    {config.link && (
-                            <a class='arrow-link inline-block mt-5 text-[15px]' href={config.link.href}
-                               {...linkAttrs(config.link.href)}>
-                                {config.link.label} <span class='arrow'>→</span>
-                            </a>
-                    )}
+                    {config.link && <ArrowLink href={config.link.href} label={config.link.label} class='mt-5'/>}
                 </div>
             </section>
     )}
@@ -369,12 +339,7 @@ const linkAttrs = (href: string) => {
                         <p class='kicker mb-4'>{steps.kicker}</p>
                         <h2 class:list={[bandHeading, 'mb-5']}>{steps.heading}</h2>
                         {steps.intro && <p class='text-base text-muted leading-relaxed mb-7'>{steps.intro}</p>}
-                        {steps.link && (
-                                <a class='arrow-link inline-block text-[15px]' href={steps.link.href}
-                                   {...linkAttrs(steps.link.href)}>
-                                    {steps.link.label} <span class='arrow'>→</span>
-                                </a>
-                        )}
+                        {steps.link && <ArrowLink href={steps.link.href} label={steps.link.label}/>}
                     </div>
                     {/* The number beside each step is drawn, so it is hidden from
                         assistive tech and the <ol> is what carries the sequence.
@@ -385,9 +350,10 @@ const linkAttrs = (href: string) => {
                         both roles rather than one. Tailwind's preflight sets
                         list-style:none, which is enough on its own for WebKit to
                         drop the list role; and each row is display:grid for its
-                        number column, which replaces the item's list-item display
-                        and takes the listitem role with it. Between the two, the
-                        drawn "01" is aria-hidden and nothing else says "1 of 3". */}
+                        number column, which overrides the display an <li> has by
+                        default and takes the listitem role with it. Between the
+                        two, the drawn "01" is aria-hidden and nothing is left to
+                        say "1 of 3". */}
                     <ol role='list' class='flex flex-col gap-9'>
                         {steps.items.map((step, index) => (
                                 <li role='listitem' class='grid grid-cols-[56px_1fr] gap-6'>
@@ -413,12 +379,7 @@ const linkAttrs = (href: string) => {
                     <p class='kicker mb-4'>{gallery.kicker}</p>
                     <h2 class:list={[bandHeading, 'mb-5']}>{gallery.heading}</h2>
                     {gallery.intro && <p class:list={[readingCopy, 'max-w-[720px]']}>{gallery.intro}</p>}
-                    {gallery.link && (
-                            <a class='arrow-link inline-block mt-5 text-[15px]' href={gallery.link.href}
-                               {...linkAttrs(gallery.link.href)}>
-                                {gallery.link.label} <span class='arrow'>→</span>
-                            </a>
-                    )}
+                    {gallery.link && <ArrowLink href={gallery.link.href} label={gallery.link.label} class='mt-5'/>}
                     {/* One capture per row, at the full width of the shell. These are
                         5:1 strips: three across would leave each one 400px wide and
                         80px tall at the widest viewport, which is a picture of a
@@ -469,12 +430,7 @@ const linkAttrs = (href: string) => {
                         <p class='kicker mb-4'>{specs.kicker}</p>
                         <h2 class:list={[bandHeading, 'mb-5']}>{specs.heading}</h2>
                         {specs.intro && <p class='text-base text-muted leading-relaxed mb-7'>{specs.intro}</p>}
-                        {specs.link && (
-                                <a class='arrow-link inline-block text-[15px]' href={specs.link.href}
-                                   {...linkAttrs(specs.link.href)}>
-                                    {specs.link.label} <span class='arrow'>→</span>
-                                </a>
-                        )}
+                        {specs.link && <ArrowLink href={specs.link.href} label={specs.link.label}/>}
                     </div>
                     <DefinitionRows items={specs.items}/>
                 </div>
@@ -528,12 +484,7 @@ const linkAttrs = (href: string) => {
                         <p class='kicker mb-4'>{faq.kicker}</p>
                         <h2 class={bandHeading}>{faq.heading}</h2>
                         {faq.intro && <p class='mt-5 text-base text-muted leading-relaxed'>{faq.intro}</p>}
-                        {faq.link && (
-                                <a class='arrow-link inline-block mt-7 text-[15px]' href={faq.link.href}
-                                   {...linkAttrs(faq.link.href)}>
-                                    {faq.link.label} <span class='arrow'>→</span>
-                                </a>
-                        )}
+                        {faq.link && <ArrowLink href={faq.link.href} label={faq.link.label} class='mt-7'/>}
                     </div>
                     {/* Explicit rather than left to the component's default, which
                         happens to be the same: the design asks for the first answer
