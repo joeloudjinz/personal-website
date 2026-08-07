@@ -1,0 +1,196 @@
+---
+// A run of question rows that expand to their answer.
+//
+// Built on native <details>/<summary> rather than on the About page's
+// button + aria-expanded pair. The mechanics are the same shape — a row that
+// grows over 320ms on the standard ease, one row allowed to start open — but the
+// element brings the parts the hand-rolled version has to supply and keep in
+// step: the button role, the expanded state, Enter and Space, and a control that
+// still opens with JavaScript off. The script here adds the travel and nothing
+// else, so with no JavaScript this degrades to a working disclosure that snaps.
+
+interface Props {
+    /** Question/answer pairs, in the projectPages schema's shape. */
+    items: {q: string; a: string}[];
+    /**
+     * Index of the row that starts expanded. Any index outside the list — -1,
+     * say — opens none.
+     */
+    initialOpen?: number;
+    /** Toggle copy. Defaults are the approved wording; a project may reword. */
+    openLabel?: string;
+    closeLabel?: string;
+    class?: string;
+}
+
+const {
+    items, initialOpen = 0, openLabel = 'Read the answer ↓', closeLabel = 'Hide ↑', class: className
+} = Astro.props;
+---
+
+<div class:list={['faq', className]}>
+    {items.map((item, index) => (
+            <details class='faq-item' open={index === initialOpen} data-faq-item>
+                {/* The toggle is aria-hidden so the row's accessible name is the
+                    question alone — <summary> already announces expanded state, and
+                    "Read the answer ↓" repeated into every name would bury it. */}
+                <summary class='faq-summary'>
+                    <span class='faq-question'>{item.q}</span>
+                    <span class='faq-toggle' aria-hidden='true'>
+                        <span class='faq-toggle-open'>{openLabel}</span>
+                        <span class='faq-toggle-close'>{closeLabel}</span>
+                    </span>
+                </summary>
+                {/* The wrapper is the box whose height travels; the padding that
+                    separates answer from question lives inside it, so a collapsed
+                    row measures zero rather than a stubborn 16px. */}
+                <div class='faq-answer-wrap' data-faq-answer>
+                    <p class='faq-answer'>{item.a}</p>
+                </div>
+            </details>
+    ))}
+</div>
+
+<style>
+    .faq-item {
+        border-top: 1px solid var(--hairline);
+        padding: 24px 0;
+    }
+
+    .faq-summary {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 8px 24px;
+        cursor: pointer;
+        /* Both are needed: the first covers Chrome and Firefox, the second Safari. */
+        list-style: none;
+    }
+
+    .faq-summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .faq-summary:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 4px;
+        border-radius: 4px;
+    }
+
+    .faq-question {
+        font-family: var(--font-display);
+        font-size: 21px;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--text-strong);
+    }
+
+    .faq-toggle {
+        margin-left: auto;
+        flex-shrink: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--info);
+        white-space: nowrap;
+        transition: filter var(--dur-base) var(--ease-standard),
+            transform var(--dur-fast) var(--ease-standard);
+    }
+
+    .faq-summary:hover .faq-toggle { filter: brightness(.93); }
+
+    .faq-summary:active .faq-toggle { transform: translateY(1px); }
+
+    .faq-toggle-close { display: none; }
+
+    .faq-item[open] .faq-toggle-open { display: none; }
+
+    .faq-item[open] .faq-toggle-close { display: inline; }
+
+    /* A closing row stays [open] until its height reaches zero, so without this
+       the label would still read "Hide" for the whole 320ms after the reader
+       asked for the opposite. */
+    .faq-item[open][data-state='closing'] .faq-toggle-open { display: inline; }
+
+    .faq-item[open][data-state='closing'] .faq-toggle-close { display: none; }
+
+    .faq-answer-wrap {
+        overflow: hidden;
+    }
+
+    .faq-answer {
+        max-width: 680px;
+        padding-top: 16px;
+        font-size: 15.5px;
+        line-height: 1.65;
+        color: var(--text-body);
+    }
+</style>
+
+<script>
+    // Bundled and bound once, like the code block's copy handler.
+    if (!window.__faqDisclosureBound) {
+        window.__faqDisclosureBound = true;
+
+        const DURATION = 320;
+        const EASING = 'cubic-bezier(.22,.61,.36,1)';
+        const running = new WeakMap<Element, {animation: Animation; opening: boolean}>();
+
+        document.addEventListener('click', (event) => {
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+            const summary = target.closest('summary');
+            const details = summary?.closest<HTMLDetailsElement>('[data-faq-item]');
+            const wrap = details?.querySelector<HTMLElement>('[data-faq-answer]');
+            if (!summary || !details || !wrap) return;
+
+            // The direction the reader is asking for. Mid-travel the `open`
+            // attribute is not the answer: a closing row is still [open], so a
+            // second click would be read as "close again" instead of "reverse".
+            const current = running.get(details);
+            const opening = current ? !current.opening : !details.open;
+
+            const motionless = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                || typeof wrap.animate !== 'function';
+            if (motionless) {
+                current?.animation.cancel();
+                running.delete(details);
+                delete details.dataset.state;
+                return; // let the element toggle itself
+            }
+
+            // Taking over the toggle is what lets the height travel; the element
+            // would otherwise flip `open` and repaint in one frame.
+            event.preventDefault();
+
+            // Where the box is right now. Measured BEFORE the running animation is
+            // cancelled, so a reversal starts from where the reader can see it
+            // rather than from either end.
+            //
+            // A closed row is taken as zero rather than measured. Chrome lays the
+            // answer out behind `content-visibility: hidden` on ::details-content,
+            // so a collapsed wrapper still reports its full height — measured 67px
+            // for a row that paints nothing — and an opening animation would run
+            // from 67px to 67px and never move.
+            const from = details.open ? wrap.getBoundingClientRect().height : 0;
+            current?.animation.cancel();
+
+            if (opening) details.open = true;
+            details.dataset.state = opening ? 'opening' : 'closing';
+
+            const animation = wrap.animate(
+                [{height: `${from}px`}, {height: `${opening ? wrap.scrollHeight : 0}px`}],
+                {duration: DURATION, easing: EASING}
+            );
+            running.set(details, {animation, opening});
+
+            animation.addEventListener('finish', () => {
+                running.delete(details);
+                delete details.dataset.state;
+                // Closing defers this to the end so the answer stays painted for
+                // the whole journey down.
+                if (!opening) details.open = false;
+            });
+        });
+    }
+</script>

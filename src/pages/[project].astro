@@ -5,6 +5,7 @@
 import BaseLayout from '@src/layouts/BaseLayout.astro';
 import CodeBlock from '@src/components/CodeBlock.astro';
 import DefinitionRows from '@src/components/DefinitionRows.astro';
+import FaqDisclosure from '@src/components/FaqDisclosure.astro';
 import KnobsTable from '@src/components/KnobsTable.astro';
 import {BAND_ANCHORS, getProjectPages, splitWash, type ProjectPageEntry} from '@src/utils/projectPages';
 
@@ -196,7 +197,7 @@ const canonical = `https://${page.data.subdomain}/`;
                                 {faq.link.label} <span class='arrow'>→</span>
                             </a>
                     )}
-                    <dl>{faq.items.map((item) => <><dt>{item.q}</dt><dd>{item.a}</dd></>)}</dl>
+                    <FaqDisclosure items={faq.items}/>
                 </div>
             </section>
     )}
