@@ -53,8 +53,15 @@ const ratio = !src && width && height ? `${width} / ${height}` : undefined;
                             5:1 frame with a 140px floor demanded 700px and ran
                             380px off a 320px screen. It also means the frame can
                             grow past the ratio when the label needs more room,
-                            instead of clipping it. */}
-                        <div class='media-ratio' style={`aspect-ratio: ${ratio};`} aria-hidden='true'></div>
+                            instead of clipping it.
+
+                            Rendered only when there is a ratio to hold. Without
+                            the guard the documented "omit both dimensions" path
+                            stringifies undefined into the attribute and ships
+                            `aspect-ratio: undefined` in the HTML — dropped by
+                            every browser as invalid, so it looks fine and is
+                            still an empty element carrying a broken declaration. */}
+                        {ratio && <div class='media-ratio' style={`aspect-ratio: ${ratio};`} aria-hidden='true'></div>}
                         <div class='media-empty'>
                             <p class='kicker'>{label}</p>
                             {description && <p class='media-note'>{description}</p>}
