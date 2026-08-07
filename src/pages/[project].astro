@@ -29,6 +29,17 @@ const {
 const heroHeading = splitWash(hero.heading, hero.wash);
 const closingHeading = splitWash(closing.heading, closing.wash);
 
+/**
+ * What heading level the configuration band takes.
+ *
+ * The design draws it as a subsection rather than a band of its own: no kicker,
+ * a short caramel rule instead, and display type a step down from the other
+ * bands. That is an h3 under the deep dive's h2 — but both bands are optional,
+ * and an h3 with no h2 above it is a hole in the outline rather than a nesting.
+ * So the level follows what is actually on the page.
+ */
+const ConfigHeading = deepDive ? 'h3' : 'h2';
+
 // Section rhythm: every band is full-width so its hairline runs edge to edge,
 // with the 96px side padding coming from .shell inside it. The hero opens the
 // page against the header's own bottom hairline, so only the bands after it
@@ -213,14 +224,21 @@ const linkAttrs = (href: string) =>
 
     {config && (
             <section class={band}>
-                <div class={bandInner}>
-                    {config.kicker && <p class='kicker'>{config.kicker}</p>}
-                    <h2>{config.heading}</h2>
-                    <p>{config.intro}</p>
+                <div class:list={[bandInner, 'reveal']}>
+                    {config.kicker && <p class='kicker mb-4'>{config.kicker}</p>}
+                    {/* A short caramel rule where the other bands carry a kicker.
+                        It is the mark that says "still the same subject", which is
+                        also why the heading is a step down in size and in level. */}
+                    <span class='block w-[34px] h-[3px] bg-accent mb-5' aria-hidden='true'></span>
+                    <ConfigHeading class='font-display text-[34px] font-semibold text-strong leading-tight mb-4'>
+                        {config.heading}
+                    </ConfigHeading>
+                    <p class='text-base text-muted leading-relaxed max-w-[820px] mb-8'>{config.intro}</p>
                     <KnobsTable headers={config.knobHeaders} knobs={config.knobs}/>
-                    <p>{config.note}</p>
+                    <p class='mt-6 text-[15.5px] leading-[1.65] text-body max-w-[820px]'>{config.note}</p>
                     {config.link && (
-                            <a class='arrow-link' href={config.link.href}>
+                            <a class='arrow-link inline-block mt-5 text-[15px]' href={config.link.href}
+                               {...linkAttrs(config.link.href)}>
                                 {config.link.label} <span class='arrow'>→</span>
                             </a>
                     )}
