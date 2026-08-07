@@ -32,7 +32,8 @@ const {lines, copyLabel = 'Copy this code block', class: className} = Astro.prop
  * command, and is drawn in sage. This is a rendering rule over the text, not a
  * field: CodeLine carries `prompt` and nothing else, and adding a `success` flag
  * would make every author of every project page declare it. A capture that
- * prints "✓ installed" says so in its own text already.
+ * prints "✓ installed" says so in its own text already. Documented for authors
+ * beside `codeLine` in content.config.ts.
  */
 const SUCCESS_MARK = /^[✓✔]\s*/;
 
@@ -40,20 +41,29 @@ const rows = lines.map((line) => {
     const mark = line.text.match(SUCCESS_MARK)?.[0] ?? '';
     return {prompt: line.prompt, mark, rest: line.text.slice(mark.length)};
 });
+
+// A block of nothing but transcript has nothing to paste, so it gets no control
+// rather than one that hands over a shell's own output.
+const copyable = rows.some((row) => !row.mark);
 ---
 
 <div class:list={['code-block rounded-card', className]} data-code-block>
-    {/* Hidden until the script confirms a usable clipboard, so a reader without
-        JavaScript — or on an insecure origin — is never shown a dead control. */}
-    <button type='button' class='code-copy' data-code-copy hidden aria-label={copyLabel}>
-        <span class='code-copy-face code-copy-idle' aria-hidden='true'>Copy</span>
-        <span class='code-copy-face code-copy-done' aria-hidden='true'>✓ Copied</span>
-    </button>
+    {copyable && (
+            <Fragment>
+                {/* Hidden until the script confirms a usable clipboard, so a reader
+                    without JavaScript — or on an insecure origin — is never shown a
+                    dead control. */}
+                <button type='button' class='code-copy' data-code-copy hidden aria-label={copyLabel}>
+                    <span class='code-copy-face code-copy-idle' aria-hidden='true'>Copy</span>
+                    <span class='code-copy-face code-copy-done' aria-hidden='true'>✓ Copied</span>
+                </button>
+                {/* The visible swap is aria-hidden, so success is announced here instead. */}
+                <span class='sr-only' role='status' data-code-status></span>
+            </Fragment>
+    )}
     <pre class='code-pre'><code>{rows.map((row) => (
-            <span class='code-line'>{row.prompt && <span class='code-prompt' aria-hidden='true'>{'$ '}</span>}<span class='code-text'>{row.mark && <span class='code-ok'>{row.mark}</span>}{row.rest}</span></span>
+            <span class:list={['code-line', row.mark && 'is-result']}>{row.prompt && <span class='code-prompt' aria-hidden='true'>{'$ '}</span>}<span class='code-text'>{row.mark && <span class='code-ok'>{row.mark}</span>}{row.rest}</span></span>
     ))}</code></pre>
-    {/* The visible swap is aria-hidden, so success is announced here instead. */}
-    <span class='sr-only' role='status' data-code-status></span>
 </div>
 
 <style>
@@ -206,10 +216,15 @@ const rows = lines.map((line) => {
             if (!button || !codeBox) return;
 
             // Read the text out of the DOM rather than a duplicated data attribute:
-            // one copy of the code in the HTML, and the prompt markers — which live
-            // in their own spans — are left behind, so what lands on the clipboard
-            // is paste-ready.
-            const text = Array.from(codeBox.querySelectorAll('.code-text'))
+            // one copy of the code in the HTML.
+            //
+            // What the reader wants is a block that pastes into a shell and runs,
+            // so two things are left behind. The prompt markers, which live in
+            // their own spans. And whole result lines: a line the capture marks
+            // with ✓ is the shell talking back, and pasting "backed up .zshrc"
+            // into a terminal is worse than pasting nothing — it is a command the
+            // shell will try to run.
+            const text = Array.from(codeBox.querySelectorAll('.code-line:not(.is-result) .code-text'))
                 .map((line) => line.textContent ?? '')
                 .join('\n');
 
