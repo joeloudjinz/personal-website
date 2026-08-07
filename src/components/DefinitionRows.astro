@@ -27,12 +27,15 @@ const {items, class: className} = Astro.props;
 </dl>
 
 <style>
+    /* Written narrow-first, like the knobs table and like every other media query
+       in src/, which are all min-width. A single max-width rule mixed in among
+       them leaves an untested band at fractional widths — browser zoom and
+       high-DPI scaling both land the viewport on 767.5px, which satisfies
+       neither `max-width: 767px` nor `min-width: 768px`. */
     .def-row {
         display: grid;
-        grid-template-columns: 200px 1fr;
-        gap: 24px;
+        gap: 6px;
         padding: 16px 0;
-        align-items: baseline;
     }
 
     /* Between rows only: the band above supplies its own edge, so a rule on the
@@ -57,12 +60,14 @@ const {items, class: className} = Astro.props;
         color: var(--text-body);
     }
 
-    /* A 200px label column leaves too little measure for a paragraph-length
-       value on a phone, so the label moves above it. */
-    @media (max-width: 767px) {
+    /* A 200px label column leaves too little measure for a paragraph-length value
+       on a phone, so the label only moves beside its value once there is room —
+       768px, the same breakpoint .shell steps its padding at. */
+    @media (min-width: 768px) {
         .def-row {
-            grid-template-columns: 1fr;
-            gap: 6px;
+            grid-template-columns: 200px 1fr;
+            gap: 24px;
+            align-items: baseline;
         }
     }
 </style>
