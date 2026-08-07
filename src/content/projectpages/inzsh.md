@@ -15,7 +15,9 @@ hero:
   ctaSecondary:
     label: "View the repository"
     href: "https://github.com/joeloudjinz/inzsh"
-  # TODO(Group E): hero.media — showcase.gif (1000 × 480) is not captured yet.
+  media:
+    src: "../../assets/img/inzsh/showcase.gif"
+    alt: "A recording of the InZsh prompt. Coordinates for Mecca are set and a prayer segment appears on the right of the prompt, reading Maghrib 17:50 beside the clock. A directory is created and entered, a repository is opened and its branch shown, a failing command marks the prompt with a cross, then the surface and separator styles change and the prompt is redrawn from the dark sharp preset into the light warm one."
 glance:
   kicker: "At a glance"
   items:
@@ -45,7 +47,9 @@ deepDive:
       - text: "INZSH_SALAH_METHOD=mwl"
       - text: "INZSH_SALAH_ASR=shafi"
       - text: "# standard · shafi · hanafi"
-  # TODO(Group E): deepDive.media — the 1000 × 200 prayer-times capture is not generated yet.
+  media:
+    src: "../../assets/img/inzsh/salah.png"
+    alt: "A terminal showing the coordinates being set and the prompt redrawn beneath them. The prompt's right-hand end now reads Maghrib 17:50 next to the clock at 15:34 — the next prayer and the time it falls, computed from the coordinates on the line above."
   rows:
     - label: "Methods:"
       value: "MWL · ISNA · UmmAlQura · Egyptian · Karachi · Algeria — default MWL. Aliases like Makkah, Mecca or Egypt work; case, spacing and punctuation are ignored."
@@ -129,17 +133,26 @@ gallery:
   heading: "The same prompt, three ways."
   intro: "‘inzsh-sharp’ is the default — dark. ‘inzsh-warm’ is the light one, warmer and more editorial. Both are drawn from the same semantic roles, and ‘INZSH_PRESET’ picks between them when the theme loads."
   pendingLabel: "Capture pending"
-  # TODO(Group E): add src to these three items once the 1000 × 200 captures are
-  # generated from fixtures. The captions are approved copy and ship now, and the
-  # dimensions below are the commissioned size — the placeholders already hold it.
+  # The captures are here, so width and height no longer do anything — the files'
+  # own dimensions take over. They stay as the record of what was commissioned,
+  # which the 2× renders honour exactly: 2000 × 400 is the same 5:1 strip.
+  #
+  # The alts describe the prompt; the captions name which of the three it is. See
+  # the note on alt in content.config.ts for why that is two strings and not one.
   items:
-    - caption: "The sharp preset — dark, full colour."
+    - src: "../../assets/img/inzsh/shot-sharp.png"
+      caption: "The sharp preset — dark, full colour."
+      alt: "A prompt on black, drawn as arrow-tipped segments on dark slate-blue: the user joeinz, the host joeinz-pc, the path ~/work, then a branch segment reading main in pink with a mark for uncommitted changes. Ranged right, in segments of their own, Maghrib 17:50 and the clock at 15:34."
       width: 1000
       height: 200
-    - caption: "The warm preset — light, editorial."
+    - src: "../../assets/img/inzsh/shot-warm.png"
+      caption: "The warm preset — light, editorial."
+      alt: "The same prompt on cream: the same segments in the same order, drawn as sand-coloured blocks with dark brown type, and the branch segment in deep red. Maghrib 17:50 and the clock at 15:34 are ranged right, as before."
       width: 1000
       height: 200
-    - caption: "The 256-colour fallback, as macOS Terminal.app renders it."
+    - src: "../../assets/img/inzsh/shot-256.png"
+      caption: "The 256-colour fallback, as macOS Terminal.app renders it."
+      alt: "The sharp preset again, at 256 colours: the segments, the separators and the prayer times all hold their shape and order, but the greys are flatter and the branch pink and the olive clock sit slightly off the full-colour ones. Close rather than identical."
       width: 1000
       height: 200
 specs:

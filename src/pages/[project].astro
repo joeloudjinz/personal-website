@@ -476,13 +476,22 @@ const canonical = `https://${page.data.subdomain}/`;
                         {gallery.items.map((shot, index) => (
                                 <li>
                                     <figure>
-                                        {/* alt is empty by intent, not by omission: the
-                                            caption below is the figure's description and
-                                            is already in the accessibility tree, so a
-                                            copy of it on the image would be read out
-                                            twice. The entry has one string for this
-                                            capture and this is where it belongs. */}
-                                        <MediaFrame src={shot.src} alt='' label={gallery.pendingLabel}
+                                        {/* Two strings, two jobs. The caption names which
+                                            of the three this is and is read beside the
+                                            image; the alt says what is in it. While there
+                                            was no image the caption was the whole of the
+                                            figure and an empty alt was right — a
+                                            placeholder has nothing to describe. Now that
+                                            the captures are the band's content, an empty
+                                            alt would leave a reader who cannot see them
+                                            told three times that a preset exists and
+                                            never once shown one.
+
+                                            Still empty for an item waiting on its
+                                            capture, which is that placeholder case again;
+                                            the schema requires the alt as soon as there
+                                            is a src to describe. */}
+                                        <MediaFrame src={shot.src} alt={shot.alt ?? ''} label={gallery.pendingLabel}
                                                     width={shot.width} height={shot.height}
                                                     widths={captureWidths} sizes={galleryWidth}/>
                                         <figcaption class='mt-3 flex items-baseline gap-3'>

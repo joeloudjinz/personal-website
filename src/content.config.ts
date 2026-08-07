@@ -305,6 +305,22 @@ const projectPages = defineCollection({
         items: z.array(z.object({
           src: image().optional(),
           caption: z.string().max(70),
+          // What the capture shows, for a reader who cannot see it.
+          //
+          // Separate from the caption because the two do different jobs, and the
+          // difference only became visible once there were captures. A caption
+          // names which of the three this is — "the warm preset, light,
+          // editorial" — and is written to be read beside the image. It says
+          // nothing about the prompt in it, and the prompt is what the band is
+          // about: three captions alone leave a screen-reader user told that
+          // there are three presets and never shown one.
+          //
+          // Optional in the type and required in practice: an item may ship its
+          // caption before its capture exists, and the refinement below is what
+          // stops one arriving without the other. Uncapped, like the alt on
+          // `media` — a description that has to carry a whole terminal line is
+          // not the place to enforce brevity.
+          alt: z.string().optional(),
           // The capture's intended pixel box. Not decoration: with no src the
           // frame reserves exactly this ratio, so the finished asset drops into
           // a box already the right shape and the page does not jump. Declared
@@ -313,6 +329,13 @@ const projectPages = defineCollection({
           // are ignored — they stay as the record of what was commissioned.
           width: z.number().int().positive(),
           height: z.number().int().positive()
+          // An item with a capture carries a description of it. Written as a
+          // refinement rather than by making alt required, because the staging
+          // step this band was built around — captions first, captures later —
+          // is the case where there is nothing yet to describe.
+        }).refine((item) => !item.src || Boolean(item.alt?.trim()), {
+          message: 'a gallery item with a src needs an alt: the caption names the capture, it does not describe it',
+          path: ['alt']
         })).min(2).max(4)
       }).optional(),
       specs: z.object({
