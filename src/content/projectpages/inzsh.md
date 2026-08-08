@@ -170,7 +170,7 @@ steps:
 gallery:
   kicker: "Gallery"
   heading: "The same prompt, three ways."
-  intro: "`inzsh-sharp` is the dark default. `inzsh-warm` is the light one, warmer and more editorial. Both are drawn from the same semantic roles, and `INZSH_PRESET` picks between them when the theme loads."
+  intro: "Two presets, one palette. `sharp` is dark, `warm` is light and a little warmer. The last shot is the same prompt on a terminal limited to 256 colours."
   pendingLabel: "Capture pending"
   # The captures are here, so width and height no longer do anything — the files'
   # own dimensions take over. They stay as the record of what was commissioned,
