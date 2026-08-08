@@ -68,7 +68,9 @@ deepDive:
     alt: "A single row of prompt on black, with the prayer times as its subject rather than a detail: joeinz, joeinz-pc, the path ~/work and a branch segment reading main in pink with a mark for uncommitted changes, then the cursor. Ranged right, in segments of their own, Maghrib · 17:50 and the clock at 15:34: the next prayer and the time it falls, computed on the machine from the Mecca coordinates."
   rows:
     - label: "Methods:"
-      value: "MWL · ISNA · UmmAlQura · Egyptian · Karachi · Algeria; default MWL. Aliases like Makkah, Mecca or Egypt work; case, spacing and punctuation are ignored."
+      value: "`MWL` Muslim World League · `ISNA` Islamic Society of North America · `UmmAlQura` Umm al-Qura University, Makkah · `Egyptian` Egyptian General Authority of Survey · `Karachi` University of Islamic Sciences, Karachi · `Algeria` Ministry of Religious Affairs and Wakfs, Algeria; default `MWL`."
+    - label: "Aliases:"
+      value: "`Makkah`, `Mecca`, `Egypt` and `MuslimWorldLeague` all resolve; matching ignores case, spacing and punctuation."
     - label: "Asr:"
       value: "`standard` · `shafi` · `hanafi`; default `standard`."
     - label: "Two details"

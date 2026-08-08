@@ -323,7 +323,15 @@ const projectPages = defineCollection({
           lines: z.array(codeLine).min(1)
         }).optional(),
         media: media.optional(),
-        rows: z.array(labelled(400)).min(2).max(6),
+        // Eight rather than six. Six was the number the band happened to hold
+        // the day it was written, and it was full — so the first edit that split
+        // one row in two, naming the calculation authorities and moving their
+        // aliases out from under them, was a copy change that failed the build.
+        // A cap the copy reaches on its first rewording is not protecting the
+        // layout; these rows stack, and the eighth costs what the seventh does.
+        // Eight leaves the headroom the split just used up, and stops short of
+        // the dozen that would make this a reference list drawn as a band.
+        rows: z.array(labelled(400)).min(2).max(8),
         // Sources, not further reading. A band that states how something is
         // calculated should say where the definitions came from, and these are
         // the only strings on the page a reader can go and check for themselves.
