@@ -1,5 +1,6 @@
 import type {CollectionEntry} from 'astro:content';
 import {getCollection} from 'astro:content';
+import {NAV_BUDGET_PX, navLabelWidth, navRowFits, navRowWidth} from './navFit';
 
 export type ProjectPageEntry = CollectionEntry<'projectPages'>;
 
@@ -43,12 +44,74 @@ export function splitWash(heading: string, wash: string): {before: string; washe
 }
 
 /**
- * The in-page anchor each optional band renders when it is present, and the only
- * record of which "#href" targets are reachable. Renderers must take their id
- * from here rather than hard-coding it, so that adding a band in a later group
- * registers its anchor in the same move.
+ * Every band that can be jumped to, in the order the page draws them.
+ *
+ * One list doing two jobs, on purpose. It is the order the section nav runs in,
+ * and — through BAND_ANCHORS below — the record of which "#href" targets resolve.
+ * A band added to the page registers its anchor and takes its place in the nav in
+ * the same move, rather than in two moves with one of them forgotten.
+ *
+ * The order is the template's, not this file's: it has to match the order the
+ * bands appear in src/pages/[project].astro, because a nav that lists them in a
+ * different order is a nav that lies about where the reader is going.
  */
-export const BAND_ANCHORS = {steps: 'get-started'} as const satisfies Partial<Record<BandKey, string>>;
+const BAND_ORDER = [
+  'glance', 'why', 'anatomy', 'deepDive', 'config', 'steps',
+  'gallery', 'specs', 'pillars', 'verification', 'faq'
+] as const satisfies readonly BandKey[];
+
+type NavigableBand = (typeof BAND_ORDER)[number];
+
+/**
+ * An anchor that is not what the band key derives to, and why.
+ *
+ * "#get-started" is the fragment the hero and closing CTAs already point at and
+ * the one a link off this site would carry. Deriving "#steps" would be tidier and
+ * would break every one of them.
+ */
+const ANCHOR_OVERRIDES: Partial<Record<NavigableBand, string>> = {steps: 'get-started'};
+
+/** "deepDive" -> "deep-dive". */
+const toAnchor = (band: string) => band.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`);
+
+/**
+ * The in-page anchor each band renders when it is present, and the only record of
+ * which "#href" targets are reachable.
+ *
+ * Renderers must take their id from here rather than hard-coding it, and the ids
+ * are derived from the band key rather than authored, so the two halves cannot
+ * drift: the guard in getProjectPages() rejects an href pointing at an anchor
+ * nothing renders, and it is silent about the opposite — a band emitting an id no
+ * one registered. Deriving both from this list is what closes that side.
+ */
+export const BAND_ANCHORS = Object.fromEntries(
+  BAND_ORDER.map((band) => [band, ANCHOR_OVERRIDES[band] ?? toAnchor(band)])
+) as Record<NavigableBand, string>;
+
+/** One item of the section nav: where it goes and what it reads. */
+export interface PageSection {
+  href: string;
+  label: string;
+}
+
+/**
+ * The section nav for an entry: the bands that are present AND have declared a
+ * short label, in page order.
+ *
+ * The label's absence is the switch. A band that declares one is navigable and a
+ * band that does not is not, so which sections a project offers is authored in
+ * its markdown rather than listed in the template — which is the same rule the
+ * rest of the collection follows, applied to the one thing on the page that is
+ * about the page rather than in it.
+ */
+export function pageSections(data: ProjectPageEntry['data']): PageSection[] {
+  return BAND_ORDER.flatMap((band) => {
+    const value = data[band] as {navLabel?: string} | undefined;
+    return value?.navLabel
+      ? [{href: `#${BAND_ANCHORS[band]}`, label: value.navLabel}]
+      : [];
+  });
+}
 
 /**
  * Depth-first walk of an entry's data, calling `visit` with every object in it
@@ -149,6 +212,36 @@ export async function getProjectPages(): Promise<ProjectPageEntry[]> {
       `[project-pages] In-page link points at an anchor nothing renders:\n  ${deadAnchors.join('\n  ')}\n` +
       `Anchors come from bands that are present. Add the band, change the href, ` +
       `or register the new anchor in BAND_ANCHORS (src/utils/projectPages.ts).`
+    );
+  }
+
+  /**
+   * A section nav wider than the bar it sits in.
+   *
+   * Every item in the subdomain header is as wide as its own text and none of
+   * them reflow, so one label too many does not wrap onto a second line: it
+   * widens the document and the page scrolls sideways. The row is added up
+   * against what the header's centre holds at the width the nav first appears
+   * at — see src/utils/navFit.ts for both numbers and where they were measured.
+   *
+   * Here rather than in the schema because it is a fact about the whole entry:
+   * no single band knows how many of its neighbours also asked to be in the nav.
+   */
+  const overfullNav = pages.flatMap((page) => {
+    const labels = pageSections(page.data).map(({label}) => label);
+    if (navRowFits(labels)) return [];
+    const widest = [...labels].sort((a, b) => navLabelWidth(b) - navLabelWidth(a))[0];
+    return [
+      `${page.filePath ?? page.id}: ${labels.length} section labels render ` +
+      `${Math.round(navRowWidth(labels))}px wide, over the ${NAV_BUDGET_PX}px the header's ` +
+      `centre holds. Drop a "navLabel" — the longest is "${widest}" — or shorten one.`
+    ];
+  });
+  if (overfullNav.length > 0) {
+    throw new Error(
+      `[project-pages] The section nav does not fit the header:\n  ${overfullNav.join('\n  ')}\n` +
+      `A band is in the nav because it declares a "navLabel", so this is a question of ` +
+      `which sections earn a place in the bar, not of making the bar bigger.`
     );
   }
 

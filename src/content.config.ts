@@ -170,6 +170,24 @@ const projectPages = defineCollection({
     const labelled = (valueMax: number) =>
       z.object({ label: z.string().max(40), value: z.string().max(valueMax) });
     const kicker = z.string().max(44);
+    // What this band is called in the page's section nav, when it belongs there.
+    //
+    // Its absence is the switch: a band without one is simply not in the nav, so
+    // which sections a project offers is authored per project rather than listed
+    // in the template. The nav is content in that sense — the second project
+    // navigates to its own bands under its own names — while the control that
+    // scrolls back to the top of the page is an affordance and lives in the
+    // component, which is the same line drawn in the header of this file.
+    //
+    // A nav item and not a heading: "Segments", where the band above it is headed
+    // "What the prompt draws, and in what order". The cap is what says so.
+    //
+    // Fit is a separate question from length and is checked separately. Width
+    // follows case rather than character count, and the row shares one bar with
+    // the logo, the project name, the back link, the social marks and the theme
+    // toggle — so getProjectPages() adds the row up in pixels against what that
+    // bar holds. See src/utils/navFit.ts.
+    const navLabel = z.string().max(14).optional();
     // A capture and what it says. `variants` are further renders of that same
     // capture at smaller sizes, and exist for one situation: an animated capture
     // never reaches the image service — one frame is what would come back — so the
@@ -348,11 +366,13 @@ const projectPages = defineCollection({
         media: media.optional()
       }).refine(washIsInHeading, washIsInHeadingError),
       glance: z.object({
+        navLabel,
         kicker,
         items: z.array(z.object({ value: z.string().max(12), label: z.string().max(60) }))
           .min(3).max(5)
       }).optional(),
       why: z.object({
+        navLabel,
         kicker,
         heading: z.string().max(50),
         paragraphs: z.array(z.string()).min(2).max(3)
@@ -366,6 +386,7 @@ const projectPages = defineCollection({
       // below it. The next project fills it with its own parts, in as many
       // columns as those parts need, and neither has to touch this file.
       anatomy: z.object({
+        navLabel,
         kicker,
         heading: bandHeading,
         intro: z.string(),
@@ -378,6 +399,7 @@ const projectPages = defineCollection({
       // touch this file. Row order is the author's, not a side effect of where
       // the fields happen to sit in the schema.
       deepDive: z.object({
+        navLabel,
         kicker,
         heading: bandHeading,
         standfirst: z.string(),
@@ -419,6 +441,7 @@ const projectPages = defineCollection({
       }).optional(),
       // The one band the approved design runs without a kicker, so kicker is optional here.
       config: z.object({
+        navLabel,
         kicker: kicker.optional(),
         heading: bandHeading,
         intro: z.string(),
@@ -427,6 +450,7 @@ const projectPages = defineCollection({
         link: link.optional()
       }).optional(),
       steps: z.object({
+        navLabel,
         kicker,
         heading: bandHeading,
         intro: z.string().optional(),
@@ -453,6 +477,7 @@ const projectPages = defineCollection({
       // within an item. items itself is not optional: a gallery band with a
       // heading and nothing under it is a mistake, not a staging step.
       gallery: z.object({
+        navLabel,
         kicker,
         heading: bandHeading,
         intro: z.string().optional(),
@@ -500,6 +525,7 @@ const projectPages = defineCollection({
         })).min(2).max(4)
       }).optional(),
       specs: z.object({
+        navLabel,
         kicker,
         heading: bandHeading,
         intro: z.string().optional(),
@@ -509,11 +535,13 @@ const projectPages = defineCollection({
       // Three or four short claims, each a title and a sentence. InZsh uses it for
       // colour accessibility; the role is "the things we promise", not "colour".
       pillars: z.object({
+        navLabel,
         kicker,
         heading: bandHeading,
         cards: z.array(z.object({ title: z.string(), body: z.string() })).min(3).max(4)
       }).optional(),
       verification: z.object({
+        navLabel,
         kicker,
         heading: bandHeading,
         // Six rather than five, for the reason the deep dive's rows went from
@@ -524,6 +552,7 @@ const projectPages = defineCollection({
         rows: z.array(labelled(200)).min(3).max(6)
       }).optional(),
       faq: z.object({
+        navLabel,
         kicker,
         heading: bandHeading,
         intro: z.string().optional(),

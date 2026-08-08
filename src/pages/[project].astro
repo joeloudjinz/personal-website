@@ -95,7 +95,14 @@ const pillarColumns = pillars?.cards.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-
 // with the 96px side padding coming from .shell inside it. The hero opens the
 // page against the header's own bottom hairline, so only the bands after it
 // carry a top rule — which also means an absent optional band leaves no orphan.
-const band = 'border-t border-hairline';
+//
+// Every band carries the anchor clearance rather than only the ones something
+// links to today, because every band carries an id: the ids come from
+// BAND_ANCHORS, which is also what decides whether an "#href" is legal, so a band
+// that renders is a band that can be jumped to. The clearance reads the token
+// shared with article headings rather than restating the number — see
+// --anchor-offset in global.css for what it is made of.
+const band = 'border-t border-hairline scroll-mt-[var(--anchor-offset)]';
 const bandInner = 'shell py-[72px]';
 
 // Five bands share one shape: a 420px heading column beside a longer content
@@ -118,9 +125,6 @@ const configHeading = configIsSubsection
 // Reading copy — the standfirsts and paragraphs a visitor is meant to read
 // through, as opposed to the muted register labels and notes are set in.
 const readingCopy = 'text-[17px] leading-[1.7] text-body';
-// Keeps a jump to #get-started clear of the sticky nav. Shares the token with
-// article headings rather than restating the number — see --anchor-offset.
-const anchored = 'scroll-mt-[var(--anchor-offset)]';
 
 /**
  * How wide each capture is actually drawn, so the browser can pick a file rather
@@ -327,7 +331,7 @@ const canonical = `https://${page.data.subdomain}/`;
     </section>
 
     {glance && (
-            <section class={band}>
+            <section class={band} id={BAND_ANCHORS.glance}>
                 <div class:list={[bandInner, 'reveal']}>
                     <p class='kicker mb-8'>{glance.kicker}</p>
                     {/* Equal columns by flex-1 rather than by a column count, because
@@ -364,7 +368,7 @@ const canonical = `https://${page.data.subdomain}/`;
     )}
 
     {why && (
-            <section class={band}>
+            <section class={band} id={BAND_ANCHORS.why}>
                 <div class:list={[bandInner, split]}>
                     <BandHeader kicker={why.kicker} heading={why.heading} class={stickyColumn}/>
                     {/* --text-body, not muted: this is the band a reader actually
@@ -388,7 +392,7 @@ const canonical = `https://${page.data.subdomain}/`;
         three-part rhythm as that band, too — kicker, heading, intro at the
         reading measure — because they are the same shape of band. */}
     {anatomy && (
-            <section class={band}>
+            <section class={band} id={BAND_ANCHORS.anatomy}>
                 <div class:list={[bandInner, 'reveal']}>
                     <p class='kicker mb-4'>{anatomy.kicker}</p>
                     <h2 class:list={[bandHeading, 'mb-5']}>{anatomy.heading}</h2>
@@ -399,7 +403,7 @@ const canonical = `https://${page.data.subdomain}/`;
     )}
 
     {deepDive && (
-            <section class={band}>
+            <section class={band} id={BAND_ANCHORS.deepDive}>
                 {/* Three stacked parts at a 44px rhythm: the heading block, the
                     code-and-capture pair, and the labelled rows under their own
                     hairline. gap rather than margins, so a part that has no data
@@ -471,7 +475,7 @@ const canonical = `https://${page.data.subdomain}/`;
     )}
 
     {config && (
-            <section class={band}>
+            <section class={band} id={BAND_ANCHORS.config}>
                 <div class:list={[bandInner, 'reveal']}>
                     {/* The rule stands IN PLACE OF a kicker — it is the mark that
                         says "still the same subject", which is also what the
@@ -508,7 +512,7 @@ const canonical = `https://${page.data.subdomain}/`;
     )}
 
     {steps && (
-            <section class:list={[band, anchored]} id={BAND_ANCHORS.steps}>
+            <section class={band} id={BAND_ANCHORS.steps}>
                 <div class:list={[bandInner, split]}>
                     <BandHeader kicker={steps.kicker} heading={steps.heading} intro={steps.intro}
                                 link={steps.link} class={stickyColumn}/>
@@ -551,7 +555,7 @@ const canonical = `https://${page.data.subdomain}/`;
     )}
 
     {gallery && (
-            <section class={band}>
+            <section class={band} id={BAND_ANCHORS.gallery}>
                 <div class:list={[bandInner, 'reveal']}>
                     <p class='kicker mb-4'>{gallery.kicker}</p>
                     <h2 class:list={[bandHeading, 'mb-5']}>{gallery.heading}</h2>
@@ -609,7 +613,7 @@ const canonical = `https://${page.data.subdomain}/`;
     )}
 
     {specs && (
-            <section class={band}>
+            <section class={band} id={BAND_ANCHORS.specs}>
                 <div class:list={[bandInner, split]}>
                     <BandHeader kicker={specs.kicker} heading={specs.heading} intro={specs.intro}
                                 link={specs.link} class={stickyColumn}/>
@@ -619,7 +623,7 @@ const canonical = `https://${page.data.subdomain}/`;
     )}
 
     {pillars && (
-            <section class={band}>
+            <section class={band} id={BAND_ANCHORS.pillars}>
                 <div class:list={[bandInner, 'reveal']}>
                     <p class='kicker mb-4'>{pillars.kicker}</p>
                     <h2 class:list={[bandHeading, 'mb-10']}>{pillars.heading}</h2>
@@ -643,7 +647,7 @@ const canonical = `https://${page.data.subdomain}/`;
     )}
 
     {verification && (
-            <section class={band}>
+            <section class={band} id={BAND_ANCHORS.verification}>
                 <div class:list={[bandInner, split]}>
                     <BandHeader kicker={verification.kicker} heading={verification.heading}
                                 class={stickyColumn}/>
@@ -653,7 +657,7 @@ const canonical = `https://${page.data.subdomain}/`;
     )}
 
     {faq && (
-            <section class={band}>
+            <section class={band} id={BAND_ANCHORS.faq}>
                 <div class:list={[bandInner, split]}>
                     {/* No stickyColumn, unlike the other split bands: rows here grow
                         and collapse under the reader, so a heading pinned beside
