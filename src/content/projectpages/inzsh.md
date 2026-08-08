@@ -46,10 +46,11 @@ glance:
       label: "Dependencies beyond zsh itself"
 why:
   kicker: "Why it exists"
-  heading: "Most prompts are palettes. This one is a system."
+  heading: "Three things I wanted from a prompt."
   paragraphs:
-    - "Most prompt themes are a set of colours that happened to look nice together, and they usually do, on the terminal they were designed in. InZsh starts from the other end: every colour in the prompt is a semantic role from the JoeInz design system, with a contrast ratio that’s verified, not eyeballed."
-    - "The other reason is simpler. I wanted prayer times in my prompt, and no theme does that: not as a plugin calling a web API, and not computed on the machine from coordinates I set once. So I built it."
+    - "I wanted prayer times in my prompt. Not fetched from a web service, just worked out on my own machine from coordinates I set once. That’s where this started."
+    - "Two other things came with it. Every colour in the prompt has a defined job and a contrast ratio that was measured rather than eyeballed, so it holds up on screens I’ve never seen. And every setting declares the values it accepts and what it falls back to, so a typo quietly degrades the prompt instead of breaking it."
+    - "That last part is the one I care about most. The knobs are the architecture rather than a layer on top, so whatever comes next should arrive as new settings rather than a rewrite."
 deepDive:
   kicker: "Prayer times · computed locally"
   heading: "Prayer times, in the prompt."
