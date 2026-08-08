@@ -93,13 +93,12 @@ deepDive:
 config:
   # No kicker: this is the one band the approved design runs without one.
   heading: "Configured, not forked."
-  # "a narrow-terminal mode" was the earlier wording, and the product's own
-  # configuration reference says the named steps it describes — full, wide,
-  # narrow, minimal, behind three INZSH_LADDER_*_COLS variables — were removed
-  # rather than tuned, because fitting from real measurements turned out to be
-  # simpler and exact. Nothing on this page may claim a feature the docs record
-  # as deleted, so this now names the three mechanisms that replaced it.
-  intro: "Every knob is declared: engine and segment knob families, with per-segment overrides. `inzsh preset` switches styles in a running shell, and a narrow pane is fitted by measurement rather than by a named step: the path shortens, blocks drop in priority order, and the right-hand group moves down beside the cursor. The engine knobs:"
+  # Do not describe narrow panes as a "mode" or a named size here. The product's
+  # configuration reference records that the named steps (full, wide, narrow,
+  # minimal, behind three INZSH_LADDER_*_COLS variables) were removed rather than
+  # tuned, because fitting from real measurements turned out simpler and exact.
+  # Nothing on this page may claim a feature the docs record as deleted.
+  intro: "Nothing here needs a fork. Every setting declares what it takes, segments can be overridden individually, and `inzsh preset` changes the look without restarting your shell. The engine knobs:"
   knobHeaders:
     name: "Knob"
     values: "Values"
@@ -134,7 +133,7 @@ config:
       values: ["1–60"]
       fallback: "2"
       effect: "Seconds before the git call is killed."
-  note: "Every knob declares its accepted values and its fallback. An unreadable value falls back rather than breaking the prompt."
+  note: "Every knob states what it accepts and where it lands if you get it wrong. A bad value falls back instead of breaking your prompt."
   link:
     label: "The configuration reference"
     href: "https://github.com/joeloudjinz/inzsh/blob/dev/docs/configuration.md"
@@ -156,7 +155,7 @@ steps:
     - title: "Pick a preset"
       lines:
         - text: "INZSH_PRESET=warm"
-      note: "In .zshrc, above the line that sources the theme: it’s read when the theme loads. The default is `sharp`."
+      note: "Goes in .zshrc, above the line that sources the theme. It’s only read at load, so below won’t take."
     - title: "Optional: prayer times"
       lines:
         - text: "INZSH_SALAH_LAT=21.4225"
