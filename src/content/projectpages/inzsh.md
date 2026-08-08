@@ -334,8 +334,22 @@ faq:
       a: "The installer is reversible: `--uninstall` takes everything back out. Your .zshrc was backed up at install time."
     - q: "Why do the colours look wrong in tmux?"
       a: "tmux needs RGB passthrough: `set -sa terminal-features ',*:RGB'`."
+    # Approved copy, and deliberately the one entry here that admits a defect.
+    # The terminals named as unaffected were each checked; do not add one to that
+    # list without checking it, and do not describe INZSH_RESIZE_REFLOW as a fix.
+    # It is arithmetic that should handle the re-wrap and has not been verified.
+    - q: "Why does resizing VS Code leave copies of my prompt behind?"
+      a: "Some terminals re-wrap the rows already on screen when the pane changes width, and every one of those events leaves another copy of the prompt behind. That is xterm.js, which means VS Code and Hyper. Native terminals are unaffected: the case was fixed and verified on Ghostty, Terminal.app, kitty, iTerm2, Alacritty and WezTerm. Two ways round it in the meantime. `INZSH_RESIZE_REFLOW=1` turns on arithmetic that should handle the re-wrap, though that path is unverified. `INZSH_RESIZE=0` turns the redraw off altogether, which leaves one stale prompt until your next Enter rather than a column of them. Tracked as issue #215, and written up on the project’s limitations page."
+    # The sample line is the shape doctor really prints, down to the spacing and
+    # the middle dots. The rejected value in it is NOT the one pasted from a real
+    # run, and the swap is not cosmetic. Tailwind scans this file as raw bytes and
+    # splits a candidate at "=", and the value from that run is also the name of a
+    # border-radius utility — so the line as pasted put a live radius rule into the
+    # bundle all 36 pages load, measured. "arrows" is the same kind of typo of the
+    # same setting, is rejected the same way, and names no utility. Check any
+    # replacement against the note in tailwind.config.mjs before editing this line.
     - q: "What is `inzsh doctor` for?"
-      a: "Two things. It prints one diagnostic block: zsh version, terminal, `$TERM`, colour depth, locale, Nerd Font, tmux. And it lists every setting you have typed that the theme is ignoring, with what that setting actually accepts, a line each: `ignored INZSH_SEPARATOR_STYLE=rounded - accepts arrow · round · divider`. That second half is the other side of a bad value falling back instead of breaking your prompt. The fallback keeps you working; this is how you find out one happened. Nothing is printed when everything is valid. It never prints your coordinates, so the block stays safe to paste into a public issue."
+      a: "Two things. It prints one diagnostic block: zsh version, terminal, `$TERM`, colour depth, locale, Nerd Font, tmux. And it lists every setting you have typed that the theme is ignoring, with what that setting actually accepts, a line each: `ignored INZSH_SEPARATOR_STYLE=arrows - accepts arrow · round · divider`. That second half is the other side of a bad value falling back instead of breaking your prompt. The fallback keeps you working; this is how you find out one happened. Nothing is printed when everything is valid. It never prints your coordinates, so the block stays safe to paste into a public issue."
 closing:
   heading: "Give your prompt a system."
   wash: "system"
