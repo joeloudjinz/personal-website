@@ -20,4 +20,5 @@ interface ImportMeta {
 interface Window {
   __codeCopyBound?: boolean;
   __faqDisclosureBound?: boolean;
+  __scrollTopBound?: boolean;
 }

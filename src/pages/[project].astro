@@ -40,6 +40,7 @@ import DataTable from '@src/components/DataTable.astro';
 import DefinitionRows from '@src/components/DefinitionRows.astro';
 import FaqDisclosure from '@src/components/FaqDisclosure.astro';
 import MediaFrame from '@src/components/MediaFrame.astro';
+import ScrollTop from '@src/components/ScrollTop.astro';
 import {bandHeading} from '@src/utils/bandStyles';
 import {
     BAND_ANCHORS, getProjectPages, pageSections, splitWash, type ProjectPageEntry
@@ -712,4 +713,10 @@ const canonical = `https://${page.data.subdomain}/`;
             )}
         </div>
     </section>
+
+    {/* Last in the document, which is also where it belongs in the tab order: a
+        reader who has tabbed to the end of thirteen bands is exactly who wants
+        the way back. It draws itself against the viewport rather than here, and
+        only once the reader is a screen down. */}
+    <ScrollTop/>
 </BaseLayout>
