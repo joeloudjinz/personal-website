@@ -8,6 +8,14 @@
 // step: the button role, the expanded state, Enter and Space, and a control that
 // still opens with JavaScript off. The script here adds the travel and nothing
 // else, so with no JavaScript this degrades to a working disclosure that snaps.
+//
+// Both halves of a row go through CodeSpans, the question as well as the answer:
+// "What is `inzsh doctor` for?" is the shape a question about a command takes,
+// and a mark the answer honours and the question prints raw would be a bug the
+// author finds only in the built page. The question's accessible name survives
+// it — a <code> inside the summary is text content, so the row still announces
+// the sentence and not the markup.
+import CodeSpans from '@src/components/CodeSpans.astro';
 
 interface Props {
     /** Question/answer pairs, in the projectPages schema's shape. */
@@ -38,7 +46,7 @@ const CLOSE_LABEL = 'Hide ↑';
                     question alone — <summary> already announces expanded state, and
                     "Read the answer ↓" repeated into every name would bury it. */}
                 <summary class='faq-summary'>
-                    <span class='faq-question'>{item.q}</span>
+                    <span class='faq-question'><CodeSpans text={item.q}/></span>
                     <span class='faq-toggle' aria-hidden='true'>
                         <span class='faq-toggle-open'>{OPEN_LABEL}</span>
                         <span class='faq-toggle-close'>{CLOSE_LABEL}</span>
@@ -48,7 +56,7 @@ const CLOSE_LABEL = 'Hide ↑';
                     separates answer from question lives inside it, so a collapsed
                     row measures zero rather than a stubborn 16px. */}
                 <div class='faq-answer-wrap' data-faq-answer>
-                    <p class='faq-answer'>{item.a}</p>
+                    <p class='faq-answer'><CodeSpans text={item.a}/></p>
                 </div>
             </details>
     ))}

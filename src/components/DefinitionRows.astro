@@ -3,6 +3,13 @@
 // hairline between each. Three bands of a project page are shaped this way —
 // the deep dive's notes, the specs list, the verification list — so the
 // component is the pattern, not any one of them.
+//
+// A row's value is a whole sentence often enough that it is one of the places
+// the entry marks a command or a variable name, so the value goes through
+// CodeSpans. The label does not: it is set in the 11px small-caps micro-label
+// treatment, where a monospace run would read as a broken letterspacing rather
+// than as code, and a label is a heading for the row, not a place to type in.
+import CodeSpans from '@src/components/CodeSpans.astro';
 
 interface Props {
     /**
@@ -21,7 +28,7 @@ const {items, class: className} = Astro.props;
     {items.map((item) => (
             <div class='def-row'>
                 <dt class='def-label micro-label'>{item.label}</dt>
-                <dd class='def-value'>{item.value}</dd>
+                <dd class='def-value'><CodeSpans text={item.value}/></dd>
             </div>
     ))}
 </dl>

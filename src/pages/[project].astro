@@ -10,10 +10,31 @@
 //
 // Comments in this file are scanned as raw bytes by Tailwind — see the note in
 // tailwind.config.mjs before writing one.
+//
+// WHICH STRINGS GO THROUGH CodeSpans, so it is one decision rather than a
+// judgement call per band. Every authored string that is READING COPY does:
+// the hero's promise, a glance fact's label, the why paragraphs, the deep dive's
+// standfirst, the configuration intro and its closing note, a step's note, the
+// gallery's intro and its captions, an assurance card's body, the closing
+// sub-line — plus the values, answers, questions and effect cells the band
+// components draw, each of which says so at its own file. An identifier can turn
+// up in any of them, and a mark that is honoured in five places and printed raw
+// in the sixth is a defect the author meets in the built page.
+//
+// What does NOT: the registers where a monospace run would be wrong whatever it
+// said. Display type — the headings, an assurance card's title, a step's title,
+// a glance fact's 34px value. Small caps — every kicker, the code block's label,
+// the knob column headers. Pills and chips — the status and version badges, the
+// closing facts. And chrome, meaning any string that names a control rather than
+// telling the reader something: CTA labels, link labels, the gallery's
+// placeholder. Two more are structural: the hero and closing headings are split
+// around their wash before they are drawn, and alt text is an attribute, which
+// is a string and cannot hold an element.
 import BaseLayout from '@src/layouts/BaseLayout.astro';
 import ArrowLink from '@src/components/ArrowLink.astro';
 import BandHeader from '@src/components/BandHeader.astro';
 import CodeBlock from '@src/components/CodeBlock.astro';
+import CodeSpans from '@src/components/CodeSpans.astro';
 import CtaPair from '@src/components/CtaPair.astro';
 import DefinitionRows from '@src/components/DefinitionRows.astro';
 import FaqDisclosure from '@src/components/FaqDisclosure.astro';
@@ -273,7 +294,7 @@ const canonical = `https://${page.data.subdomain}/`;
                 </h1>
                 <p class:list={['text-[21px] text-muted leading-relaxed mb-8',
                                 hero.media ? 'max-w-[560px]' : 'max-w-[640px] mx-auto']}>
-                    {hero.promise}
+                    <CodeSpans text={hero.promise}/>
                 </p>
                 <div class:list={['flex flex-wrap items-center gap-3 mb-8', !hero.media && 'justify-center']}>
                     <span class='badge-accent'>{hero.status}</span>
@@ -333,7 +354,7 @@ const canonical = `https://${page.data.subdomain}/`;
                                     <p class='font-display text-[34px] font-semibold text-strong leading-tight'>
                                         {item.value}
                                     </p>
-                                    <p class='mt-2 text-sm text-muted leading-snug'>{item.label}</p>
+                                    <p class='mt-2 text-sm text-muted leading-snug'><CodeSpans text={item.label}/></p>
                                 </li>
                         ))}
                     </ul>
@@ -348,7 +369,9 @@ const canonical = `https://${page.data.subdomain}/`;
                     {/* --text-body, not muted: this is the band a reader actually
                         reads, and the muted ramp is for labels beside a value. */}
                     <div class='max-w-[720px] flex flex-col gap-6'>
-                        {why.paragraphs.map((paragraph) => <p class={readingCopy}>{paragraph}</p>)}
+                        {why.paragraphs.map((paragraph) => (
+                                <p class={readingCopy}><CodeSpans text={paragraph}/></p>
+                        ))}
                     </div>
                 </div>
             </section>
@@ -364,7 +387,7 @@ const canonical = `https://${page.data.subdomain}/`;
                     <div>
                         <p class='kicker mb-4'>{deepDive.kicker}</p>
                         <h2 class:list={[bandHeading, 'mb-5']}>{deepDive.heading}</h2>
-                        <p class:list={[readingCopy, 'max-w-[720px]']}>{deepDive.standfirst}</p>
+                        <p class:list={[readingCopy, 'max-w-[720px]']}><CodeSpans text={deepDive.standfirst}/></p>
                     </div>
 
                     {/* The pair splits into two columns only when both halves have
@@ -451,13 +474,13 @@ const canonical = `https://${page.data.subdomain}/`;
                         constant. It had been set in the muted 820px register the
                         split bands use for the column BESIDE their content, which
                         made this the one place on the page where the two crossed. */}
-                    <p class:list={[readingCopy, 'max-w-[720px] mb-8']}>{config.intro}</p>
+                    <p class:list={[readingCopy, 'max-w-[720px] mb-8']}><CodeSpans text={config.intro}/></p>
                     <KnobsTable headers={config.knobHeaders} knobs={config.knobs}/>
                     {/* The note is a labelled row's value in everything but its
                         label — same register, same 15.5/1.65 — so it takes the
                         class DefinitionRows already owns rather than restating the
                         numbers inline and drifting from them. */}
-                    <p class='def-value mt-6 max-w-[820px]'>{config.note}</p>
+                    <p class='def-value mt-6 max-w-[820px]'><CodeSpans text={config.note}/></p>
                     {config.link && <ArrowLink href={config.link.href} label={config.link.label} class='mt-5'/>}
                 </div>
             </section>
@@ -496,7 +519,7 @@ const canonical = `https://${page.data.subdomain}/`;
                                             leaving a hole where the block was. */}
                                         {step.lines && <CodeBlock lines={step.lines} copyFor={step.title}/>}
                                         {step.note && (
-                                                <p class='mt-3 text-sm text-muted leading-relaxed'>{step.note}</p>
+                                                <p class='mt-3 text-sm text-muted leading-relaxed'><CodeSpans text={step.note}/></p>
                                         )}
                                     </div>
                                 </li>
@@ -511,7 +534,7 @@ const canonical = `https://${page.data.subdomain}/`;
                 <div class:list={[bandInner, 'reveal']}>
                     <p class='kicker mb-4'>{gallery.kicker}</p>
                     <h2 class:list={[bandHeading, 'mb-5']}>{gallery.heading}</h2>
-                    {gallery.intro && <p class:list={[readingCopy, 'max-w-[720px]']}>{gallery.intro}</p>}
+                    {gallery.intro && <p class:list={[readingCopy, 'max-w-[720px]']}><CodeSpans text={gallery.intro}/></p>}
                     {gallery.link && <ArrowLink href={gallery.link.href} label={gallery.link.label} class='mt-5'/>}
                     {/* One capture per row, at the full width of the shell. These are
                         5:1 strips: three across would leave each one 400px wide and
@@ -554,7 +577,7 @@ const canonical = `https://${page.data.subdomain}/`;
                                         <figcaption class='mt-3 flex items-baseline gap-3'>
                                             <span class='font-display text-[13px] font-semibold text-accent tabular-nums'
                                                   aria-hidden='true'>{String(index + 1).padStart(2, '0')}</span>
-                                            <span class='text-sm text-muted leading-snug'>{shot.caption}</span>
+                                            <span class='text-sm text-muted leading-snug'><CodeSpans text={shot.caption}/></span>
                                         </figcaption>
                                     </figure>
                                 </li>
@@ -590,7 +613,7 @@ const canonical = `https://${page.data.subdomain}/`;
                                     <h3 class='font-display text-[22px] font-semibold text-strong leading-tight mb-3'>
                                         {card.title}
                                     </h3>
-                                    <p class='text-[14.5px] leading-relaxed text-muted'>{card.body}</p>
+                                    <p class='text-[14.5px] leading-relaxed text-muted'><CodeSpans text={card.body}/></p>
                                 </div>
                         ))}
                     </div>
@@ -645,7 +668,7 @@ const canonical = `https://${page.data.subdomain}/`;
                             class='marker-wash whitespace-nowrap'>{closingHeading.washed}</span>{closingHeading.after}</>
                     : closing.heading}
             </h2>
-            <p class='mt-5 text-base text-muted leading-relaxed max-w-[560px] mx-auto'>{closing.sub}</p>
+            <p class='mt-5 text-base text-muted leading-relaxed max-w-[560px] mx-auto'><CodeSpans text={closing.sub}/></p>
             <CtaPair primary={closing.ctaPrimary} secondary={closing.ctaSecondary} centred class='mt-9'/>
             {/* .stack-line is already the caramel-middle-dot run at 13px muted, and
                 it paints the dot at the start of each item after the first so a dot

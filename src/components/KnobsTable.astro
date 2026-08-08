@@ -6,6 +6,13 @@
 //
 // Column headers are data, never constants: "fallback" prints as "Default" for
 // this project and as something else for the next one.
+//
+// The effect column is the one cell here that holds a sentence, so it is the one
+// that goes through CodeSpans. The other three are already drawn in the mono
+// face by .knob-name, .knob-values and .knob-fallback — a knob's name and the
+// values it accepts are nothing but code, so the column marks them wholesale and
+// an author marking them again would be marking a mark.
+import CodeSpans from '@src/components/CodeSpans.astro';
 
 interface Props {
     /**
@@ -71,7 +78,7 @@ const columns = [headers.name, headers.values, headers.fallback, headers.effect]
                     </td>
                     <td role='cell'>
                         <span class='cell-label micro-label' aria-hidden='true'>{headers.effect}</span>
-                        <span class='knob-effect'>{knob.effect}</span>
+                        <span class='knob-effect'><CodeSpans text={knob.effect}/></span>
                     </td>
                 </tr>
         ))}

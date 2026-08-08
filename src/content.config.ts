@@ -118,9 +118,30 @@ const projects = defineCollection({
 // The test is not "is it English?" — it is "would project #2 write it
 // differently?". If yes, it is a field. If no, it is the component's.
 //
-// Nested string fields render as PLAIN TEXT, not markdown. Code identifiers are
-// written with ‘single curly quotes’ — the design system has no inline-code
-// treatment and that is the approved rendering. Backticks would render literally.
+// Nested string fields render as PLAIN TEXT, not markdown, with exactly one mark
+// read out of them: a run between backticks is drawn as code. `INZSH_PRESET`,
+// `inzsh locate`, `--uninstall`. That is src/components/CodeSpans.astro, and the
+// marks pair off left to right, so a lone backtick prints as itself rather than
+// eating the rest of the sentence. Nothing else is interpreted: an asterisk is
+// an asterisk and a bracket is a bracket, because the fields here are copy with
+// character caps on them, not documents.
+//
+// The mark is read in every field that is READING COPY — the row values, the
+// answers and questions, the notes, the intros, the paragraphs, the standfirsts,
+// the captions, the effect cells. It is NOT read in the registers where a
+// monospace run would be wrong whatever it said: display type, small caps, a
+// pill, or the text of a control. A backtick authored in one of those prints as
+// a backtick, which is the page telling the author the field is the wrong one.
+// The full list, and the reasoning, is at the top of src/pages/[project].astro.
+//
+// This used to be ‘single curly quotes’, which is what an author reaches for
+// when the design system has no treatment to reach for; there is one now.
+//
+// One convention on top of the mark: a file name in a sentence stays unmarked.
+// It is a thing being named rather than a thing being typed, and one field
+// settles the case anyway — deepDive.code.label is both the on-screen label and
+// the accessible name of that block's copy control, so a mark in it would be
+// spoken aloud rather than drawn.
 // One line of a rendered code block. Exported as a type so the component that
 // draws it — src/components/CodeBlock.astro — derives its prop signature from
 // this schema instead of restating it, and a change here reaches it as a type

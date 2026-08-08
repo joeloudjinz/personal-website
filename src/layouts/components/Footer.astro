@@ -1,5 +1,6 @@
 ---
 import Byline from '@src/components/Byline.astro';
+import CodeSpans from '@src/components/CodeSpans.astro';
 import SocialLinks from '@src/components/SocialLinks.astro';
 import {FULL_NAME, mainSite, NICKNAME} from '../../consts';
 
@@ -12,10 +13,15 @@ import {FULL_NAME, mainSite, NICKNAME} from '../../consts';
  * two independent optionals would let `<Footer variant='site' credit='…'/>`
  * typecheck and silently drop the line.
  *
- * `credit` is the attribution a project owes to prior art — plain text, the
- * projectPages schema's `credit` field. It sits above the signature row so it
- * reads as a note about the project rather than site boilerplate, and is
- * omitted entirely when the project has nothing to credit.
+ * `credit` is the attribution a project owes to prior art — the projectPages
+ * schema's `credit` field. It sits above the signature row so it reads as a note
+ * about the project rather than site boilerplate, and is omitted entirely when
+ * the project has nothing to credit.
+ *
+ * It is a sentence of the project's own copy, and prior art is regularly a
+ * command or a package rather than a person, so it is drawn through CodeSpans
+ * like every other reading string on a project page. The site variant never has
+ * one, so nothing changes for the 35 pages that render this footer without it.
  */
 type Props =
     | {variant?: 'site'; credit?: never}
@@ -31,7 +37,7 @@ const year = new Date().getFullYear();
 
 <footer class='border-t border-hairline'>
     <div class:list={['shell', isSubdomain ? 'pt-8 pb-10' : 'py-8']}>
-        {credit && <p class='text-[13px] text-muted max-w-[760px]'>{credit}</p>}
+        {credit && <p class='text-[13px] text-muted max-w-[760px]'><CodeSpans text={credit}/></p>}
 
         <div class:list={['flex flex-col sm:flex-row items-center justify-between gap-5', credit && 'mt-6']}>
             <Byline/>
