@@ -51,6 +51,39 @@ why:
     - "I wanted prayer times in my prompt. Not fetched from a web service, just worked out on my own machine from coordinates I set once. That’s where this started."
     - "Two other things came with it. Every colour in the prompt has a defined job and a contrast ratio that was measured rather than eyeballed, so it holds up on screens I’ve never seen. And every setting declares the values it accepts and what it falls back to, so a typo quietly degrades the prompt instead of breaking it."
     - "That last part is the one I care about most. The knobs are the architecture rather than a layer on top, so whatever comes next should arrive as new settings rather than a rewrite."
+anatomy:
+  kicker: "Segments · left, right, hidden"
+  heading: "What the prompt draws, and in what order."
+  # Ranks are written with a real minus, not a hyphen, for the reason the ranges
+  # in the configuration band use a real en dash.
+  intro: "One integer settles both questions about a segment. A positive rank puts it on the left, ascending from the left edge; a negative rank puts it on the right, running inward from the right edge. A rank of `0` ships the segment hidden, and it appears the moment you give it one: the rows reading hidden below are the ones sitting at `0`. Every segment then takes its own overrides, `INZSH_<SEGMENT>_RANK`, `_PRIORITY` (what is dropped first as the window narrows, which is a separate question from rank), `_BG`, `_FG` and `_MINCOLS`."
+  table:
+    columns:
+      - label: "Segment"
+        kind: tokens
+        tone: strong
+        width: 150
+      - label: "Rank"
+        kind: tokens
+        tone: muted
+        width: 90
+      - label: "What it shows"
+        kind: sentence
+        tone: muted
+    rows:
+      - cells: ["root", "10", "That you are root."]
+      - cells: ["user", "20", "Your username."]
+      - cells: ["host", "30", "The hostname."]
+      - cells: ["dir", "40", "The working directory, truncated to fit."]
+      - cells: ["git", "50", "The branch, or the commit when you are detached, a glyph for the state (clean, dirty, staged, detached) and how far ahead or behind you are. Worked out by a background worker, never on the render path."]
+      - cells: ["venv", "60", "The active Python virtualenv."]
+      - cells: ["retval", "70", "The exit status of the last command, with a glyph. It reads pipelines, and it names signals."]
+      - cells: ["time", "−10", "The clock."]
+      - cells: ["salah", "−20", "The next prayer and the time it falls."]
+      - cells: ["ssh", "hidden", "That you are on a remote session."]
+      - cells: ["jobs", "hidden", "Background jobs this shell is holding."]
+      - cells: ["duration", "hidden", "How long the last command took, once it passes a threshold; `3` seconds by default."]
+      - cells: ["date", "hidden", "The calendar day, as opposed to the time of day."]
 deepDive:
   kicker: "Prayer times · computed locally"
   heading: "Prayer times, in the prompt."

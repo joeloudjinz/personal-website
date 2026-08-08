@@ -357,6 +357,20 @@ const projectPages = defineCollection({
         heading: z.string().max(50),
         paragraphs: z.array(z.string()).min(2).max(3)
       }).optional(),
+      // What the thing is made of, enumerated: an intro stating the rule its
+      // parts obey, and a row per part. The band that has to come before any
+      // band taking one part apart, because a reader shown the part first has
+      // nothing to hang it on.
+      //
+      // Named for the role rather than for InZsh's segments, like deepDive
+      // below it. The next project fills it with its own parts, in as many
+      // columns as those parts need, and neither has to touch this file.
+      anatomy: z.object({
+        kicker,
+        heading: bandHeading,
+        intro: z.string(),
+        table: dataTable
+      }).optional(),
       // The long-form band for a project's signature feature: a standfirst, an
       // optional code block, and however many labelled paragraphs that feature
       // needs. Named for the role, not the subject — InZsh fills it with prayer
