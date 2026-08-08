@@ -73,7 +73,7 @@
 	--font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 	/* Monospace is a stack, not a webfont: nothing here is downloaded, so a
 	   terminal capture and a config identifier cost no extra bytes. Shared so the
-	   code block and the knobs table cannot drift onto different mono faces. */
+	   code block and the reference tables cannot drift onto different mono faces. */
 	--font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
 
 	/* The sticky header's own height. Measured off the built page rather than
@@ -194,7 +194,7 @@
 	}
 
 	/* The site's micro-label treatment: 11px Inter, semibold, small caps. Four
-	   places had grown a byte-identical copy of it — a knobs table's column
+	   places had grown a byte-identical copy of it — a reference table's column
 	   headings, that table's stacked per-cell labels, a definition row's label,
 	   and the kicker. Declared once for both names rather than as a base class
 	   .kicker then has to be paired with, so no existing markup changes.
@@ -253,7 +253,7 @@
 	   size larger, so matching the surrounding number would make it tower.
 
 	   Both modes come free: --text-strong and --font-mono are the same tokens
-	   CodeBlock and KnobsTable read, and .theme-dark redefines the first. */
+	   CodeBlock and DataTable read, and .theme-dark redefines the first. */
 	.code-token {
 		font-family: var(--font-mono);
 		font-size: .92em;

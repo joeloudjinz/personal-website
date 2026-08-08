@@ -16,7 +16,7 @@
 // the hero's promise, a glance fact's label, the why paragraphs, the deep dive's
 // standfirst, the configuration intro and its closing note, a step's note, the
 // gallery's intro and its captions, an assurance card's body, the closing
-// sub-line — plus the values, answers, questions and effect cells the band
+// sub-line — plus the values, answers, questions and sentence cells the band
 // components draw, each of which says so at its own file. An identifier can turn
 // up in any of them, and a mark that is honoured in five places and printed raw
 // in the sixth is a defect the author meets in the built page.
@@ -24,7 +24,7 @@
 // What does NOT: the registers where a monospace run would be wrong whatever it
 // said. Display type — the headings, an assurance card's title, a step's title,
 // a glance fact's 34px value. Small caps — every kicker, the code block's label,
-// the knob column headers. Pills and chips — the status and version badges, the
+// a reference table's column headers. Pills and chips — the status and version badges, the
 // closing facts. And chrome, meaning any string that names a control rather than
 // telling the reader something: CTA labels, link labels, the gallery's
 // placeholder. Two more are structural: the hero and closing headings are split
@@ -36,9 +36,9 @@ import BandHeader from '@src/components/BandHeader.astro';
 import CodeBlock from '@src/components/CodeBlock.astro';
 import CodeSpans from '@src/components/CodeSpans.astro';
 import CtaPair from '@src/components/CtaPair.astro';
+import DataTable from '@src/components/DataTable.astro';
 import DefinitionRows from '@src/components/DefinitionRows.astro';
 import FaqDisclosure from '@src/components/FaqDisclosure.astro';
-import KnobsTable from '@src/components/KnobsTable.astro';
 import MediaFrame from '@src/components/MediaFrame.astro';
 import {bandHeading} from '@src/utils/bandStyles';
 import {BAND_ANCHORS, getProjectPages, splitWash, type ProjectPageEntry} from '@src/utils/projectPages';
@@ -475,7 +475,7 @@ const canonical = `https://${page.data.subdomain}/`;
                         split bands use for the column BESIDE their content, which
                         made this the one place on the page where the two crossed. */}
                     <p class:list={[readingCopy, 'max-w-[720px] mb-8']}><CodeSpans text={config.intro}/></p>
-                    <KnobsTable headers={config.knobHeaders} knobs={config.knobs}/>
+                    <DataTable columns={config.table.columns} rows={config.table.rows}/>
                     {/* The note is a labelled row's value in everything but its
                         label — same register, same 15.5/1.65 — so it takes the
                         class DefinitionRows already owns rather than restating the

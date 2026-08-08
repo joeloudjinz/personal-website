@@ -99,43 +99,66 @@ config:
   # tuned, because fitting from real measurements turned out simpler and exact.
   # Nothing on this page may claim a feature the docs record as deleted.
   intro: "Nothing here needs a fork. Every setting declares what it takes, segments can be overridden individually, and `inzsh preset` changes the look without restarting your shell. The engine knobs:"
-  knobHeaders:
-    name: "Knob"
-    values: "Values"
-    fallback: "Default"
-    effect: "Effect"
-  knobs:
-    - name: "INZSH_PRESET"
-      values: ["sharp", "warm"]
-      # Registered with an empty default (lib/core/config.zsh), which means
-      # "leave the built-in register alone" — and that register is the dark one.
-      # "sharp" is true in effect but not literally, so the column says unset.
-      fallback: "unset"
-      effect: "Which register is drawn. Unset leaves the built-in one, which is the dark register. Read once, when the theme is sourced, so set it in .zshrc above the line that sources the theme."
-    - name: "INZSH_SURFACE_MODE"
-      values: ["alternate", "ramp", "flat", "hue"]
-      fallback: "alternate"
-      effect: "How segment backgrounds are assigned."
-    - name: "INZSH_SEPARATOR_STYLE"
-      values: ["arrow", "round", "divider"]
-      fallback: "arrow"
-      effect: "The glyph between two segments. `arrow` and `round` need a Nerd Font; `divider` needs only box drawing."
-    - name: "INZSH_SEGMENT_PAD"
-      values: ["0–4"]
-      fallback: "1"
-      effect: "Columns of air either side of every block."
-    - name: "INZSH_TRANSIENT"
-      values: ["1", "0"]
-      fallback: "1"
-      effect: "Collapses the prompt to its minimal form after a command is accepted, so scrollback reads as commands and output."
-    - name: "INZSH_DIR_COMPONENTS"
-      values: ["non-negative integer"]
-      fallback: "0"
-      effect: "Caps how many trailing path components stay before truncation. `0` is the whole path."
-    - name: "INZSH_GIT_TIMEOUT"
-      values: ["1–60"]
-      fallback: "2"
-      effect: "Seconds before the git call is killed."
+  # Columns, then rows of cells in that order. The headers are copy, not the
+  # component's: "fallback" prints as "Default" here. The widths are the four
+  # this band was drawn at; a band with three columns declares its own.
+  table:
+    columns:
+      - label: "Knob"
+        kind: tokens
+        tone: strong
+        width: 250
+      - label: "Values"
+        kind: tokens
+        tone: body
+        width: 210
+      - label: "Default"
+        kind: tokens
+        tone: muted
+        width: 90
+      - label: "Effect"
+        kind: sentence
+        tone: muted
+    rows:
+      - cells:
+          - "INZSH_PRESET"
+          - ["sharp", "warm"]
+          # Registered with an empty default (lib/core/config.zsh), which means
+          # "leave the built-in register alone" — and that register is the dark
+          # one. "sharp" is true in effect but not literally, so the cell says
+          # unset.
+          - "unset"
+          - "Which register is drawn. Unset leaves the built-in one, which is the dark register. Read once, when the theme is sourced, so set it in .zshrc above the line that sources the theme."
+      - cells:
+          - "INZSH_SURFACE_MODE"
+          - ["alternate", "ramp", "flat", "hue"]
+          - "alternate"
+          - "How segment backgrounds are assigned."
+      - cells:
+          - "INZSH_SEPARATOR_STYLE"
+          - ["arrow", "round", "divider"]
+          - "arrow"
+          - "The glyph between two segments. `arrow` and `round` need a Nerd Font; `divider` needs only box drawing."
+      - cells:
+          - "INZSH_SEGMENT_PAD"
+          - ["0–4"]
+          - "1"
+          - "Columns of air either side of every block."
+      - cells:
+          - "INZSH_TRANSIENT"
+          - ["1", "0"]
+          - "1"
+          - "Collapses the prompt to its minimal form after a command is accepted, so scrollback reads as commands and output."
+      - cells:
+          - "INZSH_DIR_COMPONENTS"
+          - ["non-negative integer"]
+          - "0"
+          - "Caps how many trailing path components stay before truncation. `0` is the whole path."
+      - cells:
+          - "INZSH_GIT_TIMEOUT"
+          - ["1–60"]
+          - "2"
+          - "Seconds before the git call is killed."
   note: "Every knob states what it accepts and where it lands if you get it wrong. A bad value falls back instead of breaking your prompt."
   link:
     label: "The configuration reference"

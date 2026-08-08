@@ -181,6 +181,69 @@ const projectPages = defineCollection({
     // schema `image()` has not resolved yet — the value being validated is still
     // the path, so this file cannot ask what format it turned out to be.
     const media = z.object({ src: image(), alt: z.string(), variants: z.array(image()).optional() });
+    // A reference table, declared column by column. Two bands are shaped this
+    // way — the engine knobs and the segment reference — and the component that
+    // draws them, src/components/DataTable.astro, knows nothing about either:
+    // it draws the columns it is handed, however many that is.
+    //
+    // Which is the fix for the one thing on this page that a second project
+    // could not have written in markdown alone. The table used to be four
+    // columns keyed name/values/fallback/effect with its widths tuned to those
+    // four, so the next band that wanted three had to edit a component.
+    //
+    // `label` is copy, and `kind` and `tone` are the two things about a column
+    // that the copy cannot imply: whether its cells are typed tokens or a
+    // sentence, and which ink it is set in — the row's subject, a value, or the
+    // muted register. They vary separately, which is why they are two fields:
+    // a knob's name and its default are both tokens and are drawn differently.
+    // `width` is pixels at the wide layout, where the columns exist; the
+    // columns that omit it share what is left.
+    const tableColumn = z.object({
+      label: z.string().max(24),
+      kind: z.enum(['tokens', 'sentence']),
+      tone: z.enum(['strong', 'body', 'muted']),
+      width: z.number().int().positive().optional()
+    });
+    // One token, or a run of them. A run is not a convenience: a column of
+    // accepted values is a list even when it has one member, and it is drawn as
+    // one — middle-dot separated, wrapping as a run.
+    const tableCell = z.union([z.string(), z.array(z.string()).min(1)]);
+    const dataTable = z.object({
+      // Five is where the widths stop dividing into anything a phone can also
+      // stack; two is the fewest that is a table rather than a list, and a list
+      // of pairs is DefinitionRows.
+      columns: z.array(tableColumn).min(2).max(5),
+      // Cells in column order. Wrapped in an object rather than left as a bare
+      // array so a row can grow a field later without every entry being rewritten.
+      rows: z.array(z.object({ cells: z.array(tableCell) })).min(1)
+    }).superRefine((table, ctx) => {
+      // Positional cells need the count checked somewhere, and the alternative —
+      // keying every cell by its column name — moves the same mistake from a
+      // miscount to a typo, which is the quieter of the two.
+      table.rows.forEach((row, index) => {
+        if (row.cells.length !== table.columns.length) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['rows', index, 'cells'],
+            message:
+              `row ${index} has ${row.cells.length} cell(s) for ${table.columns.length} column(s). ` +
+              `Cells are positional: one per column, in the order the columns are declared.`
+          });
+        }
+        row.cells.forEach((cell, column) => {
+          if (table.columns[column]?.kind === 'sentence' && Array.isArray(cell)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ['rows', index, 'cells', column],
+              message:
+                `row ${index}, column "${table.columns[column].label}" is a sentence column, ` +
+                `so its cell is one string. A list belongs in a "tokens" column, where the ` +
+                `middle dots between its members are drawn.`
+            });
+          }
+        });
+      });
+    });
     // Band headings are display type set at one size; past ~60 characters the
     // line count changes and the band's rhythm breaks. hero, why and closing
     // carry their own tighter caps because their headings are shaped differently.
@@ -345,20 +408,7 @@ const projectPages = defineCollection({
         kicker: kicker.optional(),
         heading: bandHeading,
         intro: z.string(),
-        // Column headers are copy, not derivable from the keys: "fallback" prints
-        // as "Default" here, and a non-zsh project needs different headers entirely.
-        knobHeaders: z.object({
-          name: z.string().max(24),
-          values: z.string().max(24),
-          fallback: z.string().max(24),
-          effect: z.string().max(24)
-        }),
-        knobs: z.array(z.object({
-          name: z.string(),
-          values: z.array(z.string()),
-          fallback: z.string(),
-          effect: z.string()
-        })).min(1),
+        table: dataTable,
         note: z.string(),
         link: link.optional()
       }).optional(),
