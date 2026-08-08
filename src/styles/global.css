@@ -235,6 +235,34 @@
 		color: var(--text-body);
 	}
 
+	/* An identifier set inside a sentence: a command, a variable name, a flag, a
+	   literal value. The site's one code treatment that is not a dark block.
+
+	   Deliberately unboxed — no background, no border, no radius. A page that
+	   shows code already carries CodeBlock doing the "this is code" work at full
+	   volume, and a box drawn behind every identifier in the copy speckles the
+	   text with little grey rectangles. A box also has to be wide enough for what
+	   is in it: INZSH_SALAH_AUTOLOCATE is 22 characters, and at 320px a boxed
+	   copy of it breaks across two lines with the padding split between them.
+	   So the face, a step down in size, and the strong ink carry it, which is as
+	   much signal as an identifier in a sentence needs.
+
+	   Sized in em rather than px, so it steps down from whatever it is set in
+	   instead of landing at one absolute size in copy that ranges 14px to 17px.
+	   A monospace face at the same nominal size as the sans beside it reads a
+	   size larger, so matching the surrounding number would make it tower.
+
+	   Both modes come free: --text-strong and --font-mono are the same tokens
+	   CodeBlock and KnobsTable read, and .theme-dark redefines the first. */
+	.code-token {
+		font-family: var(--font-mono);
+		font-size: .92em;
+		color: var(--text-strong);
+		/* An identifier is one unbroken word with no break opportunity in it, and
+		   the narrow layouts have no second column for it to spill into. */
+		overflow-wrap: anywhere;
+	}
+
 	/* Caramel marker wash behind key phrases. Painted by a pseudo-element inset
 	   vertically (em-scaled) so washes on adjacent lines can never overlap.
 	   Washed phrases must not wrap: pair multi-word phrases with whitespace-nowrap. */
