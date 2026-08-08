@@ -3,17 +3,17 @@ slug: "inzsh"
 subdomain: "inzsh.abdellahaddoun.com"
 projectName: "InZsh"
 hero:
-  kicker: "Zsh prompt theme · a Joe Inz project"
+  kicker: "Zsh prompt theme · a JoeInz project"
   heading: "InZsh: a prompt that knows the hour."
   wash: "knows the hour"
-  promise: "A calm, configurable zsh prompt, built from a design system, with prayer times computed on your machine."
+  promise: "A zsh prompt that stays calm, bends to how you like it, and knows when the next prayer falls. Your machine does the maths."
   status: "In progress"
   version: "v0.1.0"
   ctaPrimary:
     label: "Install InZsh"
     href: "#get-started"
   ctaSecondary:
-    label: "View the repository"
+    label: "See the code"
     href: "https://github.com/joeloudjinz/inzsh"
   media:
     src: "../../assets/img/inzsh/showcase-2000.gif"
