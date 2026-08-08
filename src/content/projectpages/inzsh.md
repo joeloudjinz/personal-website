@@ -52,6 +52,20 @@ why:
     - "Two other things came with it. Every colour in the prompt has a defined job and a contrast ratio that was measured rather than eyeballed, so it holds up on screens I’ve never seen. And every setting declares the values it accepts and what it falls back to, so a typo quietly degrades the prompt instead of breaking it."
     - "That last part is the one I care about most. The knobs are the architecture rather than a layer on top, so whatever comes next should arrive as new settings rather than a rewrite."
 anatomy:
+  # Five bands are in the header's section row, out of the seven a reader might
+  # plausibly jump to. What is not here, and why:
+  #
+  #   gallery  Three full-width captures with nothing else in the band. It is the
+  #            one section you cannot scroll past without noticing, and it sits
+  #            directly under Install, which is in the row.
+  #   specs    A reference list you consult once you have decided, rather than a
+  #            place you arrive at. It sits between the gallery and the FAQ, both
+  #            of which are a screen away.
+  #
+  # Not a taste call about which five look best. By src/utils/navFit.ts, against
+  # the 480px the bar holds at the width the row appears at: all seven are 576px
+  # and six are 502px, so five is what fits and the build says so.
+  navLabel: "Segments"
   kicker: "Segments · left, right, hidden"
   heading: "What the prompt draws, and in what order."
   # Ranks are written with a real minus, not a hyphen, for the reason the ranges
@@ -85,6 +99,7 @@ anatomy:
       - cells: ["duration", "hidden", "How long the last command took, once it passes a threshold; `3` seconds by default."]
       - cells: ["date", "hidden", "The calendar day, as opposed to the time of day."]
 deepDive:
+  navLabel: "Prayer times"
   kicker: "Prayer times · computed locally"
   heading: "Prayer times, in the prompt."
   standfirst: "Your machine does the calculation, from coordinates you give it or, if you ask, ones it looks up once. The times are never fetched, and the segment stays hidden until you set it up."
@@ -124,6 +139,7 @@ deepDive:
     - label: "The API our tests check against"
       href: "https://api.aladhan.com/v1/timings"
 config:
+  navLabel: "Settings"
   # No kicker: this is the one band the approved design runs without one.
   heading: "Configured, not forked."
   # Do not describe narrow panes as a "mode" or a named size here. The product's
@@ -197,6 +213,9 @@ config:
     label: "The configuration reference"
     href: "https://github.com/joeloudjinz/inzsh/blob/dev/docs/configuration.md"
 steps:
+  # "Install" and not "Get started": the row is nav items rather than headings,
+  # and the band already says the longer thing twice, in its kicker and its CTAs.
+  navLabel: "Install"
   kicker: "Get started"
   heading: "Three steps in."
   intro: "You’ll need zsh 5.8+ and a Nerd Font (the prompt draws powerline separators). The installer is reversible: `--uninstall` takes everything back out."
@@ -325,6 +344,7 @@ verification:
 # was, and the doctor answer was rewritten once doctor turned out to do more than
 # print an environment block.
 faq:
+  navLabel: "FAQ"
   kicker: "FAQ"
   heading: "Fair questions."
   items:

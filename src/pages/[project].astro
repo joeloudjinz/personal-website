@@ -41,7 +41,9 @@ import DefinitionRows from '@src/components/DefinitionRows.astro';
 import FaqDisclosure from '@src/components/FaqDisclosure.astro';
 import MediaFrame from '@src/components/MediaFrame.astro';
 import {bandHeading} from '@src/utils/bandStyles';
-import {BAND_ANCHORS, getProjectPages, splitWash, type ProjectPageEntry} from '@src/utils/projectPages';
+import {
+    BAND_ANCHORS, getProjectPages, pageSections, splitWash, type ProjectPageEntry
+} from '@src/utils/projectPages';
 
 export async function getStaticPaths() {
     // getProjectPages() fails the build if a slug collides with a blog post or a
@@ -62,6 +64,11 @@ const {
 
 const heroHeading = splitWash(hero.heading, hero.wash);
 const closingHeading = splitWash(closing.heading, closing.wash);
+
+// The header's section row: the bands that named themselves, in the order this
+// file draws them. Derived rather than listed — see pageSections — so a band
+// that is absent, or present and unlabelled, is simply not in the bar.
+const sections = pageSections(page.data);
 
 /**
  * What heading level the configuration band takes, and the size that travels
@@ -227,7 +234,7 @@ const canonical = `https://${page.data.subdomain}/`;
 
 <BaseLayout title={hero.heading} description={hero.promise} gradient='warm'
             canonical={canonical} chrome='subdomain' projectName={page.data.projectName}
-            credit={credit}>
+            credit={credit} sections={sections}>
     {/* Two shapes, both designed. With media the hero is a two-column spread; with
         none it centres cover-style, which is the variant a project that leads with
         words gets — not a fallback for a missing asset.

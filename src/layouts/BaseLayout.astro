@@ -3,6 +3,7 @@ import BaseHead from './components/BaseHead.astro';
 import Header from './components/Header.astro';
 import Footer from './components/Footer.astro';
 import {ClientRouter} from 'astro:transitions';
+import type {PageSection} from '@src/utils/projectPages';
 
 interface PageProps {
 	title: string;
@@ -27,11 +28,12 @@ interface PageProps {
  * A union so the fields that only mean something to one variant cannot be set on
  * the other: projectName is required by the subdomain chrome and meaningless to
  * the site chrome, and a credit line has nowhere to render on a site page. Both
- * would otherwise be silently ignored.
+ * would otherwise be silently ignored — as would a list of in-page sections,
+ * which has nowhere to go on a header that carries the main site's own nav.
  */
 type ChromeProps =
-	| {chrome?: 'site'; projectName?: never; credit?: never}
-	| {chrome: 'subdomain'; projectName: string; credit?: string};
+	| {chrome?: 'site'; projectName?: never; credit?: never; sections?: never}
+	| {chrome: 'subdomain'; projectName: string; credit?: string; sections?: PageSection[]};
 
 type Props = PageProps & ChromeProps;
 
@@ -45,7 +47,8 @@ const {
 // into loose consts: Header and Footer each take a discriminated union, and
 // destructuring throws away the correlation that makes the call site typecheck.
 const headerProps = Astro.props.chrome === 'subdomain'
-	? {variant: 'subdomain', projectName: Astro.props.projectName} as const
+	? {variant: 'subdomain', projectName: Astro.props.projectName,
+	   sections: Astro.props.sections} as const
 	: {variant: 'site'} as const;
 const footerProps = Astro.props.chrome === 'subdomain'
 	? {variant: 'subdomain', credit: Astro.props.credit} as const

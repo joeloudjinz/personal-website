@@ -3,6 +3,7 @@ import {Image} from 'astro:assets';
 import LogoLight from '@src/assets/img/logo.png';
 import LogoDark from '@src/assets/img/logo-transparent.png';
 import SocialLinks from '@src/components/SocialLinks.astro';
+import type {PageSection} from '@src/utils/projectPages';
 import {mainSite, NICKNAME} from '../../consts';
 
 /**
@@ -15,13 +16,19 @@ import {mainSite, NICKNAME} from '../../consts';
  * A union rather than two optional fields: the subdomain variant renders
  * projectName beside a separator, so omitting it would draw a divider followed
  * by an empty span. Making that unrepresentable beats documenting it.
+ *
+ * `sections` is that page's own bands, and it takes the slot the main site puts
+ * its four links in. Which sections there are is the entry's answer rather than
+ * this file's — see navLabel in content.config.ts — so a project that names none
+ * gets the bar it had before, with no empty middle and no hamburger.
  */
 type Props =
-    | {variant?: 'site'; projectName?: never}
-    | {variant: 'subdomain'; projectName: string};
+    | {variant?: 'site'; projectName?: never; sections?: never}
+    | {variant: 'subdomain'; projectName: string; sections?: PageSection[]};
 
-const {variant = 'site', projectName} = Astro.props;
+const {variant = 'site', projectName, sections = []} = Astro.props;
 const isSubdomain = variant === 'subdomain';
+const hasSections = isSubdomain && sections.length > 0;
 
 // Below md the nav runs at 24px side padding and cannot hold everything. The
 // back link is the one thing a visitor on another host cannot get any other way,
@@ -37,6 +44,26 @@ const isSubdomain = variant === 'subdomain';
 // drops to 18px below md, where 12 characters need ~121px and fit. Only
 // pathological all-cap-W/M strings still overflow (~183px), which no product
 // name is. At md the padding doubles to 48px and 22px is comfortable again.
+//
+// WHERE THE SECTION ROW FOLDS, which is xl and not the md the main site's own
+// nav appears at. Measured on the built page, in the nav's content box:
+//
+//   1440  1248px box; logo, divider, name and the right-hand cluster take 575px
+//         of it with their gaps, so the middle holds 673px.
+//   1280  1088px box, the same 575px, so the middle holds 513px. This entry's
+//         five labels and their four gaps are 421px by the table in
+//         src/utils/navFit.ts, which over-states on purpose; the glyphs render
+//         296px, so the row is 408px. It fits with room either way.
+//   1100  908px box — narrower than 1024's 928px, because the shell's padding
+//         goes from 48px to 96px a side at 1100 and the viewport has only gained
+//         76px. The middle holds 333px, and the same five labels need 421px. So
+//         the row cannot appear below xl without taking something else out of
+//         the bar, and the only candidates are the social marks and the full
+//         back link — both of which earn their place: this is another host, and
+//         the way back is the one thing a visitor here cannot guess.
+//
+// Below xl the row moves into the panel the hamburger opens, which is the same
+// panel and the same script the main site's nav folds into below md.
 
 const menu = [
     {link: '/', label: 'Home'},
@@ -50,6 +77,13 @@ const isActive = (link: string) =>
     link === '/' ? currentPath === '/' : currentPath.startsWith(link.replace(/\/$/, ''));
 
 const {href: siteHref, host: siteHost} = mainSite(Astro.site);
+
+// Where the bar folds into the panel, written as one token both the toggle and
+// the panel read: two class lists naming two breakpoints is a hamburger that
+// hides at one width and a panel that hides at another. Interpolated rather than
+// assembled with class:list so the site variant's attribute is the string it has
+// always been, byte for byte.
+const menuBreakpoint = hasSections ? 'xl:hidden' : 'md:hidden';
 ---
 
 <header
@@ -70,9 +104,132 @@ const {href: siteHref, host: siteHost} = mainSite(Astro.site);
         {isSubdomain && (
                 <Fragment>
                     <span class='w-px h-6 bg-hairline shrink-0' aria-hidden='true'></span>
-                    <span class='font-display text-[18px] md:text-[22px] font-semibold text-strong mr-auto truncate'>
+                    {/* The auto margin is what pushes everything after it to the
+                        right edge, and it has to give way where the section row
+                        appears: the row's own mx-auto then takes the free space
+                        on both sides and centres it between the two clusters,
+                        which is where the main site's nav sits. Two auto margins
+                        fighting over the same space would put it neither place. */}
+                    <span class:list={['font-display text-[18px] md:text-[22px] font-semibold text-strong truncate',
+                                       hasSections ? 'mr-auto xl:mr-0' : 'mr-auto']}>
                         {projectName}
                     </span>
+                    {/* The row and the script that marks it, inside this Fragment
+                        rather than in blocks of their own at the foot of the
+                        component. That is a fact about the output rather than
+                        about the markup: a top-level expression that renders
+                        nothing still leaves a space character behind it, and two
+                        of them would put two spaces into the bar of all 35 pages
+                        this variant does not draw. A script is allowed wherever
+                        flow content is, and the UA hides it, so it costs the row
+                        nothing to sit beside it. */}
+                    {hasSections && (
+                            <Fragment>
+                                <div class='hidden xl:flex items-center gap-7 mx-auto'>
+                                    {sections.map((section) => (
+                                            <a href={section.href} data-section-link
+                                               class='section-link text-[15px] transition-colors duration-200 text-muted font-medium hover:text-accent'>
+                                                {section.label}
+                                            </a>
+                                    ))}
+                                </div>
+                                <script is:inline>
+                                    if (!window.__sectionNavBound) {
+                                        window.__sectionNavBound = true;
+
+                                        let sectionObserver = null;
+
+                                        /* Which section the reader is in, marked the way the post
+                                           page's contents list marks a heading — the same observer,
+                                           the same window under the sticky bar, and the same rule for
+                                           scrolling back up out of one. A row of links that never
+                                           says where you are reads as decoration. */
+                                        const initSectionNav = () => {
+                                            sectionObserver?.disconnect();
+                                            const links = Array.from(document.querySelectorAll('[data-section-link]'));
+                                            if (links.length === 0) return;
+
+                                            /* Two links per section — the bar's and the panel's — so
+                                               the observed things are the distinct targets, and every
+                                               link pointing at one is marked together. */
+                                            const items = [...new Set(links.map((link) => link.getAttribute('href')))]
+                                                .map((href) => ({href, section: document.querySelector(href)}))
+                                                .filter((item) => item.section);
+                                            if (items.length === 0) return;
+
+                                            const highlight = (index) => {
+                                                const current = items[index] ? items[index].href : null;
+                                                links.forEach((link) => {
+                                                    const on = link.getAttribute('href') === current;
+                                                    link.classList.toggle('is-current', on);
+                                                    if (on) link.setAttribute('aria-current', 'true');
+                                                    else link.removeAttribute('aria-current');
+                                                });
+                                            };
+
+                                            /* The bar's own height, measured rather than restated:
+                                               the window the observer watches begins where the header
+                                               stops covering the page. */
+                                            const bar = Math.round(document.querySelector('header').getBoundingClientRect().height);
+                                            /* One answer per delivery, worked out from where the
+                                               sections are, rather than one answer per entry.
+                                               The observer is what wakes this up and its window is
+                                               what the answer is measured against, but which section
+                                               is current is not a property of any single entry.
+
+                                               A delivery carries every section whose state changed,
+                                               and marking each of them in turn leaves whichever
+                                               happens to be last in the list. On the first delivery
+                                               that is ALL of them, none intersecting, and the last one
+                                               says "the reader is past the fourth section" about a
+                                               reader who is at the top of the page — measured here,
+                                               the row opened with Install marked before a word had
+                                               been scrolled. Loading with a fragment, and the layout
+                                               settling as the captures arrive, each leave their own
+                                               version of the same wrong mark.
+
+                                               The current section is the last one whose top edge has
+                                               reached the foot of the window: none of them at the top
+                                               of the page, and the one you were last in while you read
+                                               a band that is not in the nav at all. Every change to
+                                               that answer is a section crossing that edge, which is
+                                               the event this is called for, so the two cannot disagree
+                                               however the deliveries are batched. */
+                                            const foot = () => window.innerHeight * 0.3;
+                                            sectionObserver = new IntersectionObserver(() => {
+                                                const edge = foot();
+                                                let index = -1;
+                                                items.forEach((item, position) => {
+                                                    if (item.section.getBoundingClientRect().top <= edge) index = position;
+                                                });
+                                                highlight(index);
+                                            }, {rootMargin: `-${bar}px 0px -70% 0px`});
+                                            items.forEach((item) => sectionObserver.observe(item.section));
+                                        };
+
+                                        /* A section link inside the panel closes it before the jump
+                                           rather than after. The panel is part of the sticky header
+                                           and so part of the flow: collapsing it once the browser has
+                                           already scrolled moves the whole page up by the panel's own
+                                           height, and the reader lands that far past the section they
+                                           asked for. Hidden here in the handler, so the layout the
+                                           default jump measures is the one it leaves behind. */
+                                        document.addEventListener('click', (event) => {
+                                            if (!event.target.closest('#mobileMenu [data-section-link]')) return;
+                                            const menu = document.getElementById('mobileMenu');
+                                            const toggle = document.querySelector('.menu-toggle');
+                                            if (menu) {
+                                                menu.classList.remove('open');
+                                                menu.hidden = true;
+                                            }
+                                            if (toggle) toggle.setAttribute('aria-expanded', 'false');
+                                        });
+
+                                        document.addEventListener('astro:page-load', initSectionNav);
+                                    }
+                                </script>
+                            </Fragment>
+                    )}
                 </Fragment>
         )}
 
@@ -129,9 +286,9 @@ const {href: siteHref, host: siteHost} = mainSite(Astro.site);
             </button>
         </div>
 
-        {!isSubdomain && (
+        {(!isSubdomain || hasSections) && (
                 <button type='button'
-                        class='menu-toggle md:hidden flex flex-col justify-center gap-[5px] shrink-0 p-2 -mr-2'
+                        class={`menu-toggle ${menuBreakpoint} flex flex-col justify-center gap-[5px] shrink-0 p-2 -mr-2`}
                         aria-label='Menu' aria-expanded='false' aria-controls='mobileMenu'>
                     <span class='menu-bar'></span>
                     <span class='menu-bar'></span>
@@ -140,21 +297,28 @@ const {href: siteHref, host: siteHost} = mainSite(Astro.site);
         )}
     </nav>
 
-    {!isSubdomain && (
-            <div id='mobileMenu' class='mobile-menu md:hidden' hidden>
-                <nav class='shell flex flex-col py-2' aria-label='Mobile'>
-                    {menu.map((item) => (
-                            <a href={item.link}
-                               class:list={[
-                                   'py-3 text-[17px] border-b border-hairline last:border-b-0',
-                                   isActive(item.link)
-                                       ? 'text-accent font-semibold'
-                                       : 'text-body font-medium'
-                               ]}
-                               aria-current={isActive(item.link) ? 'page' : undefined}>
-                                {item.label}
-                            </a>
-                    ))}
+    {(!isSubdomain || hasSections) && (
+            <div id='mobileMenu' class={`mobile-menu ${menuBreakpoint}`} hidden>
+                <nav class='shell flex flex-col py-2' aria-label={isSubdomain ? 'Sections' : 'Mobile'}>
+                    {isSubdomain
+                        ? sections.map((section) => (
+                                <a href={section.href} data-section-link
+                                   class='section-link py-3 text-[17px] border-b border-hairline last:border-b-0 text-body font-medium'>
+                                    {section.label}
+                                </a>
+                        ))
+                        : menu.map((item) => (
+                                <a href={item.link}
+                                   class:list={[
+                                       'py-3 text-[17px] border-b border-hairline last:border-b-0',
+                                       isActive(item.link)
+                                           ? 'text-accent font-semibold'
+                                           : 'text-body font-medium'
+                                   ]}
+                                   aria-current={isActive(item.link) ? 'page' : undefined}>
+                                    {item.label}
+                                </a>
+                        ))}
                 </nav>
             </div>
     )}
@@ -194,6 +358,15 @@ const {href: siteHref, host: siteHost} = mainSite(Astro.site);
         :global(html.theme-dark) .toggle-seg-dark {
             background: var(--accent);
             color: var(--on-accent);
+        }
+
+        /* The section the reader is in, marked by the observer at the foot of
+           this file. Caramel and semibold: the same pair the main-site nav gives
+           its current page, which can say so in its own class list because the
+           answer is known at build time and this one is not. */
+        .section-link.is-current {
+            color: var(--accent);
+            font-weight: 600;
         }
 
         .menu-bar {
