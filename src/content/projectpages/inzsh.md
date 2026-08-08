@@ -54,7 +54,7 @@ why:
 deepDive:
   kicker: "Prayer times · computed locally"
   heading: "Prayer times, in the prompt."
-  standfirst: "Optional, and off unless configured. When it’s on, the times are computed on your machine using standard astronomical methods."
+  standfirst: "Your machine does the calculation, from coordinates you give it or, if you ask, ones it looks up once. The times are never fetched, and the segment stays hidden until you set it up."
   code:
     label: "Four values in .zshrc"
     lines:
@@ -71,10 +71,23 @@ deepDive:
       value: "MWL · ISNA · UmmAlQura · Egyptian · Karachi · Algeria; default MWL. Aliases like Makkah, Mecca or Egypt work; case, spacing and punctuation are ignored."
     - label: "Asr:"
       value: "standard · shafi · hanafi; default standard."
+    - label: "Two details"
+      value: "Umm al-Qura sets isha at a fixed 90 minutes after maghrib rather than by an angle. And maghrib is sunset for every method shipped here, which is where a method-specific offset would go if one were ever added."
+    - label: "Accuracy"
+      value: "These are calculations, not announcements from your masjid, so a local timetable can differ by a few minutes. Six offset knobs exist for exactly that: ‘INZSH_SALAH_OFFSET_FAJR’ and its siblings nudge any prayer up to three hours either way. The nudge is display only, so moving maghrib doesn’t move an isha measured as an interval from it."
     - label: "High latitudes"
       value: "‘INZSH_SALAH_HIGHLAT’ takes angle · seventh · middle · none; default angle. It decides what happens at latitudes where the sun never reaches the depression angle and fajr or isha would otherwise not exist; ‘none’ leaves the prayer absent rather than inventing one."
     - label: "Privacy"
-      value: "No telemetry, and no network calls by default. One opt-in exception: ‘INZSH_SALAH_AUTOLOCATE=1’ permits a query to a third-party IP geolocation service, which means your IP is sent to it. Even then, the theme never makes the request on its own; you run ‘inzsh locate’ when you want the stored position refreshed. Set the coordinates manually and none of this applies."
+      value: "There’s one way this touches the network, and you switch it on twice. ‘INZSH_SALAH_AUTOLOCATE’ permits a lookup; the request happens only when you run ‘inzsh locate’. It’s one HTTPS GET to a URL you can read and change, so you can point it at your own service. Whoever answers sees your public IP, which is what they’re asked to turn into a position. Set coordinates by hand and none of it applies."
+  links:
+    - label: "How the prayers are defined"
+      href: "https://praytimes.org/calculation"
+    - label: "The solar arithmetic (USNO)"
+      href: "https://aa.usno.navy.mil/faq/sun_approx"
+    - label: "The authorities’ parameters"
+      href: "https://api.aladhan.com/v1/methods"
+    - label: "The API our tests check against"
+      href: "https://api.aladhan.com/v1/timings"
 config:
   # No kicker: this is the one band the approved design runs without one.
   heading: "Configured, not forked."

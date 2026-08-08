@@ -302,7 +302,14 @@ const projectPages = defineCollection({
           lines: z.array(codeLine).min(1)
         }).optional(),
         media: media.optional(),
-        rows: z.array(labelled(400)).min(2).max(6)
+        rows: z.array(labelled(400)).min(2).max(6),
+        // Sources, not further reading. A band that states how something is
+        // calculated should say where the definitions came from, and these are
+        // the only strings on the page a reader can go and check for themselves.
+        // Plural because no one document covers it: the prayer definitions, the
+        // solar arithmetic and the authorities' parameters are three separate
+        // references. Rendered as arrow links, so linkAttrs decides the tab.
+        links: z.array(link).max(4).optional()
       }).optional(),
       // The one band the approved design runs without a kicker, so kicker is optional here.
       config: z.object({

@@ -411,6 +411,17 @@ const canonical = `https://${page.data.subdomain}/`;
                     <div class='border-t border-hairline'>
                         <DefinitionRows items={deepDive.rows}/>
                     </div>
+
+                    {/* Sources sit under the rows they back, in a column rather
+                        than a row: four of them side by side read as a nav bar,
+                        and these are citations. */}
+                    {deepDive.links && (
+                            <ul class='mt-8 flex flex-col items-start gap-3' role='list'>
+                                {deepDive.links.map((source) => (
+                                        <li><ArrowLink href={source.href} label={source.label}/></li>
+                                ))}
+                            </ul>
+                    )}
                 </div>
             </section>
     )}
