@@ -39,7 +39,7 @@ glance:
     - value: "zsh 5.8+"
       label: "Minimum version · what CI runs against"
     - value: "2 presets"
-      label: "`inzsh-sharp` (dark, default) · `inzsh-warm` (light)"
+      label: "`sharp` (dark, the default) · `warm` (light)"
     - value: "No network"
       label: "No calls by default · autolocate is opt-in"
     - value: "Zero"
@@ -70,7 +70,7 @@ deepDive:
     - label: "Methods:"
       value: "`MWL` Muslim World League · `ISNA` Islamic Society of North America · `UmmAlQura` Umm al-Qura University, Makkah · `Egyptian` Egyptian General Authority of Survey · `Karachi` University of Islamic Sciences, Karachi · `Algeria` Ministry of Religious Affairs and Wakfs, Algeria; default `MWL`."
     - label: "Aliases:"
-      value: "`Makkah`, `Mecca`, `Egypt` and `MuslimWorldLeague` all resolve; matching ignores case, spacing and punctuation."
+      value: "`Makkah`, `Mecca`, `UmmAlQuraUniversity`, `Egypt` and `MuslimWorldLeague` all resolve; matching ignores case, spacing and punctuation."
     - label: "Asr:"
       value: "`standard` · `shafi` · `hanafi`; default `standard`."
     - label: "Two details"
@@ -107,8 +107,11 @@ config:
   knobs:
     - name: "INZSH_PRESET"
       values: ["sharp", "warm"]
-      fallback: "sharp"
-      effect: "Which register is drawn. Read once, when the theme is sourced. Set it in .zshrc above the line that sources the theme."
+      # Registered with an empty default (lib/core/config.zsh), which means
+      # "leave the built-in register alone" — and that register is the dark one.
+      # "sharp" is true in effect but not literally, so the column says unset.
+      fallback: "unset"
+      effect: "Which register is drawn. Unset leaves the built-in one, which is the dark register. Read once, when the theme is sourced, so set it in .zshrc above the line that sources the theme."
     - name: "INZSH_SURFACE_MODE"
       values: ["alternate", "ramp", "flat", "hue"]
       fallback: "alternate"
@@ -213,15 +216,18 @@ specs:
     - label: "License"
       value: "MIT"
 pillars:
-  kicker: "Colour · semantic roles, verified"
+  # Be careful here. The product's docs/limitations.md is explicit that nothing
+  # in the repo measures contrast and there is no colour-vision simulation step,
+  # by hand or otherwise. This band used to claim both were automated; they are
+  # not. Only the glyph rule is enforced by the suite. Do not restore a card that
+  # says the palette is "checked", "verified" or "tested" for contrast or CVD.
+  kicker: "Colour · designed, and where it stops"
   heading: "It stays readable."
   cards:
-    - title: "AA, verified."
-      body: "Every foreground/background pairing is checked against WCAG AA, in both presets, at both colour depths."
-    - title: "Checked for colour-blindness."
-      body: "The palette is run under protanopia, deuteranopia and tritanopia simulation."
+    - title: "Contrast designed to AA."
+      body: "Worked out pair by pair when the palette was built, with the ratios written down beside the colours in the token layer. That is design work on the record, not a gate: no test measures it."
     - title: "Never colour alone."
-      body: "No state is signalled by colour only; each one carries a glyph."
+      body: "No state is signalled by colour only; each one carries a glyph. This one the suite enforces, and it fails if a state loses its mark."
     - title: "An honest fallback."
       body: "256-colour terminals get a hand-tuned palette that holds the theme’s shape. It’s close rather than identical, and says so."
 verification:
