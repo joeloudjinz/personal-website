@@ -307,6 +307,14 @@ verification:
       value: "`make shots` and `make demo` rebuild every file on this page from those tapes. `SCALE` renders them larger: the 2× captures here are `SCALE=2`."
     - label: "Test suites"
       value: "52 spec files across unit, render, pty terminal-grid, installer and perf-budget suites, plus golden files that fail when the prompt changes shape."
+    # No millisecond figure here, deliberately. A measured time is a fact about
+    # the machine that measured it, and every other number on this page is a
+    # property of the software that holds wherever it runs. The repo also
+    # declares a 30 ms house budget while the benchmark gates the render row at
+    # 12 ms; until that is settled upstream, quoting either would be quoting the
+    # one that suited us.
+    - label: "Render path"
+      value: "No subprocesses at all: arithmetic and parameter expansion. Git status comes from a background worker and a cache, so a slow repository can’t stall it. 16 benchmarks gate it; a breach fails the build."
     - label: "CI"
       value: "Runs on Linux and macOS, against zsh 5.8."
     - label: "Diagnostics"

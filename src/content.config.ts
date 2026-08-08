@@ -516,7 +516,12 @@ const projectPages = defineCollection({
       verification: z.object({
         kicker,
         heading: bandHeading,
-        rows: z.array(labelled(200)).min(3).max(5)
+        // Six rather than five, for the reason the deep dive's rows went from
+        // six to eight. Five was the number this band happened to hold the day
+        // it was written, and it was full — so the first row added after it, the
+        // one saying what the render path costs, was a copy change that failed
+        // the build. These rows stack, and the sixth costs what the fifth did.
+        rows: z.array(labelled(200)).min(3).max(6)
       }).optional(),
       faq: z.object({
         kicker,
