@@ -39,7 +39,7 @@ glance:
     - value: "zsh 5.8+"
       label: "Minimum version · what CI runs against"
     - value: "2 presets"
-      label: "inzsh-sharp (dark, default) · inzsh-warm (light)"
+      label: "`inzsh-sharp` (dark, default) · `inzsh-warm` (light)"
     - value: "No network"
       label: "No calls by default · autolocate is opt-in"
     - value: "Zero"
@@ -70,15 +70,15 @@ deepDive:
     - label: "Methods:"
       value: "MWL · ISNA · UmmAlQura · Egyptian · Karachi · Algeria; default MWL. Aliases like Makkah, Mecca or Egypt work; case, spacing and punctuation are ignored."
     - label: "Asr:"
-      value: "standard · shafi · hanafi; default standard."
+      value: "`standard` · `shafi` · `hanafi`; default `standard`."
     - label: "Two details"
       value: "Umm al-Qura sets isha at a fixed 90 minutes after maghrib rather than by an angle. And maghrib is sunset for every method shipped here, which is where a method-specific offset would go if one were ever added."
     - label: "Accuracy"
-      value: "These are calculations, not announcements from your masjid, so a local timetable can differ by a few minutes. Six offset knobs exist for exactly that: ‘INZSH_SALAH_OFFSET_FAJR’ and its siblings nudge any prayer up to three hours either way. The nudge is display only, so moving maghrib doesn’t move an isha measured as an interval from it."
+      value: "These are calculations, not announcements from your masjid, so a local timetable can differ by a few minutes. Six offset knobs exist for exactly that: `INZSH_SALAH_OFFSET_FAJR` and its siblings nudge any prayer up to three hours either way. The nudge is display only, so moving maghrib doesn’t move an isha measured as an interval from it."
     - label: "High latitudes"
-      value: "‘INZSH_SALAH_HIGHLAT’ takes angle · seventh · middle · none; default angle. It decides what happens at latitudes where the sun never reaches the depression angle and fajr or isha would otherwise not exist; ‘none’ leaves the prayer absent rather than inventing one."
+      value: "`INZSH_SALAH_HIGHLAT` takes `angle` · `seventh` · `middle` · `none`; default `angle`. It decides what happens at latitudes where the sun never reaches the depression angle and fajr or isha would otherwise not exist; `none` leaves the prayer absent rather than inventing one."
     - label: "Privacy"
-      value: "There’s one way this touches the network, and you switch it on twice. ‘INZSH_SALAH_AUTOLOCATE’ permits a lookup; the request happens only when you run ‘inzsh locate’. It’s one HTTPS GET to a URL you can read and change, so you can point it at your own service. Whoever answers sees your public IP, which is what they’re asked to turn into a position. Set coordinates by hand and none of it applies."
+      value: "There’s one way this touches the network, and you switch it on twice. `INZSH_SALAH_AUTOLOCATE` permits a lookup; the request happens only when you run `inzsh locate`. It’s one HTTPS GET to a URL you can read and change, so you can point it at your own service. Whoever answers sees your public IP, which is what they’re asked to turn into a position. Set coordinates by hand and none of it applies."
   links:
     - label: "How the prayers are defined"
       href: "https://praytimes.org/calculation"
@@ -97,7 +97,7 @@ config:
   # rather than tuned, because fitting from real measurements turned out to be
   # simpler and exact. Nothing on this page may claim a feature the docs record
   # as deleted, so this now names the three mechanisms that replaced it.
-  intro: "Every knob is declared: engine and segment knob families, with per-segment overrides. ‘inzsh preset’ switches styles in a running shell, and a narrow pane is fitted by measurement rather than by a named step: the path shortens, blocks drop in priority order, and the right-hand group moves down beside the cursor. The engine knobs:"
+  intro: "Every knob is declared: engine and segment knob families, with per-segment overrides. `inzsh preset` switches styles in a running shell, and a narrow pane is fitted by measurement rather than by a named step: the path shortens, blocks drop in priority order, and the right-hand group moves down beside the cursor. The engine knobs:"
   knobHeaders:
     name: "Knob"
     values: "Values"
@@ -115,7 +115,7 @@ config:
     - name: "INZSH_SEPARATOR_STYLE"
       values: ["arrow", "round", "divider"]
       fallback: "arrow"
-      effect: "The glyph between two segments. arrow and round need a Nerd Font; divider needs only box drawing."
+      effect: "The glyph between two segments. `arrow` and `round` need a Nerd Font; `divider` needs only box drawing."
     - name: "INZSH_SEGMENT_PAD"
       values: ["0–4"]
       fallback: "1"
@@ -127,7 +127,7 @@ config:
     - name: "INZSH_DIR_COMPONENTS"
       values: ["non-negative integer"]
       fallback: "0"
-      effect: "Caps how many trailing path components stay before truncation. 0 is the whole path."
+      effect: "Caps how many trailing path components stay before truncation. `0` is the whole path."
     - name: "INZSH_GIT_TIMEOUT"
       values: ["1–60"]
       fallback: "2"
@@ -139,7 +139,7 @@ config:
 steps:
   kicker: "Get started"
   heading: "Three steps in."
-  intro: "You’ll need zsh 5.8+ and a Nerd Font (the prompt draws powerline separators). The installer is reversible: ‘--uninstall’ takes everything back out."
+  intro: "You’ll need zsh 5.8+ and a Nerd Font (the prompt draws powerline separators). The installer is reversible: `--uninstall` takes everything back out."
   link:
     label: "The install guide"
     href: "https://github.com/joeloudjinz/inzsh/blob/dev/docs/install.md"
@@ -154,7 +154,7 @@ steps:
     - title: "Pick a preset"
       lines:
         - text: "INZSH_PRESET=warm"
-      note: "In .zshrc, above the line that sources the theme: it’s read when the theme loads. The default is sharp."
+      note: "In .zshrc, above the line that sources the theme: it’s read when the theme loads. The default is `sharp`."
     - title: "Optional: prayer times"
       lines:
         - text: "INZSH_SALAH_LAT=21.4225"
@@ -166,7 +166,7 @@ steps:
 gallery:
   kicker: "Gallery"
   heading: "The same prompt, three ways."
-  intro: "‘inzsh-sharp’ is the dark default. ‘inzsh-warm’ is the light one, warmer and more editorial. Both are drawn from the same semantic roles, and ‘INZSH_PRESET’ picks between them when the theme loads."
+  intro: "`inzsh-sharp` is the dark default. `inzsh-warm` is the light one, warmer and more editorial. Both are drawn from the same semantic roles, and `INZSH_PRESET` picks between them when the theme loads."
   pendingLabel: "Capture pending"
   # The captures are here, so width and height no longer do anything — the files'
   # own dimensions take over. They stay as the record of what was commissioned,
@@ -204,7 +204,7 @@ specs:
     - label: "256 colours"
       value: "macOS Terminal.app: palette tuned for it; close, not identical"
     - label: "tmux"
-      value: "Needs RGB passthrough: set -sa terminal-features ',*:RGB'"
+      value: "Needs RGB passthrough: `set -sa terminal-features ',*:RGB'`"
     - label: "Not supported"
       value: "Linux TTY and other bare consoles"
     - label: "Optional"
@@ -228,12 +228,12 @@ verification:
   heading: "Built not to break."
   rows:
     # Still two rows, but the second is a recipe that runs now. It had to be
-    # written as a disclaimer once: ‘make shots’ rendered three tapes at their
-    # pinned size, ‘make demo’ wrote GIFs into a scratch directory, and there was
+    # written as a disclaimer once: `make shots` rendered three tapes at their
+    # pinned size, `make demo` wrote GIFs into a scratch directory, and there was
     # no scale knob, so no command named here rebuilt a file the page shipped.
     #
-    # At b9693ff all three are gone. ‘shots’ writes four stills into docs/assets,
-    # ‘demo’ publishes the showcase it renders, and SCALE re-renders each tape at
+    # At b9693ff all three are gone. `shots` writes four stills into docs/assets,
+    # `demo` publishes the showcase it renders, and `SCALE` re-renders each tape at
     # multiplied pinned dimensions. Every file in src/assets/img/inzsh came out of
     # those two commands — checked by running them, not by reading the Makefile.
     #
@@ -241,13 +241,13 @@ verification:
     - label: "Fixtures"
       value: "Every still and recording here is rendered from the project’s VHS tapes in the pinned fixture environment (fixed repository, clock and identity), and nothing is hand-edited or cropped."
     - label: "Rebuilding"
-      value: "‘make shots’ and ‘make demo’ rebuild every file on this page from those tapes. ‘SCALE’ renders them larger: the 2× captures here are ‘SCALE=2’."
+      value: "`make shots` and `make demo` rebuild every file on this page from those tapes. `SCALE` renders them larger: the 2× captures here are `SCALE=2`."
     - label: "Test suites"
       value: "52 spec files across unit, render, pty terminal-grid, installer and perf-budget suites, plus golden files that fail when the prompt changes shape."
     - label: "CI"
       value: "Runs on Linux and macOS, against zsh 5.8."
     - label: "Diagnostics"
-      value: "‘inzsh doctor’ prints one diagnostic block (zsh version, terminal, $TERM, colour depth, locale, Nerd Font, tmux), and never prints your coordinates."
+      value: "`inzsh doctor` prints one diagnostic block (zsh version, terminal, `$TERM`, colour depth, locale, Nerd Font, tmux), and never prints your coordinates."
 # <!-- provisional: FAQ answers 2-4 pending rewrite -->
 # Only the first answer is approved copy. Answers 2-4 are placeholders assembled
 # from facts stated elsewhere on this page; the user has deferred rewriting them.
@@ -256,13 +256,13 @@ faq:
   heading: "Fair questions."
   items:
     - q: "What leaves my machine?"
-      a: "Nothing, unless you opt in. There’s no telemetry and there are no network calls by default. The one exception is ‘INZSH_SALAH_AUTOLOCATE=1’, which permits an IP-geolocation query, and even then it only happens when you run ‘inzsh locate’ yourself. Manual coordinates avoid it entirely."
+      a: "Nothing, unless you opt in. There’s no telemetry and there are no network calls by default. The one exception is `INZSH_SALAH_AUTOLOCATE=1`, which permits an IP-geolocation query, and even then it only happens when you run `inzsh locate` yourself. Manual coordinates avoid it entirely."
     - q: "How do I uninstall it?"
-      a: "The installer is reversible: ‘--uninstall’ takes everything back out. Your .zshrc was backed up at install time."
+      a: "The installer is reversible: `--uninstall` takes everything back out. Your .zshrc was backed up at install time."
     - q: "Why do the colours look wrong in tmux?"
-      a: "tmux needs RGB passthrough: set -sa terminal-features ',*:RGB'."
-    - q: "What is ‘inzsh doctor’ for?"
-      a: "It prints one diagnostic block (zsh version, terminal, $TERM, colour depth, locale, Nerd Font, tmux), and never prints your coordinates."
+      a: "tmux needs RGB passthrough: `set -sa terminal-features ',*:RGB'`."
+    - q: "What is `inzsh doctor` for?"
+      a: "It prints one diagnostic block (zsh version, terminal, `$TERM`, colour depth, locale, Nerd Font, tmux), and never prints your coordinates."
 closing:
   heading: "Give your prompt a system."
   wash: "system"
