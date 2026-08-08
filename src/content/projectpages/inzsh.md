@@ -318,10 +318,12 @@ verification:
     - label: "CI"
       value: "Runs on Linux and macOS, against zsh 5.8."
     - label: "Diagnostics"
-      value: "`inzsh doctor` prints one diagnostic block (zsh version, terminal, `$TERM`, colour depth, locale, Nerd Font, tmux), and never prints your coordinates."
-# <!-- provisional: FAQ answers 2-4 pending rewrite -->
-# Only the first answer is approved copy. Answers 2-4 are placeholders assembled
-# from facts stated elsewhere on this page; the user has deferred rewriting them.
+      value: "`inzsh doctor` prints one diagnostic block (zsh version, terminal, `$TERM`, colour depth, locale, Nerd Font, tmux), plus any setting it is ignoring and what that one accepts. Never your coordinates."
+# <!-- provisional: FAQ answers 2 and 3 pending rewrite -->
+# Answers 2 and 3 are placeholders assembled from facts stated elsewhere on this
+# page; the user has deferred rewriting them. The rest are approved copy: 1 always
+# was, and the doctor answer was rewritten once doctor turned out to do more than
+# print an environment block.
 faq:
   kicker: "FAQ"
   heading: "Fair questions."
@@ -333,7 +335,7 @@ faq:
     - q: "Why do the colours look wrong in tmux?"
       a: "tmux needs RGB passthrough: `set -sa terminal-features ',*:RGB'`."
     - q: "What is `inzsh doctor` for?"
-      a: "It prints one diagnostic block (zsh version, terminal, `$TERM`, colour depth, locale, Nerd Font, tmux), and never prints your coordinates."
+      a: "Two things. It prints one diagnostic block: zsh version, terminal, `$TERM`, colour depth, locale, Nerd Font, tmux. And it lists every setting you have typed that the theme is ignoring, with what that setting actually accepts, a line each: `ignored INZSH_SEPARATOR_STYLE=rounded - accepts arrow · round · divider`. That second half is the other side of a bad value falling back instead of breaking your prompt. The fallback keeps you working; this is how you find out one happened. Nothing is printed when everything is valid. It never prints your coordinates, so the block stays safe to paste into a public issue."
 closing:
   heading: "Give your prompt a system."
   wash: "system"
@@ -348,4 +350,4 @@ closing:
 credit: "The segment-rank idea (one integer per segment, controlling both order and visibility) comes from comfyline, by not pua. InZsh is an independent implementation."
 ---
 
-<!-- provisional: FAQ answers 2-4 pending rewrite -->
+<!-- provisional: FAQ answers 2 and 3 pending rewrite -->
