@@ -95,7 +95,7 @@ const isEmpty = rows.length === 0;
 ---
 
 {!isEmpty && (
-<div class:list={['code-block rounded-card', className]} data-code-block>
+<div class:list={['code-block rounded-card', className]} data-code-block data-code-label={copyFor}>
     {copyable && (
             <Fragment>
                 {/* Hidden until the script confirms a usable clipboard, so a reader
@@ -314,6 +314,17 @@ const isEmpty = rows.length === 0;
                 .map((line) => line.textContent ?? '')
                 .join('\n') + '\n';
 
+            // Announced rather than measured here. Whether anyone is listening is
+            // not this component's business — it knows if the copy worked, and an
+            // analytics layer that reached in to guess would have to reimplement
+            // the promise. Both branches fire, because a copy that silently fails
+            // is indistinguishable from one nobody attempted unless the failure
+            // says so.
+            const copyLabel = codeBox.getAttribute('data-code-label') || 'unlabelled';
+            const announce = (ok = true) => document.dispatchEvent(
+                new CustomEvent('codeblock:copy', {detail: {label: copyLabel, ok}})
+            );
+
             navigator.clipboard.writeText(text).then(() => {
                 button.classList.add('is-copied');
                 const status = codeBox.querySelector('[data-code-status]');
@@ -326,9 +337,11 @@ const isEmpty = rows.length === 0;
                     button.classList.remove('is-copied');
                     if (status) status.textContent = '';
                 }, REVERT_MS));
+                announce(true);
             }).catch(() => {
                 // A denied clipboard permission leaves the label alone; the code is
                 // still selectable by hand.
+                announce(false);
             });
         });
 

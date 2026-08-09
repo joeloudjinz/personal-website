@@ -24,16 +24,25 @@ interface Props {
      * capture.
      */
     centred?: boolean;
+    /**
+     * Where on the page this row sits — 'hero', 'closing'.
+     *
+     * Required because the pair appears twice with identical labels, and "did
+     * they commit before reading or after" is the only question the two clicks
+     * can answer separately. Without it both rows report as the same click and
+     * the answer is unrecoverable.
+     */
+    location: string;
     /** Placement only. The row's own shape is not the caller's. */
     class?: string;
 }
 
-const {primary, secondary, centred, class: className} = Astro.props;
+const {primary, secondary, centred, location, class: className} = Astro.props;
 ---
 
 <div class:list={['flex flex-wrap gap-4', centred && 'justify-center', className]}>
-    <a class='btn btn-primary btn-lg' href={primary.href}
-       {...linkAttrs(primary.href)}>{primary.label}</a>
-    <a class='btn btn-secondary btn-lg' href={secondary.href}
-       {...linkAttrs(secondary.href)}>{secondary.label}</a>
+    <a class='btn btn-primary btn-lg' href={primary.href} data-cta='primary'
+       data-cta-location={location} {...linkAttrs(primary.href)}>{primary.label}</a>
+    <a class='btn btn-secondary btn-lg' href={secondary.href} data-cta='secondary'
+       data-cta-location={location} {...linkAttrs(secondary.href)}>{secondary.label}</a>
 </div>
