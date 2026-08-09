@@ -327,6 +327,47 @@ const projectPages = defineCollection({
       // The product noun on its own, for chrome that names the project rather
       // than sells it: the subdomain nav, meta, breadcrumbs.
       projectName: z.string().max(12),
+      // Head-only text. Nothing here renders on the page.
+      //
+      // The split exists because the H1 and the <title> want opposite things. The
+      // H1 is written to be read — "InZsh: a prompt that knows the hour." — and
+      // names none of the words anyone types into a search box. The <title> has to
+      // carry those words, and is also what a share card shows, which matters more
+      // than usual here: project pages fall back to the site's avatar for og:image,
+      // so the text is doing all the work of saying what the thing is.
+      seo: z.object({
+        // ~60 chars is where Google starts truncating; the cap allows a little
+        // over so a good title is not blocked by a rule of thumb.
+        title: z.string().max(70),
+        // Optional because hero.promise is usually the right description already.
+        // Set it when the promise is written for rhythm rather than for search.
+        description: z.string().max(160).optional(),
+        // Replaces the site-wide keyword list, which is a personal-brand one:
+        // on a project page it advertises Ruby, PHP and Java, none of which the
+        // project has anything to do with. Google has ignored this meta since
+        // 2009, so the value here is not ranking — it is not shipping a claim
+        // that contradicts the page.
+        keywords: z.array(z.string().max(40)).min(1).max(15).optional(),
+        // Describes the og:image, which for a project page is the site avatar
+        // rather than anything project-specific. Defaulting it to the page title
+        // captions a photograph of a person with the name of a shell theme.
+        imageAlt: z.string().max(140).optional()
+      }),
+      // Feeds SoftwareApplication JSON-LD in place of the generic WebSite node.
+      //
+      // Worth being straight about the payoff: this is unlikely to produce a
+      // visual rich result, because Google leans on aggregateRating for those and
+      // inventing ratings is not on the table. What it does is let a crawler know
+      // the page is a piece of software with a version, a licence and a
+      // repository, rather than an unspecified web page.
+      software: z.object({
+        // schema.org values: DeveloperApplication, UtilitiesApplication, etc.
+        applicationCategory: z.string().max(40),
+        operatingSystem: z.string().max(80),
+        // SPDX identifier or a URL. Must match what the repository actually ships.
+        license: z.string().max(60),
+        repository: z.string().url()
+      }).optional(),
       hero: z.object({
         kicker,
         // The full H1, including its own trailing punctuation.

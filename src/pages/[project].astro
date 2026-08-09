@@ -59,9 +59,17 @@ interface Props {
 
 const {page} = Astro.props;
 const {
-    hero, glance, why, anatomy, deepDive, config, steps, gallery, specs, pillars, verification, faq,
-    closing, credit
+    seo, software, hero, glance, why, anatomy, deepDive, config, steps, gallery, specs, pillars,
+    verification, faq, closing, credit
 } = page.data;
+
+// softwareVersion wants the bare number. hero.version carries the "v" because
+// that is how a badge should read it, and schema.org is not reading a badge.
+const softwareNode = software && {
+    ...software,
+    name: page.data.projectName,
+    version: hero.version?.replace(/^v/, '')
+};
 
 const heroHeading = splitWash(hero.heading, hero.wash);
 const closingHeading = splitWash(closing.heading, closing.wash);
@@ -233,7 +241,9 @@ const canonical = `https://${page.data.subdomain}/`;
 // call site has to remember. See src/utils/links.ts for what that decides.
 ---
 
-<BaseLayout title={hero.heading} description={hero.promise} gradient='warm'
+<BaseLayout title={seo.title} description={seo.description ?? hero.promise} gradient='warm'
+            keywords={seo.keywords?.join(', ')} imageAlt={seo.imageAlt}
+            software={softwareNode}
             canonical={canonical} chrome='subdomain' projectName={page.data.projectName}
             credit={credit} sections={sections}>
     {/* Two shapes, both designed. With media the hero is a two-column spread; with
