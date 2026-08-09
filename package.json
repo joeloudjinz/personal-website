@@ -9,7 +9,13 @@
     "build": "astro build",
     "check:build": "astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "subdomain": "node scripts/subdomain/cli.mjs",
+    "subdomain:status": "node scripts/subdomain/cli.mjs status",
+    "subdomain:setup": "node scripts/subdomain/cli.mjs setup",
+    "subdomain:deploy": "node scripts/subdomain/cli.mjs deploy",
+    "subdomain:up": "node scripts/subdomain/cli.mjs up",
+    "subdomain:down": "node scripts/subdomain/cli.mjs down"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
