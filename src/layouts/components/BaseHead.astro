@@ -22,6 +22,29 @@ interface Props {
      * hand search engines a duplicate. Omit it and nothing changes.
      */
     canonical?: string;
+    /**
+     * Describes the og:image, not the page. They are usually the same sentence
+     * and on a project page they are not: the image falls back to the site
+     * avatar, so titling it with the name of a shell theme captions a
+     * photograph of a person wrongly. Omit it and the title is used, which is
+     * what every page did before this existed.
+     */
+    imageAlt?: string;
+    /**
+     * Present only on a software project page. Swaps the generic WebSite node
+     * for SoftwareApplication, which is the difference between telling a crawler
+     * "this is a web page" and "this is an MIT-licensed developer tool at
+     * version 1.0.0 with a public repository".
+     */
+    software?: {
+        /** The product's own name. Not the page title, which sells it. */
+        name: string;
+        applicationCategory: string;
+        operatingSystem: string;
+        license: string;
+        repository: string;
+        version?: string;
+    };
 }
 
 const {
@@ -34,7 +57,9 @@ const {
     modifiedTime,
     type = 'website',
     tags,
-    canonical
+    canonical,
+    imageAlt,
+    software
 } = Astro.props;
 
 const canonicalURL = canonical ? new URL(canonical) : new URL(Astro.url.pathname, Astro.site);
@@ -49,22 +74,51 @@ const ogImageURL = new URL(image || '/avatar.png', Astro.site).href;
 const siteName = SITE_TITLE;
 const locale = 'en_US';
 
-const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': type === 'article' ? 'Article' : 'WebSite',
-    'name': title,
-    'description': description,
-    'url': canonicalURL.href,
-    'image': ogImageURL,
-    'author': {
-        '@type': 'Person',
-        'name': author,
-        'url': Astro.site?.href
-    },
-    ...(type === 'article' && publishedTime && {'datePublished': publishedTime}),
-    ...(type === 'article' && modifiedTime && {'dateModified': modifiedTime}),
-    ...(tags && {'keywords': tags.join(', ')})
+// The author node is shared by every variant on purpose. A project page is still
+// this site's work, and dropping the Person is how a subdomain stops being
+// attributable to the person who built it.
+const authorNode = {
+    '@type': 'Person',
+    'name': author,
+    'url': Astro.site?.href
 };
+
+const structuredData = software
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        'name': software.name,
+        'description': description,
+        'url': canonicalURL.href,
+        'image': ogImageURL,
+        'author': authorNode,
+        'applicationCategory': software.applicationCategory,
+        'operatingSystem': software.operatingSystem,
+        'license': software.license,
+        'codeRepository': software.repository,
+        ...(software.version && {'softwareVersion': software.version}),
+        // The project is free and open source, and saying so is a fact rather
+        // than a rich-result trick. No aggregateRating: there are no ratings to
+        // report, and inventing them to chase a rich result is not on the table.
+        'offers': {
+            '@type': 'Offer',
+            'price': '0',
+            'priceCurrency': 'USD'
+        },
+        ...(tags && {'keywords': tags.join(', ')})
+    }
+    : {
+        '@context': 'https://schema.org',
+        '@type': type === 'article' ? 'Article' : 'WebSite',
+        'name': title,
+        'description': description,
+        'url': canonicalURL.href,
+        'image': ogImageURL,
+        'author': authorNode,
+        ...(type === 'article' && publishedTime && {'datePublished': publishedTime}),
+        ...(type === 'article' && modifiedTime && {'dateModified': modifiedTime}),
+        ...(tags && {'keywords': tags.join(', ')})
+    };
 ---
 
 <!-- Global Metadata -->
@@ -105,7 +159,7 @@ const structuredData = {
 <meta property='og:image' content={ogImageURL}/>
 <meta property='og:image:width' content='1200'/>
 <meta property='og:image:height' content='630'/>
-<meta property='og:image:alt' content={title}/>
+<meta property='og:image:alt' content={imageAlt ?? title}/>
 <meta property='og:site_name' content={siteName}/>
 <meta property='og:locale' content={locale}/>
 
@@ -115,6 +169,6 @@ const structuredData = {
 <meta name='twitter:title' content={title}/>
 <meta name='twitter:description' content={description}/>
 <meta name='twitter:image' content={ogImageURL}/>
-<meta name='twitter:image:alt' content={title}/>
+<meta name='twitter:image:alt' content={imageAlt ?? title}/>
 <!--<meta name='twitter:site' content='@yourTwitterHandle'/>-->
 <!--<meta name='twitter:creator' content='@yourTwitterHandle'/>-->

@@ -19,6 +19,17 @@ interface PageProps {
 	 * other than Astro.site need it — see BaseHead.
 	 */
 	canonical?: string;
+	/** Head-only overrides. See BaseHead for what each one is for. */
+	keywords?: string;
+	imageAlt?: string;
+	software?: {
+		name: string;
+		applicationCategory: string;
+		operatingSystem: string;
+		license: string;
+		repository: string;
+		version?: string;
+	};
 }
 
 /**
@@ -40,7 +51,7 @@ type Props = PageProps & ChromeProps;
 const GTAG_MEASUREMENT_ID = import.meta.env.PUBLIC_GTAG_MEASUREMENT_ID;
 const {
 	title, description, image, type, publishedTime, modifiedTime, tags, gradient = 'glow',
-	canonical
+	canonical, keywords, imageAlt, software
 } = Astro.props;
 
 // Narrowed off Astro.props into one bag per component, rather than destructured
@@ -60,7 +71,8 @@ const footerProps = Astro.props.chrome === 'subdomain'
 	<head>
 		<BaseHead title={title} description={description} image={image} type={type}
 				  publishedTime={publishedTime} modifiedTime={modifiedTime} tags={tags}
-				  canonical={canonical} />
+				  canonical={canonical} keywords={keywords} imageAlt={imageAlt}
+				  software={software} />
 		<ClientRouter />
 		{/* A chosen theme does not survive the hop to a project page's subdomain,
 			and that is accepted rather than overlooked.
