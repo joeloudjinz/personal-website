@@ -259,6 +259,41 @@ export const phases = [
   },
 
   {
+    id: 'analytics',
+    group: DEPLOY,
+    async check({ paths, target }) {
+      // Checks the built artefact, not the environment. PUBLIC_GTAG_MEASUREMENT_ID
+      // is read at build time and the tag is emitted conditionally, so a build
+      // made without it produces a page that looks perfect and measures nothing.
+      // Nothing downstream would notice, which is exactly why this is a phase.
+      const page = join(paths.dist, target.slug, 'index.html');
+      if (!existsSync(page)) return { satisfied: false, detail: 'nothing built yet' };
+
+      const html = await readFile(page, 'utf8');
+      const id = html.match(/G-[A-Z0-9]{6,}/)?.[0];
+      if (!id) {
+        return {
+          satisfied: false,
+          detail: 'built page carries no analytics tag',
+          undrifted: true
+        };
+      }
+      return { satisfied: true, detail: `${id} present` };
+    },
+    async run() {
+      throw new TerminalError(
+        'The built page has no Google Analytics tag, so this deploy would measure nothing.',
+        {
+          hint:
+            'PUBLIC_GTAG_MEASUREMENT_ID is read at build time. Add it to .env in the ' +
+            'repository root and re-run — the build phase will pick it up. ' +
+            'Deploy without analytics deliberately with --from=redirects.'
+        }
+      );
+    }
+  },
+
+  {
     id: 'redirects',
     group: DEPLOY,
     async check({ paths, target }) {
@@ -284,6 +319,19 @@ export const phases = [
     },
     async run({ paths, target, flags }) {
       const base = `http://127.0.0.1:${flags.port}`;
+
+      // Refuse to run if something already holds the port. Wrangler fails to
+      // bind and keeps going, so the probes would hit whatever is already there
+      // and report a pass or a failure about the wrong build entirely. A
+      // verification that can silently test something else is worse than none.
+      const squatter = await fetch(base, { redirect: 'manual' }).then(() => true, () => false);
+      if (squatter) {
+        throw new TerminalError(
+          `Something is already listening on port ${flags.port}.`,
+          { hint: `Stop it, or pass --port=<n> to verify against a free port.` }
+        );
+      }
+
       const server = background(
         'npx',
         [
