@@ -2,6 +2,38 @@
 slug: "inzsh"
 subdomain: "inzsh.abdellahaddoun.com"
 projectName: "InZsh"
+# Head-only. None of this renders on the page; the H1 is hero.heading and is
+# untouched by anything here.
+seo:
+  # Leads with the words someone would actually type. "Oh My Zsh" is spelled the
+  # way the project spells it, because that is what gets searched.
+  title: "InZsh — a Zsh prompt theme with offline prayer times"
+  # hero.promise is written for rhythm and opens on "A zsh prompt that stays
+  # calm", which reads well under the H1 and tells a search result nothing. This
+  # says what it is first and keeps the offline claim, which is the differentiator.
+  description: "A configurable Zsh prompt theme for Oh My Zsh. Prayer times computed on your machine, no network calls, two presets and colours from the JoeInz design system."
+  # Taken from the repository's own topics, so the two cannot drift apart.
+  keywords:
+    - "zsh theme"
+    - "zsh prompt"
+    - "oh my zsh"
+    - "powerline"
+    - "prayer times"
+    - "salah times terminal"
+    - "shell prompt"
+    - "terminal"
+    - "nerd font"
+    - "InZsh"
+  # There is no per-project share image, so this falls back to the site avatar.
+  # The alt describes that photograph rather than the page, which is what an
+  # assistive reader and a crawler are both being told about.
+  imageAlt: "Abdellah Addoun — author of InZsh"
+software:
+  applicationCategory: "DeveloperApplication"
+  operatingSystem: "macOS, Linux"
+  # Matches the LICENSE the repository ships. Verified against the repo.
+  license: "MIT"
+  repository: "https://github.com/joeloudjinz/inzsh"
 hero:
   kicker: "Zsh prompt theme · a JoeInz project"
   heading: "InZsh: a prompt that knows the hour."
