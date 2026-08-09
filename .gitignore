@@ -45,6 +45,9 @@ coverage/
 # Astro cache
 .astro/
 
+# Wrangler cache (created by the subdomain deploy tooling)
+.wrangler/
+
 # Editor directories and files
 .vscode/*
 !.vscode/settings.json
