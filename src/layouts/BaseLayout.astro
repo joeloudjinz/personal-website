@@ -49,6 +49,10 @@ type ChromeProps =
 type Props = PageProps & ChromeProps;
 
 const GTAG_MEASUREMENT_ID = import.meta.env.PUBLIC_GTAG_MEASUREMENT_ID;
+// Derived from the chrome rather than passed: a subdomain page is exactly the
+// set of pages that wants separating, and asking each one to declare it again
+// is a second place for the two to disagree.
+const contentGroup = Astro.props.chrome === 'subdomain' ? 'project-page' : 'main-site';
 const {
 	title, description, image, type, publishedTime, modifiedTime, tags, gradient = 'glow',
 	canonical, keywords, imageAlt, software
@@ -114,11 +118,17 @@ const footerProps = Astro.props.chrome === 'subdomain'
 			<Fragment>
 				<!-- Google tag (gtag.js) -->
 				<script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GTAG_MEASUREMENT_ID}`}></script>
-				<script define:vars={{ GTAG_MEASUREMENT_ID }}>
+				<script define:vars={{ GTAG_MEASUREMENT_ID, contentGroup }}>
 					window.dataLayer = window.dataLayer || [];
 					function gtag(){dataLayer.push(arguments);}
 					gtag('js', new Date());
-					gtag('config', GTAG_MEASUREMENT_ID);
+					// content_group is a reserved parameter GA4 reports on natively,
+					// so segmenting the project subdomains from the main site costs
+					// no custom-dimension slot. One property, one measurement ID —
+					// subdomains share the _ga cookie, so a visitor who crosses from
+					// the main site keeps their client ID and the session is one
+					// session rather than two.
+					gtag('config', GTAG_MEASUREMENT_ID, {content_group: contentGroup});
 				</script>
             </Fragment>
 			)}

@@ -40,6 +40,7 @@ import DataTable from '@src/components/DataTable.astro';
 import DefinitionRows from '@src/components/DefinitionRows.astro';
 import FaqDisclosure from '@src/components/FaqDisclosure.astro';
 import MediaFrame from '@src/components/MediaFrame.astro';
+import ProjectAnalytics from '@src/components/ProjectAnalytics.astro';
 import ScrollTop from '@src/components/ScrollTop.astro';
 import {bandHeading} from '@src/utils/bandStyles';
 import {
@@ -326,7 +327,7 @@ const canonical = `https://${page.data.subdomain}/`;
                     {hero.version && <span class='badge-outline'>{hero.version}</span>}
                 </div>
                 <CtaPair primary={hero.ctaPrimary} secondary={hero.ctaSecondary}
-                         centred={!hero.media}/>
+                         location='hero' centred={!hero.media}/>
             </div>
             {/* No label: that is MediaFrame's placeholder copy, and a hero media
                 entry carries its src or does not exist, so the placeholder is
@@ -712,7 +713,8 @@ const canonical = `https://${page.data.subdomain}/`;
                     : closing.heading}
             </h2>
             <p class='mt-5 text-base text-muted leading-relaxed max-w-[560px] mx-auto'><CodeSpans text={closing.sub}/></p>
-            <CtaPair primary={closing.ctaPrimary} secondary={closing.ctaSecondary} centred class='mt-9'/>
+            <CtaPair primary={closing.ctaPrimary} secondary={closing.ctaSecondary} location='closing'
+                     centred class='mt-9'/>
             {/* .stack-line is already the caramel-middle-dot run at 13px muted, and
                 it paints the dot at the start of each item after the first so a dot
                 can never wrap onto a line by itself. Centring is the only delta. */}
@@ -729,4 +731,5 @@ const canonical = `https://${page.data.subdomain}/`;
         the way back. It draws itself against the viewport rather than here, and
         only once the reader is a screen down. */}
     <ScrollTop/>
+    <ProjectAnalytics/>
 </BaseLayout>
