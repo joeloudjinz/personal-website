@@ -7,7 +7,7 @@ import { readDomainStatus } from './lib/cloudflare.mjs';
 import { PendingError, TerminalError } from './lib/errors.mjs';
 import { buildRedirects, expectations } from './lib/redirects.mjs';
 import { assetPathsFrom, probeAll, waitForServer } from './lib/probe.mjs';
-import { background, run, yesterdayISO } from './lib/run.mjs';
+import { LOCAL_COMPATIBILITY_DATE, background, envWithoutSecrets, run } from './lib/run.mjs';
 
 const SETUP = 'setup';
 const DEPLOY = 'deploy';
@@ -380,9 +380,10 @@ export const phases = [
           String(flags.port),
           '--ip',
           '127.0.0.1',
-          `--compatibility-date=${yesterdayISO()}`,
+          `--compatibility-date=${LOCAL_COMPATIBILITY_DATE}`,
         ],
-        { cwd: paths.root }
+        // Credentials withheld: this server serves static files and needs none.
+        { cwd: paths.root, env: envWithoutSecrets() }
       );
 
       try {
