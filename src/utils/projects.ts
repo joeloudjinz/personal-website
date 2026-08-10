@@ -7,14 +7,14 @@ export type ProjectCollectionEntry = CollectionEntry<'projects'>;
 // Hand-curated display order (by frontmatter id)
 export const PROJECT_ORDER = [
   'inzsh-zsh-theme',
-  'inz-foge-ui-library',
   'dynamic-module-loader-dotnet',
   'data-seeder-dotnet',
   'algerian-rib-validator',
+  'inz-foge-ui-library',
   'pipeline-pattern-dotnet',
+  'repository-pattern-laravel',
   'pipeline-pattern-typescript',
-  'onion-architecture-dotnet',
-  'repository-pattern-laravel'
+  'onion-architecture-dotnet'
 ];
 
 /**
