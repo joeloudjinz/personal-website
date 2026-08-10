@@ -27,6 +27,15 @@ export function buildRedirects(target) {
   const rows = [
     ...ASSET_RULES.map(([from, to]) => [from, to, '200']),
     ['/', `/${target.slug}/`, '200'],
+    // The page's own path, sent to this host's root rather than through the
+    // catch-all. The main site now redirects /<slug>/ here, so letting the
+    // catch-all handle it would bounce the reader out and straight back.
+    //
+    // Absolute rather than "/", and the difference only shows on the wrong
+    // host: a relative redirect keeps whoever arrived at
+    // <project>.pages.dev/<slug>/ on pages.dev, which is not the canonical
+    // host. Naming it sends every route to the same place.
+    [`/${target.slug}/*`, `https://${target.host}/`, '301'],
     ['/*', `${target.mainSite}/:splat`, '301'],
   ];
 
@@ -57,8 +66,8 @@ export function expectations(target, assetPaths) {
     {
       path: `/${target.slug}/`,
       expect: 301,
-      to: `${target.mainSite}/${target.slug}/`,
-      note: 'canonicalised to the main site',
+      to: `https://${target.host}/`,
+      note: 'the page is at the root here, not under its slug',
     },
   ];
 }

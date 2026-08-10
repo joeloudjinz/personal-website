@@ -5,6 +5,7 @@ import tailwind from "@astrojs/tailwind";
 import { autoNewTabExternalLinks } from './src/autoNewTabExternalLinks';
 import {
   assertForeignCanonicalsNotAdvertised,
+  assertProjectPagesRedirected,
   pagePath,
   readProjectPageSlugs
 } from './src/utils/projectPagesBuild';
@@ -35,6 +36,22 @@ const assertCanonicalHosts = {
   }
 };
 
+/**
+ * A canonical is a hint to search engines; it does nothing for a reader who
+ * types the URL. Every project page is built into this dist — the subdomain
+ * deploy uploads the same directory — so without a redirect the main site
+ * serves a working duplicate of a page that lives somewhere else.
+ *
+ * At build start rather than done: nothing needs the output, and failing before
+ * a two-second build beats failing after it.
+ */
+const assertProjectPageRedirects = {
+  name: 'assert-project-page-redirects',
+  hooks: {
+    'astro:build:start': () => assertProjectPagesRedirected(PROJECT_ROOT)
+  }
+};
+
 // https://astro.build/config
 export default defineConfig({
   site: SITE,
@@ -44,6 +61,7 @@ export default defineConfig({
     // After sitemap(): same-hook integrations run in array order, and this one
     // reads the files sitemap() writes.
     assertCanonicalHosts,
+    assertProjectPageRedirects,
     tailwind()
   ],
   markdown: {
