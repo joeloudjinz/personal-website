@@ -1,0 +1,48 @@
+---
+// The two buttons a band ends on: a filled primary and an outlined secondary,
+// wrapping onto a second line when there is no room for both.
+//
+// It exists for the same reason ArrowLink does, and the reason is not that two
+// call sites shared a shape. It is that both of them spread linkAttrs by hand,
+// which made "every off-site link on this page opens in a new tab" a convention
+// someone had to remember rather than something the code enforced — and the
+// failure is silent. A CTA pointing off-site that opens in the reader's own tab
+// looks correct in the markup, in review, and on the page; it only shows up in
+// use, once the reader has lost their place. With this and ArrowLink, no href on
+// a project page reaches an <a> without being classified first.
+import {linkAttrs} from '@src/utils/links';
+
+interface Props {
+    /** The filled one. Both are the schema's cta shape — label and href. */
+    primary: {label: string; href: string};
+    /** The outlined one. */
+    secondary: {label: string; href: string};
+    /**
+     * Centre the row rather than leaving it flush left. The only thing that
+     * differs between the two call sites: the closing band is centred always, and
+     * the hero is centred in its no-media variant and left-aligned beside a
+     * capture.
+     */
+    centred?: boolean;
+    /**
+     * Where on the page this row sits — 'hero', 'closing'.
+     *
+     * Required because the pair appears twice with identical labels, and "did
+     * they commit before reading or after" is the only question the two clicks
+     * can answer separately. Without it both rows report as the same click and
+     * the answer is unrecoverable.
+     */
+    location: string;
+    /** Placement only. The row's own shape is not the caller's. */
+    class?: string;
+}
+
+const {primary, secondary, centred, location, class: className} = Astro.props;
+---
+
+<div class:list={['flex flex-wrap gap-4', centred && 'justify-center', className]}>
+    <a class='btn btn-primary btn-lg' href={primary.href} data-cta='primary'
+       data-cta-location={location} {...linkAttrs(primary.href)}>{primary.label}</a>
+    <a class='btn btn-secondary btn-lg' href={secondary.href} data-cta='secondary'
+       data-cta-location={location} {...linkAttrs(secondary.href)}>{secondary.label}</a>
+</div>

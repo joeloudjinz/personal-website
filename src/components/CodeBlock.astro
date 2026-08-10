@@ -1,0 +1,351 @@
+---
+// A rendered terminal capture: prompt markers, success marks, and a copy control.
+//
+// Deliberately dark in BOTH light and dark mode. The rationale from the design
+// handoff is that a terminal capture is an artifact — a photograph of a shell —
+// so it keeps its own register rather than flipping with the page. That is the
+// one place in this codebase where colour does not flow through the semantic
+// aliases; it flows through the BASE ramp tokens instead (--navy-deep,
+// --hair-dark, --cream, --caramel-bright, --sage-bright, --cream-muted), which
+// .theme-dark does not redefine. No raw hex.
+import type {CodeLine} from '@src/content.config';
+
+interface Props {
+    /**
+     * The lines to draw. The shape is the projectPages schema's CodeLine, imported
+     * rather than restated, so a schema change reaches this component as a type
+     * error instead of as a silent mis-render.
+     */
+    lines: CodeLine[];
+    /**
+     * What this block holds, in the author's words — "Clone and install", "Four
+     * values in .zshrc". A page carries several of these controls, and without
+     * something to tell them apart every one of them has the same accessible
+     * name and they are indistinguishable in a screen reader's list of controls.
+     *
+     * The subject rather than the whole name, so the only English is the verb,
+     * which lives here beside the on-screen label it matches. A caller passing a
+     * heading it already renders adds no new copy to do this.
+     */
+    copyFor?: string;
+    class?: string;
+}
+
+const {lines, copyFor, class: className} = Astro.props;
+
+// "Copy" is a universal affordance, not per-project wording — see the
+// content/affordance rule in content.config.ts — so the verb lives here and only
+// the subject comes from the caller. There was a `copyLabel` prop offering a
+// full override of this string; no schema field could reach it, no call site
+// passed it, and the rule it would have served says the string belongs here
+// anyway. A prop that contradicts the rule and has no caller is just a second
+// way to be wrong.
+const copyName = copyFor ? `Copy: ${copyFor}` : 'Copy this code block';
+
+/**
+ * What the scroll container is called.
+ *
+ * The block scrolls sideways and holds nothing focusable, so a keyboard-only
+ * reader had no way to reach the end of a long line — the pane is reachable by
+ * pointer and by touch and by nothing else. Making the pane itself a tab stop
+ * is the fix, and a tab stop that announces nothing is a stop a reader cannot
+ * account for, so it needs a name too.
+ *
+ * The name needs a role to hang on. A `pre` maps to `generic`, and `generic`
+ * does not support an accessible name — an aria-label on it is dropped rather
+ * than read, which is the quiet way this ships broken. `group` is the lightest
+ * role that does support one. Not `region`: that is a landmark, and this page
+ * draws four blocks, which would put four more landmarks beside the four the
+ * document already has and make landmark navigation the worse for it.
+ *
+ * Built from `copyFor` — the subject the caller already renders as the
+ * on-screen label — for the reason the copy control is: four panes all called "Code
+ * block" are four stops a reader cannot tell apart.
+ */
+const paneName = copyFor ? `Code: ${copyFor}` : 'Code block';
+
+/**
+ * A leading check glyph marks a line as a successful result rather than a
+ * command, and is drawn in sage. This is a rendering rule over the text, not a
+ * field: CodeLine carries `prompt` and nothing else, and adding a `success` flag
+ * would make every author of every project page declare it. A capture that
+ * prints "✓ installed" says so in its own text already. Documented for authors
+ * beside `codeLine` in content.config.ts.
+ */
+const SUCCESS_MARK = /^[✓✔]\s*/;
+
+const rows = lines.map((line) => {
+    const mark = line.text.match(SUCCESS_MARK)?.[0] ?? '';
+    return {prompt: line.prompt, mark, rest: line.text.slice(mark.length)};
+});
+
+// A block of nothing but transcript has nothing to paste, so it gets no control
+// rather than one that hands over a shell's own output.
+const copyable = rows.some((row) => !row.mark);
+
+// No lines, no block. The schema requires at least one wherever a block can be
+// authored, so this is the second lock rather than the first — but it is the one
+// that holds for any caller, including a future band that builds `lines` itself.
+//
+// Worth a guard rather than "it renders empty and who cares", because it does
+// not render empty: the frame is 38px of navy with padding and a border, and
+// the pane is a tab stop with an accessible name, so an empty array buys a
+// keyboard user a stop that announces a code block containing nothing.
+const isEmpty = rows.length === 0;
+---
+
+{!isEmpty && (
+<div class:list={['code-block rounded-card', className]} data-code-block data-code-label={copyFor}>
+    {copyable && (
+            <Fragment>
+                {/* Hidden until the script confirms a usable clipboard, so a reader
+                    without JavaScript — or on an insecure origin — is never shown a
+                    dead control. */}
+                <button type='button' class='code-copy' data-code-copy hidden aria-label={copyName}>
+                    <span class='code-copy-face code-copy-idle' aria-hidden='true'>Copy</span>
+                    <span class='code-copy-face code-copy-done' aria-hidden='true'>✓ Copied</span>
+                </button>
+                {/* The on-screen swap is aria-hidden, so success is announced here instead. */}
+                <span class='sr-only' role='status' data-code-status></span>
+            </Fragment>
+    )}
+    <pre class='code-pre' tabindex='0' role='group' aria-label={paneName}><code>{rows.map((row) => (
+            <span class:list={['code-line', row.mark && 'is-result']}>{row.prompt && <span class='code-prompt' aria-hidden='true'>{'$ '}</span>}<span class='code-text'>{row.mark && <span class='code-ok'>{row.mark}</span>}{row.rest}</span></span>
+    ))}</code></pre>
+</div>
+)}
+
+<style>
+    .code-block {
+        position: relative;
+        background: var(--navy-deep);
+        border: 1px solid var(--hair-dark);
+        padding: 18px 22px;
+    }
+
+    /* white-space is `normal` here and `pre` on each line, NOT `pre` here: the
+       lines are block-level children, so the source formatting of the map above
+       would otherwise print as blank lines between them. */
+    .code-pre {
+        margin: 0;
+        overflow-x: auto;
+        white-space: normal;
+        font-family: var(--font-mono);
+        font-size: 14.5px;
+        line-height: 1.7;
+        color: var(--cream);
+    }
+
+    /* Clears the copy control at the far end of the longest line, so a line
+       scrolled fully right does not end underneath it.
+
+       Conditional on the control actually being rendered, and read off the
+       control's own state rather than a second flag: with JavaScript off — or a
+       block that is all transcript — the button never appears, and an
+       unconditional gutter would leave 92px of dead scroll behind nothing. */
+    .code-block:has(> .code-copy:not([hidden])) .code-pre {
+        padding-right: 92px;
+    }
+
+    /* The pane is a tab stop now, so it owes a reader an on-screen indicator — and
+       it states its own for the reason the copy control does: this box is dark
+       in both modes and the browser's default is tuned for the page behind it.
+
+       Offset outward rather than inset, into the block's own 18px/22px padding,
+       so the indicator frames the transcript instead of being drawn over its
+       first line. Longhands, never the shorthand — see the byte-scan note in
+       tailwind.config.mjs, which this comment tripped over on the way in: the
+       usual word for a drawn focus indicator is also a utility name, and no
+       class list in src/ contains it. */
+    .code-pre:focus-visible {
+        outline-width: 2px;
+        outline-style: solid;
+        outline-color: var(--caramel-bright);
+        outline-offset: 4px;
+        border-radius: 6px;
+    }
+
+    .code-block code {
+        font: inherit;
+        background: none;
+        border: 0;
+        padding: 0;
+    }
+
+    .code-line {
+        display: block;
+        white-space: pre;
+    }
+
+    /* The marker is chrome, not content: it is skipped by the copy handler, kept
+       out of a mouse selection, and hidden from screen readers, so what a reader
+       carries away is the command and nothing else. */
+    .code-prompt {
+        color: var(--caramel-bright);
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    .code-ok {
+        color: var(--sage-bright);
+    }
+
+    .code-copy {
+        position: absolute;
+        top: 18px;
+        right: 22px;
+        /* Both faces occupy one grid cell, so the box is as wide as the wider of
+           the two and cannot resize when they swap. The cross-fade is opacity
+           only — nothing moves. */
+        display: grid;
+        font-family: var(--font-sans);
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--cream-muted);
+        cursor: pointer;
+        /* The gradient lets a long line slide under the control instead of
+           colliding with it. Wide enough to read as a fade rather than a cut:
+           at 320px the first line of a four-value block reaches the control, and
+           a 20px ramp chopped it mid-glyph. */
+        padding-left: 36px;
+        background: linear-gradient(to right, transparent, var(--navy-deep) 36px);
+        transition: color var(--dur-base) var(--ease-standard),
+            transform var(--dur-fast) var(--ease-standard);
+    }
+
+    /* The UA's own `[hidden] { display: none }` matches this button at the same
+       specificity as the rule above — both are one attribute or class — but it
+       is user-agent origin, so an author declaration beats it whatever the
+       specificity. Without this the control would stay on screen while
+       JavaScript is off. Restated here rather than relied on. */
+    .code-copy[hidden] {
+        display: none;
+    }
+
+    .code-copy:hover {
+        color: var(--cream);
+    }
+
+    .code-copy:active {
+        transform: translateY(1px);
+    }
+
+    /* The browser's default focus indicator is tuned for the page background;
+       this box is dark in both modes, so it states its own.
+
+       Longhands rather than the shorthand, and measured: the shorthand property
+       name is a token no class list in src/ contains, so writing it here ships a
+       stray rule site-wide. tailwind.config.mjs names it — that file is outside
+       the content glob, so it can afford to. */
+    .code-copy:focus-visible {
+        outline-width: 2px;
+        outline-style: solid;
+        outline-color: var(--caramel-bright);
+        outline-offset: 3px;
+        border-radius: 6px;
+    }
+
+    .code-copy-face {
+        grid-area: 1 / 1;
+        transition: opacity var(--dur-base) var(--ease-standard);
+    }
+
+    .code-copy-done {
+        color: var(--sage-bright);
+        opacity: 0;
+    }
+
+    .code-copy.is-copied .code-copy-idle {
+        opacity: 0;
+    }
+
+    .code-copy.is-copied .code-copy-done {
+        opacity: 1;
+    }
+</style>
+
+<script>
+    // Bundled, not inline: a page can hold several code blocks and this ships once.
+    // The guard and the astro:page-load hook mirror how the rest of the site binds
+    // behaviour across View Transitions navigations.
+    if (!window.__codeCopyBound) {
+        window.__codeCopyBound = true;
+
+        const REVERT_MS = 1600;
+        const timers = new WeakMap<Element, number>();
+
+        /**
+         * Reveals the copy controls. Clipboard access needs a secure context, so a
+         * page served over plain http gets no button rather than a failing one.
+         */
+        const enableCopy = () => {
+            if (!navigator.clipboard?.writeText) return;
+            document.querySelectorAll('[data-code-copy][hidden]')
+                .forEach((button) => button.removeAttribute('hidden'));
+        };
+
+        document.addEventListener('click', (event) => {
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+            const button = target.closest('[data-code-copy]');
+            // Named codeBox rather than the obvious noun, and measured: negated
+            // in the guard below, that noun becomes a token no class list in
+            // src/ contains, and ships a stray important-flagged display rule
+            // site-wide. tailwind.config.mjs names it — that file is outside the
+            // content glob, so it can afford to.
+            const codeBox = button?.closest('[data-code-block]');
+            if (!button || !codeBox) return;
+
+            // Read the text out of the DOM rather than a duplicated data attribute:
+            // one copy of the code in the HTML.
+            //
+            // What the reader wants is a block that pastes into a shell and runs,
+            // so two things are left behind. The prompt markers, which live in
+            // their own spans. And whole result lines: a line the capture marks
+            // with ✓ is the shell talking back, and pasting "backed up .zshrc"
+            // into a terminal is worse than pasting nothing — it is a command the
+            // shell will try to run.
+            //
+            // Terminated with a newline, not just separated by them. A join alone
+            // leaves the last command sitting on the prompt waiting for Enter
+            // while every command before it has already run, which is the one
+            // outcome nobody asked for: either all of it runs or none of it does.
+            const text = Array.from(codeBox.querySelectorAll('.code-line:not(.is-result) .code-text'))
+                .map((line) => line.textContent ?? '')
+                .join('\n') + '\n';
+
+            // Announced rather than measured here. Whether anyone is listening is
+            // not this component's business — it knows if the copy worked, and an
+            // analytics layer that reached in to guess would have to reimplement
+            // the promise. Both branches fire, because a copy that silently fails
+            // is indistinguishable from one nobody attempted unless the failure
+            // says so.
+            const copyLabel = codeBox.getAttribute('data-code-label') || 'unlabelled';
+            const announce = (ok = true) => document.dispatchEvent(
+                new CustomEvent('codeblock:copy', {detail: {label: copyLabel, ok}})
+            );
+
+            navigator.clipboard.writeText(text).then(() => {
+                button.classList.add('is-copied');
+                const status = codeBox.querySelector('[data-code-status]');
+                if (status) status.textContent = 'Copied to clipboard';
+
+                const pending = timers.get(button);
+                if (pending) clearTimeout(pending);
+                timers.set(button, window.setTimeout(() => {
+                    timers.delete(button);
+                    button.classList.remove('is-copied');
+                    if (status) status.textContent = '';
+                }, REVERT_MS));
+                announce(true);
+            }).catch(() => {
+                // A denied clipboard permission leaves the label alone; the code is
+                // still selectable by hand.
+                announce(false);
+            });
+        });
+
+        enableCopy();
+        document.addEventListener('astro:page-load', enableCopy);
+    }
+</script>

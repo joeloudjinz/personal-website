@@ -1,0 +1,225 @@
+---
+// The box a capture occupies — whether or not the capture exists yet.
+//
+// With no `src` it draws a labelled placeholder; with one it draws the image.
+// Both are the same call site, so wiring a finished asset in is adding an
+// attribute rather than replacing markup.
+//
+// The frame has no ratio of its own. It takes the ratio of the asset that
+// belongs in it — the captures this site ships are 25:12 and 5:1, and a shared
+// 16:10 would letterbox one and crop the other.
+import {Image} from 'astro:assets';
+import type {ImageMetadata} from 'astro';
+
+interface Props {
+    /** The capture. Absent until one is produced. */
+    src?: ImageMetadata;
+    /** Alternative text for the capture. Falls back to the description, then the label. */
+    alt?: string;
+    /**
+     * Intended pixel dimensions of the capture. They exist so a placeholder
+     * reserves the same box the finished asset will fill, which is what stops
+     * the page reflowing when it arrives. Ignored once `src` is set — the file's
+     * own dimensions are authoritative then. Omit both and the frame sizes to
+     * its label instead.
+     */
+    width?: number;
+    height?: number;
+    /**
+     * Placeholder label — small caps in caramel. Optional because it is only
+     * reachable without a `src`: a call site whose src is required by its own
+     * schema can never draw a placeholder, and requiring a label there forced two
+     * of them to invent an argument that could not render.
+     */
+    label?: string;
+    /**
+     * Candidate pixel widths for the srcset, and the layout width the browser
+     * picks against. They travel together or not at all: widths with no `sizes`
+     * leaves the browser assuming the image fills the viewport, and `sizes` with
+     * no widths describes a choice that was never offered — which is what this
+     * frame shipped before, and why a 2000px capture went whole to a phone.
+     *
+     * Both are the caller's, because neither is a property of a capture. The
+     * width a frame occupies is a fact about the column it sits in, and the same
+     * asset is 611px wide in the hero and 1248px wide in the gallery.
+     *
+     * Candidates above the asset's own width are dropped rather than upscaled:
+     * a rung wider than the source is the source again under another filename.
+     */
+    widths?: number[];
+    sizes?: string;
+    /**
+     * Further renders of the same capture at smaller sizes, for the formats the
+     * pipeline cannot resize — which today means GIF, for the reason
+     * `unoptimisable` states below.
+     *
+     * An animated capture skips the image service, so `widths` buys it nothing:
+     * the only candidates it can offer are files somebody rendered. These are
+     * those files, and together with `src` they are the whole ladder. Order does
+     * not matter; they are sorted by width on the way out.
+     *
+     * How many there should be is a question about bytes, not about tidiness. A
+     * rung of the WebP ladder is single-digit kB and a rung here is hundreds:
+     * the one animated capture this site ships offers 1000 and 2000, and a
+     * tablet asking for 1340 takes the 2000 and pays about 400 KiB over what a
+     * rung between them would have cost. There is no rung between them because
+     * these files come from a recorder that re-renders at whole multiples only
+     * — see the note beside `variants` in the entry, which carries the
+     * measurements. Ignored for anything the pipeline handles, which generates
+     * its own ladder from `widths`.
+     */
+    variants?: ImageMetadata[];
+    loading?: 'lazy' | 'eager';
+    class?: string;
+    /**
+     * Placement and entrance, like `class` — the frame's own look is not the
+     * caller's. The hero uses it for an animation delay, which has to be a value
+     * rather than a class because it is one number at one call site.
+     */
+    style?: string;
+}
+
+const {
+    src, alt, width, height, label, widths, sizes, variants,
+    loading = 'lazy', class: className, style
+} = Astro.props;
+
+const ratio = !src && width && height ? `${width} / ${height}` : undefined;
+// Empty string rather than undefined at the end of the chain: an img with no alt
+// attribute is announced by its filename, whereas alt="" marks it decorative,
+// which is the right reading of a frame that is holding a placeholder.
+//
+// It is not the right reading of a capture. Every call site that has a src
+// passes an alt with it — the gallery did pass alt='' while its items were
+// placeholders and now passes the item's own, which is the change that made
+// this a fallback rather than the usual case.
+const altText = alt ?? label ?? '';
+
+// Whether this asset has to skip the image pipeline. The service decodes one
+// frame and re-encodes it, so an animated GIF would come out the other side as
+// a still — but that is a fact about GIF, not about "captures". Read off the
+// asset's own metadata rather than assumed for the whole component: of the five
+// captures on this page exactly one is a GIF, and the other four would
+// otherwise ship at source size in source format for its sake.
+//
+// This read is NOT why the originals of the four stills are in dist alongside
+// their WebP, which is the obvious suspicion and was measured to be wrong.
+// Astro's metadata is a Proxy that flags an asset as referenced on any property
+// get, and a flagged original survives the build — but taking the flagless path
+// its own image service uses (`src.clone`, astro/dist/assets/internal.js) does
+// not remove them. The flag is set long before this file: an `image()` in a
+// content collection is imported with a query string appended, and the assets
+// plugin marks EVERY query-string import as referenced on sight
+// (astro/dist/assets/vite-plugin-assets.js). So the originals of collection
+// images are kept unconditionally, whatever a component does or does not read.
+//
+// Re-confirmed against the installed Astro (5.14.0), because the cleanup this
+// defeats is Astro's own and it is worth knowing that it exists. The generator
+// deletes an original whose path is absent from that set —
+// `!globalThis.astroAsset.referencedImages?.has(originalSrcPath)` in
+// astro/dist/assets/build/generate.js, logged as "not referenced outside of
+// image processing". The set is populated by the branch above, which fires for
+// any import carrying a query string, and the content layer imports every
+// `image()` field as `…png?astroContentImageFlag=&importer=…` (see the
+// generated .astro/content-assets.mjs). So the delete is skipped for exactly
+// the assets it was written for.
+//
+// ACCEPTED, with a measurement: four originals, 272 KiB, all four unreferenced
+// by any emitted html, css, js or xml. They are weight in the deploy and not on
+// any page — no visitor fetches them. The fix is not available from a call
+// site; it would be an astro:build:done hook pruning dist/_astro of files
+// nothing references, which is a destructive build step for a repo that deploys
+// by hand and has no CI to catch it deleting the wrong thing. Left as a
+// decision for whoever wants the 272 KiB back.
+const unoptimisable = src?.format === 'gif';
+
+// The ladder the pipeline is asked for, with anything wider than the source
+// removed. Astro upscales a candidate it is given rather than refusing it, so an
+// unfiltered ladder ships rungs that are the source re-encoded larger: more
+// bytes for a picture that cannot carry them. Dropped to undefined when it
+// empties, because an empty array is an error rather than "no srcset".
+const ladder = src && widths ? widths.filter((candidate) => candidate <= src.width) : undefined;
+const responsive = ladder?.length ? {widths: ladder, sizes} : {};
+
+// Every render of one source, offered as the rungs they are. Written out here
+// rather than left to the pipeline because the pipeline never sees this asset —
+// see variants. Sorted so the attribute reads in ladder order whatever order the
+// entry happens to list them in.
+const passthroughSrcset = variants?.length && src
+    ? [...variants, src]
+        .sort((a, b) => a.width - b.width)
+        .map((rung) => `${rung.src} ${rung.width}w`)
+        .join(', ')
+    : undefined;
+---
+
+<div class:list={['media-frame rounded-tile', className]} style={style}>
+    {src
+            ? (unoptimisable
+                    /* Straight through, animation intact. The width and height
+                       attributes are written by hand here because nothing else
+                       is: they carry the file's own ratio, so the box is
+                       reserved before a byte of it loads. */
+                    ? <img class='media-shot' src={src.src} width={src.width} height={src.height}
+                           srcset={passthroughSrcset} sizes={passthroughSrcset && sizes}
+                           alt={altText} loading={loading} decoding='async'/>
+                    /* Everything else goes through the pipeline, which re-encodes
+                       to WebP, renders the ladder above into a srcset, and writes
+                       the dimension attributes itself. */
+                    : <Image class='media-shot' src={src} alt={altText} loading={loading} {...responsive}/>)
+            : (
+                    <Fragment>
+                        {/* An empty spacer holds the ratio, rather than the frame
+                            holding it directly. A ratio on the frame turns its
+                            min-height into a transferred MIN-WIDTH — measured, a
+                            5:1 frame with a 140px floor demanded 700px and ran
+                            380px off a 320px screen. It also means the frame can
+                            grow past the ratio when the label needs more room,
+                            instead of clipping it.
+
+                            Rendered only when there is a ratio to hold. Without
+                            the guard the documented "omit both dimensions" path
+                            stringifies undefined into the attribute and ships
+                            `aspect-ratio: undefined` in the HTML — dropped by
+                            every browser as invalid, so it looks fine and is
+                            still an empty element carrying a broken declaration. */}
+                        {ratio && <div class='media-ratio' style={`aspect-ratio: ${ratio};`} aria-hidden='true'></div>}
+                        <div class='media-empty'>
+                            {label && <p class='kicker'>{label}</p>}
+                        </div>
+                    </Fragment>
+            )}
+</div>
+
+<style>
+    .media-frame {
+        background: var(--surface-soft);
+        border: 1px solid var(--hairline);
+        /* Clips the capture's corners to the frame's radius. */
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+    }
+
+    /* Spacer and label share one cell, so the frame is as tall as whichever needs
+       more and the label stays centred over the reserved box. */
+    .media-frame > * {
+        grid-area: 1 / 1;
+    }
+
+    .media-shot {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    .media-ratio {
+        width: 100%;
+    }
+
+    .media-empty {
+        padding: 24px;
+        text-align: center;
+    }
+
+</style>

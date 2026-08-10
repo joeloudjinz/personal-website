@@ -1,0 +1,735 @@
+---
+// Route for project showcase pages: the subdomain chrome, the canonical, the
+// warm gradient, and the bands themselves.
+//
+// Every string a visitor reads comes from the entry — kickers, headings, intros,
+// labels, CTA wording, link text, even the gallery's placeholder copy. Nothing
+// user-facing is written here, because the point of the collection is that the
+// second project costs one markdown file. A band renders only when its field is
+// present, so a page ships with the parts it has copy for and no orphan rules.
+//
+// Comments in this file are scanned as raw bytes by Tailwind — see the note in
+// tailwind.config.mjs before writing one.
+//
+// WHICH STRINGS GO THROUGH CodeSpans, so it is one decision rather than a
+// judgement call per band. Every authored string that is READING COPY does:
+// the hero's promise, a glance fact's label, the why paragraphs, the deep dive's
+// standfirst, the configuration intro and its closing note, a step's note, the
+// gallery's intro and its captions, an assurance card's body, the closing
+// sub-line — plus the values, answers, questions and sentence cells the band
+// components draw, each of which says so at its own file. An identifier can turn
+// up in any of them, and a mark that is honoured in five places and printed raw
+// in the sixth is a defect the author meets in the built page.
+//
+// What does NOT: the registers where a monospace run would be wrong whatever it
+// said. Display type — the headings, an assurance card's title, a step's title,
+// a glance fact's 34px value. Small caps — every kicker, the code block's label,
+// a reference table's column headers. Pills and chips — the status and version badges, the
+// closing facts. And chrome, meaning any string that names a control rather than
+// telling the reader something: CTA labels, link labels, the gallery's
+// placeholder. Two more are structural: the hero and closing headings are split
+// around their wash before they are drawn, and alt text is an attribute, which
+// is a string and cannot hold an element.
+import BaseLayout from '@src/layouts/BaseLayout.astro';
+import ArrowLink from '@src/components/ArrowLink.astro';
+import BandHeader from '@src/components/BandHeader.astro';
+import CodeBlock from '@src/components/CodeBlock.astro';
+import CodeSpans from '@src/components/CodeSpans.astro';
+import CtaPair from '@src/components/CtaPair.astro';
+import DataTable from '@src/components/DataTable.astro';
+import DefinitionRows from '@src/components/DefinitionRows.astro';
+import FaqDisclosure from '@src/components/FaqDisclosure.astro';
+import MediaFrame from '@src/components/MediaFrame.astro';
+import ProjectAnalytics from '@src/components/ProjectAnalytics.astro';
+import ScrollTop from '@src/components/ScrollTop.astro';
+import {bandHeading} from '@src/utils/bandStyles';
+import {
+    BAND_ANCHORS, getProjectPages, pageSections, splitWash, type ProjectPageEntry
+} from '@src/utils/projectPages';
+
+export async function getStaticPaths() {
+    // getProjectPages() fails the build if a slug collides with a blog post or a
+    // top-level page — this route is the only thing that puts them in one namespace.
+    const pages = await getProjectPages();
+    return pages.map((page) => ({params: {project: page.data.slug}, props: {page}}));
+}
+
+interface Props {
+    page: ProjectPageEntry;
+}
+
+const {page} = Astro.props;
+const {
+    seo, software, hero, glance, why, anatomy, deepDive, config, steps, gallery, specs, pillars,
+    verification, faq, closing, credit
+} = page.data;
+
+// softwareVersion wants the bare number. hero.version carries the "v" because
+// that is how a badge should read it, and schema.org is not reading a badge.
+const softwareNode = software && {
+    ...software,
+    name: page.data.projectName,
+    version: hero.version?.replace(/^v/, '')
+};
+
+const heroHeading = splitWash(hero.heading, hero.wash);
+const closingHeading = splitWash(closing.heading, closing.wash);
+
+// The header's section row: the bands that named themselves, in the order this
+// file draws them. Derived rather than listed — see pageSections — so a band
+// that is absent, or present and unlabelled, is simply not in the bar.
+const sections = pageSections(page.data);
+
+/**
+ * What heading level the configuration band takes, and the size that travels
+ * with it.
+ *
+ * The design draws it as a subsection rather than a band of its own: no kicker,
+ * a short caramel rule instead, and display type a step down from the other
+ * bands. That is an h3 under the deep dive's h2 — but both bands are optional,
+ * and an h3 with no h2 above it is a gap in the heading order, not a nesting.
+ * So the level follows what is actually on the page.
+ *
+ * And the size follows the level rather than staying put at 34px. A step down
+ * is only ever read against the step it is down from: under the deep dive's h2
+ * it says "still the same subject". With the deep dive absent this heading is
+ * the band's own h2, there is nothing above it to be a step down from, and 34px
+ * would read as an undersized band heading rather than as a subsection.
+ */
+const configIsSubsection = Boolean(deepDive);
+const ConfigHeading = configIsSubsection ? 'h3' : 'h2';
+
+// Whether the deep dive's code-and-capture pair is a spread or a single thing at
+// its own measure. Both halves are optional and independently so, so "both are
+// present" is the only condition under which two columns have two occupants.
+const deepDiveIsSplit = Boolean(deepDive?.code && deepDive?.media);
+
+// The schema takes three or four assurance cards; the row is as wide as the
+// count, so three do not leave a fourth cell empty.
+const pillarColumns = pillars?.cards.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4';
+
+// Section rhythm: every band is full-width so its hairline runs edge to edge,
+// with the 96px side padding coming from .shell inside it. The hero opens the
+// page against the header's own bottom hairline, so only the bands after it
+// carry a top rule — which also means an absent optional band leaves no orphan.
+//
+// Every band carries the anchor clearance rather than only the ones something
+// links to today, because every band carries an id: the ids come from
+// BAND_ANCHORS, which is also what decides whether an "#href" is legal, so a band
+// that renders is a band that can be jumped to. The clearance reads the token
+// shared with article headings rather than restating the number — see
+// --anchor-offset in global.css for what it is made of.
+const band = 'border-t border-hairline scroll-mt-[var(--anchor-offset)]';
+const bandInner = 'shell py-[72px]';
+
+// Five bands share one shape: a 420px heading column beside a longer content
+// column, 80px apart. Four of them also pin the heading — see stickyColumn — and
+// the FAQ states at its own call site why it does not. Below lg the two stack,
+// because 420px of the remaining width would leave the content column narrower
+// than the heading beside it.
+const split = 'grid lg:grid-cols-[420px_1fr] gap-12 lg:gap-20 reveal';
+// Pinned under the header at the same clearance a fragment jump leaves, because
+// they are the same distance: both are "clear of the sticky bar". It reads the
+// token rather than the Tailwind step it used to name, which was 112px against
+// an --anchor-offset of 110px, described in this comment as matching, and not.
+// See --anchor-offset in global.css for what the number is made of.
+const stickyColumn = 'lg:sticky lg:top-[var(--anchor-offset)] self-start';
+// The configuration band's own heading — the subsection step when there is a
+// band above it, otherwise a band heading like any other. See configIsSubsection.
+const configHeading = configIsSubsection
+    ? 'font-display text-[34px] font-semibold text-strong leading-tight'
+    : bandHeading;
+// Reading copy — the standfirsts and paragraphs a visitor is meant to read
+// through, as opposed to the muted register labels and notes are set in.
+const readingCopy = 'text-[17px] leading-[1.7] text-body';
+
+/**
+ * How wide each capture is actually drawn, so the browser can pick a file rather
+ * than be handed the widest one that exists.
+ *
+ * All three start from the shell's content box: the viewport less 24px of
+ * padding a side, less 48px from 768 up, less 96px from 1100 up, against a
+ * 1440px artboard — so it stops growing at 1248px. That is the whole story for
+ * the gallery, whose strips run the full width of the band.
+ *
+ * The hero and the deep dive each hand their capture the wider half of a
+ * 1fr/1.08fr pair from 1024 up, which is 1.08/2.08 of what the gap leaves —
+ * 72px of gap in the hero, 80px in the deep dive. Below 1024 both stack and the
+ * capture takes the content box whole, so the widest either is ever drawn is not
+ * at the widest viewport: it is 927px at 1023px, the last width before the
+ * split. After it the hero tops out at 611px and the deep dive at 607px.
+ *
+ * The hero is the one place the arithmetic is a ceiling rather than the answer.
+ * Its heading column is a 1fr track, and a grid track's automatic minimum is its
+ * min-content — which here is the washed phrase, the one string on the page that
+ * cannot wrap. Between 1024 and about 1350 that phrase holds the first column
+ * wider than its fraction and the capture beside it is narrower than the split
+ * says: measured, 341px at 1024 where the fraction gives 444, converging by
+ * 1366 and exact from 1440 up. A `sizes` cannot express min-content, so this
+ * declares the fraction and is occasionally generous. Under-declaring would
+ * cost sharpness; over-declaring costs at most a rung — and the hero's ladder
+ * is two rungs now, so that one rung is the whole distance between them.
+ *
+ * The generosity was measured against a tightening rather than assumed harmless,
+ * and the one case where it still changes a pick cannot be tightened out. At
+ * 1280 the capture is drawn 499px, so a DPR-2 screen needs 998 — two pixels
+ * under the 1000 rung. The fraction declares 527, asks for 1055, and takes the
+ * 2000. A floor derived from the phrase's own metrics gets that to 1002; the
+ * exact measured floor gets it to 1002 as well. Nothing short of pixel-exact
+ * crosses back under 1000, and nothing about a 1fr track is pixel-exact across
+ * projects. So the pick at that one width belongs to where the rungs are, not
+ * to slack here — and a floor keyed to this entry's heading would silently
+ * under-declare for the next project's, which is the direction that ships soft
+ * pictures.
+ *
+ * What that costs went up when the hand-rolled middle rung came out. The miss
+ * used to be a step to a 1.5x file, 378 KiB; it is now a step to the largest
+ * one, 789 KiB over what 998 device pixels actually needed. That is the
+ * sharpest instance of the gap recorded beside the entry's variants, and it
+ * closes when the tapes can be rendered somewhere between 1x and 2x — which is
+ * upstream's to offer, not ours to fake.
+ *
+ * Written as calc rather than as one flat number per band because the value
+ * follows the viewport between breakpoints, and a flat number would be right at
+ * exactly one width. A browser that cannot parse one of these falls back to
+ * assuming the full viewport, which over-fetches rather than under-fetches.
+ *
+ * (And written without the word for "a number with its decimals dropped",
+ * which is also a Tailwind utility — see the byte-scan note at the top of this
+ * file. Prose here is scanned as bytes, and that one word added a live rule to
+ * the stylesheet every page loads.)
+ */
+const galleryWidth = [
+    '(min-width: 1100px) calc(min(1440px, 100vw) - 192px)',
+    '(min-width: 768px) calc(100vw - 96px)',
+    'calc(100vw - 48px)'
+].join(', ');
+// 1.08/2.08 to four places. At three it declared 610px where the hero measures
+// 611 — short by less than a pixel, and short is the direction that costs
+// sharpness, so the fraction is written out to more places instead.
+const SPLIT_SHARE = 0.5192;
+const splitWidth = (gap: number) => [
+    `(min-width: 1100px) calc((min(1440px, 100vw) - ${192 + gap}px) * ${SPLIT_SHARE})`,
+    `(min-width: 1024px) calc((100vw - ${96 + gap}px) * ${SPLIT_SHARE})`,
+    '(min-width: 768px) calc(100vw - 96px)',
+    'calc(100vw - 48px)'
+].join(', ');
+const heroWidth = splitWidth(72);
+const deepDiveWidth = splitWidth(80);
+
+/**
+ * The rungs the pipeline renders each capture at.
+ *
+ * One ladder for all of them, because they are the same kind of asset at the
+ * same source width, and the widest box on the page — the gallery's 1248px — is
+ * the only one that reaches the top of it. The low rungs are the ones that
+ * matter: a 320px screen leaves a 272px box, which is 544 device pixels on the
+ * phone screens that exist and 816 on the densest, and the frame used to answer
+ * all three with the 2000px original.
+ *
+ * MediaFrame drops any rung wider than the asset, so 2000 is a ceiling rather
+ * than an instruction to upscale.
+ */
+const captureWidths = [400, 600, 900, 1200, 1600, 2000];
+
+// The page is built into this site's dist but deployed to its own host, so the
+// subdomain root — not the /<slug>/ build URL — is the URL it is authoritative at.
+const canonical = `https://${page.data.subdomain}/`;
+
+// No href reaches an <a> from this file. Every authored link goes through
+// ArrowLink or CtaPair, and both call linkAttrs on the way — so "an off-site link
+// opens in a new tab" is a property of the components rather than a rule each
+// call site has to remember. See src/utils/links.ts for what that decides.
+---
+
+<BaseLayout title={seo.title} description={seo.description ?? hero.promise} gradient='warm'
+            keywords={seo.keywords?.join(', ')} imageAlt={seo.imageAlt}
+            software={softwareNode}
+            canonical={canonical} chrome='subdomain' projectName={page.data.projectName}
+            credit={credit} sections={sections}>
+    {/* Two shapes, both designed. With media the hero is a two-column spread; with
+        none it centres cover-style, which is the variant a project that leads with
+        words gets — not a fallback for a missing asset.
+
+        The cascade's delays key off nth-child, so its five children have to be the
+        five rows of the hero and nothing else; anything that needs a wrapper wraps
+        inside a row, never around one. */}
+    <section class='shell pt-[88px] pb-[72px]'>
+        <div class:list={['grid gap-12',
+                          hero.media && 'lg:grid-cols-[1fr_1.08fr] lg:gap-[72px] items-center']}>
+            {/* The 900px measure the design calls for is on the H1, where it was
+                drawn — not here. On the wrapper it silently capped the promise,
+                the badges and the buttons too, which happen to be narrower than
+                900px and so never showed it. */}
+            <div class:list={['cascade', !hero.media && 'text-center']}>
+                <p class='kicker mb-6'>{hero.kicker}</p>
+                {/* text-wrap: balance comes from the base layer, which sets it on
+                    every h1 — the centred variant wants it and already has it.
+
+                    Sized by clamp rather than by breakpoint. The washed phrase
+                    cannot wrap — .marker-wash paints one absolutely-positioned
+                    rectangle across every fragment of the span, so a two-line
+                    wash draws a block over the text between them — and a phrase
+                    that cannot wrap is as wide as its font-size makes it. At the
+                    72px the design asks for, held at every width, "knows the
+                    hour" measures 499px set in Fraunces and 581px in the Georgia
+                    fallback — the wider of the two, and so the one that binds —
+                    against the 272px content box a 320px screen leaves inside
+                    the shell. That is 227px and 309px past the content edge, far
+                    enough to scroll the document rather than merely spill into
+                    the gutter. Stepping the size at breakpoints leaves the
+                    widths between them untested; scaling with the viewport
+                    reaches 72px by 848px, where the design's two-column widths
+                    begin, and holds every width below it.
+
+                    The floor is 30px rather than the 34px Fraunces alone would
+                    allow, because Fraunces is not what draws the first paint.
+                    It loads with display=swap, so the phrase is set in Georgia —
+                    the next family in the stack — until the webfont lands, and
+                    Georgia is the wider face. Measured at 320px, where the shell
+                    leaves a 272px content box: the span is 263px in Fraunces at
+                    34px and 285px in Georgia, so 34px spent the whole swap
+                    window 13px into the 24px gutter. Nothing scrolled — the
+                    document stayed 320 wide — which is exactly why the clamp,
+                    not the scrollbar, has to be the thing that catches it. At
+                    30px Georgia measures 254px, leaving 18px, and Fraunces 232px.
+                    Georgia is the case that sets the floor: the rest of the
+                    stack — Times New Roman, then the generic serif — sets the
+                    same phrase at 238px where Georgia needs 285px.
+
+                    Below 353px the floor is what applies; above it the viewport
+                    term takes over and the top end is unchanged.
+
+                    What the clamp does NOT do is bound the phrase. A font-size
+                    is half the width; the string is the other half, and 30px is
+                    already the smallest the design allows — below it the heading
+                    stops being one. So the floor buys a phrase that fits inside
+                    250px at 30px in Georgia, and nothing wider. That bound is
+                    enforced where the string is authored, not here: see the wash
+                    refinement in content.config.ts and the metrics in
+                    src/utils/washFit.ts. Left to the clamp alone, a legal wash
+                    scrolled the document by 278px at 320px. */}
+                <h1 class:list={['font-display text-[clamp(30px,8.5vw,72px)] font-semibold text-strong tracking-[-0.015em] leading-[1.1] mb-7 max-w-[900px]',
+                                 !hero.media && 'mx-auto']}>
+                    {heroHeading
+                        ? <>{heroHeading.before}<span
+                                class='marker-wash whitespace-nowrap'>{heroHeading.washed}</span>{heroHeading.after}</>
+                        : hero.heading}
+                </h1>
+                <p class:list={['text-[21px] text-muted leading-relaxed mb-8',
+                                hero.media ? 'max-w-[560px]' : 'max-w-[640px] mx-auto']}>
+                    <CodeSpans text={hero.promise}/>
+                </p>
+                <div class:list={['flex flex-wrap items-center gap-3 mb-8', !hero.media && 'justify-center']}>
+                    <span class='badge-accent'>{hero.status}</span>
+                    {/* Printed as authored — the ‘v’ is the entry's, not this
+                        template's. See the content/affordance rule in content.config.ts. */}
+                    {hero.version && <span class='badge-outline'>{hero.version}</span>}
+                </div>
+                <CtaPair primary={hero.ctaPrimary} secondary={hero.ctaSecondary}
+                         location='hero' centred={!hero.media}/>
+            </div>
+            {/* No label: that is MediaFrame's placeholder copy, and a hero media
+                entry carries its src or does not exist, so the placeholder is
+                unreachable from here. Eager — this one is above the fold on every
+                viewport.
+
+                The entrance is declared here rather than inherited. .cascade only
+                animates its own children, and this is the cascade's sibling, not
+                one of its five rows — putting it inside would break the nth-child
+                delays the cascade is built on. So it takes the same animation
+                explicitly, at 400ms: one step past the last row's 320ms, so the
+                capture lands after the words rather than with them. index.astro's
+                two-column hero solves the identical problem the identical way. */}
+            {hero.media && (
+                    <MediaFrame src={hero.media.src} variants={hero.media.variants} alt={hero.media.alt}
+                                widths={captureWidths} sizes={heroWidth} loading='eager'
+                                style='animation: rise-in var(--dur-slow) var(--ease-standard) 400ms backwards;'/>
+            )}
+        </div>
+    </section>
+
+    {glance && (
+            <section class={band} id={BAND_ANCHORS.glance}>
+                <div class:list={[bandInner, 'reveal']}>
+                    <p class='kicker mb-8'>{glance.kicker}</p>
+                    {/* Equal columns by flex-1 rather than by a column count, because
+                        the band takes three to five facts and the count is the
+                        author's. min-w-0 lets a column be narrower than its longest
+                        word instead of pushing the row past the shell.
+
+                        Stacked below lg: the rules are vertical, so they only mean
+                        anything once the facts sit side by side, and five columns of
+                        a 60-character label need the width lg brings.
+
+                        role='list' because Tailwind's preflight sets list-style:none
+                        on every ol and ul, and WebKit drops the list role when it
+                        sees that — so without this, VoiceOver never announces the
+                        count. See the same attribute on the steps and gallery lists.
+
+                        The 40px either side of a column is the gutter between two
+                        facts, so the first drops its left and the last drops its
+                        right and the row starts and ends on the shell's own edges,
+                        like every other band. The last was missing, which left the
+                        row flush left and inset 40px on the right. */}
+                    <ul role='list' class='grid gap-8 sm:grid-cols-2 lg:flex lg:gap-0'>
+                        {glance.items.map((item) => (
+                                <li class='lg:flex-1 lg:min-w-0 lg:px-10 lg:border-l lg:border-hairline lg:first:border-l-0 lg:first:pl-0 lg:last:pr-0'>
+                                    <p class='font-display text-[34px] font-semibold text-strong leading-tight'>
+                                        {item.value}
+                                    </p>
+                                    <p class='mt-2 text-sm text-muted leading-snug'><CodeSpans text={item.label}/></p>
+                                </li>
+                        ))}
+                    </ul>
+                </div>
+            </section>
+    )}
+
+    {why && (
+            <section class={band} id={BAND_ANCHORS.why}>
+                <div class:list={[bandInner, split]}>
+                    <BandHeader kicker={why.kicker} heading={why.heading} class={stickyColumn}/>
+                    {/* --text-body, not muted: this is the band a reader actually
+                        reads, and the muted ramp is for labels beside a value. */}
+                    <div class='max-w-[720px] flex flex-col gap-6'>
+                        {why.paragraphs.map((paragraph) => (
+                                <p class={readingCopy}><CodeSpans text={paragraph}/></p>
+                        ))}
+                    </div>
+                </div>
+            </section>
+    )}
+
+    {/* Before the deep dive, never after it: this band is the whole of the thing,
+        and the band after it takes one part of that apart. A reader shown the
+        part first has nothing to hang it on.
+
+        Full width rather than a split band, for the reason the configuration
+        band is: the reference under the intro is as wide as the shell, and a
+        420px heading column beside it would leave the columns nothing. Same
+        three-part rhythm as that band, too — kicker, heading, intro at the
+        reading measure — because they are the same shape of band. */}
+    {anatomy && (
+            <section class={band} id={BAND_ANCHORS.anatomy}>
+                <div class:list={[bandInner, 'reveal']}>
+                    <p class='kicker mb-4'>{anatomy.kicker}</p>
+                    <h2 class:list={[bandHeading, 'mb-5']}>{anatomy.heading}</h2>
+                    <p class:list={[readingCopy, 'max-w-[720px] mb-8']}><CodeSpans text={anatomy.intro}/></p>
+                    <DataTable columns={anatomy.table.columns} rows={anatomy.table.rows}/>
+                </div>
+            </section>
+    )}
+
+    {deepDive && (
+            <section class={band} id={BAND_ANCHORS.deepDive}>
+                {/* Three stacked parts at a 44px rhythm: the heading block, the
+                    code-and-capture pair, and the labelled rows under their own
+                    hairline. gap rather than margins, so a part that has no data
+                    leaves no space behind it. */}
+                <div class:list={[bandInner, 'reveal flex flex-col gap-11']}>
+                    <div>
+                        <p class='kicker mb-4'>{deepDive.kicker}</p>
+                        <h2 class:list={[bandHeading, 'mb-5']}>{deepDive.heading}</h2>
+                        <p class:list={[readingCopy, 'max-w-[720px]']}><CodeSpans text={deepDive.standfirst}/></p>
+                    </div>
+
+                    {/* The pair splits into two columns only when both halves have
+                        something in them — see deepDiveIsSplit. Both are optional
+                        and independently so, and a split keyed to either one alone
+                        pins the half that exists against a column of air. That is
+                        the same rule the hero encodes with its centred variant: a
+                        spread is for two things, and one thing gets the measure.
+
+                        Which measure depends on which one it is. The code keeps the
+                        standfirst's 720px, because a terminal line set across the
+                        whole shell is a line nobody tracks back. A capture takes the
+                        full width, for the reason the gallery band states at length:
+                        these are wide strips, and a strip held to 720px is a picture
+                        of a terminal nobody can read. */}
+                    {(deepDive.code || deepDive.media) && (
+                            <div class:list={['grid gap-10',
+                                              deepDiveIsSplit && 'lg:grid-cols-[1fr_1.08fr] lg:gap-20 items-center']}>
+                                {deepDive.code && (
+                                        // min-w-0 so the code block's own horizontal scroll is
+                                        // what absorbs a long line, rather than the grid track
+                                        // widening to fit it.
+                                        <div class:list={['min-w-0', !deepDiveIsSplit && 'max-w-[720px]']}>
+                                            {/* One string, drawn once and spoken once: the
+                                                on-screen label above the block is also what
+                                                names its copy control. */}
+                                            <p class='micro-label mb-3'>{deepDive.code.label}</p>
+                                            <CodeBlock lines={deepDive.code.lines}
+                                                       copyFor={deepDive.code.label}/>
+                                        </div>
+                                )}
+                                {/* No label, for the reason the hero states: media
+                                    here carries a src by schema, so the placeholder
+                                    branch is unreachable. */}
+                                {deepDive.media && (
+                                        <MediaFrame src={deepDive.media.src} alt={deepDive.media.alt}
+                                                    widths={captureWidths} sizes={deepDiveWidth}/>
+                                )}
+                            </div>
+                    )}
+
+                    {/* The rows carry their own separators between them and none
+                        above the first, so this is the edge the band owes them. */}
+                    <div class='border-t border-hairline'>
+                        <DefinitionRows items={deepDive.rows}/>
+                    </div>
+
+                    {/* Sources sit under the rows they back, in a column rather
+                        than a row: four of them side by side read as a nav bar,
+                        and these are citations. */}
+                    {deepDive.links && (
+                            <ul class='mt-8 flex flex-col items-start gap-3' role='list'>
+                                {deepDive.links.map((source) => (
+                                        <li><ArrowLink href={source.href} label={source.label}/></li>
+                                ))}
+                            </ul>
+                    )}
+                </div>
+            </section>
+    )}
+
+    {config && (
+            <section class={band} id={BAND_ANCHORS.config}>
+                <div class:list={[bandInner, 'reveal']}>
+                    {/* The rule stands IN PLACE OF a kicker — it is the mark that
+                        says "still the same subject", which is also what the
+                        heading's level and size say whenever there is a band above
+                        them to be a step down from. So it is one or the other, not
+                        both: the schema makes this band's kicker optional because
+                        the approved design runs it without one, and a project that
+                        does declare a kicker has said what the rule was there to
+                        say. Drawn unconditionally it stacked a caramel dash under
+                        the kicker of any band that had both. */}
+                    {config.kicker
+                        ? <p class='kicker mb-4'>{config.kicker}</p>
+                        : <span class='block w-[34px] h-[3px] bg-accent mb-5' aria-hidden='true'></span>}
+                    <ConfigHeading class:list={[configHeading, 'mb-4']}>
+                        {config.heading}
+                    </ConfigHeading>
+                    {/* Reading copy at the reading measure, like the gallery's intro
+                        and the deep dive's standfirst. This is a full-width band
+                        intro a visitor reads through, not a label standing beside a
+                        value, and readingCopy is where that line is drawn — see the
+                        constant. It had been set in the muted 820px register the
+                        split bands use for the column BESIDE their content, which
+                        made this the one place on the page where the two crossed. */}
+                    <p class:list={[readingCopy, 'max-w-[720px] mb-8']}><CodeSpans text={config.intro}/></p>
+                    <DataTable columns={config.table.columns} rows={config.table.rows}/>
+                    {/* The note is a labelled row's value in everything but its
+                        label — same register, same 15.5/1.65 — so it takes the
+                        class DefinitionRows already owns rather than restating the
+                        numbers inline and drifting from them. */}
+                    <p class='def-value mt-6 max-w-[820px]'><CodeSpans text={config.note}/></p>
+                    {config.link && <ArrowLink href={config.link.href} label={config.link.label} class='mt-5'/>}
+                </div>
+            </section>
+    )}
+
+    {steps && (
+            <section class={band} id={BAND_ANCHORS.steps}>
+                <div class:list={[bandInner, split]}>
+                    <BandHeader kicker={steps.kicker} heading={steps.heading} intro={steps.intro}
+                                link={steps.link} class={stickyColumn}/>
+                    {/* The number beside each step is drawn, so it is hidden from
+                        assistive tech and the <ol> is what carries the sequence.
+                        Zero-padded and tabular so the column reads as a run rather
+                        than as digits of different widths.
+
+                        Which means the sequence has to survive, and here it needs
+                        both roles rather than one. Tailwind's preflight sets
+                        list-style:none, which is enough on its own for WebKit to
+                        drop the list role; and each row is display:grid for its
+                        number column, which overrides the display an <li> has by
+                        default and takes the listitem role with it. Between the
+                        two, the drawn "01" is aria-hidden and nothing is left to
+                        say "1 of 3". */}
+                    <ol role='list' class='flex flex-col gap-9'>
+                        {steps.items.map((step, index) => (
+                                <li role='listitem' class='grid grid-cols-[56px_1fr] gap-6'>
+                                    <span class='font-display text-[27px] font-semibold text-accent leading-none tabular-nums'
+                                          aria-hidden='true'>{String(index + 1).padStart(2, '0')}</span>
+                                    <div class='min-w-0'>
+                                        <h3 class='text-base font-semibold text-strong mb-3'>{step.title}</h3>
+                                        {/* A step need not have anything to type —
+                                            "Download the app" is a step. With no
+                                            block the heading's bottom margin and
+                                            the note's top margin collapse to one
+                                            gap, so the row closes up rather than
+                                            leaving a hole where the block was. */}
+                                        {step.lines && <CodeBlock lines={step.lines} copyFor={step.title}/>}
+                                        {step.note && (
+                                                <p class='mt-3 text-sm text-muted leading-relaxed'><CodeSpans text={step.note}/></p>
+                                        )}
+                                    </div>
+                                </li>
+                        ))}
+                    </ol>
+                </div>
+            </section>
+    )}
+
+    {gallery && (
+            <section class={band} id={BAND_ANCHORS.gallery}>
+                <div class:list={[bandInner, 'reveal']}>
+                    <p class='kicker mb-4'>{gallery.kicker}</p>
+                    <h2 class:list={[bandHeading, 'mb-5']}>{gallery.heading}</h2>
+                    {gallery.intro && <p class:list={[readingCopy, 'max-w-[720px]']}><CodeSpans text={gallery.intro}/></p>}
+                    {gallery.link && <ArrowLink href={gallery.link.href} label={gallery.link.label} class='mt-5'/>}
+                    {/* One capture per row, at the full width of the shell. These are
+                        5:1 strips: three across would leave each one 400px wide and
+                        80px tall at the widest viewport, which is a picture of a
+                        terminal nobody can read. A grid is the wrong instrument for
+                        this ratio however many of them there are.
+
+                        The box comes from the entry, because a placeholder has to
+                        reserve the shape its capture will fill or the page jumps
+                        when the asset lands.
+
+                        These are the widest boxes on the page — the full content
+                        shell, so 1248px at the artboard — which is why the ladder
+                        they ask for is the only one that reaches the top of the
+                        source. See galleryWidth and captureWidths. */}
+                    {/* role='list' for the reason the glance band states: preflight
+                        strips list-style, and WebKit reads that as "not a list". */}
+                    <ol role='list' class='mt-10 flex flex-col gap-10'>
+                        {gallery.items.map((shot, index) => (
+                                <li>
+                                    <figure>
+                                        {/* Two strings, two jobs. The caption names which
+                                            of the three this is and is read beside the
+                                            image; the alt says what is in it. While there
+                                            was no image the caption was the whole of the
+                                            figure and an empty alt was right — a
+                                            placeholder has nothing to describe. Now that
+                                            the captures are the band's content, an empty
+                                            alt would leave a reader who cannot see them
+                                            told three times that a preset exists and
+                                            never once shown one.
+
+                                            Still empty for an item waiting on its
+                                            capture, which is that placeholder case again;
+                                            the schema requires the alt as soon as there
+                                            is a src to describe. */}
+                                        <MediaFrame src={shot.src} alt={shot.alt ?? ''} label={gallery.pendingLabel}
+                                                    width={shot.width} height={shot.height}
+                                                    widths={captureWidths} sizes={galleryWidth}/>
+                                        <figcaption class='mt-3 flex items-baseline gap-3'>
+                                            <span class='font-display text-[13px] font-semibold text-accent tabular-nums'
+                                                  aria-hidden='true'>{String(index + 1).padStart(2, '0')}</span>
+                                            <span class='text-sm text-muted leading-snug'><CodeSpans text={shot.caption}/></span>
+                                        </figcaption>
+                                    </figure>
+                                </li>
+                        ))}
+                    </ol>
+                </div>
+            </section>
+    )}
+
+    {specs && (
+            <section class={band} id={BAND_ANCHORS.specs}>
+                <div class:list={[bandInner, split]}>
+                    <BandHeader kicker={specs.kicker} heading={specs.heading} intro={specs.intro}
+                                link={specs.link} class={stickyColumn}/>
+                    <DefinitionRows items={specs.items}/>
+                </div>
+            </section>
+    )}
+
+    {pillars && (
+            <section class={band} id={BAND_ANCHORS.pillars}>
+                <div class:list={[bandInner, 'reveal']}>
+                    <p class='kicker mb-4'>{pillars.kicker}</p>
+                    <h2 class:list={[bandHeading, 'mb-10']}>{pillars.heading}</h2>
+                    {/* Four across when there are four; three when there are three,
+                        so a row of three does not leave a fourth cell empty. The
+                        two class names are literals in the ternary above rather
+                        than an interpolated count, which the byte scanner would
+                        never see. */}
+                    <div class:list={['grid gap-6 sm:grid-cols-2', pillarColumns]}>
+                        {pillars.cards.map((card) => (
+                                <div class='cardx p-8'>
+                                    <h3 class='font-display text-[22px] font-semibold text-strong leading-tight mb-3'>
+                                        {card.title}
+                                    </h3>
+                                    <p class='text-[14.5px] leading-relaxed text-muted'><CodeSpans text={card.body}/></p>
+                                </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+    )}
+
+    {verification && (
+            <section class={band} id={BAND_ANCHORS.verification}>
+                <div class:list={[bandInner, split]}>
+                    <BandHeader kicker={verification.kicker} heading={verification.heading}
+                                class={stickyColumn}/>
+                    <DefinitionRows items={verification.rows}/>
+                </div>
+            </section>
+    )}
+
+    {faq && (
+            <section class={band} id={BAND_ANCHORS.faq}>
+                <div class:list={[bandInner, split]}>
+                    {/* No stickyColumn, unlike the other split bands: rows here grow
+                        and collapse under the reader, so a heading pinned beside
+                        them would sit against a column that changes height while it
+                        is being read. */}
+                    <BandHeader kicker={faq.kicker} heading={faq.heading} intro={faq.intro}
+                                link={faq.link}/>
+                    {/* Explicit rather than left to the component's default, which
+                        happens to be the same: the design asks for the first answer
+                        open on arrival, and that should read as a decision here. */}
+                    <FaqDisclosure items={faq.items} initialOpen={0}/>
+                </div>
+            </section>
+    )}
+
+    <section class={band}>
+        <div class='shell py-24 text-center reveal'>
+            {/* Same clamp as the hero, one step lower at the top end, and the
+                same 30px floor for the same reason — the washed phrase cannot
+                wrap, so its width follows the font-size, and the size has to
+                hold in the Georgia fallback display=swap paints first rather
+                than only in Fraunces.
+
+                Sharing the floor is what lets the two headings share one bound
+                on their wash: 250px at 30px in Georgia, checked in the schema.
+                The floor cannot absorb an arbitrary phrase and never could — a
+                36-character closing wash, which the heading cap alone permits,
+                scrolled the document by 278px at 320px. This entry's "system" is
+                107px by washFit.ts's table, well inside it. */}
+            <h2 class='font-display text-[clamp(30px,7vw,56px)] font-semibold text-strong tracking-[-0.015em] leading-[1.15]'>
+                {closingHeading
+                    ? <>{closingHeading.before}<span
+                            class='marker-wash whitespace-nowrap'>{closingHeading.washed}</span>{closingHeading.after}</>
+                    : closing.heading}
+            </h2>
+            <p class='mt-5 text-base text-muted leading-relaxed max-w-[560px] mx-auto'><CodeSpans text={closing.sub}/></p>
+            <CtaPair primary={closing.ctaPrimary} secondary={closing.ctaSecondary} location='closing'
+                     centred class='mt-9'/>
+            {/* .stack-line is already the caramel-middle-dot run at 13px muted, and
+                it paints the dot at the start of each item after the first so a dot
+                can never wrap onto a line by itself. Centring is the only delta. */}
+            {closing.facts && (
+                    <p class='stack-line justify-center mt-8'>
+                        {closing.facts.map((fact) => <span class='stack-tag'>{fact}</span>)}
+                    </p>
+            )}
+        </div>
+    </section>
+
+    {/* Last in the document, which is also where it belongs in the tab order: a
+        reader who has tabbed to the end of thirteen bands is exactly who wants
+        the way back. It draws itself against the viewport rather than here, and
+        only once the reader is a screen down. */}
+    <ScrollTop/>
+    <ProjectAnalytics/>
+</BaseLayout>

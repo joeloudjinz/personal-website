@@ -1,0 +1,297 @@
+---
+// A reference table: a header row, then rows of cells under it. The surface
+// treatment is the post-detail comparison table's — card, radius 14,
+// --shadow-soft, internal hairline grid — so a reader arriving from an article
+// recognises it.
+//
+// THE COLUMNS COME FROM THE DATA, and that is the whole point of the component.
+// It was four columns keyed name/values/fallback/effect with the widths tuned to
+// those four, which is a shape only one band of one project has: the second band
+// that wanted three columns would have had to edit this file, and the collection
+// exists so that a project costs one markdown file. So a column is now declared
+// where its copy is, and this draws however many it is handed.
+//
+// A column declares three things, none of which this file may decide for it:
+//
+//   label  the heading, which is copy — "fallback" prints as "Default" here and
+//          as something else for the next project.
+//   kind   whether its cells are tokens or a sentence. A token is set in the
+//          mono face because it is a thing you type; a sentence is set in the
+//          reading face and goes through CodeSpans, because a sentence may name
+//          a thing you type without being one.
+//   tone   which ink, and therefore what the column is FOR: the row's subject,
+//          a value, or the muted register a note is set in.
+//
+// kind and tone are separate because they vary separately. This band's knob
+// names and its defaults are both tokens and are not drawn alike — one is the
+// subject of its row and one is a value — and the same three inks are what the
+// next project's columns will pick from.
+//
+// A tokens cell takes one string or a list of them. The list is not a
+// convenience for the author: a column of accepted values is a LIST even when it
+// happens to have one member, and it is drawn as one — middle-dot separated,
+// wrapping as a run. A single string is one token and is drawn as one.
+import CodeSpans from '@src/components/CodeSpans.astro';
+
+/**
+ * One column: its heading, how its cells are set, and how wide it is drawn.
+ *
+ * Structural, like DefinitionRows' rows, rather than aliased to the schema's
+ * type. No band owns this pattern — the configuration band and the segment
+ * reference both hand it their own columns — and naming one of them here would
+ * make the component's type break the day that band is renamed. The call sites
+ * still fail to typecheck if the schema's shape changes.
+ */
+export interface TableColumn {
+    label: string;
+    kind: 'tokens' | 'sentence';
+    tone: 'strong' | 'body' | 'muted';
+    /**
+     * Pixels, at the wide layout only. Below the restack the columns are gone
+     * and a width would mean nothing, which is why it is applied to <col> —
+     * that box is display:none until the table is a table again.
+     *
+     * Optional, and the columns that omit it share what is left. Three columns
+     * and four want different splits, so this cannot be a constant here.
+     */
+    width?: number;
+}
+
+/** A row's cells, in column order. A tokens cell may be one token or a run. */
+export interface TableRow {
+    cells: (string | string[])[];
+}
+
+interface Props {
+    columns: TableColumn[];
+    rows: TableRow[];
+    class?: string;
+}
+
+const {columns, rows, class: className} = Astro.props;
+
+// Named classes rather than an interpolated `dt-${tone}`, which the byte scanner
+// would never see — and these have to be seen, because the scoped block below
+// only ships the selectors that appear in this file's markup.
+const TONE = {strong: 'dt-strong', body: 'dt-body', muted: 'dt-muted'} as const;
+
+// A sentence column is handed a string; the schema rejects a list in one, with a
+// message naming the row and the column. Joined rather than trusted so that a
+// consumer outside the collection cannot make this render "[object Object]".
+const sentence = (cell: string | string[]) => (Array.isArray(cell) ? cell.join(' ') : cell);
+---
+
+{/* The ARIA roles are redundant while this is laid out as a table and load-bearing
+    once it is not: below 1100px the rows restack, and `display: block` on a table
+    element drops the implicit table semantics in every major browser. Stated
+    explicitly, the header/cell association survives the restack. */}
+<table class:list={['dtable cardx', className]} role='table'>
+    <colgroup>
+        {columns.map((column) => (
+                column.width ? <col style={`width: ${column.width}px`}/> : <col/>
+        ))}
+    </colgroup>
+    <thead role='rowgroup'>
+        <tr role='row'>
+            {columns.map((column) => <th scope='col' role='columnheader' class='micro-label'>{column.label}</th>)}
+        </tr>
+    </thead>
+    <tbody role='rowgroup'>
+        {rows.map((row) => (
+                <tr role='row'>
+                    {row.cells.map((cell, index) => (
+                            <td role='cell'>
+                                {/* The stacked layout's per-cell label, and the same string
+                                    as the column heading it stands in for — paired here
+                                    rather than authored twice, so the two cannot drift. */}
+                                <span class='cell-label micro-label' aria-hidden='true'>{columns[index].label}</span>
+                                {/* The sentence span opens and closes hard against its text.
+                                    Broken across lines it would carry a leading and a
+                                    trailing space inside the span, which is a rendered
+                                    character either side of every cell in the column. */}
+                                {columns[index].kind === 'sentence'
+                                    ? <span class:list={['dt-sentence', TONE[columns[index].tone]]}><CodeSpans text={sentence(cell)}/></span>
+                                    : Array.isArray(cell)
+                                        // Flex, not inline spans with margins: a middle dot painted by
+                                        // ::before on the following token has no break opportunity
+                                        // around it, so an inline run would refuse to wrap and overflow
+                                        // the cell. This is the .stack-line technique — the dot rides at
+                                        // the START of each token after the first, so it can never wrap
+                                        // onto a line by itself.
+                                        ? <span class:list={['dt-tokens', TONE[columns[index].tone]]}>
+                                            {cell.map((token) => <span class='dt-token'>{token}</span>)}
+                                        </span>
+                                        : <span class:list={['dt-mono', TONE[columns[index].tone]]}>{cell}</span>}
+                            </td>
+                    ))}
+                </tr>
+        ))}
+    </tbody>
+</table>
+
+<style>
+    /* Written narrow-first. The fixed columns are what overflowed the scaffolding
+       table — this band's 250 + 210 + 90 plus gaps and padding is 670px before
+       the last column gets a single pixel, measured 163px past the viewport at
+       375px — so the stack is the base case and the table is the enhancement.
+       Layered the other way round, every stacked rule has to out-specify a
+       :first-child or :not(:last-child) it is undoing, and the ones that miss
+       leave an orphan column rule down the side of a phone. */
+    .dtable {
+        display: block;
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .dtable tbody,
+    .dtable tr,
+    .dtable th,
+    .dtable td {
+        display: block;
+    }
+
+    /* Column definitions have no meaning while the rows are stacked, and a
+       column box outside a table gets an anonymous wrapper. This is also what
+       makes an authored width safe: it is carried on a box that is not there. */
+    .dtable colgroup { display: none; }
+
+    /* Visually gone, still in the accessibility tree: the roles in the markup
+       pair these headers with their cells, so they must not be display:none. */
+    .dtable thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .dtable tr {
+        padding: 14px 24px;
+        border-bottom: 1px solid var(--hairline);
+    }
+
+    .dtable tbody tr:last-child { border-bottom: 0; }
+
+    .dtable td {
+        padding: 0;
+        border: 0;
+        text-align: left;
+    }
+
+    .dtable td + td { margin-top: 10px; }
+
+    /* Type comes from .micro-label in global.css, which both this and the stacked
+       label below carry in the markup. Only the delta lives here. */
+    .dtable th {
+        text-align: left;
+    }
+
+    /* The stacked layout's per-column label — the label above its value rather
+       than beside it, because a side-by-side pair leaves too little room for a
+       21-character knob name at 320px. aria-hidden in the markup, because the
+       real <th> is what a screen reader should hear. */
+    .cell-label {
+        display: block;
+        margin-bottom: 4px;
+    }
+
+    .dt-mono,
+    .dt-tokens {
+        font-family: var(--font-mono);
+        font-size: 13.5px;
+    }
+
+    /* A token is one unbroken identifier and the narrow layout has no column for
+       it to spill into. */
+    .dt-mono { overflow-wrap: anywhere; }
+
+    .dt-tokens {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        column-gap: 7px;
+        overflow-wrap: anywhere;
+    }
+
+    .dt-token + .dt-token::before {
+        content: '\00b7';
+        color: var(--accent);
+        margin-right: 7px;
+    }
+
+    .dt-sentence {
+        font-size: 14px;
+        line-height: 1.55;
+    }
+
+    /* The three inks a column picks from. Weight travels with the strong one:
+       the column set in it is the row's subject, and subject is the job the
+       weight and the ink are doing together. */
+    .dt-strong {
+        font-weight: 600;
+        color: var(--text-strong);
+    }
+
+    .dt-body { color: var(--text-body); }
+
+    .dt-muted { color: var(--text-muted); }
+
+    /* 1100px is where .shell reaches its 96px padding and the columns fit with
+       room left for the sentence one. */
+    @media (min-width: 1100px) {
+        .dtable {
+            display: table;
+            table-layout: fixed;
+        }
+
+        .dtable colgroup { display: table-column-group; }
+
+        .dtable thead {
+            position: static;
+            display: table-header-group;
+            width: auto;
+            height: auto;
+            margin: 0;
+            overflow: visible;
+            clip-path: none;
+            white-space: normal;
+        }
+
+        .dtable tbody { display: table-row-group; }
+
+        .dtable tr {
+            display: table-row;
+            padding: 0;
+            border-bottom: 0;
+        }
+
+        /* 12px either side of the internal rules makes the 24px gap the design
+           asks for; the outer edges carry the row's own 24px. */
+        .dtable th,
+        .dtable td {
+            display: table-cell;
+            vertical-align: baseline;
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--hairline);
+            margin-top: 0;
+        }
+
+        .dtable th:first-child,
+        .dtable td:first-child { padding-left: 24px; }
+
+        .dtable th:last-child,
+        .dtable td:last-child { padding-right: 24px; }
+
+        .dtable th:not(:last-child),
+        .dtable td:not(:last-child) { border-right: 1px solid var(--hairline); }
+
+        .dtable tbody tr:last-child td { border-bottom: 0; }
+
+        .cell-label { display: none; }
+    }
+</style>
