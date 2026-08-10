@@ -1,13 +1,18 @@
 ---
 name: "InZsh"
 demoLink: "https://github.com/joeloudjinz/inzsh"
-# The showcase page. Site-relative on purpose: the page is destined for
-# inzsh.abdellahaddoun.com and says so in its canonical, but that host does not
-# exist yet — an absolute link to it would be a dead link on the live site from
-# the moment this ships. The page is built into this site's dist and deployed
-# with it, so /inzsh/ is a real, working page today and stays one after the
-# subdomain lands. Swap this one line for the absolute URL when it does.
-projectPageLink: "/inzsh/"
+# The showcase page, now at its own host. This was site-relative until the
+# subdomain existed; it is absolute because the page's canonical says
+# inzsh.abdellahaddoun.com, and a card pointing at /inzsh/ would send readers to
+# a copy that only tells search engines to look elsewhere.
+#
+# Absolute also earns the new tab: linkAttrs reads the scheme and opens off-site
+# links in a new window, so the "project pages open in a new tab" behaviour comes
+# from this one line rather than a flag someone has to remember.
+#
+# /inzsh/ still builds and still works. It is what the subdomain's own catch-all
+# redirects back to, so it has to keep existing — it just is not what we link.
+projectPageLink: "https://inzsh.abdellahaddoun.com/"
 isUnderConstruction: false
 isFeatured: true
 version: "1.0.0"
