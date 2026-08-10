@@ -144,3 +144,42 @@ export function assertForeignCanonicalsNotAdvertised(
     );
   }
 }
+
+/**
+ * Every project page must be redirected away on the main site.
+ *
+ * The page is built into this site's `dist` because the subdomain deploy uploads
+ * that same directory — so `abdellahaddoun.com/<slug>/` is a real, reachable
+ * copy of a page whose canonical points somewhere else. A canonical tells search
+ * engines; it does nothing for a reader who types the URL, and nothing for an
+ * old link. The redirect is what actually sends them to the right host.
+ *
+ * Checked here because the failure is silent and delayed: a new project page
+ * would ship, work, and quietly serve a duplicate until someone noticed. The
+ * Firebase config is hand-written and cannot see the collection, so this is the
+ * seam where the two are made to agree.
+ */
+export function assertProjectPagesRedirected(projectRoot: URL): void {
+  const slugs = readProjectPageSlugs(projectRoot);
+  if (slugs.length === 0) return;
+
+  const config = JSON.parse(readFileSync(new URL('firebase.json', projectRoot), 'utf8'));
+  const redirects: {source?: string; destination?: string}[] =
+    config?.hosting?.redirects ?? [];
+
+  const missing = slugs.filter(
+    (slug) => !redirects.some((rule) => (rule.source ?? '').startsWith(`/${slug}`))
+  );
+
+  if (missing.length > 0) {
+    throw new Error(
+      `[project-pages] No Firebase redirect for: ${missing.join(', ')}.\n` +
+      `Each project page is built into dist/ and therefore reachable at ` +
+      `abdellahaddoun.com/<slug>/, which duplicates the subdomain it declares as ` +
+      `canonical. Add to firebase.json under hosting.redirects:\n` +
+      missing.map((slug) =>
+        `  { "source": "/${slug}{,/**}", "destination": "https://${slug}.abdellahaddoun.com/", "type": 301 }`
+      ).join('\n')
+    );
+  }
+}
