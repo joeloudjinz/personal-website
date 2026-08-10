@@ -1,5 +1,7 @@
 ---
 import type {ProjectCollectionEntry} from '../utils/projects';
+import {projectLead} from '../utils/projects';
+import {linkAttrs} from '../utils/links';
 import {render} from 'astro:content';
 import StackLine from './StackLine.astro';
 
@@ -9,13 +11,30 @@ interface Props {
 
 const {project} = Astro.props;
 const {Content} = await render(project);
-const {name, demoLink, demoLinkRel, tags, isUnderConstruction, publishedPackageLink, version} = project.data;
+const {
+    name, demoLink, demoLinkRel, projectPageLink, tags, isUnderConstruction, publishedPackageLink, version
+} = project.data;
+
+// The title's destination — the showcase page when there is one, the repository
+// otherwise. See projectLead for why that decision is not made here.
+//
+// Unpacked onto named attributes rather than spread onto the anchor. This
+// component carries a scoped <style>, and Astro cannot tell whether a spread
+// holds a `class`, so it emits its scope class on the element to be safe —
+// which put a dead `class="astro-…"` on all nine card titles, matching no rule
+// in the stylesheet. index.astro has no scoped styles and spreads it happily.
+const {href: leadHref, target: leadTarget, rel: leadRel} = projectLead(project);
+
+// The footer's own link to the showcase page takes the same decision from the
+// same place. linkAttrs('') is {}, so this reads unconditionally without a
+// second null check. Unpacked rather than spread, for the reason above.
+const {target: pageTarget, rel: pageRel} = linkAttrs(projectPageLink ?? '');
 ---
 
 <article class='cardx cardx-hover p-8'>
     <div class='flex items-center gap-3 flex-wrap mb-4'>
         <h2 class='font-display text-[26px] font-semibold text-strong leading-tight'>
-            <a href={demoLink} target='_blank' rel={demoLinkRel}>{name}</a>
+            <a href={leadHref} target={leadTarget} rel={leadRel}>{name}</a>
         </h2>
         {isUnderConstruction && <span class='badge-accent badge-pulse'>In progress</span>}
     </div>
@@ -31,6 +50,15 @@ const {name, demoLink, demoLinkRel, tags, isUnderConstruction, publishedPackageL
             ? <span class='text-[13px] font-semibold text-muted tabular-nums'>v{version}</span>
             : <span></span>}
         <span class='flex gap-5 flex-wrap'>
+            {/* Drawn as well as the title rather than instead of it, which is the
+                idiom this row already had: the repository link below has always
+                repeated where the title goes. It leads because a project that
+                has a page of its own is asking to be read there first. */}
+            {projectPageLink && (
+                    <a href={projectPageLink} target={pageTarget} rel={pageRel} class='arrow-link text-sm'>
+                        View the project page <span class='arrow'>→</span>
+                    </a>
+            )}
             <a href={demoLink} target='_blank' rel={demoLinkRel} class='arrow-link text-sm'>
                 View repository <span class='arrow'>→</span>
             </a>

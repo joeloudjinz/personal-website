@@ -71,6 +71,39 @@
 	/* Type */
 	--font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
 	--font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	/* Monospace is a stack, not a webfont: nothing here is downloaded, so a
+	   terminal capture and a config identifier cost no extra bytes. Shared so the
+	   code block and the reference tables cannot drift onto different mono faces. */
+	--font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+
+	/* The sticky header's own height. Measured off the built page rather than
+	   assumed: 18px of nav padding either side of the logo, plus the 1px
+	   hairline under it. The logo is drawn at 48px in dark and 46px in light, so
+	   the bar is 85px one way and 83px the other, and this is the taller of the
+	   two — clearing the taller can only ever leave a 2px gap, clearing the
+	   shorter leaves the bar drawn over whatever was meant to sit under it.
+
+	   The 2px is the logos' and not this token's to fix, and fixing it is a
+	   change to the site's own chrome rather than to a clearance.
+
+	   .reading-progress has always read this name with an 82px fallback, and
+	   until now nothing declared it. 82px is the nav box without the hairline,
+	   which put the 3px progress bar entirely behind the header in dark mode and
+	   left 2 of its 3 pixels showing in light. */
+	--nav-height: 85px;
+
+	/* How far an anchor target sits below the viewport top, so the sticky header
+	   does not cover it. Anything that can be jumped to by fragment — article
+	   headings, project page bands — reads this rather than restating the
+	   number, as does anything that pins itself under the bar.
+
+	   The header plus the air the design leaves under it, which comes to the
+	   112px the pinned band headings were drawn at. Written as the sum because
+	   the two halves answer to different things: the first is measured off the
+	   chrome and moves when the chrome does, the second is a design decision. It
+	   had been a flat 110px, which claimed to be that same clearance and was 2px
+	   under it. */
+	--anchor-offset: calc(var(--nav-height) + 27px);
 }
 
 .theme-dark {
@@ -160,14 +193,74 @@
 		.shell { padding-inline: 96px; }
 	}
 
-	/* Kicker / eyebrow label */
+	/* The site's micro-label treatment: 11px Inter, semibold, small caps. Four
+	   places had grown a byte-identical copy of it — a reference table's column
+	   headings, that table's stacked per-cell labels, a definition row's label,
+	   and the kicker. Declared once for both names rather than as a base class
+	   .kicker then has to be paired with, so no existing markup changes.
+	   Tracking and colour are the parts that vary by role, so each name states
+	   its own below.
+
+	   Component styles are unlayered and therefore outrank everything in this
+	   layer whatever the specificity, so a consumer overrides either of these by
+	   restating it in its own scoped block. */
+	.micro-label,
 	.kicker {
 		font-family: var(--font-sans);
 		font-size: 11px;
 		font-weight: 600;
-		letter-spacing: .16em;
 		text-transform: uppercase;
+	}
+
+	/* The default: tight tracking, muted — a label standing beside its own value. */
+	.micro-label {
+		letter-spacing: .08em;
+		color: var(--text-muted);
+	}
+
+	/* Kicker / eyebrow label — widest tracking of the family, in caramel. */
+	.kicker {
+		letter-spacing: .16em;
 		color: var(--accent);
+	}
+
+	/* The value half of a labelled row: 15.5px on a 1.65 leading, in body ink.
+	   Here rather than scoped inside DefinitionRows for the reason .micro-label
+	   is here — a second place draws it. A project page's configuration band ends
+	   in a note that is a row's value in everything but its label, and it had a
+	   byte-identical copy of these three declarations written inline. */
+	.def-value {
+		font-size: 15.5px;
+		line-height: 1.65;
+		color: var(--text-body);
+	}
+
+	/* An identifier set inside a sentence: a command, a variable name, a flag, a
+	   literal value. The site's one code treatment that is not a dark block.
+
+	   Deliberately unboxed — no background, no border, no radius. A page that
+	   shows code already carries CodeBlock doing the "this is code" work at full
+	   volume, and a box drawn behind every identifier in the copy speckles the
+	   text with little grey rectangles. A box also has to be wide enough for what
+	   is in it: INZSH_SALAH_AUTOLOCATE is 22 characters, and at 320px a boxed
+	   copy of it breaks across two lines with the padding split between them.
+	   So the face, a step down in size, and the strong ink carry it, which is as
+	   much signal as an identifier in a sentence needs.
+
+	   Sized in em rather than px, so it steps down from whatever it is set in
+	   instead of landing at one absolute size in copy that ranges 14px to 17px.
+	   A monospace face at the same nominal size as the sans beside it reads a
+	   size larger, so matching the surrounding number would make it tower.
+
+	   Both modes come free: --text-strong and --font-mono are the same tokens
+	   CodeBlock and DataTable read, and .theme-dark redefines the first. */
+	.code-token {
+		font-family: var(--font-mono);
+		font-size: .92em;
+		color: var(--text-strong);
+		/* An identifier is one unbroken word with no break opportunity in it, and
+		   the narrow layouts have no second column for it to spill into. */
+		overflow-wrap: anywhere;
 	}
 
 	/* Caramel marker wash behind key phrases. Painted by a pseudo-element inset
@@ -324,6 +417,9 @@
 	.arrow-link .arrow { display: inline-block; transition: transform var(--dur-base) var(--ease-standard); }
 	.arrow-link:hover { color: var(--accent); }
 	.arrow-link:hover .arrow { transform: translateX(2px); }
+	/* A back link leads with its arrow, so the nudge follows where it points. */
+	.arrow-link .arrow-back { display: inline-block; transition: transform var(--dur-base) var(--ease-standard); }
+	.arrow-link:hover .arrow-back { transform: translateX(-2px); }
 
 	/* Toolbox marquee — duplicated tile set, infinite leftward scroll */
 	.marquee-track {

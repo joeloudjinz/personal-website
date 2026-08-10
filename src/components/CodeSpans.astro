@@ -1,0 +1,49 @@
+---
+// Draws the backtick-marked runs of a content string as code, and everything
+// else as text.
+//
+// The projectPages collection's nested string fields are rendered as plain text
+// rather than as markdown, which left an author no way to say "this word is a
+// command" — the convention was a pair of curly quotes, because a backtick would
+// print as a backtick. This reads that one mark and leaves every other character
+// alone, which is the whole of what the copy needs: a page that wanted links,
+// emphasis and lists inside a field whose cap is counted in characters would be
+// asking for markdown, and this is not that.
+//
+// THERE IS NO set:html HERE AND THERE MUST NOT BE ONE. The string is split and
+// its pieces are handed to the template as values, so each one is escaped the
+// way Astro escapes any expression. The component cannot emit markup that came
+// out of a data file whatever that file says, and it cannot be made to by
+// authoring — there is no escaping rule for a call site to remember, because
+// there is no unescaped path. That is a property of the shape, not a promise.
+//
+// The pairing rule is the shell's rather than markdown's: backticks pair off
+// left to right, and one with no partner is just a backtick. So a string with
+// none is text, a string with three spans is three spans, and a string ending
+// mid-span keeps its character and the rest of its words.
+
+interface Props {
+    /** A plain string from a content entry, backticks and all. */
+    text: string;
+}
+
+const {text} = Astro.props;
+
+// Split on the mark: odd-numbered pieces sat between a pair, even-numbered ones
+// are the text around them.
+const pieces = text.split('`');
+
+// An even count of pieces means an odd count of backticks, so the last one never
+// closed. Its piece is text, and the mark itself belongs to that text rather
+// than being a delimiter that swallowed the tail of the string.
+const unclosed = pieces.length % 2 === 0;
+
+const parts = pieces
+    .map((piece, index) => (unclosed && index === pieces.length - 1
+        ? {code: false, text: `\`${piece}`}
+        : {code: index % 2 === 1, text: piece}))
+    // A string that opens or closes on a span leaves an empty piece beside it,
+    // and an empty pair would draw a <code> with nothing in it.
+    .filter((part) => part.text !== '');
+---
+{parts.map((part) => (part.code ? <code class='code-token'>{part.text}</code> : part.text))}

@@ -10,7 +10,7 @@ import StackLine from '../components/StackLine.astro';
 import ToolboxMarquee from '../components/ToolboxMarquee.astro';
 import ContactBlock from '../components/ContactBlock.astro';
 import {getSortedPosts} from '../utils/posts';
-import {getOrderedProjects} from '../utils/projects';
+import {getOrderedProjects, projectLead} from '../utils/projects';
 import {getExperiences, isCurrentRole, formatExperienceDate} from '../utils/experiences';
 
 // Newest first, current role on top
@@ -64,7 +64,10 @@ const RECOMMENDATIONS_URL = `${LINKEDIN_ACCOUNT}/details/recommendations/`;
     <!-- 2 · Experience teaser -->
     <section class='border-t border-hairline'>
         <div class='shell py-[72px] grid lg:grid-cols-[420px_1fr] gap-12 lg:gap-20 reveal'>
-            <div class='lg:sticky lg:top-28 self-start'>
+            {/* Pinned at the shared header clearance rather than at a Tailwind
+                step that happened to equal it — see --anchor-offset in
+                global.css. Same 112px as before. */}
+            <div class='lg:sticky lg:top-[var(--anchor-offset)] self-start'>
                 <p class='kicker mb-4'>2019 → Today</p>
                 <h2 class='font-display text-4xl md:text-[44px] font-semibold text-strong leading-tight mb-5'>
                     The story behind my experience.
@@ -125,7 +128,14 @@ const RECOMMENDATIONS_URL = `${LINKEDIN_ACCOUNT}/details/recommendations/`;
                         <div class='cardx cardx-hover p-8'>
                             <div class='flex items-center gap-3 flex-wrap mb-4'>
                                 <h3 class='font-display text-[26px] font-semibold text-strong'>
-                                    <a href={project.data.demoLink} target='_blank' rel={project.data.demoLinkRel}>
+                                    {/* Showcase page when the project has one,
+                                        repository otherwise — the same decision
+                                        the gallery card makes, made in one
+                                        place. The target is in the bag too:
+                                        links.ts decides it from the href, so a
+                                        site-relative showcase link stays in the
+                                        tab. See projectLead. */}
+                                    <a {...projectLead(project)}>
                                         {project.data.name}
                                     </a>
                                 </h3>

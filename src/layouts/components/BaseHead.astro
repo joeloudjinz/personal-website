@@ -14,6 +14,37 @@ interface Props {
     modifiedTime?: string;
     type?: 'website' | 'article';
     tags?: string[];
+    /**
+     * Absolute URL this page is authoritative at, for pages that are not served
+     * from Astro.site. A project showcase page is built into this site's dist but
+     * deployed to its own subdomain, so the built-in derivation — Astro.site plus
+     * the build-time pathname — would declare the wrong host as canonical and
+     * hand search engines a duplicate. Omit it and nothing changes.
+     */
+    canonical?: string;
+    /**
+     * Describes the og:image, not the page. They are usually the same sentence
+     * and on a project page they are not: the image falls back to the site
+     * avatar, so titling it with the name of a shell theme captions a
+     * photograph of a person wrongly. Omit it and the title is used, which is
+     * what every page did before this existed.
+     */
+    imageAlt?: string;
+    /**
+     * Present only on a software project page. Swaps the generic WebSite node
+     * for SoftwareApplication, which is the difference between telling a crawler
+     * "this is a web page" and "this is an MIT-licensed developer tool at
+     * version 1.0.0 with a public repository".
+     */
+    software?: {
+        /** The product's own name. Not the page title, which sells it. */
+        name: string;
+        applicationCategory: string;
+        operatingSystem: string;
+        license: string;
+        repository: string;
+        version?: string;
+    };
 }
 
 const {
@@ -25,30 +56,69 @@ const {
     publishedTime,
     modifiedTime,
     type = 'website',
-    tags
+    tags,
+    canonical,
+    imageAlt,
+    software
 } = Astro.props;
 
-const canonicalURL = new URL(Astro.url.pathname, Astro.site);
+const canonicalURL = canonical ? new URL(canonical) : new URL(Astro.url.pathname, Astro.site);
+// og:url and twitter:url have to agree with the canonical, or the share card
+// advertises a host the page does not live on. Astro.url carries the build host,
+// which is right for every page that is served from it — i.e. every page that
+// does not pass an override.
+const pageURL = canonical ? canonicalURL : Astro.url;
+// Stays on Astro.site: the OG image is served from the main site whatever host
+// embeds it, and it is the same file for every page.
 const ogImageURL = new URL(image || '/avatar.png', Astro.site).href;
 const siteName = SITE_TITLE;
 const locale = 'en_US';
 
-const structuredData = {
-    '@context': 'https://schema.org',
-    '@type': type === 'article' ? 'Article' : 'WebSite',
-    'name': title,
-    'description': description,
-    'url': canonicalURL.href,
-    'image': ogImageURL,
-    'author': {
-        '@type': 'Person',
-        'name': author,
-        'url': Astro.site?.href
-    },
-    ...(type === 'article' && publishedTime && {'datePublished': publishedTime}),
-    ...(type === 'article' && modifiedTime && {'dateModified': modifiedTime}),
-    ...(tags && {'keywords': tags.join(', ')})
+// The author node is shared by every variant on purpose. A project page is still
+// this site's work, and dropping the Person is how a subdomain stops being
+// attributable to the person who built it.
+const authorNode = {
+    '@type': 'Person',
+    'name': author,
+    'url': Astro.site?.href
 };
+
+const structuredData = software
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        'name': software.name,
+        'description': description,
+        'url': canonicalURL.href,
+        'image': ogImageURL,
+        'author': authorNode,
+        'applicationCategory': software.applicationCategory,
+        'operatingSystem': software.operatingSystem,
+        'license': software.license,
+        'codeRepository': software.repository,
+        ...(software.version && {'softwareVersion': software.version}),
+        // The project is free and open source, and saying so is a fact rather
+        // than a rich-result trick. No aggregateRating: there are no ratings to
+        // report, and inventing them to chase a rich result is not on the table.
+        'offers': {
+            '@type': 'Offer',
+            'price': '0',
+            'priceCurrency': 'USD'
+        },
+        ...(tags && {'keywords': tags.join(', ')})
+    }
+    : {
+        '@context': 'https://schema.org',
+        '@type': type === 'article' ? 'Article' : 'WebSite',
+        'name': title,
+        'description': description,
+        'url': canonicalURL.href,
+        'image': ogImageURL,
+        'author': authorNode,
+        ...(type === 'article' && publishedTime && {'datePublished': publishedTime}),
+        ...(type === 'article' && modifiedTime && {'dateModified': modifiedTime}),
+        ...(tags && {'keywords': tags.join(', ')})
+    };
 ---
 
 <!-- Global Metadata -->
@@ -83,22 +153,22 @@ const structuredData = {
 
 <!-- Open Graph / Facebook / LinkedIn -->
 <meta property='og:type' content={type === 'article' ? 'article' : 'website'}/>
-<meta property='og:url' content={Astro.url}/>
+<meta property='og:url' content={pageURL}/>
 <meta property='og:title' content={title}/>
 <meta property='og:description' content={description}/>
 <meta property='og:image' content={ogImageURL}/>
 <meta property='og:image:width' content='1200'/>
 <meta property='og:image:height' content='630'/>
-<meta property='og:image:alt' content={title}/>
+<meta property='og:image:alt' content={imageAlt ?? title}/>
 <meta property='og:site_name' content={siteName}/>
 <meta property='og:locale' content={locale}/>
 
 <!-- Twitter -->
 <meta name='twitter:card' content='summary_large_image'/>
-<meta name='twitter:url' content={Astro.url}/>
+<meta name='twitter:url' content={pageURL}/>
 <meta name='twitter:title' content={title}/>
 <meta name='twitter:description' content={description}/>
 <meta name='twitter:image' content={ogImageURL}/>
-<meta name='twitter:image:alt' content={title}/>
+<meta name='twitter:image:alt' content={imageAlt ?? title}/>
 <!--<meta name='twitter:site' content='@yourTwitterHandle'/>-->
 <!--<meta name='twitter:creator' content='@yourTwitterHandle'/>-->

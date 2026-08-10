@@ -1,0 +1,147 @@
+---
+/**
+ * Behavioural events for a project showcase page.
+ *
+ * GA4's enhanced measurement already covers page views and outbound clicks, and
+ * that is genuinely all it covers well here. Its one scroll event fires at 90%,
+ * which on a page this long means "reached the footer" and nothing else, and it
+ * does not see in-page anchor clicks at all — so the Install button, the single
+ * most intent-laden control on the page, produces no data whatsoever by default.
+ *
+ * Shape follows GA4's limits rather than fighting them. Custom dimensions are
+ * property-wide and capped at 50, so the cost of a taxonomy is measured in
+ * distinct *parameter* names, not event names. Everything here reuses two:
+ * `item` (what) and `location` (where). Two slots of fifty, for nine events.
+ * The alternative — install_copy, preset_copy, zshrc_copy as separate names —
+ * reports nothing extra and cannot be aggregated.
+ *
+ * Every listener is delegated from `document` and bound once behind a window
+ * flag. View Transitions swap the body, so anything bound to a node inside it
+ * would silently stop firing after the first navigation; the observer is the one
+ * exception and is rebuilt on `astro:page-load`.
+ *
+ * No PII, and no raw text or URLs as values: high-cardinality parameters
+ * overflow into GA4's "(other)" bucket, so short stable labels are both the
+ * private choice and the one that actually reports.
+ */
+---
+
+<script is:inline>
+    (() => {
+        if (window.__projectAnalyticsBound) return;
+        window.__projectAnalyticsBound = true;
+
+        // gtag is absent when PUBLIC_GTAG_MEASUREMENT_ID is unset — every local
+        // build, and any deploy that forgot it. Queue nothing and fail silently:
+        // an analytics layer is never worth breaking a page over.
+        const track = (name, params) => {
+            if (typeof window.gtag !== 'function') return;
+            window.gtag('event', name, params || {});
+        };
+
+        const closestAttr = (target, selector, attribute) => {
+            const el = target instanceof Element ? target.closest(selector) : null;
+            return el ? el.getAttribute(attribute) || '' : null;
+        };
+
+        /* ---- Intent -------------------------------------------------------- */
+
+        // The conversion. Fired by CodeBlock rather than sniffed from a click,
+        // so a copy that failed is recorded as a failure instead of a success.
+        document.addEventListener('codeblock:copy', (event) => {
+            const {label, ok} = event.detail || {};
+            track(ok ? 'code_copy' : 'copy_failed', {item: label});
+        });
+
+        // The Install button is an in-page anchor, so nothing automatic sees it.
+        // Its pair points off-site and will also raise GA4's own outbound click:
+        // that is two answers to two questions, not a double count. The automatic
+        // one totals every route to the repository; this one isolates the button.
+        document.addEventListener('click', (event) => {
+            const location = closestAttr(event.target, '[data-cta]', 'data-cta-location');
+            if (location === null) return;
+            const anchor = event.target.closest('[data-cta]');
+            track('cta_click', {item: anchor.textContent.trim(), location});
+        });
+
+        /* ---- Friction ------------------------------------------------------ */
+
+        // Which question, because this is a docs backlog written by readers.
+        document.addEventListener('toggle', (event) => {
+            const item = event.target;
+            if (!(item instanceof Element) || !item.matches('[data-faq-item]')) return;
+            if (!item.open) return;
+            const question = item.querySelector('summary');
+            track('faq_open', {item: (question?.textContent || '').trim().slice(0, 100)});
+        }, true); // toggle does not bubble
+
+        // Jumping to a section means the page was too long to scroll. Desktop and
+        // mobile are separated because they are different judgements about it.
+        document.addEventListener('click', (event) => {
+            const link = event.target instanceof Element
+                ? event.target.closest('[data-section-link]')
+                : null;
+            if (!link) return;
+            track('nav_click', {
+                item: (link.getAttribute('href') || '').replace('#', ''),
+                location: link.closest('#mobileMenu') ? 'mobile' : 'desktop'
+            });
+        });
+
+        document.addEventListener('click', (event) => {
+            if (!(event.target instanceof Element)) return;
+            if (event.target.closest('[data-scroll-top]')) track('scroll_top');
+
+            // Deferred, and the reason is ordering rather than tidiness. Header
+            // binds its own delegated click handler earlier in the document, so
+            // by the time this one runs aria-expanded has already been flipped.
+            // Reading it synchronously and testing for "not yet open" therefore
+            // reports every close and no open — the exact inverse of the event.
+            // A frame later the attribute is settled whichever handler set it.
+            const toggle = event.target.closest('.menu-toggle');
+            if (!toggle) return;
+            requestAnimationFrame(() => {
+                if (toggle.getAttribute('aria-expanded') === 'true') track('mobile_menu_open');
+            });
+        });
+
+        /* ---- Preference ---------------------------------------------------- */
+
+        // Worth knowing on a page that spends a band arguing about colour.
+        document.addEventListener('click', (event) => {
+            if (!(event.target instanceof Element)) return;
+            if (!event.target.closest('.theme-toggle')) return;
+            requestAnimationFrame(() => track('theme_toggle', {
+                item: document.documentElement.classList.contains('theme-dark') ? 'dark' : 'light'
+            }));
+        });
+
+        /* ---- Read depth ---------------------------------------------------- */
+
+        // One event per band, once each, replacing a single 90% scroll ping with
+        // a funnel. Fires however the reader arrived — scrolled, nav, or CTA —
+        // so the three entry points into the install steps stay comparable.
+        let observer = null;
+        const observeSections = () => {
+            if (observer) observer.disconnect();
+            if (!('IntersectionObserver' in window)) return;
+
+            const seen = new Set();
+            observer = new IntersectionObserver((entries) => {
+                for (const entry of entries) {
+                    if (!entry.isIntersecting) continue;
+                    const id = entry.target.id;
+                    if (!id || seen.has(id)) continue;
+                    seen.add(id);
+                    observer.unobserve(entry.target);
+                    track('section_view', {item: id});
+                }
+            }, {threshold: 0.4});
+
+            document.querySelectorAll('section[id]').forEach((section) => observer.observe(section));
+        };
+
+        observeSections();
+        document.addEventListener('astro:page-load', observeSections);
+    })();
+</script>

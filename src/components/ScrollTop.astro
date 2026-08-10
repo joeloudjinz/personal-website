@@ -1,0 +1,156 @@
+---
+// A control that takes the reader back to the top of a long page, once they are
+// far enough down to want it.
+//
+// Its name is the affordance's and not the project's, so it is written here
+// rather than authored per entry — the same line content.config.ts draws for the
+// copy control's "Copy" and the disclosure's "Read the answer ↓". Every project
+// page's control does the same thing, and it would be translated once.
+//
+// A glyph and not an icon. This design system has no icon set, no icon font and
+// no emoji: the marks it uses are text — the middle dot between two facts, the
+// arrow on a link, the chevron on the back link, the FAQ's own ↓ and ↑. An SVG
+// arrow here would be the first drawn icon on the site, which is a decision
+// about the brand rather than about this control.
+//
+// Quiet rather than caramel, for the same reason. A filled accent disc floating
+// over every scroll of the page is the loudest thing on it, and the brand is
+// calm on purpose. So it takes the card's own surface, its hairline and the
+// same lift a card is drawn with, with the glyph in the strong ink, and it
+// darkens on hover by the ~7% every other control in the system darkens by.
+//
+// (The word for what a card casts is also a Tailwind utility, and a comment in
+// this file is scanned as bytes — see the note in tailwind.config.mjs. It put a
+// live rule into all 36 pages once already, from the sentence above. The
+// declaration below is safe: the leak is the bare word, not `box-shadow`.)
+const LABEL = 'Scroll to top';
+---
+
+<button type='button' class='scroll-top' aria-label={LABEL} data-scroll-top>
+    <span aria-hidden='true'>↑</span>
+</button>
+
+<style>
+    .scroll-top {
+        position: fixed;
+        right: 20px;
+        bottom: 20px;
+        /* Under the sticky header, which is 50, and under the grain, which is 60
+           and covers everything by design. */
+        z-index: 45;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* 44px because that is the smallest a touch target should be, and a
+           circle because the system's controls are pill-radius and a pill with
+           one glyph in it is a circle. */
+        width: 44px;
+        height: 44px;
+        border-radius: 999px;
+        border: 1px solid var(--hairline);
+        background: var(--surface-card);
+        box-shadow: var(--shadow-card);
+        color: var(--text-strong);
+        font-size: 17px;
+        line-height: 1;
+        cursor: pointer;
+        /* Opacity and nothing else: no travel, no scale, no bounce.
+           And visibility with it, which is what keeps a control nobody can see
+           out of the tab order and out of the accessibility tree — a focusable
+           thing that is merely transparent is a stop that announces itself over
+           nothing. It is transitioned rather than switched so the fade has time
+           to run before the element goes: visibility animates in steps, so it
+           flips at the start of the fade in and at the end of the fade out,
+           which is the direction each one needs. */
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity var(--dur-base) var(--ease-standard),
+            visibility var(--dur-base) var(--ease-standard),
+            filter var(--dur-base) var(--ease-standard),
+            transform var(--dur-fast) var(--ease-standard);
+    }
+
+    /* No prefers-reduced-motion block of its own: the fade is a CSS transition,
+       so global.css's blanket clamp already reduces it to 1ms. That clamp does
+       NOT reach the Web Animations API, which is why FaqDisclosure guards its
+       own travel explicitly — nothing here calls animate(). What the clamp
+       cannot decide is the scroll itself, which the script asks for by name. */
+
+    .scroll-top.is-shown {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .scroll-top:hover {
+        filter: brightness(.93);
+    }
+
+    .scroll-top:active {
+        transform: translateY(1px);
+    }
+
+    /* Longhands rather than the shorthand — see the byte-scan note in
+       tailwind.config.mjs. */
+    .scroll-top:focus-visible {
+        outline-width: 2px;
+        outline-style: solid;
+        outline-color: var(--accent);
+        outline-offset: 3px;
+    }
+
+    /* Clear of the shell's gutter as the gutter grows: 24px of padding a side
+       below 768, 48px above it. */
+    @media (min-width: 768px) {
+        .scroll-top {
+            right: 32px;
+            bottom: 32px;
+        }
+    }
+</style>
+
+<script>
+    // Bundled and bound once, like the FAQ's travel and the code block's copy.
+    if (!window.__scrollTopBound) {
+        window.__scrollTopBound = true;
+
+        const control = () => document.querySelector<HTMLElement>('[data-scroll-top]');
+
+        /**
+         * Roughly a viewport down, which is where a page stops being one screen
+         * and the way back stops being obvious. Read off scrollY rather than off
+         * an observer on a sentinel, because the question is about the reader's
+         * distance from the top and not about any element.
+         */
+        let queued = false;
+        const update = () => {
+            queued = false;
+            control()?.classList.toggle('is-shown', window.scrollY > window.innerHeight);
+        };
+
+        window.addEventListener('scroll', () => {
+            if (queued) return;
+            queued = true;
+            requestAnimationFrame(update);
+        }, {passive: true});
+
+        /* Also on arrival: a page opened at a fragment, or restored at the
+           position it was left at, is already past the threshold. */
+        document.addEventListener('astro:page-load', update);
+
+        document.addEventListener('click', (event) => {
+            const target = event.target;
+            if (!(target instanceof Element) || !target.closest('[data-scroll-top]')) return;
+            /* Smooth for everyone who did not ask otherwise. html carries
+               scroll-behavior and global.css already turns it off under reduced
+               motion, but a scrollTo() with no behavior of its own is 'auto'
+               regardless of that rule, so the preference is read here too.
+
+               Nothing is done about focus on purpose. The control hides itself
+               on the way up, which drops focus to the document — so the next Tab
+               starts from the top of the page, which is where the reader just
+               asked to be. */
+            const motionless = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            window.scrollTo({top: 0, behavior: motionless ? 'auto' : 'smooth'});
+        });
+    }
+</script>

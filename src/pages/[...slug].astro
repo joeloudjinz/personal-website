@@ -8,12 +8,19 @@ import TableOfContent from '../components/widgets/TableOfContent.astro';
 import {getSortedPosts} from '../utils/posts';
 import {loadEnv} from 'vite';
 
+// Prefixed, and the prefix is the point. An empty prefix loads the whole of
+// .env into the build — every variable, whether this page has any business
+// seeing it or not. That was survivable while .env held a GA measurement ID and
+// some Giscus IDs; it is not, now that the same file holds a Cloudflare API
+// token and a Porkbun key that can rewrite the zone's DNS. One careless line in
+// this file — a spread, a stringify, a debug dump — would have put those in the
+// HTML of every blog post. Narrowing the read means it cannot.
 const {
     GISCUS_REPO,
     GISCUS_REPO_ID,
     GISCUS_CATEGORY,
     GISCUS_CATEGORY_ID
-} = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), '');
+} = loadEnv(process.env.NODE_ENV || 'production', process.cwd(), 'GISCUS_');
 
 export async function getStaticPaths() {
     const posts = await getSortedPosts();

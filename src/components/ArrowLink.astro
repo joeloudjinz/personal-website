@@ -1,0 +1,25 @@
+---
+// The site's forward link: the label, a caramel arrow, and the nudge .arrow-link
+// gives the arrow on hover. Five bands of a project page end in one.
+//
+// It owns linkAttrs, and that is as much the point of the component as the markup
+// is. Every href on a project page is authored data and may point anywhere, so
+// each one needs the off-site decision made for it — and a call site that forgets
+// to spread it fails silently: the link still works, it just opens a foreign site
+// in the reader's own tab with no rel. Five hand-written copies were five chances
+// to forget, forever.
+import {linkAttrs} from '@src/utils/links';
+
+interface Props {
+    href: string;
+    /** The link's own words, authored per band — see content.config.ts. */
+    label: string;
+    /** Placement only. The type and size belong to the component. */
+    class?: string;
+}
+
+const {href, label, class: className} = Astro.props;
+---
+
+<a class:list={['arrow-link inline-block text-[15px]', className]} href={href}
+   {...linkAttrs(href)}>{label} <span class='arrow'>→</span></a>
