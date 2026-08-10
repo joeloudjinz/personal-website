@@ -36,7 +36,7 @@ const USAGE = `
     --dry-run          Show what would run without doing it.
     --from=<phase>     Skip phases before this one.
     --until=<phase>    Stop after this one.
-    --wait=<minutes>   Cert-issuance poll budget (default 15).
+    --wait=<minutes>   Cert-issuance poll budget (default 5).
     --port=<n>         Local verification port (default 8788).
     --allow-worktree   Deploy from a linked worktree. Deploys belong in the main
                        checkout; this is the deliberate exception.
@@ -47,7 +47,11 @@ const USAGE = `
 function parseArgs(argv) {
   const positional = [];
   const flags = {
-    dryRun: false, waitMs: 15 * 60_000, port: 8788, from: null, until: null,
+    // Five minutes, not fifteen. Certificate issuance usually lands well inside
+    // it, and a timeout here is not a failure — the phase exits zero saying
+    // "re-run later" and resumes exactly where it stopped. A short budget that
+    // hands the terminal back is more useful than a long one that looks hung.
+    dryRun: false, waitMs: 5 * 60_000, port: 8788, from: null, until: null,
     allowWorktree: false
   };
 
