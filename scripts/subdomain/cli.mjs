@@ -38,13 +38,18 @@ const USAGE = `
     --until=<phase>    Stop after this one.
     --wait=<minutes>   Cert-issuance poll budget (default 15).
     --port=<n>         Local verification port (default 8788).
+    --allow-worktree   Deploy from a linked worktree. Deploys belong in the main
+                       checkout; this is the deliberate exception.
 
   Targets: ${targetNames().join(', ')}
 `;
 
 function parseArgs(argv) {
   const positional = [];
-  const flags = { dryRun: false, waitMs: 15 * 60_000, port: 8788, from: null, until: null };
+  const flags = {
+    dryRun: false, waitMs: 15 * 60_000, port: 8788, from: null, until: null,
+    allowWorktree: false
+  };
 
   for (const arg of argv) {
     if (!arg.startsWith('--')) {
@@ -53,6 +58,7 @@ function parseArgs(argv) {
     }
     const [key, value] = arg.slice(2).split('=');
     if (key === 'dry-run') flags.dryRun = true;
+    else if (key === 'allow-worktree') flags.allowWorktree = true;
     else if (key === 'from') flags.from = value;
     else if (key === 'until') flags.until = value;
     else if (key === 'wait') flags.waitMs = Number(value) * 60_000;

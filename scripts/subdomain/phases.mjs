@@ -259,6 +259,43 @@ export const phases = [
   },
 
   {
+    id: 'checkout',
+    group: DEPLOY,
+    async check({ paths, flags }) {
+      // Deploys come from the main checkout, not a feature worktree. The reason
+      // is not tidiness: a worktree is a different branch with a different .env,
+      // and this tool builds whatever checkout it is run from. Deploying from
+      // one ships a feature branch to production under a config that was never
+      // meant to leave the branch, and nothing downstream would say so.
+      const gitDir = await run('git', ['rev-parse', '--git-dir'], {
+        cwd: paths.root, quiet: true
+      }).then((s) => s.trim(), () => null);
+      const commonDir = await run('git', ['rev-parse', '--git-common-dir'], {
+        cwd: paths.root, quiet: true
+      }).then((s) => s.trim(), () => null);
+
+      if (!gitDir || !commonDir) return { satisfied: true, detail: 'not a git checkout' };
+
+      const inWorktree = gitDir !== commonDir;
+      if (inWorktree && !flags.allowWorktree) {
+        return { satisfied: false, detail: 'running from a linked worktree', undrifted: true };
+      }
+      return { satisfied: true, detail: inWorktree ? 'worktree (allowed)' : 'main checkout' };
+    },
+    async run() {
+      throw new TerminalError(
+        'This is a linked worktree, and deploys are meant to run from the main checkout.',
+        {
+          hint:
+            'A worktree carries a different branch and its own .env, so deploying from ' +
+            'one ships branch state under the wrong config. Merge first and deploy from ' +
+            'the main checkout, or pass --allow-worktree if this is the exception.'
+        }
+      );
+    }
+  },
+
+  {
     id: 'analytics',
     group: DEPLOY,
     async check({ paths, target }) {
