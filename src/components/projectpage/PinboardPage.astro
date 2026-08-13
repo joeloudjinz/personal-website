@@ -292,7 +292,17 @@ const closingWash = splitWash(closing.heading, closing.wash);
                 <div class='flex gap-3 justify-center items-start flex-wrap'>
                     {/* The summary IS the primary button. No data-pin-more here:
                         the summary already reports as a cta click, and one click
-                        must not report as two events. */}
+                        must not report as two events.
+
+                        These two attributes do not finish the job, though. A
+                        summary raises click when it CLOSES as well as when it
+                        opens, so Task 8's cta_click listener has to drop the
+                        closing half or a reader who folds the contract back up
+                        is counted as having pressed the button twice. The test
+                        is cheap: a summary's activation runs after the event has
+                        finished propagating, so at listener time details.open
+                        still carries the value from BEFORE the click — open
+                        means this click is the one closing it. */}
                     <details class='dsp-contract'>
                         <summary class='dsp-btn dsp-btn-pri' data-cta='primary' data-cta-location='closing'>{closing.contract.label}</summary>
                         <div class='dsp-contractbody'>
@@ -361,7 +371,10 @@ const closingWash = splitWash(closing.heading, closing.wash);
             padding: 9px 20px;
             transition: background-color var(--dsp-dur-state), color var(--dsp-dur-state), border-color var(--dsp-dur-state);
         }
-        .dsp-modebtn:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+        /* The label is the page's darkest ink and not --on-accent: see the note
+           on .dsp-btn-pri, which is the third control to fill with the accent
+           and the place the reasoning is written out. 4.59:1 in both modes. */
+        .dsp-modebtn:hover { background: var(--accent); border-color: var(--accent); color: var(--choc-ink); }
         /* The label is a consequence of the theme class, never of the click. */
         :global(html.theme-dark) .dsp-lbl-to-dark,
         :global(html:not(.theme-dark)) .dsp-lbl-to-light { display: none; }
@@ -419,8 +432,21 @@ const closingWash = splitWash(closing.heading, closing.wash);
             box-shadow: var(--shadow-card);
             transition: background-color var(--dsp-dur-state), color var(--dsp-dur-state), transform var(--dsp-dur-state);
         }
-        :global(html.theme-dark) .dsp-flipbtn { background: var(--navy-soft); border-color: var(--cream); color: var(--cream); }
-        .dsp-flipbtn:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); transform: translate(-50%, -50%) scale(1.05); }
+        /* Only the ground differs in dark: the border and the label are already
+           --text-strong in the base rule, which IS cream once the theme flips,
+           and restating them here bought nothing.
+
+           :not(:hover) is the point of this rule, not a flourish. A scoped
+           :global(html.theme-dark) selector outweighs a scoped :hover one — an
+           extra class and a type selector against a single pseudo-class — so
+           written plainly this rule won in dark mode even while the pointer was
+           on the button, and the hover below painted nothing at all there. It
+           had been that way since the flip was built. Standing the rest state
+           down while the pointer is on the button says the intent directly and
+           leaves the hover to win on its own. */
+        :global(html.theme-dark) .dsp-flipbtn:not(:hover) { background: var(--navy-soft); }
+        /* Same accent fill and the same ink as the other two accent fills. */
+        .dsp-flipbtn:hover { background: var(--accent); border-color: var(--accent); color: var(--choc-ink); transform: translate(-50%, -50%) scale(1.05); }
         .dsp-flipbtn b { font-family: var(--dsp-font-ar); font-weight: 700; font-size: 15px; }
 
         /* ---- The story rail ---- */
@@ -456,9 +482,10 @@ const closingWash = splitWash(closing.heading, closing.wash);
             transition: color var(--dsp-dur-state), background-color var(--dsp-dur-state);
         }
         .dsp-stop:hover { color: var(--text-strong); }
-        /* A wash under the current chip rather than a solid accent fill. The
-           site's accent-on-on-accent pair is a 3:1 treatment built for a
-           button's own size, and this is a 13.5px label; the marker wash puts
+        /* A wash under the current chip rather than a solid accent fill. A
+           filled accent needs an ink dark enough to sit on it — see the note on
+           .dsp-btn-pri, where the page's three accent fills settle that — and
+           this is a 13.5px label with no fill to sit on; the marker wash puts
            the page's strong ink on caramel at 12:1 in light and 7.8:1 in dark,
            in the same caramel the headings are marked with. */
         .dsp-stop.is-on { color: var(--text-strong); font-weight: 600; background: var(--accent-wash); }
@@ -683,19 +710,22 @@ const closingWash = splitWash(closing.heading, closing.wash);
             transition: background-color var(--dsp-dur-state), color var(--dsp-dur-state), border-color var(--dsp-dur-state), transform var(--dsp-dur-state);
         }
         .dsp-btn:active { transform: scale(.97); }
-        /* The one place this page departs from the site's own chrome, on
-           purpose. global.css sets .btn-primary to --accent under --on-accent,
-           which measures 3.07:1 in light and 3.79:1 in dark — the site's 3:1
-           button treatment, and short of the 4.5:1 a 14px label wants. Five
-           pins up, this page publishes an audit that says contrast passes in
-           light and in dark. A page cannot print that claim and then set its
-           own loudest control below the bar the claim is about.
+        /* Where this page departs from the site's own chrome, on purpose, and
+           the note the other two departures point at. global.css sets
+           .btn-primary to --accent under --on-accent, which measures 3.07:1 in
+           light and 3.79:1 in dark — the site's 3:1 button treatment, and short
+           of the 4.5:1 a 14px label wants. Five pins up, this page publishes an
+           audit that says contrast passes in light and in dark. A page cannot
+           print that claim and then set its own loudest control below the bar
+           the claim is about.
 
            So the label is the page's darkest ink instead, and one rule covers
-           both modes because --accent does not flip: 4.59:1 either side. The
-           site-wide pair is deliberately left alone for now and is the planned
-           site-adjustment pass's to reconcile — one documented fork of one
-           page, not two buttons quietly drifting apart. */
+           both modes because --accent does not flip: 4.59:1 either side. All
+           three of the page's accent fills take that same pair — this button,
+           the light switch and the mirror's flip — so the fork is one decision
+           applied consistently, not a button that disagrees with its
+           neighbours. The site-wide pair is deliberately left alone for now and
+           is the planned site-adjustment pass's to reconcile. */
         .dsp-btn-pri { background: var(--accent); border: 1.5px solid var(--accent); color: var(--choc-ink); }
         /* Both buttons hover into the same inversion: the page's ink becomes
            the ground and the page's ground becomes the ink, which is one rule
@@ -718,9 +748,17 @@ const closingWash = splitWash(closing.heading, closing.wash);
            wants anyway: open the contract, read it, then be offered the proofs.
            Closed, the two controls are a centred pair at every width.
 
-           display: contents on the disclosure would put the summary and the
-           panel straight into the row, and it is also what stops the browser
-           hiding the panel while the disclosure is shut. */
+           This leans on the flex-wrap utility on the row and does not work
+           without it. A basis of 100% only pushes the proofs button onto a line
+           of its own if the row is allowed to make one; on a row that cannot
+           wrap, the two controls stay put and share the width, and the open
+           panel is squeezed into whatever is left of it.
+
+           display: contents on the disclosure looks like the shortcut here,
+           because it would drop summary and panel straight into the row and let
+           each take its own line. Do not reach for it: the box it removes is
+           the one current engines hang the closed panel's hiding off, so the
+           contract would be on show before anyone asked for it. */
         .dsp-contract[open] { flex-basis: 100%; text-align: center; }
         .dsp-contractbody {
             max-width: 640px; margin: 20px auto 0; text-align: start;
@@ -782,6 +820,15 @@ const closingWash = splitWash(closing.heading, closing.wash);
             });
         };
 
+        // Set by bindProofs for the length of one synthetic click, read and
+        // cleared by the rail's own handler. Task 8 wants to tell a stop the
+        // reader chose in the rail apart from the same stop arrived at through
+        // the closing band, and the click itself carries nothing to say which:
+        // a synthetic click is indistinguishable from a real one by design.
+        // Module scope rather than a data attribute so nothing about it is
+        // visible in the DOM, and the two writes are one synchronous step apart.
+        let viaProofs = false;
+
         const bindRail = () => {
             const board = document.getElementById('dsp-board');
             if (!board || board.dataset.bound) return;
@@ -802,6 +849,11 @@ const closingWash = splitWash(closing.heading, closing.wash);
 
             railStops.forEach((stop) => stop.addEventListener('click', () => {
                 filtering = stop.dataset.railStop ?? 'all';
+                // Read and cleared on every click, including the ones that do
+                // not report, so a flag can never outlive the click it was set
+                // for and colour the next one.
+                const via = viaProofs ? 'proofs' : 'rail';
+                viaProofs = false;
                 light(filtering);
                 pinEls.forEach((pinEl) => {
                     pinEl.classList.toggle('is-dim', filtering !== 'all' && pinEl.dataset.pinStop !== filtering);
@@ -810,7 +862,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
                     // Task 8's analytics listens for pinboard:focus. Only a real
                     // narrowing is reported: going back to all pins is leaving a
                     // stop rather than choosing one.
-                    document.dispatchEvent(new CustomEvent('pinboard:focus', {detail: {stop: filtering}}));
+                    document.dispatchEvent(new CustomEvent('pinboard:focus', {detail: {stop: filtering, via}}));
                 }
             }));
 
@@ -839,9 +891,26 @@ const closingWash = splitWash(closing.heading, closing.wash);
                 // never sees the synthetic click and this button's own click is
                 // still counted exactly once.
                 const stop = document.querySelector<HTMLButtonElement>(`[data-rail-stop="${btn.dataset.proofsStop}"]`);
-                stop?.click();
+                if (stop) {
+                    // The page moves, so the keyboard moves with it: focus lands
+                    // on the stop this button just chose, and the next Tab
+                    // carries on into the board instead of resuming down here in
+                    // the closing band, a screen away from what the reader was
+                    // sent to look at. preventScroll because the scroll below is
+                    // the considered one — focus would otherwise jump first, with
+                    // none of the clearance and none of the motion setting.
+                    // Nothing listens for focus on a rail stop, so this moves the
+                    // caret and nothing else.
+                    stop.focus({preventScroll: true});
+                    // Only ever true across the click on the next line.
+                    viaProofs = true;
+                    stop.click();
+                }
                 document.getElementById('dsp-railboard')?.scrollIntoView({
-                    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                    // 'instant' rather than 'auto': 'auto' does not mean "no
+                    // animation", it means "go and ask the computed styles",
+                    // and global.css sets scroll-behavior: smooth on html.
+                    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
                     block: 'start'
                 });
             });
