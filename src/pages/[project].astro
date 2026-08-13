@@ -20,7 +20,14 @@ interface Props {
 }
 
 const {page} = Astro.props;
+
+// PinboardPage lands in the next task. Until it does a pinboard entry has
+// nothing to render, and a blank page is the one outcome worse than a failed
+// build: it deploys. The throw also narrows `page` to a band entry below.
+if (isPinboard(page)) {
+    throw new Error(
+        `PinboardPage is not implemented yet: entry "${page.data.slug}" has template "pinboard".`
+    );
+}
 ---
-{isPinboard(page)
-    ? null /* PinboardPage lands in the next task; no pinboard entries exist yet */
-    : <BandPage page={page}/>}
+<BandPage page={page}/>

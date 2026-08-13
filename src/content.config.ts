@@ -623,13 +623,16 @@ const projectPages = defineCollection({
     // The pinboard template: a masonry board of pins with a story rail, per the
     // feature spec in the vault KB (design-system-showcase-page). Copy strings
     // only — layout lives in PinboardPage.astro.
-    const stopId = z.string().regex(/^[a-z0-9-]+$/);
-    // A per-pin "Tell me more" unfold. dir marks the Arabic ones so the
-    // component can set dir/lang without guessing from the text.
+    // Rail filter ids, held to the same shape rules as `slug` two screens above.
+    const stopId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(24);
+    // A per-pin "Tell me more" unfold. `lang` is the language the body is
+    // written in, and the component derives both dir and lang from it: a
+    // direction cannot imply a language, so the language is the thing authored.
     const more = z.object({
       label: z.string().max(24),
+      // A short paragraph — the unfold's budget, shared with the closing contract.
       body: z.string().max(420),
-      dir: z.enum(['ltr', 'rtl']).default('ltr')
+      lang: z.enum(['en', 'ar']).default('en')
     });
     const pinBase = {
       stop: stopId,
@@ -637,24 +640,33 @@ const projectPages = defineCollection({
       more: more.optional()
     };
     const pin = z.discriminatedUnion('kind', [
-      z.object({ kind: z.literal('origin'), ...pinBase, alt: z.string().max(140), note: z.string().max(160) }),
+      // alt but no src: the artwork is the site's own /avatar.png, deliberately
+      // not an entry asset — so the entry authors the description and the
+      // component owns the file. Uncapped, like every other alt here.
+      z.object({ kind: z.literal('origin'), ...pinBase, alt: z.string(), note: z.string().max(160) }),
       z.object({
         kind: z.literal('swatches'), ...pinBase,
         colors: z.array(z.object({
+          // The design system's published palette values, displayed as content.
+          // Deliberately not read from the site's live CSS tokens.
           hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
           name: z.string().max(16),
           ink: z.enum(['dark', 'light'])
         })).min(2).max(8),
         note: z.string().max(160)
       }),
+      // value is a numeral or a short token: "7", "1.25", "AA".
       z.object({ kind: z.literal('stat'), ...pinBase, value: z.string().max(6), caption: z.string().max(160) }),
       z.object({ kind: z.literal('quote'), ...pinBase, text: z.string().max(140) }),
-      z.object({ kind: z.literal('arabic'), ...pinBase, name: z.string(), body: z.string().max(220) }),
-      z.object({ kind: z.literal('typeProof'), ...pinBase, note: z.string().max(180) }),
+      // Named for the role, not the script: a real name typeset in its own.
+      z.object({ kind: z.literal('nameplate'), ...pinBase, name: z.string(), body: z.string().max(220) }),
+      z.object({ kind: z.literal('faces'), ...pinBase, note: z.string().max(180) }),
       z.object({ kind: z.literal('terminal'), ...pinBase, lines: z.array(codeLine).min(1).max(6) }),
       z.object({
         kind: z.literal('states'), ...pinBase,
         items: z.array(z.object({
+          // One glyph. Zod counts UTF-16 code units, so a ZWJ or skin-tone emoji
+          // would blow this cap; ours are single-unit text glyphs — ✓ i ✕ !
           glyph: z.string().max(2),
           name: z.string().max(12),
           tone: z.enum(['positive', 'info', 'negative', 'caution'])
@@ -672,6 +684,7 @@ const projectPages = defineCollection({
       ...identity,
       masthead: z.object({
         kicker,
+        // One line beside the light switch, so tighter than the band hero's 80.
         heading: z.string().max(60),
         // Same wash validator as the band hero: the pinboard masthead clamps to
         // the same 30px floor, so washFits applies unchanged.
@@ -682,49 +695,87 @@ const projectPages = defineCollection({
         lightSwitch: z.object({ toDark: z.string().max(24), toLight: z.string().max(24) })
       }).refine(washIsInHeading, washIsInHeadingError),
       mirror: z.object({
+        // A script name — "عربي" — not a sentence: the flip is labelled by the
+        // script it flips to.
         flipLabel: z.string().max(8),
         en: z.object({ kicker, heading: z.string().max(80), body: z.string().max(220) }),
         ar: z.object({ kicker, heading: z.string().max(80), body: z.string().max(220) })
       }),
       railCaption: z.string().max(32),
       allLabel: z.string().max(16),
+      // Two is the fewest that is a filter; six is what the rail row holds.
       stops: z.array(z.object({ id: stopId, label: z.string().max(24) })).min(2).max(6),
+      // Under four pins the board is not a board; over twelve it stops being curated.
       pins: z.array(pin).min(4).max(12),
       closing: z.object({
         heading: z.string().max(60),
         wash,
+        // A short paragraph, like the unfold bodies.
         sub: z.string().max(220),
         contract: z.object({
           label: z.string().max(24),
+          // The unfold's budget again: each side of the contract is one paragraph.
           may: z.string().max(420),
           never: z.string().max(420)
         }),
         proofsLabel: z.string().max(24),
         proofsStop: stopId
       }).refine(washIsInHeading, washIsInHeadingError)
-    }).superRefine((page, ctx) => {
-      // Every pin (and the proofs button) must point at a declared stop, or the
-      // rail filter silently matches nothing.
-      const ids = new Set(page.stops.map((stop) => stop.id));
-      page.pins.forEach((entry, index) => {
-        if (!ids.has(entry.stop)) {
+    });
+
+    // Discriminated rather than a plain union, so an error reports against the
+    // template the entry declared: a band entry missing its closing band reads
+    // "closing: Required" instead of the bare "Invalid input" a plain union
+    // gives when neither branch matches. `template` is optional on bandPage —
+    // inzsh predates the field — and Zod routes a template-less entry there.
+    //
+    // The pinboard's cross-field checks hang off the union rather than off
+    // pinboardPage because discriminatedUnion refuses a ZodEffects option, so
+    // the refinement sits outside it and screens out band entries itself.
+    return z.discriminatedUnion('template', [pinboardPage, bandPage])
+      .superRefine((page, ctx) => {
+        if (page.template !== 'pinboard') return;
+        // The rail is a filter over the pins, so the two have to agree in both
+        // directions: a pin pointing at no stop is unreachable, and a stop no
+        // pin points at is a rail filter that matches nothing.
+        const declared = new Set<string>();
+        page.stops.forEach((stop, index) => {
+          if (declared.has(stop.id)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom, path: ['stops', index, 'id'],
+              message:
+                `stop id "${stop.id}" is declared twice. Ids are what pins point at, ` +
+                `so the second stop can never be told from the first.`
+            });
+          }
+          declared.add(stop.id);
+        });
+        page.pins.forEach((entry, index) => {
+          if (!declared.has(entry.stop)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom, path: ['pins', index, 'stop'],
+              message: `pin stop "${entry.stop}" is not one of the declared stops: ${[...declared].join(', ')}`
+            });
+          }
+        });
+        const pointedAt = new Set(page.pins.map((entry) => entry.stop));
+        page.stops.forEach((stop, index) => {
+          if (!pointedAt.has(stop.id)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom, path: ['stops', index, 'id'],
+              message:
+                `no pin points at stop "${stop.id}", so selecting it in the rail empties ` +
+                `the board. Give a pin that stop, or drop the stop.`
+            });
+          }
+        });
+        if (!declared.has(page.closing.proofsStop)) {
           ctx.addIssue({
-            code: z.ZodIssueCode.custom, path: ['pins', index, 'stop'],
-            message: `pin stop "${entry.stop}" is not one of the declared stops: ${[...ids].join(', ')}`
+            code: z.ZodIssueCode.custom, path: ['closing', 'proofsStop'],
+            message: `proofsStop "${page.closing.proofsStop}" is not a declared stop`
           });
         }
       });
-      if (!ids.has(page.closing.proofsStop)) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom, path: ['closing', 'proofsStop'],
-          message: `proofsStop "${page.closing.proofsStop}" is not a declared stop`
-        });
-      }
-    });
-
-    // Order matters: pinboard first, because its template literal is required —
-    // a band entry (no template field) falls through to bandPage.
-    return z.union([pinboardPage, bandPage]);
   }
 });
 
