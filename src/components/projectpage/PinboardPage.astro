@@ -96,7 +96,17 @@ const closingWash = splitWash(closing.heading, closing.wash);
         <section class='shell mt-6 reveal'>
             <div class='dsp-mirror relative grid grid-cols-1 min-[860px]:grid-cols-2 overflow-hidden'
                  id='dsp-mirror'>
-                <button class='dsp-flipbtn' type='button' data-mirror-flip>
+                {/* The one element here that deliberately pins no dir: its
+                    "EN ⇄ عربي" label reverses along with the card, which is the
+                    whole point of it.
+
+                    Named for the action, not for the scripts, and the state
+                    rides aria-pressed — the same label-stable pattern the
+                    header's theme toggle uses. Hard-coded false because the
+                    flip is never restored on load, so English-first is always
+                    where a fresh page starts. */}
+                <button class='dsp-flipbtn' type='button' data-mirror-flip
+                        aria-pressed='false' aria-label='Switch the reading direction'>
                     EN <span aria-hidden='true'>⇄</span> <b lang='ar'>{mirror.flipLabel}</b>
                 </button>
                 <div class='dsp-mside px-7 py-12 min-[860px]:px-16 min-[860px]:py-14' dir='ltr'>
@@ -129,6 +139,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
             --dsp-ease: cubic-bezier(.2, .7, .3, 1);
             --dsp-dur-enter: .55s;  /* choreography: zeroed under reduced motion */
             --dsp-dur-state: .25s;  /* feedback: survives reduced motion */
+            --dsp-dur-flip: .18s;   /* the dip has to cover the swap, so CSS and the script read one number */
             font-family: var(--dsp-font-sans);
         }
         /* Two independent bounds, and they answer different questions.
@@ -173,7 +184,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
         /* The flip itself: the card's flow reverses, so the two tracks trade
            places. Each side keeps its own dir, so no sentence is disturbed. */
         .dsp-mirror.is-flipped { direction: rtl; }
-        .dsp-mside { transition: opacity .18s ease, transform .18s ease; }
+        .dsp-mside { transition: opacity var(--dsp-dur-flip) ease, transform var(--dsp-dur-flip) ease; }
         .dsp-mirror.is-swapping .dsp-mside { opacity: 0; transform: scale(.985); }
 
         /* The seam between the sides. It is drawn on the Arabic column, on
@@ -229,19 +240,34 @@ const closingWash = splitWash(closing.heading, closing.wash);
             // listener below is registered once, when this module first runs.
             btn.dataset.bound = '1';
             const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            // Read once, from the same custom property the fade is written in, so
+            // the wait can never drift from the animation it is waiting on.
+            const dip = parseFloat(getComputedStyle(mirror).getPropertyValue('--dsp-dur-flip')) * 1000 || 180;
             btn.addEventListener('click', () => {
+                // A dip already in flight owns the card. Without this, a fast
+                // second click flips the columns while they are still faded out
+                // and the reader sees them strobe.
+                if (mirror.classList.contains('is-swapping')) return;
                 const flip = () => {
                     mirror.classList.toggle('is-flipped');
+                    const flipped = mirror.classList.contains('is-flipped');
+                    btn.setAttribute('aria-pressed', String(flipped));
                     // Task 8's analytics listens for pinboard:flip. Emitted here
                     // rather than measured there so the reading direction the
                     // event reports is the one the card actually settled on.
                     document.dispatchEvent(new CustomEvent('pinboard:flip', {
-                        detail: {to: mirror.classList.contains('is-flipped') ? 'to-ar' : 'to-en'}
+                        detail: {to: flipped ? 'to-ar' : 'to-en'}
                     }));
                 };
                 if (reduced()) { flip(); return; }
                 mirror.classList.add('is-swapping');
-                setTimeout(() => { flip(); mirror.classList.remove('is-swapping'); }, 180);
+                setTimeout(() => {
+                    // A navigation mid-dip detaches this card. Firing anyway would
+                    // announce a flip on whatever page the reader is on instead.
+                    if (!mirror.isConnected) return;
+                    flip();
+                    mirror.classList.remove('is-swapping');
+                }, dip);
             });
         };
         document.addEventListener('astro:page-load', bindMirror);
