@@ -8,6 +8,12 @@
 import BaseLayout from '@src/layouts/BaseLayout.astro';
 import ProjectAnalytics from '@src/components/ProjectAnalytics.astro';
 import {splitWash, type PinboardEntry} from '@src/utils/projectPages';
+// The system's real drawn marks, copied from the CD project's assets and
+// inlined as markup so their ink variables can read the page's theme tokens,
+// which an img element cannot offer. Geometry is verbatim; only the long
+// documentation blocks were trimmed.
+import monogramSvg from './monogram-aa.svg?raw';
+import wordmarkSvg from './wordmark-ar-outline.svg?raw';
 
 interface Props {
     page: PinboardEntry;
@@ -34,13 +40,14 @@ const closingWash = splitWash(closing.heading, closing.wash);
         off every other page. The site's Fraunces/Inter still load via BaseHead
         for the shared chrome.
 
-        Four of the system's five faces, and the fifth is left out on purpose:
-        Amiri is the quotation register, and nothing on this page speaks in it.
-        The board's own quote pin is a field note in the sharp register, not a
-        quotation. "Five faces" in the copy describes the system, not what this
-        page downloads — the day a pin quotes something, Amiri joins this list. */}
+        All five of the system's faces. An earlier cut of this page left Amiri
+        out because nothing spoke in it, with a note that it would join the day
+        a pin needed it — the expanded pins are that day: the faces row renders
+        its specimen and the nameplate's law cards set the name in it. Only 400
+        and 700 are requested because Amiri ships nothing else, and the
+        system's own law forbids synthesising the weights a face lacks. */}
     <link rel='stylesheet'
-          href='https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,500&family=Readex+Pro:wght@400;500;600;700&family=Harmattan:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap'/>
+          href='https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,500&family=Readex+Pro:wght@400;500;600;700&family=Harmattan:wght@400;700&family=Amiri:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap'/>
 
     {/* Without a script this page has no reveal to wait for. global.css starts
         .reveal at opacity 0 and only the observer in BaseLayout adds
@@ -72,6 +79,15 @@ const closingWash = splitWash(closing.heading, closing.wash);
         <style is:inline>
             .reveal { opacity: 1 !important; transform: none !important; }
             .marker-wash::before { transform: none !important; }
+            /* The expanded rows open on click, and a click needs the script.
+               The old unfolds were details elements and read scriptless for
+               free; these panels are held shut by the hidden attribute
+               instead, so with no script they are simply shown, every one,
+               and the board reads in full. The affordance buttons stay inert
+               and honest: aria-expanded false on a button above an already
+               shown panel is wrong, so they are stood down here. */
+            .dsp-exp[hidden] { display: grid !important; }
+            .dsp-open { display: none !important; }
         </style>
     </noscript>
 
@@ -301,22 +317,263 @@ const closingWash = splitWash(closing.heading, closing.wash);
                             </dl>
                         )}
 
-                        {/* data-pin-more carries the pin's own label because
-                            Task 8 reports unfolds by which pin was unfolded,
-                            and the native toggle event is what it listens on —
-                            so nothing here dispatches anything. One catch for
-                            that listener: toggle does not bubble, so a document
-                            listener only ever hears it in the capture phase. */}
-                        {pin.more && (
-                            <details class='dsp-more mt-3.5' data-pin-more={pin.label}
-                                     dir={pin.more.lang === 'ar' ? 'rtl' : undefined}
-                                     lang={pin.more.lang === 'ar' ? 'ar' : undefined}>
-                                <summary class:list={['inline-flex', 'items-center', 'gap-1.5',
-                                                      {'dsp-more-ar': pin.more.lang === 'ar'}]}>
-                                    <span class='dsp-chev' aria-hidden='true'>›</span> {pin.more.label}
-                                </summary>
-                                <p class:list={['dsp-morebody', 'mt-3', 'pt-3', {'dsp-morebody-ar': pin.more.lang === 'ar'}]}>{pin.more.body}</p>
-                            </details>
+                        {/* The affordance that replaced the old unfold: same
+                            register, same spot, but it opens the whole pin
+                            into a full row instead of growing a paragraph
+                            inside the column. data-pin-open carries the pin's
+                            label because the expand event reports opens by
+                            which pin was opened, exactly as the unfolds did. */}
+                        {pin.expansion && (
+                            <button class='dsp-open mt-3.5 inline-flex items-center gap-1.5' type='button'
+                                    aria-expanded='false' aria-controls={`dsp-exp-${index}`}
+                                    data-pin-open={pin.label}
+                                    dir={pin.kind === 'nameplate' ? 'rtl' : undefined}
+                                    lang={pin.kind === 'nameplate' ? 'ar' : undefined}>
+                                <span class='dsp-chev' aria-hidden='true'>›</span> {pin.expansion.label}
+                            </button>
+                        )}
+                        {pin.expansion && (
+                            <div class='dsp-exp' id={`dsp-exp-${index}`} hidden>
+                                {pin.kind === 'origin' && pin.expansion && (
+                                    <>
+                                        <p class='dsp-expintro'>{pin.expansion.intro}</p>
+                                        <div class='dsp-marks'>
+                                            {pin.expansion.marks.map((mark) => (
+                                                <figure class='dsp-mark'>
+                                                    <div class='dsp-markart'>
+                                                        {mark.mark === 'bubble' && (
+                                                            <img src='/avatar.png' alt='' width='400' height='400' loading='lazy'
+                                                                 class='block h-auto w-[104px]'/>
+                                                        )}
+                                                        {mark.mark === 'monogram' && (
+                                                            <>
+                                                                {/* Twice on purpose: the drawing, and the same
+                                                                    drawing at its published 24px floor. */}
+                                                                <span class='dsp-monogram block w-[88px]'><Fragment set:html={monogramSvg}/></span>
+                                                                <span class='dsp-monogram block w-6'><Fragment set:html={monogramSvg}/></span>
+                                                            </>
+                                                        )}
+                                                        {mark.mark === 'wordmark' && (
+                                                            <span class='dsp-wordmark block w-full max-w-[230px]'><Fragment set:html={wordmarkSvg}/></span>
+                                                        )}
+                                                    </div>
+                                                    <figcaption class='dsp-markcap'><b>{mark.title}</b>{mark.job}</figcaption>
+                                                </figure>
+                                            ))}
+                                        </div>
+                                        <ul class='dsp-laws'>
+                                            {pin.expansion.laws.map((law) => <li>{law}</li>)}
+                                        </ul>
+                                    </>
+                                )}
+                                {pin.kind === 'swatches' && pin.expansion?.demo === 'budget' && (
+                                    <>
+                                        <p class='dsp-expintro'>{pin.expansion.intro}</p>
+                                        <div class='dsp-jobs'>
+                                            {pin.expansion.jobs.map((job) => (
+                                                <div class='dsp-job'>
+                                                    <div class='dsp-jobart'>
+                                                        {/* Inert samples, deliberately: spans wearing the
+                                                            five treatments, not five working controls a
+                                                            keyboard would have to walk through. */}
+                                                        {job.job === 'kicker' && <span class='dsp-spec-kicker'>{job.sample}</span>}
+                                                        {job.job === 'wash' && <span class='dsp-spec-wash'>{job.sample}</span>}
+                                                        {job.job === 'action' && <span class='dsp-spec-btn'>{job.sample}</span>}
+                                                        {job.job === 'focus' && <span class='dsp-spec-field'>{job.sample}</span>}
+                                                        {job.job === 'selection' && <span class='dsp-spec-sel'>{job.sample}</span>}
+                                                    </div>
+                                                    <p class='dsp-jobcap'>{job.caption}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div class='dsp-strip'>
+                                            <p class='dsp-exptitle'>{pin.expansion.strip.title}</p>
+                                            <div class='dsp-stripchips'>
+                                                {pin.colors.map((color) => (
+                                                    <span class='dsp-sw relative block h-12' style={`background:${color.hex}`}>
+                                                        <i class:list={['absolute', 'bottom-1', 'left-1.5', 'not-italic', 'px-1.5', 'py-0.5',
+                                                                        {'dsp-sw-light': color.ink === 'light'}]}>{color.name}</i>
+                                                    </span>
+                                                ))}
+                                                {/* The one value that moves in dark: caramel as text
+                                                    steps up. A displayed value, so labelled by it. */}
+                                                <span class='dsp-sw relative block h-12' style='background:#C68A45'>
+                                                    <i class='absolute bottom-1 left-1.5 not-italic px-1.5 py-0.5 dsp-sw-light'>#C68A45</i>
+                                                </span>
+                                            </div>
+                                            <p class='dsp-expnote'>{pin.expansion.strip.note}</p>
+                                        </div>
+                                    </>
+                                )}
+                                {pin.kind === 'swatches' && pin.expansion?.demo === 'chart' && (
+                                    <>
+                                        <p class='dsp-expintro'>{pin.expansion.intro}</p>
+                                        <div class='dsp-chart'>
+                                            {pin.colors.map((color, seriesIndex) => (
+                                                <div class='dsp-bar'>
+                                                    <span>{color.name}</span>
+                                                    <i class={`dsp-vz${seriesIndex + 1}`} style={`height:${[62, 80, 46, 68, 36, 52, 26][seriesIndex] ?? 45}%`}></i>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p class='dsp-expnote'>{pin.expansion.chartNote}</p>
+                                        <div class='dsp-ramps'>
+                                            <div>
+                                                <div class='dsp-rampline'>{[1, 2, 3, 4, 5, 6].map((step) => <i class={`dsp-sq${step}`}></i>)}</div>
+                                                <p class='dsp-rampcap'>{pin.expansion.seqLabel}</p>
+                                            </div>
+                                            <div>
+                                                <div class='dsp-rampline'>{[1, 2, 3, 4, 5, 6, 7].map((step) => <i class={`dsp-dv${step}`}></i>)}</div>
+                                                <p class='dsp-rampcap'>{pin.expansion.divLabel}</p>
+                                            </div>
+                                            <div>
+                                                <div class='dsp-rampline'><i class='dsp-nullsq'></i></div>
+                                                <p class='dsp-rampcap'>{pin.expansion.nullLabel}</p>
+                                            </div>
+                                        </div>
+                                        <p class='dsp-expnote'>{pin.expansion.nullNote}</p>
+                                    </>
+                                )}
+                                {/* Handed to a parameter because the narrowing
+                                    to the ladder branch does not survive into
+                                    the row callback below. */}
+                                {pin.kind === 'stat' && pin.expansion?.demo === 'ladder' && ((ladder) => (
+                                    <>
+                                        <p class='dsp-expintro'>{ladder.intro}</p>
+                                        <div class='dsp-ladder'>
+                                            {ladder.rows.map((row, rowIndex) => (
+                                                <div class='dsp-lrow'>
+                                                    <span class='dsp-lmeta'>{row.role} · {row.px}px</span>
+                                                    <span class:list={['dsp-lsample', rowIndex < 4 ? 'dsp-l-serif' : 'dsp-l-sans',
+                                                                      {'dsp-l-label': row.role === 'label'}]}
+                                                          style={`font-size:${row.px}px`}>{ladder.sample}</span>
+                                                    <span class:list={['dsp-lsample-ar', rowIndex < 4 ? 'dsp-l-ar' : 'dsp-l-arsans',
+                                                                      {'dsp-l-arlabel': row.role === 'label'}]}
+                                                          style={`font-size:${row.arPx}px`} lang='ar' dir='rtl'>{ladder.arSample}</span>
+                                                </div>
+                                            ))}
+                                            {/* The density demo: the body step again at the
+                                                published utility factor, 16 times 0.9375. */}
+                                            <div class='dsp-lrow'>
+                                                <span class='dsp-lmeta'>{ladder.rows[4]?.role} · ×0.9375</span>
+                                                <span class='dsp-lsample dsp-l-sans' style='font-size:15px'>{ladder.sample}</span>
+                                                <span class='dsp-lsample-ar dsp-l-arsans' style='font-size:15px' lang='ar' dir='rtl'>{ladder.arSample}</span>
+                                            </div>
+                                        </div>
+                                        <p class='dsp-expnote'>{ladder.denseNote}</p>
+                                        <p class='dsp-expnote'>{ladder.arNote}</p>
+                                    </>
+                                ))(pin.expansion)}
+                                {pin.kind === 'stat' && pin.expansion?.demo === 'motion' && (
+                                    <>
+                                        <p class='dsp-expintro'>{pin.expansion.intro}</p>
+                                        <div class='dsp-stage' data-motion-stage>
+                                            <div class='dsp-stagecard'><span class='dsp-stageglyph' aria-hidden='true'>Aa</span></div>
+                                            <span class='dsp-stagechip' aria-hidden='true'></span>
+                                            <button class='dsp-replay' type='button' data-motion-replay>{pin.expansion.replayLabel}</button>
+                                        </div>
+                                        <p class='dsp-expnote'>{pin.expansion.enterCaption}</p>
+                                        <p class='dsp-expnote'>{pin.expansion.stateCaption}</p>
+                                        <p class='dsp-expnote'>{pin.expansion.reducedNote}</p>
+                                    </>
+                                )}
+                                {pin.kind === 'quote' && pin.expansion && (
+                                    <>
+                                        <p class:list={['dsp-sib', {'dsp-sib-sharp': pin.register === 'sharp'}]}
+                                           lang='ar' dir='rtl'>«{pin.expansion.sibling}»</p>
+                                        <p class='dsp-expnote'>{pin.expansion.note}</p>
+                                    </>
+                                )}
+                                {pin.kind === 'nameplate' && pin.expansion && (
+                                    <div dir='rtl' lang='ar' class='text-right'>
+                                        {pin.expansion.intro && <p class='dsp-expintro dsp-expintro-ar'>{pin.expansion.intro}</p>}
+                                        <div class='dsp-arlaws'>
+                                            {pin.expansion.specimens.map((specimen) => (
+                                                <div class='dsp-arlaw'>
+                                                    <span class={`dsp-arspec dsp-arspec-${specimen.law}`}>{specimen.sample}</span>
+                                                    <span class='dsp-arcap'>{specimen.caption}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                                {pin.kind === 'faces' && pin.expansion && (
+                                    <>
+                                        {pin.expansion.intro && <p class='dsp-expintro'>{pin.expansion.intro}</p>}
+                                        <div class='dsp-facelist'>
+                                            {pin.expansion.rows.map((row) => (
+                                                <div class='dsp-facerow'>
+                                                    {row.face === 'literata' && <span class='dsp-facespec dsp-f-lit' aria-hidden='true'>Aa</span>}
+                                                    {row.face === 'readex' && <span class='dsp-facespec dsp-f-rdx' aria-hidden='true'>Aa</span>}
+                                                    {row.face === 'harmattan' && <span class='dsp-facespec dsp-f-har' lang='ar' aria-hidden='true'>ع</span>}
+                                                    {row.face === 'amiri' && <span class='dsp-facespec dsp-f-ami' lang='ar' aria-hidden='true'>ع</span>}
+                                                    {row.face === 'mono' && <span class='dsp-facespec dsp-f-mono' aria-hidden='true'>{'{}'}</span>}
+                                                    <p class='dsp-facemeta'><b>{row.name}</b>{row.job}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                                {pin.kind === 'terminal' && pin.expansion && (
+                                    <>
+                                        {pin.expansion.intro && <p class='dsp-expintro'>{pin.expansion.intro}</p>}
+                                        <div class='dsp-devgrid'>
+                                            <div>
+                                                <p class='dsp-exptitle'>{pin.expansion.diffTitle}</p>
+                                                <pre class='dsp-devpre'>{pin.expansion.diff.map((line) => (
+                                                    <span class={`dsp-d-${line.mark}`}><i>{line.mark === 'add' ? '+' : line.mark === 'drop' ? '-' : '~'}</i>{line.text}</span>
+                                                ))}</pre>
+                                            </div>
+                                            <div>
+                                                <p class='dsp-exptitle'>{pin.expansion.logTitle}</p>
+                                                <pre class='dsp-devpre'>{pin.expansion.logs.map((line) => (
+                                                    <span class={`dsp-g-${line.level}`}><i>{line.level}</i>{line.text}</span>
+                                                ))}</pre>
+                                            </div>
+                                            <div>
+                                                <p class='dsp-exptitle'>{pin.expansion.ansiTitle}</p>
+                                                <div class='dsp-ansi'>
+                                                    {Array.from({length: 16}, (_, slot) => <i class={`dsp-a${slot}`}></i>)}
+                                                </div>
+                                                <p class='dsp-expnote mt-2.5'>{pin.expansion.ansiNote}</p>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                                {pin.kind === 'states' && pin.expansion && (
+                                    <>
+                                        <p class='dsp-expintro'>{pin.expansion.intro}</p>
+                                        <div class='dsp-strows'>
+                                            {pin.expansion.items.map((item) => (
+                                                <div class='dsp-strow'>
+                                                    <span class={`dsp-stx dsp-stx-${item.tone} rounded-full px-3 py-1`}>{item.glyph} {item.name}</span>
+                                                    <p class='dsp-strowcap'>{item.caption}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                                {pin.kind === 'audit' && pin.expansion && (
+                                    <>
+                                        <p class='dsp-expintro'>{pin.expansion.intro}</p>
+                                        <div class='dsp-auditgrid'>
+                                            <dl class='dsp-audit'>
+                                                {pin.expansion.rows.map((row) => (
+                                                    <div class='flex justify-between gap-3'><dt>{row.check}</dt><dd>{row.result}</dd></div>
+                                                ))}
+                                            </dl>
+                                            <div>
+                                                <p class='dsp-exptitle'>{pin.expansion.flaggedTitle}</p>
+                                                <div class='dsp-flags'>
+                                                    {pin.expansion.flagged.map((flag) => (
+                                                        <p class='dsp-flag'><b>{flag.pair}</b>{flag.note}</p>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </>
+                                )}
+                            </div>
                         )}
                     </article>
                 ))}
@@ -335,7 +592,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
                 </h2>
                 <p class='dsp-closingsub'>{closing.sub}</p>
                 <div class='flex gap-3 justify-center items-start flex-wrap'>
-                    {/* The summary IS the primary button. No data-pin-more here:
+                    {/* The summary IS the primary button. No data-pin-open here:
                         the summary already reports as a cta click, and one click
                         must not report as two events.
 
@@ -386,6 +643,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
             --dsp-font-display: 'Literata', Georgia, serif;
             --dsp-font-sans: 'Readex Pro', system-ui, sans-serif;
             --dsp-font-ar: 'Harmattan', sans-serif;
+            --dsp-font-ar-formal: 'Amiri', Georgia, serif;
             --dsp-font-mono: 'JetBrains Mono', monospace;
             --dsp-ease: cubic-bezier(.2, .7, .3, 1);
             --dsp-dur-state: .25s;  /* hover, press, and the pressed states. Reduced motion does not
@@ -399,6 +657,10 @@ const closingWash = splitWash(closing.heading, closing.wash);
                                        both off under reduced motion rather than clamping them. */
             --dsp-dur-flip: .18s;   /* the dip has to cover the swap, so CSS and the script read one
                                        number. Keep it in seconds: the script multiplies by 1000. */
+            --dsp-dur-move: .34s;   /* the pins' travel when a row opens and the board reflows
+                                       around it. Never fired under reduced motion: the script
+                                       skips the whole measured glide rather than letting the
+                                       global clamp shrink it. */
             /* Caramel as TEXT, which is a different budget from caramel as a
                mark. --accent is 3.1:1 on cream and 3.7:1 on navy — enough for a
                dot, a bar or a fill, and short of the 4.5:1 a 12px control label
@@ -637,8 +899,21 @@ const closingWash = splitWash(closing.heading, closing.wash);
             border: 1px solid var(--hairline);
             border-radius: 20px;
             box-shadow: var(--shadow-soft);
-            transition: transform .3s var(--dsp-ease), box-shadow .3s var(--dsp-ease), opacity .45s ease, filter .45s ease;
+            /* transform and clip-path ride the travel duration because the
+               expansion script animates both: the glide of every pin when the
+               board reflows, and the reveal of the opening pin's grown box.
+               The hover lift shares the transform channel and simply rides
+               the same number now. */
+            transition: transform var(--dsp-dur-move) var(--dsp-ease), clip-path var(--dsp-dur-move) var(--dsp-ease), box-shadow .3s var(--dsp-ease), opacity .45s ease, filter .45s ease;
         }
+        /* The open pin is the full row. column-span needs a block-level box,
+           and the pins are laid inline-block for the column packing, so the
+           display is restated with the span. Opening in place is the point:
+           the row appears at the pin's own position in the story, with the
+           board parting above and below it. */
+        .dsp-pin.is-open { display: block; column-span: all; }
+        /* A full-width row has nowhere to float to. */
+        .dsp-pin.is-open:hover { transform: none; }
         /* :not() rather than a later override, so the two pins that are navy in
            both modes never enter the argument. */
         :global(html.theme-dark) .dsp-pin:not(.dsp-pin-dark) { background: color-mix(in srgb, var(--navy-soft) 70%, transparent); }
@@ -782,18 +1057,17 @@ const closingWash = splitWash(closing.heading, closing.wash);
            still reads as the same green either side. */
         .dsp-audit dd { color: color-mix(in srgb, var(--positive) 78%, var(--text-strong)); }
 
-        .dsp-more summary {
-            cursor: pointer; list-style: none;
-            font-size: 12.5px; font-weight: 600; color: var(--dsp-accent-ink);
+        .dsp-open {
+            cursor: pointer; border: 0; background: none; padding: 0;
+            font-family: inherit; font-size: 12.5px; font-weight: 600; color: var(--dsp-accent-ink);
             transition: color var(--dsp-dur-state);
         }
-        .dsp-more summary::-webkit-details-marker { display: none; }
-        .dsp-more summary:hover { color: var(--text-strong); }
+        .dsp-open:hover { color: var(--text-strong); }
         /* On a navy pin the page's strong ink is chocolate half the time, and
            the light-mode accent ink is a dark caramel. Both are restated. */
-        .dsp-pin-dark .dsp-more summary { color: var(--caramel-bright); }
-        .dsp-pin-dark .dsp-more summary:hover { color: var(--cream); }
-        .dsp-more-ar { font-family: var(--dsp-font-ar); font-size: 15px; }
+        .dsp-pin-dark .dsp-open { color: var(--caramel-bright); }
+        .dsp-pin-dark .dsp-open:hover { color: var(--cream); }
+        .dsp-open[dir='rtl'] { font-family: var(--dsp-font-ar); font-size: 15px; }
         /* U+203A is a bidi-mirrored character, so the browser has already
            flipped the closed glyph to point leftward inside dir='rtl'. Nothing
            here has to turn it, and a rule that did would undo the browser's own
@@ -801,19 +1075,281 @@ const closingWash = splitWash(closing.heading, closing.wash);
            a rightward mark a quarter clockwise points it down, and turning a
            leftward one the same way points it up. */
         .dsp-chev { display: inline-block; font-size: 11px; transition: transform var(--dsp-dur-state); }
-        .dsp-more[open] .dsp-chev { transform: rotate(90deg); }
-        .dsp-more[dir='rtl'][open] .dsp-chev { transform: rotate(-90deg); }
-        .dsp-morebody {
-            font-size: 12.5px; line-height: 1.65; color: var(--text-muted);
-            border-top: 1px solid var(--hairline);
-            animation: dsp-unfold .35s var(--dsp-ease);
-        }
-        .dsp-pin-dark .dsp-morebody {
-            color: var(--cream-muted);
-            border-top-color: color-mix(in srgb, var(--cream) 18%, transparent);
-        }
+        .dsp-open[aria-expanded='true'] .dsp-chev { transform: rotate(90deg); }
+        .dsp-open[dir='rtl'][aria-expanded='true'] .dsp-chev { transform: rotate(-90deg); }
         @keyframes dsp-unfold { from { opacity: 0; transform: translateY(-4px); } }
-        .dsp-morebody-ar { font-family: var(--dsp-font-ar); font-size: 14px; line-height: 1.85; }
+
+        /* ---- The expanded rows ---- */
+        /* The panel's shut state is the hidden attribute, and the rule below
+           restates what the attribute means: the display on the open state
+           would otherwise beat the browser's own hiding, because author styles
+           outrank user-agent ones even against an attribute. */
+        .dsp-exp { display: grid; gap: 18px; border-top: 1px solid var(--hairline); margin-top: 16px; padding-top: 16px; }
+        .dsp-exp[hidden] { display: none; }
+        .dsp-pin.is-open .dsp-exp { animation: dsp-unfold .35s var(--dsp-ease); }
+        .dsp-pin-dark .dsp-exp { border-top-color: color-mix(in srgb, var(--cream) 18%, transparent); }
+
+        .dsp-expintro { font-size: 13.5px; line-height: 1.6; color: var(--text-body); margin: 0; max-width: 62ch; }
+        .dsp-expintro-ar { font-family: var(--dsp-font-ar); font-size: 15px; line-height: 1.85; max-width: none; margin-bottom: 12px; }
+        .dsp-expnote { font-size: 12.5px; line-height: 1.6; color: var(--text-muted); margin: 0; max-width: 62ch; }
+        .dsp-exptitle {
+            margin: 0 0 8px; font-family: var(--dsp-font-mono); font-size: 10px;
+            letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted);
+        }
+        .dsp-pin-dark .dsp-expintro { color: var(--cream); }
+        .dsp-pin-dark .dsp-expnote { color: var(--cream-muted); }
+        .dsp-pin-dark .dsp-exptitle { color: var(--cream-muted); }
+
+        /* The mark family. The drawings, laid into the markup, read the
+           page's theme through the ink variables the source assets declare. */
+        .dsp-marks { display: grid; gap: 20px; }
+        .dsp-mark { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+        .dsp-markart { display: flex; align-items: flex-end; gap: 14px; min-height: 108px; }
+        .dsp-monogram { --monogram-bg: var(--text-strong); --monogram-ink: var(--surface); }
+        .dsp-wordmark { --wordmark-ink: var(--text-strong); align-self: center; }
+        .dsp-monogram svg, .dsp-wordmark svg { display: block; width: 100%; height: auto; }
+        .dsp-markcap { font-size: 12.5px; line-height: 1.55; color: var(--text-muted); }
+        .dsp-markcap b { display: block; color: var(--text-body); margin-bottom: 2px; }
+        .dsp-laws { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; font-size: 12.5px; line-height: 1.55; color: var(--text-muted); }
+        .dsp-laws li::before { content: "·"; color: var(--dsp-accent-ink); font-weight: 700; margin-right: 8px; }
+
+        /* The caramel budget, worn by inert samples. */
+        .dsp-jobs { display: grid; gap: 16px; }
+        .dsp-job { display: flex; flex-direction: column; gap: 8px; }
+        .dsp-jobart { display: flex; align-items: center; min-height: 42px; }
+        .dsp-jobcap { font-size: 11.5px; line-height: 1.5; color: var(--text-muted); margin: 0; }
+        .dsp-spec-kicker {
+            font-family: var(--dsp-font-mono); font-size: 11px; letter-spacing: .16em;
+            text-transform: uppercase; color: var(--text-strong);
+            display: inline-flex; align-items: center; gap: 8px;
+        }
+        .dsp-spec-kicker::before { content: ""; width: 18px; height: 3px; border-radius: 2px; background: var(--accent); }
+        .dsp-spec-wash {
+            font-family: var(--dsp-font-display); font-weight: 600; font-size: 17px; color: var(--text-strong);
+            background: linear-gradient(transparent 52%, var(--accent-wash) 52%); padding: 0 2px;
+        }
+        .dsp-spec-btn {
+            font-size: 12.5px; font-weight: 600; border-radius: 999px; padding: 8px 16px;
+            background: var(--accent); color: var(--choc-ink);
+        }
+        /* The halo is the foundation's caramel focus, drawn resting: the
+           sample is a picture of the state, not a control that has it. */
+        .dsp-spec-field {
+            font-size: 12.5px; color: var(--text-muted); border: 1px solid var(--hairline); border-radius: 8px;
+            padding: 8px 12px; background: var(--surface);
+            box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 65%, transparent);
+        }
+        /* The selection tints from foundation/dev.css, both modes. */
+        .dsp-spec-sel { font-size: 13px; color: var(--text-strong); background: #E3D3AE; padding: 1px 3px; }
+        :global(html.theme-dark) .dsp-spec-sel { background: #443A2B; }
+        .dsp-strip { background: var(--navy); border-radius: 14px; padding: 16px; display: grid; gap: 10px; }
+        :global(html.theme-dark) .dsp-strip { border: 1px solid var(--hairline); }
+        .dsp-strip .dsp-exptitle, .dsp-strip .dsp-expnote { color: var(--cream-muted); }
+        .dsp-stripchips { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+
+        /* The ladder. Real sizes inline from the entry's published values. */
+        .dsp-ladder { display: grid; }
+        .dsp-lrow {
+            display: grid; grid-template-columns: 108px 1fr auto; align-items: baseline; gap: 14px;
+            padding: 7px 0; border-bottom: 1px dashed color-mix(in srgb, var(--hairline) 75%, transparent);
+        }
+        .dsp-lrow:last-child { border-bottom: 0; }
+        .dsp-lmeta {
+            font-family: var(--dsp-font-mono); font-size: 10px; letter-spacing: .08em;
+            text-transform: uppercase; color: var(--text-muted);
+        }
+        .dsp-lsample { color: var(--text-strong); line-height: 1.15; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dsp-l-serif { font-family: var(--dsp-font-display); font-weight: 600; letter-spacing: -0.015em; }
+        .dsp-l-sans { font-family: var(--dsp-font-sans); font-weight: 500; }
+        .dsp-l-label { text-transform: uppercase; letter-spacing: .16em; font-weight: 600; }
+        .dsp-lsample-ar { color: var(--text-strong); line-height: 1.4; white-space: nowrap; }
+        .dsp-l-ar { font-family: var(--dsp-font-ar); font-weight: 700; }
+        .dsp-l-arsans { font-family: var(--dsp-font-sans); font-weight: 500; }
+        /* The 13px floor law: the Arabic label keeps the caption size and
+           buys its role with weight instead. */
+        .dsp-l-arlabel { font-weight: 700; }
+
+        /* The micro-chart. Series colours from foundation/dataviz.css, both
+           modes, applied by class so the theme flips them; the collapsed
+           chips keep showing the entry's published light values. */
+        .dsp-chart {
+            display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; align-items: stretch;
+            height: 150px; border-bottom: 1px solid var(--hairline); padding: 0 2px;
+        }
+        .dsp-bar { display: flex; flex-direction: column; justify-content: flex-end; gap: 5px; min-width: 0; }
+        .dsp-bar span {
+            font-family: var(--dsp-font-mono); font-size: 9px; color: var(--text-muted);
+            text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+        }
+        .dsp-bar i { display: block; border-radius: 4px 4px 0 0; }
+        .dsp-vz1 { background: #B07A3C; } .dsp-vz2 { background: #41507A; } .dsp-vz3 { background: #55908C; }
+        .dsp-vz4 { background: #6E4460; } .dsp-vz5 { background: #5E7A5B; } .dsp-vz6 { background: #7A6119; }
+        .dsp-vz7 { background: #7A443A; }
+        :global(html.theme-dark) .dsp-vz1 { background: #C68A45; }
+        :global(html.theme-dark) .dsp-vz2 { background: #8F9BC4; }
+        :global(html.theme-dark) .dsp-vz3 { background: #5D8E89; }
+        :global(html.theme-dark) .dsp-vz4 { background: #C9A3CF; }
+        :global(html.theme-dark) .dsp-vz5 { background: #8FAE8B; }
+        :global(html.theme-dark) .dsp-vz6 { background: #E4CA83; }
+        :global(html.theme-dark) .dsp-vz7 { background: #E0A5AF; }
+        .dsp-ramps { display: flex; flex-wrap: wrap; gap: 20px 32px; }
+        .dsp-rampline { display: flex; gap: 3px; }
+        .dsp-rampline i { width: 25px; height: 18px; border-radius: 4px; }
+        .dsp-rampcap { margin: 5px 0 0; font-family: var(--dsp-font-mono); font-size: 9.5px; color: var(--text-muted); }
+        /* Sequential and diverging ramps from foundation/dataviz.css. */
+        .dsp-sq1 { background: #F1E6CC; } .dsp-sq2 { background: #DFC391; } .dsp-sq3 { background: #C79A57; }
+        .dsp-sq4 { background: #A5763B; } .dsp-sq5 { background: #7C5527; } .dsp-sq6 { background: #533617; }
+        :global(html.theme-dark) .dsp-sq1 { background: #2E2718; }
+        :global(html.theme-dark) .dsp-sq2 { background: #4A3A20; }
+        :global(html.theme-dark) .dsp-sq3 { background: #6B5229; }
+        :global(html.theme-dark) .dsp-sq4 { background: #8F6C33; }
+        :global(html.theme-dark) .dsp-sq5 { background: #B58940; }
+        :global(html.theme-dark) .dsp-sq6 { background: #DBAF63; }
+        .dsp-dv1 { background: #7A443A; } .dsp-dv2 { background: #AC8071; } .dsp-dv3 { background: #D9BCA8; }
+        .dsp-dv4 { background: #E7DEC6; } .dsp-dv5 { background: #C0C6A6; } .dsp-dv6 { background: #90A587; }
+        .dsp-dv7 { background: #5E7A5B; }
+        :global(html.theme-dark) .dsp-dv1 { background: #E0A5AF; }
+        :global(html.theme-dark) .dsp-dv2 { background: #C08D9A; }
+        :global(html.theme-dark) .dsp-dv3 { background: #8C6C7E; }
+        :global(html.theme-dark) .dsp-dv4 { background: #3C4258; }
+        :global(html.theme-dark) .dsp-dv5 { background: #5E7A66; }
+        :global(html.theme-dark) .dsp-dv6 { background: #77997B; }
+        :global(html.theme-dark) .dsp-dv7 { background: #8FAE8B; }
+        .dsp-nullsq { width: 56px; background: repeating-linear-gradient(45deg, #B9AC99 0 2px, #E6DCC5 2px 8px); }
+        :global(html.theme-dark) .dsp-nullsq { background: repeating-linear-gradient(45deg, #414965 0 2px, #252B42 2px 8px); }
+
+        /* The Arabic register siblings, on the navy quote pins. */
+        .dsp-sib { font-family: var(--dsp-font-ar); font-size: 24px; font-weight: 700; line-height: 1.5; color: var(--cream); margin: 0; }
+        .dsp-sib-sharp { font-family: var(--dsp-font-sans); font-weight: 700; font-size: 19px; line-height: 1.7; letter-spacing: 0; }
+
+        /* The Arabic type laws, each a bordered specimen card. */
+        .dsp-arlaws { display: grid; gap: 12px; }
+        .dsp-arlaw { display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--hairline); border-radius: 12px; padding: 12px 14px; }
+        .dsp-arspec { font-size: 22px; color: var(--text-strong); line-height: 1.6; }
+        .dsp-arspec-harmattan { font-family: var(--dsp-font-ar); font-weight: 700; }
+        .dsp-arspec-amiri { font-family: var(--dsp-font-ar-formal); font-weight: 700; font-size: 25px; }
+        .dsp-arspec-digits { font-family: var(--dsp-font-ar); font-size: 18px; }
+        .dsp-arspec-quotes { font-family: var(--dsp-font-ar-formal); font-size: 20px; }
+        .dsp-arcap { font-family: var(--dsp-font-ar); font-size: 13px; color: var(--text-muted); line-height: 1.7; }
+
+        /* The five faces, each speaking for itself. */
+        .dsp-facelist { display: grid; gap: 12px; }
+        .dsp-facerow { display: flex; align-items: center; gap: 14px; }
+        .dsp-facespec { font-size: 38px; line-height: 1.25; color: var(--text-strong); min-width: 54px; }
+        .dsp-f-lit { font-family: var(--dsp-font-display); font-weight: 600; }
+        .dsp-f-rdx { font-family: var(--dsp-font-sans); font-weight: 600; }
+        .dsp-f-har { font-family: var(--dsp-font-ar); font-weight: 700; }
+        .dsp-f-ami { font-family: var(--dsp-font-ar-formal); font-weight: 700; }
+        .dsp-f-mono { font-family: var(--dsp-font-mono); font-size: 27px; }
+        .dsp-facemeta { margin: 0; font-size: 12px; line-height: 1.5; color: var(--text-muted); }
+        .dsp-facemeta b { display: block; color: var(--text-body); }
+
+        /* The developer layer, on the navy terminal pin, so every value is
+           the canonical dark set from foundation/dev.css. */
+        .dsp-devgrid { display: grid; gap: 18px; }
+        .dsp-devpre {
+            background: var(--navy-deep); border-radius: 12px; margin: 0;
+            font-family: var(--dsp-font-mono); font-size: 11px; line-height: 1.75;
+            padding: 12px 10px; overflow-x: auto; color: var(--cream-muted);
+        }
+        .dsp-devpre span { display: block; white-space: pre; padding: 0 6px; border-radius: 4px; }
+        .dsp-devpre i { font-style: normal; display: inline-block; margin-right: 8px; }
+        .dsp-d-add { background: #17251B; } .dsp-d-add i { color: #8FAE8B; }
+        .dsp-d-drop { background: #2A1D22; } .dsp-d-drop i { color: #E0A5AF; }
+        .dsp-d-change { background: #262115; } .dsp-d-change i { color: #E4CA83; }
+        .dsp-g-trace { color: #8E8874; }
+        .dsp-g-debug { color: #C9BFA6; }
+        .dsp-g-info { color: #8F9BC4; }
+        .dsp-g-warn { color: #E4CA83; }
+        .dsp-g-error { color: #E0A5AF; }
+        /* Fatal is the only filled band, exactly as the layer publishes it. */
+        .dsp-g-fatal { background: #E0A5AF; color: #241B14; }
+        .dsp-devpre .dsp-g-fatal i { color: #241B14; }
+        .dsp-g-trace i, .dsp-g-debug i, .dsp-g-info i, .dsp-g-warn i, .dsp-g-error i, .dsp-g-fatal i {
+            text-transform: uppercase; font-size: 9px; letter-spacing: .06em; width: 38px;
+        }
+        .dsp-ansi {
+            display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px;
+            background: var(--navy-deep); border-radius: 12px; padding: 12px;
+        }
+        .dsp-ansi i { display: block; aspect-ratio: 1; border-radius: 5px; }
+        /* ANSI 0 to 15 from foundation/dev.css, the canonical dark scheme. */
+        .dsp-a0 { background: #2A3350; } .dsp-a1 { background: #E0A5AF; } .dsp-a2 { background: #8FAE8B; }
+        .dsp-a3 { background: #E4CA83; } .dsp-a4 { background: #8F9BC4; } .dsp-a5 { background: #C9A3CF; }
+        .dsp-a6 { background: #83B8B2; } .dsp-a7 { background: #C9BFA6; } .dsp-a8 { background: #8E8874; }
+        .dsp-a9 { background: #ECC3CA; } .dsp-a10 { background: #ACC7A8; } .dsp-a11 { background: #F0DDA9; }
+        .dsp-a12 { background: #AEB9DA; } .dsp-a13 { background: #DCC0E0; } .dsp-a14 { background: #A3CFC9; }
+        .dsp-a15 { background: #F3EAD2; }
+
+        /* All six states, wash, ink and edge per tone, from the published
+           state ramps in tokens/colors.css. */
+        .dsp-strows { display: grid; gap: 12px; }
+        .dsp-strow { display: flex; align-items: flex-start; gap: 10px; }
+        .dsp-stx {
+            font-size: 11px; font-weight: 600; white-space: nowrap;
+            border: 1.5px solid var(--dsp-stx-edge); background: var(--dsp-stx-wash); color: var(--dsp-stx-ink);
+        }
+        .dsp-stx-positive { --dsp-stx-ink: #4F6B4C; --dsp-stx-wash: #E8E2C9; --dsp-stx-edge: #748A6D; }
+        .dsp-stx-info     { --dsp-stx-ink: #41507A; --dsp-stx-wash: #E5DECB; --dsp-stx-edge: #7D8497; }
+        .dsp-stx-negative { --dsp-stx-ink: #7A443A; --dsp-stx-wash: #E9DDC6; --dsp-stx-edge: #A27C6D; }
+        .dsp-stx-caution  { --dsp-stx-ink: #7A6119; --dsp-stx-wash: #ECE2C7; --dsp-stx-edge: #988246; }
+        .dsp-stx-neutral  { --dsp-stx-ink: #6B5A4C; --dsp-stx-wash: #E7DEC6; --dsp-stx-edge: #908171; }
+        .dsp-stx-inactive { --dsp-stx-ink: #9B8D7B; --dsp-stx-wash: #E6DCC5; --dsp-stx-edge: #B9AC99; }
+        :global(html.theme-dark) .dsp-stx-positive { --dsp-stx-ink: #8FAE8B; --dsp-stx-wash: #2B3440; --dsp-stx-edge: #6E8572; }
+        :global(html.theme-dark) .dsp-stx-info     { --dsp-stx-ink: #8F9BC4; --dsp-stx-wash: #2C334A; --dsp-stx-edge: #747EA3; }
+        :global(html.theme-dark) .dsp-stx-negative { --dsp-stx-ink: #E0A5AF; --dsp-stx-wash: #343144; --dsp-stx-edge: #997683; }
+        :global(html.theme-dark) .dsp-stx-caution  { --dsp-stx-ink: #E4CA83; --dsp-stx-wash: #31333C; --dsp-stx-edge: #8A7E60; }
+        :global(html.theme-dark) .dsp-stx-neutral  { --dsp-stx-ink: #C9BFA6; --dsp-stx-wash: #2F3341; --dsp-stx-edge: #827F78; }
+        :global(html.theme-dark) .dsp-stx-inactive { --dsp-stx-ink: #586281; --dsp-stx-wash: #252B42; --dsp-stx-edge: #414965; }
+        .dsp-strowcap { margin: 3px 0 0; font-size: 11.5px; line-height: 1.5; color: var(--text-muted); }
+
+        /* The extended audit and its flagged pairs. */
+        .dsp-auditgrid { display: grid; gap: 18px; }
+        .dsp-flags { display: grid; gap: 10px; }
+        .dsp-flag {
+            margin: 0; font-size: 12px; line-height: 1.55; color: var(--text-muted);
+            border-left: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); padding-left: 10px;
+        }
+        .dsp-flag b { display: block; color: var(--text-body); font-family: var(--dsp-font-mono); font-size: 11px; }
+
+        /* The motion stage. 420 and 220 are the published numbers for the two
+           duration roles, and the curve is the system's one standard ease. */
+        .dsp-stage { display: flex; align-items: center; gap: 18px; border: 1px solid var(--hairline); border-radius: 14px; padding: 18px; }
+        .dsp-stagecard {
+            width: 74px; height: 54px; border-radius: 10px; background: var(--surface);
+            border: 1px solid var(--hairline); box-shadow: var(--shadow-soft);
+            display: grid; place-items: center;
+        }
+        .dsp-stageglyph { font-family: var(--dsp-font-display); font-weight: 600; font-size: 20px; color: var(--text-strong); }
+        .dsp-stagechip { width: 44px; height: 20px; border-radius: 999px; background: #E7DEC6; }
+        :global(html.theme-dark) .dsp-stagechip { background: #2F3341; }
+        .dsp-stage.is-playing .dsp-stagecard { animation: dsp-stagerise 420ms cubic-bezier(.22, .61, .36, 1) both; }
+        .dsp-stage.is-playing .dsp-stagechip { animation: dsp-stageflip 220ms cubic-bezier(.22, .61, .36, 1) 520ms both; }
+        @keyframes dsp-stagerise { from { opacity: 0; transform: translateY(14px); } }
+        @keyframes dsp-stageflip { to { background: var(--accent); } }
+        .dsp-replay {
+            cursor: pointer; margin-left: auto; font-family: inherit;
+            font-size: 12px; font-weight: 600; border: 1.5px solid var(--text-strong);
+            background: transparent; color: var(--text-strong); border-radius: 999px; padding: 7px 14px;
+            transition: background-color var(--dsp-dur-state), color var(--dsp-dur-state);
+        }
+        .dsp-replay:hover { background: var(--text-strong); color: var(--surface); }
+
+        /* The expanded rows' wide arrangements, gathered in one query. */
+        @media (min-width: 700px) {
+            .dsp-marks { grid-template-columns: repeat(3, 1fr); }
+            .dsp-jobs { grid-template-columns: repeat(2, 1fr); }
+            .dsp-arlaws { grid-template-columns: repeat(2, 1fr); }
+            .dsp-strows { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (min-width: 1000px) {
+            .dsp-jobs { grid-template-columns: repeat(5, 1fr); }
+            .dsp-strows { grid-template-columns: repeat(3, 1fr); }
+            .dsp-devgrid { grid-template-columns: 1fr 1.25fr 1fr; }
+            .dsp-auditgrid { grid-template-columns: 1fr 1fr; }
+            .dsp-facelist { grid-template-columns: repeat(5, 1fr); }
+            .dsp-facerow { flex-direction: column; align-items: flex-start; gap: 6px; }
+        }
 
         /* ---- The closing ---- */
         /* Half the draw, and only for this heading. global.css wipes a
@@ -910,9 +1446,12 @@ const closingWash = splitWash(closing.heading, closing.wash);
            the travel; the flip button's hover swell and the buttons' press dip
            are the same clamped category; the mirror's dip is not clamped but
            skipped, the script branching on the same query and flipping with no
-           fade at all; and the proofs scroll asks for 'instant' rather than
-           letting html's smooth scroll-behavior answer. Nothing here travels
-           under reduced motion. */
+           fade at all; the expanded rows take the same route, the script
+           skipping the measured glide entirely so open and shut simply land;
+           the motion stage's two one-shots clamp to their end states, which
+           is the very law that stage exists to demonstrate; and the proofs
+           scroll asks for 'instant' rather than letting html's smooth
+           scroll-behavior answer. Nothing here travels under reduced motion. */
         @media (prefers-reduced-motion: reduce) {
             .dsp-bubble, .dsp-term .dsp-cursor { animation: none; }
         }
@@ -969,6 +1508,11 @@ const closingWash = splitWash(closing.heading, closing.wash);
         // visible in the DOM, and the two writes are one synchronous step apart.
         let viaProofs = false;
 
+        // Assigned further down where the expansion is wired, called by the
+        // rail: a stop filter and a full-width open row answer different
+        // questions, so choosing a stop folds the row first.
+        let closeOpenPin: () => void = () => {};
+
         const bindRail = () => {
             const board = document.getElementById('dsp-board');
             if (!board || board.dataset.bound) return;
@@ -988,6 +1532,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
             });
 
             railStops.forEach((stop) => stop.addEventListener('click', () => {
+                closeOpenPin();
                 filtering = stop.dataset.railStop ?? 'all';
                 // Read and cleared on every click, including the ones that do
                 // not report, so a flag can never outlive the click it was set
@@ -1068,6 +1613,131 @@ const closingWash = splitWash(closing.heading, closing.wash);
                 document.getElementById('dsp-railboard')?.scrollIntoView({behavior, block: 'start'});
             });
         };
+
+        // ---- The expansion ----
+        // Everything below is delegated from the document and registered once,
+        // when this module first runs: View Transitions swap every pin, and a
+        // listener that looks its elements up per click needs no rebinding and
+        // no guards. On any other page the selectors simply never match.
+        const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const openPin = () => document.querySelector<HTMLElement>('.dsp-pin.is-open');
+
+        // Removing and re-adding the class only replays the animation if the
+        // styles are flushed in between, which is what the width read forces.
+        const playStage = (stage: HTMLElement) => {
+            stage.classList.remove('is-playing');
+            void stage.offsetWidth;
+            stage.classList.add('is-playing');
+        };
+
+        const setOpen = (pinEl: HTMLElement, open: boolean) => {
+            pinEl.classList.toggle('is-open', open);
+            pinEl.querySelector<HTMLButtonElement>('.dsp-open')?.setAttribute('aria-expanded', String(open));
+            const panel = pinEl.querySelector<HTMLElement>('.dsp-exp');
+            if (panel) panel.hidden = !open;
+            // The motion stage plays itself when its row opens, so the demo
+            // is seen without hunting for the replay control.
+            const stage = open ? panel?.querySelector<HTMLElement>('[data-motion-stage]') : null;
+            if (stage) playStage(stage);
+        };
+
+        // The measured glide: record where every pin is, let the board
+        // reflow, then let each pin travel from its old place to its new one
+        // on its own transition. The opening pin gets a clip reveal on top of
+        // the travel, because its box grows from a column to the full row and
+        // a bare snap of that growth is the jump this rework exists to
+        // remove. Folding has no reveal to mirror: a box cannot paint beyond
+        // its shrunken edges, so the fold leans on the travel alone.
+        const morph = (toggled: HTMLElement, opening: boolean, mutate: () => void) => {
+            const board = document.getElementById('dsp-board');
+            if (!board || reducedMotion()) { mutate(); return; }
+            const els = [...board.querySelectorAll<HTMLElement>('.dsp-pin')];
+            const first = new Map(els.map((el) => [el, el.getBoundingClientRect()]));
+            mutate();
+            els.forEach((el) => {
+                const was = first.get(el);
+                if (!was) return;
+                const now = el.getBoundingClientRect();
+                const dx = was.left - now.left;
+                const dy = was.top - now.top;
+                const grew = el === toggled && opening;
+                if (!dx && !dy && !grew) return;
+                el.style.transitionProperty = 'none';
+                if (dx || dy) el.style.transform = `translate(${dx}px, ${dy}px)`;
+                if (grew) {
+                    el.style.clipPath =
+                        `inset(0 ${Math.max(now.width - was.width, 0)}px ${Math.max(now.height - was.height, 0)}px 0)`;
+                }
+                // Two frames: the first paints the inverted state, the second
+                // releases it so the pin's own transition carries it home.
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    el.style.transitionProperty = '';
+                    el.style.transform = '';
+                    el.style.clipPath = '';
+                }));
+            });
+        };
+
+        const togglePin = (pinEl: HTMLElement) => {
+            const wasOpen = pinEl.classList.contains('is-open');
+            const current = openPin();
+            morph(pinEl, !wasOpen, () => {
+                // One row at a time: opening a pin folds whichever other pin
+                // held the row, inside the same measured pass, so the two
+                // moves read as one reflow instead of two.
+                if (current && current !== pinEl) setOpen(current, false);
+                setOpen(pinEl, !wasOpen);
+            });
+            if (!wasOpen) {
+                // The expand event is the disclosure_open signal's carrier
+                // now that the details elements are gone. Same item labels.
+                const label = pinEl.querySelector<HTMLElement>('.dsp-open')?.dataset.pinOpen || '';
+                document.dispatchEvent(new CustomEvent('pinboard:expand', {detail: {item: label}}));
+                // Keep the opened row on screen once the reflow settles.
+                const behavior = reducedMotion() ? 'instant' as const : 'smooth' as const;
+                requestAnimationFrame(() => pinEl.scrollIntoView({block: 'nearest', behavior}));
+            }
+        };
+
+        closeOpenPin = () => {
+            const current = openPin();
+            if (current) morph(current, false, () => setOpen(current, false));
+        };
+
+        document.addEventListener('click', (event) => {
+            if (!(event.target instanceof Element)) return;
+            const replay = event.target.closest<HTMLElement>('[data-motion-replay]');
+            if (replay) {
+                const stage = replay.closest<HTMLElement>('[data-motion-stage]');
+                if (stage) playStage(stage);
+                return;
+            }
+            const openBtn = event.target.closest<HTMLElement>('.dsp-open');
+            if (openBtn) {
+                const pinEl = openBtn.closest<HTMLElement>('.dsp-pin');
+                if (pinEl) togglePin(pinEl);
+                return;
+            }
+            // The card itself is the invitation: a click anywhere on a pin
+            // that has a row to open, and is not on some other control, opens
+            // it. Shutting stays with the labelled control, Esc and the rail,
+            // so selecting text in an open row never slams it closed.
+            const pinEl = event.target.closest<HTMLElement>('.dsp-pin');
+            if (!pinEl || pinEl.classList.contains('is-open')) return;
+            if (event.target.closest('a, button, details, summary')) return;
+            if (!pinEl.querySelector('.dsp-exp')) return;
+            togglePin(pinEl);
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key !== 'Escape') return;
+            const current = openPin();
+            if (!current) return;
+            closeOpenPin();
+            // The row is gone, so the keyboard is handed back to the control
+            // that would reopen it.
+            current.querySelector<HTMLButtonElement>('.dsp-open')?.focus();
+        });
 
         // One listener for the page, fanning out to the sections. Each part
         // carries its own guard, so a section already wired after a View
