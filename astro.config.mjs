@@ -63,7 +63,8 @@ export default defineConfig({
     assertCanonicalHosts,
     assertProjectPageRedirects,
     // `src/styles/global.css` owns the three @tailwind directives — it has to,
-    // its token layers are written in between them — so the base stylesheet the
+    // its @layer base and @layer components blocks need directives in the same
+    // sheet to hoist into — so the base stylesheet the
     // integration injects on its own is a second copy of the same output. The
     // bundler used to fold the two into one chunk and hide that; once a route
     // pulled in two page components the fold stopped happening and every page
