@@ -156,16 +156,24 @@ const closingWash = splitWash(closing.heading, closing.wash);
             </nav>
 
             <div class='dsp-board columns-1 gap-5 min-[580px]:columns-2 min-[900px]:columns-3' id='dsp-board'>
-                {pins.map((pin) => (
+                {pins.map((pin, index) => (
+                    /* The tab stop is what lets the rail follow the keyboard,
+                       and it is also what puts nine unnamed stops in a screen
+                       reader's list — so it is named, the way CodeBlock names
+                       its pane: tabindex, a role, and a name. The name is the
+                       pin's own label rather than a string written here, so it
+                       reads "02 · the palette, group" and the Arabic pin
+                       announces itself in Arabic. */
                     <article class:list={['dsp-pin', 'reveal', 'relative', 'inline-block', 'w-full', 'mb-5', 'p-6', 'break-inside-avoid',
                                           {'dsp-pin-dark': pin.kind === 'quote' || pin.kind === 'terminal'}]}
-                             data-pin-stop={pin.stop} tabindex='0'>
+                             data-pin-stop={pin.stop} tabindex='0' role='group' aria-labelledby={`dsp-pin-${index}`}>
                         <span class='dsp-pindot absolute' aria-hidden='true'></span>
                         {/* The Arabic pin labels itself in Arabic, so the label
                             carries its own script and its own direction. Every
                             other pin's label is left alone rather than marked
                             'en': the page is already in English. */}
                         <span class:list={['dsp-lbl', 'block', 'mb-3', {'dsp-lbl-ar': pin.kind === 'nameplate'}]}
+                              id={`dsp-pin-${index}`}
                               dir={pin.kind === 'nameplate' ? 'rtl' : undefined}
                               lang={pin.kind === 'nameplate' ? 'ar' : undefined}>{pin.label}</span>
 
@@ -244,7 +252,9 @@ const closingWash = splitWash(closing.heading, closing.wash);
                         {/* data-pin-more carries the pin's own label because
                             Task 8 reports unfolds by which pin was unfolded,
                             and the native toggle event is what it listens on —
-                            so nothing here dispatches anything. */}
+                            so nothing here dispatches anything. One catch for
+                            that listener: toggle does not bubble, so a document
+                            listener only ever hears it in the capture phase. */}
                         {pin.more && (
                             <details class='dsp-more mt-3.5' data-pin-more={pin.label}
                                      dir={pin.more.lang === 'ar' ? 'rtl' : undefined}
@@ -572,18 +582,18 @@ const closingWash = splitWash(closing.heading, closing.wash);
         @keyframes dsp-blink { 50% { opacity: 0; } }
 
         /* Two colours per state and not one: the wash carries the hue and the
-           ink carries the reading. Positive and info could ride --positive and
-           --info, which already flip; negative and caution have no site token,
-           so all four are stated the same way instead of two of them being the
-           odd pair out. Every ink below is 4.5:1 or better on its own wash,
-           measured in both modes. */
+           ink carries the reading. Two of the four inks are derived from the
+           site's ramp in each mode — walked toward the page's ink in light, and
+           the ramp's own bright end in dark — and the other two are authored,
+           because the site has no token for a negative or a caution. Every ink
+           below is 4.5:1 or better on its own wash, measured in both modes. */
         .dsp-st {
             font-size: 11px; font-weight: 600;
             background: color-mix(in srgb, var(--dsp-st-tone) 16%, transparent);
             color: var(--dsp-st-ink);
         }
-        .dsp-st-positive { --dsp-st-tone: var(--sage);     --dsp-st-ink: #3F5A3C; }
-        .dsp-st-info     { --dsp-st-tone: var(--ink-blue); --dsp-st-ink: #37456F; }
+        .dsp-st-positive { --dsp-st-tone: var(--sage);     --dsp-st-ink: color-mix(in srgb, var(--sage) 70%, var(--choc-ink)); }
+        .dsp-st-info     { --dsp-st-tone: var(--ink-blue); --dsp-st-ink: color-mix(in srgb, var(--ink-blue) 70%, var(--choc-ink)); }
         .dsp-st-negative { --dsp-st-tone: #8E4A42;         --dsp-st-ink: #7A3A33; }
         .dsp-st-caution  { --dsp-st-tone: #B8912F;         --dsp-st-ink: #6B5219; }
         :global(html.theme-dark) .dsp-st-positive { --dsp-st-ink: var(--sage-bright); }
@@ -609,12 +619,15 @@ const closingWash = splitWash(closing.heading, closing.wash);
         .dsp-pin-dark .dsp-more summary { color: var(--caramel-bright); }
         .dsp-pin-dark .dsp-more summary:hover { color: var(--cream); }
         .dsp-more-ar { font-family: var(--dsp-font-ar); font-size: 15px; }
-        /* The mark points along the reading direction, and turns to point down
-           when the body is out. Same specificity as the rule above it, so the
-           open state wins on order. */
+        /* U+203A is a bidi-mirrored character, so the browser has already
+           flipped the closed glyph to point leftward inside dir='rtl'. Nothing
+           here has to turn it, and a rule that did would undo the browser's own
+           correction. Only the open state needs a direction-aware sign: turning
+           a rightward mark a quarter clockwise points it down, and turning a
+           leftward one the same way points it up. */
         .dsp-chev { display: inline-block; font-size: 11px; transition: transform var(--dsp-dur-state); }
-        .dsp-more[dir='rtl'] .dsp-chev { transform: rotate(180deg); }
         .dsp-more[open] .dsp-chev { transform: rotate(90deg); }
+        .dsp-more[dir='rtl'][open] .dsp-chev { transform: rotate(-90deg); }
         .dsp-morebody {
             font-size: 12.5px; line-height: 1.65; color: var(--text-muted);
             border-top: 1px solid var(--hairline);
@@ -626,6 +639,14 @@ const closingWash = splitWash(closing.heading, closing.wash);
         }
         @keyframes dsp-unfold { from { opacity: 0; transform: translateY(-4px); } }
         .dsp-morebody-ar { font-family: var(--dsp-font-ar); font-size: 14px; line-height: 1.85; }
+
+        /* global.css caps every animation at 1ms under reduced motion, which
+           finishes a one-shot and makes an endless one flicker instead of
+           stopping. The two endless ones on this page are named off, the same
+           escape hatch .marquee-track takes. */
+        @media (prefers-reduced-motion: reduce) {
+            .dsp-bubble, .dsp-term .dsp-cursor { animation: none; }
+        }
     </style>
 
     <script>
@@ -717,8 +738,11 @@ const closingWash = splitWash(closing.heading, closing.wash);
         };
 
         // One listener for the page, fanning out to the sections. Each half
-        // keeps its own per-element guard, so a section that is already wired
-        // after a View Transitions swap is skipped without skipping the other.
+        // carries its own guard, so a section already wired after a View
+        // Transitions swap is skipped without skipping the other. bindRail's
+        // guard is the board rather than the rail it also wires: the two arrive
+        // and are replaced together, so the board standing guard for the pair
+        // is one flag on one element instead of two that could disagree.
         const bindPinboard = () => { bindMirror(); bindRail(); };
         document.addEventListener('astro:page-load', bindPinboard);
     </script>

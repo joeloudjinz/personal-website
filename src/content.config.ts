@@ -655,8 +655,11 @@ const projectPages = defineCollection({
         })).min(2).max(8),
         note: z.string().max(160)
       }),
-      // value is a numeral or a short token: "7", "1.25", "AA".
-      z.object({ kind: z.literal('stat'), ...pinBase, value: z.string().max(6), caption: z.string().max(160) }),
+      // value is a numeral or a short token: "7", "1.25", "AA". Four characters
+      // is what the 76px display type holds inside a pin at the narrow column,
+      // measured rather than guessed: "1.25" reaches the column edge and a
+      // fifth character runs past it. The cap is the type's, not the copy's.
+      z.object({ kind: z.literal('stat'), ...pinBase, value: z.string().max(4), caption: z.string().max(160) }),
       z.object({ kind: z.literal('quote'), ...pinBase, text: z.string().max(140) }),
       // Named for the role, not the script: a real name typeset in its own.
       z.object({ kind: z.literal('nameplate'), ...pinBase, name: z.string(), body: z.string().max(220) }),
