@@ -679,19 +679,9 @@ const projectPages = defineCollection({
     // only — layout lives in PinboardPage.astro.
     // Rail filter ids, held to the same shape rules as `slug` two screens above.
     const stopId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(24);
-    // A per-pin "Tell me more" unfold. `lang` is the language the body is
-    // written in, and the component derives both dir and lang from it: a
-    // direction cannot imply a language, so the language is the thing authored.
-    const more = z.object({
-      label: z.string().max(24),
-      // A short paragraph — the unfold's budget, shared with the closing contract.
-      body: z.string().max(420),
-      lang: z.enum(['en', 'ar']).default('en')
-    });
     const pinBase = {
       stop: stopId,
-      label: z.string().max(28),
-      more: more.optional()
+      label: z.string().max(28)
     };
 
     // The expanded row, one shape per pin kind: the collapsed face makes a
