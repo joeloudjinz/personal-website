@@ -123,6 +123,11 @@ const closingWash = splitWash(closing.heading, closing.wash);
             left, moving every full stop to the wrong end. Direction of flow
             and direction of script are two different questions here, and the
             markup answers them separately. */}
+        {/* The id's one reader is ProjectAnalytics' section_view observer, and
+            the same is true of the closing section's. The board between them is
+            deliberately not in that funnel: rail_focus is its signal, and a
+            section_view of the board would restate what that event already
+            answers. */}
         <section class='shell mt-6 reveal' id='mirror'>
             <div class='dsp-mirror relative grid grid-cols-1 min-[860px]:grid-cols-2 overflow-hidden'
                  id='dsp-mirror'>
@@ -312,6 +317,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
         {/* The closing. One statement, the contract behind it, and a way back
             into the board — the two controls are the only places on the page
             that ask for anything. */}
+        {/* id read by section_view, like the mirror's — see the note there. */}
         <section class='border-t border-hairline mt-4' id='closing'>
             <div class='shell py-20 text-center reveal'>
                 <h2 class='dsp-closing font-semibold text-strong tracking-[-0.015em] leading-[1.1]'>
