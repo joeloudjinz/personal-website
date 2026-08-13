@@ -74,15 +74,18 @@ const projects = defineCollection({
     name: z.string(),
     // Optional since the design system: a project with no public repository has
     // nothing honest to put here, and the card omits the "View repository" link
-    // rather than pointing it somewhere that is not one.
-    demoLink: z.string().optional(),
+    // rather than pointing it somewhere that is not one. Non-blank when it is
+    // there: projectLead() tests the field for truth, so an empty string is
+    // absence with none of absence's honesty — it reads as a link in the
+    // frontmatter and degrades exactly as silently as leaving it out.
+    demoLink: z.string().min(1).optional(),
     demoLinkRel: z.string().optional(),
     // The project's own showcase page in the projectPages collection, when it
     // has one. A separate field rather than a repointed demoLink: every entry
-    // in this collection that has one points demoLink at a repository and the card labels it
-    // "View repository", so overloading it would make one card's label a lie and
-    // leave the repository with nowhere to be linked from. See projectLead() in
-    // src/utils/projects.ts for what the card does with the pair.
+    // in this collection that has one points demoLink at a repository and the
+    // card labels it "View repository", so overloading it would make one card's
+    // label a lie and leave the repository with nowhere to be linked from. See
+    // projectLead() in src/utils/projects.ts for what the card does with the pair.
     projectPageLink: z.string().optional(),
     tags: z.array(z.string()).optional(),
     description: z.string().optional(),
@@ -90,10 +93,32 @@ const projects = defineCollection({
     isUnderConstruction: z.boolean().default(false),
     publishedPackageLink: z.string().optional(),
     version: z.string().optional(),
+    // The home page's featured row is a three-column grid at desktop
+    // (md:grid-cols-3, src/pages/index.astro), so keep the featured count at
+    // three: a fourth card wraps and sits alone on a second line. The flags are
+    // spread across src/content/projects/*.md rather than listed anywhere, so
+    // promoting one means demoting another — the count is not checked here
+    // because a build that fails on a copy edit is the worse trade.
     isFeatured: z.boolean().default(false),
     id: z.string(), // New required property for sorting
     coverImage: image().optional()
-  })
+    // Every card has to lead somewhere. The title is an anchor in both places a
+    // project is drawn, and on the home page it is the card's ONLY link, so an
+    // entry with neither field renders a title that goes nowhere rather than a
+    // card that is merely quieter. projectLead() returns an empty attribute bag
+    // in that case, deliberately, and this is what stops one being authored.
+  }).refine(
+    (project) => Boolean(project.demoLink?.trim() || project.projectPageLink?.trim()),
+    {
+      message:
+        'a project needs demoLink or projectPageLink: the card title is an anchor and, ' +
+        'on the home page, the card\'s only link. With neither, the title renders as ' +
+        'plain text and the card leads nowhere.',
+      // Reported against demoLink rather than at the object root, where Astro
+      // prints the empty path as "****" and names no field at all.
+      path: ['demoLink']
+    }
+  )
 });
 
 // Project showcase pages — one standalone marketing page per released system,
