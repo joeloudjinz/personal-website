@@ -13,9 +13,8 @@ interface Props {
 }
 
 const {page} = Astro.props;
-// closing is Task 6's and is read only for its wash so far. Destructured here
-// so the sections read their copy off one line rather than reaching into
-// page.data each time.
+// Destructured here so the sections read their copy off one line rather than
+// reaching into page.data each time.
 const {seo, projectName, masthead, mirror, railCaption, railNote, allLabel, stops, pins, closing} = page.data;
 
 const canonical = `https://${page.data.subdomain}/`;
@@ -132,7 +131,16 @@ const closingWash = splitWash(closing.heading, closing.wash);
             object at each size — a row of chips that scrolls sideways, and a
             vertical spine with a dot per stop — and the narrow one has to be
             free of the wide one's row to pin itself under the site's bar. */}
-        <div class='shell mt-9 pb-8 block min-[900px]:grid min-[900px]:grid-cols-[216px_1fr] min-[900px]:gap-9'>
+        {/* The proofs button scrolls to this wrapper rather than to the board
+            inside it, so the rail lands on screen with the stop it just chose
+            already lit — under 900px the rail is a row ABOVE the board, and
+            stopping at the board's own top edge would leave it overhead.
+
+            The clearance is the token every anchor target on the site reads,
+            because this is the same question: how far below the sticky bar a
+            jumped-to thing has to start. See --anchor-offset in global.css. */}
+        <div class='shell mt-9 pb-8 block min-[900px]:grid min-[900px]:grid-cols-[216px_1fr] min-[900px]:gap-9 scroll-mt-[var(--anchor-offset)]'
+             id='dsp-railboard'>
             {/* Named by the page's own caption rather than by a string written
                 in here, so project #2's rail announces itself in its own words.
                 The caption is drawn only at the wide layout and the name
@@ -270,7 +278,33 @@ const closingWash = splitWash(closing.heading, closing.wash);
                 ))}
             </div>
         </div>
-        {/* closing in Task 6 */}
+        {/* The closing. One statement, the contract behind it, and a way back
+            into the board — the two controls are the only places on the page
+            that ask for anything. */}
+        <section class='border-t border-hairline mt-4'>
+            <div class='shell py-20 text-center reveal'>
+                <h2 class='dsp-closing font-semibold text-strong tracking-[-0.015em] leading-[1.1]'>
+                    {closingWash
+                        ? <>{closingWash.before}<span class='marker-wash whitespace-nowrap'>{closingWash.washed}</span>{closingWash.after}</>
+                        : closing.heading}
+                </h2>
+                <p class='dsp-closingsub'>{closing.sub}</p>
+                <div class='flex gap-3 justify-center items-start flex-wrap'>
+                    {/* The summary IS the primary button. No data-pin-more here:
+                        the summary already reports as a cta click, and one click
+                        must not report as two events. */}
+                    <details class='dsp-contract'>
+                        <summary class='dsp-btn dsp-btn-pri' data-cta='primary' data-cta-location='closing'>{closing.contract.label}</summary>
+                        <div class='dsp-contractbody'>
+                            <p><strong>{closing.contract.may}</strong></p>
+                            <p>{closing.contract.never}</p>
+                        </div>
+                    </details>
+                    <button class='dsp-btn dsp-btn-sec' type='button' data-proofs-stop={closing.proofsStop}
+                            data-cta='secondary' data-cta-location='closing'>{closing.proofsLabel}</button>
+                </div>
+            </div>
+        </section>
     </div>
 
     <style>
@@ -640,6 +674,53 @@ const closingWash = splitWash(closing.heading, closing.wash);
         @keyframes dsp-unfold { from { opacity: 0; transform: translateY(-4px); } }
         .dsp-morebody-ar { font-family: var(--dsp-font-ar); font-size: 14px; line-height: 1.85; }
 
+        /* ---- The closing ---- */
+        .dsp-closing { font-family: var(--dsp-font-display); font-size: clamp(30px, 7vw, 56px); }
+        .dsp-closingsub { margin: 14px auto 26px; font-size: 14.5px; color: var(--text-muted); max-width: 48ch; line-height: 1.65; }
+        .dsp-btn {
+            font-weight: 600; font-size: 14px; border-radius: 999px; padding: 12px 26px;
+            cursor: pointer; display: inline-block; list-style: none;
+            transition: background-color var(--dsp-dur-state), color var(--dsp-dur-state), border-color var(--dsp-dur-state), transform var(--dsp-dur-state);
+        }
+        .dsp-btn:active { transform: scale(.97); }
+        /* The site's own primary button, token for token: global.css sets
+           .btn-primary to --accent under --on-accent, and the light switch and
+           the mirror's flip already hover into that pair. Measured, it is
+           3.07:1 in light and 3.79:1 in dark — the site's 3:1 button treatment,
+           and short of the 4.5:1 a 14px label wants. Repainting it here would
+           be one page's button disagreeing with every other one on the site;
+           the pair is global.css's to change, and that is where the change
+           belongs. The hover is well clear of the bar either way: the ground
+           becomes the page's own ink, at 14.1:1 and 11.7:1. */
+        .dsp-btn-pri { background: var(--accent); border: 1.5px solid var(--accent); color: var(--on-accent); }
+        .dsp-btn-pri:hover { background: var(--text-strong); border-color: var(--text-strong); }
+        /* An exact inversion, so it needs no second rule for dark: the page's
+           ink becomes the ground and the page's ground becomes the ink. Naming
+           --cream for the label instead would read correctly in light and paint
+           cream on cream in dark, at 1:1. This way it is 14.1:1 and 13.6:1. */
+        .dsp-btn-sec { background: transparent; border: 1.5px solid var(--text-strong); color: var(--text-strong); }
+        .dsp-btn-sec:hover { background: var(--text-strong); color: var(--surface); }
+        .dsp-contract summary::-webkit-details-marker { display: none; }
+        /* The panel and its summary are one element, so they cannot sit beside
+           the proofs button and underneath it at the same time. Open, the
+           disclosure takes the row for itself and centres its own summary, and
+           the proofs button wraps below the panel — which is the order the copy
+           wants anyway: open the contract, read it, then be offered the proofs.
+           Closed, the two controls are a centred pair at every width.
+
+           display: contents on the disclosure would put the summary and the
+           panel straight into the row, and it is also what stops the browser
+           hiding the panel while the disclosure is shut. */
+        .dsp-contract[open] { flex-basis: 100%; text-align: center; }
+        .dsp-contractbody {
+            max-width: 640px; margin: 20px auto 0; text-align: start;
+            font-size: 13px; line-height: 1.65; color: var(--text-muted);
+            border-top: 1px solid var(--hairline); padding-top: 16px;
+            animation: dsp-unfold .35s var(--dsp-ease);
+        }
+        .dsp-contractbody p { margin: 0 0 10px; }
+        .dsp-contractbody strong { color: var(--text-body); }
+
         /* global.css caps every animation at 1ms under reduced motion, which
            finishes a one-shot and makes an endless one flicker instead of
            stopping. The two endless ones on this page are named off, the same
@@ -737,13 +818,32 @@ const closingWash = splitWash(closing.heading, closing.wash);
             board.addEventListener('mouseleave', () => { if (filtering === 'all') light('all'); });
         };
 
-        // One listener for the page, fanning out to the sections. Each half
+        const bindProofs = () => {
+            const btn = document.querySelector<HTMLButtonElement>('[data-proofs-stop]');
+            if (!btn || btn.dataset.bound) return;
+            btn.dataset.bound = '1';
+            btn.addEventListener('click', () => {
+                // Reuse the rail: a synthetic click gets the dim, the is-on state
+                // and the analytics event from one mechanism instead of three.
+                // The rail stops carry no data-cta, so the cta_click listener
+                // never sees the synthetic click and this button's own click is
+                // still counted exactly once.
+                const stop = document.querySelector<HTMLButtonElement>(`[data-rail-stop="${btn.dataset.proofsStop}"]`);
+                stop?.click();
+                document.getElementById('dsp-railboard')?.scrollIntoView({
+                    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+                    block: 'start'
+                });
+            });
+        };
+
+        // One listener for the page, fanning out to the sections. Each part
         // carries its own guard, so a section already wired after a View
-        // Transitions swap is skipped without skipping the other. bindRail's
+        // Transitions swap is skipped without skipping the others. bindRail's
         // guard is the board rather than the rail it also wires: the two arrive
         // and are replaced together, so the board standing guard for the pair
         // is one flag on one element instead of two that could disagree.
-        const bindPinboard = () => { bindMirror(); bindRail(); };
+        const bindPinboard = () => { bindMirror(); bindRail(); bindProofs(); };
         document.addEventListener('astro:page-load', bindPinboard);
     </script>
 </BaseLayout>
