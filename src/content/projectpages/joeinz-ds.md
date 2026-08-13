@@ -64,6 +64,7 @@ pins:
     caption: "Sizes in the ladder, one density knob, and every step ships its Arabic size beside it."
   - kind: "quote"
     stop: "type"
+    register: "sharp"
     label: "field note · sharp register"
     text: "Senior is a behaviour, not a title."
   - kind: "nameplate"
@@ -79,6 +80,11 @@ pins:
     stop: "type"
     label: "03 · the voices"
     note: "Five faces with defined jobs. A serif that speaks, a sans that works, a mono that computes."
+  - kind: "quote"
+    stop: "type"
+    register: "warm"
+    label: "field note · warm register"
+    text: "Confident about ideas, humble about myself."
   - kind: "terminal"
     stop: "proof"
     label: "05 · the terminal"
@@ -98,6 +104,21 @@ pins:
       - { glyph: "✕", name: "negative", tone: "negative" }
       - { glyph: "!", name: "caution", tone: "caution" }
     note: "Colour never works alone. Every state has a glyph partner."
+  - kind: "swatches"
+    stop: "palette"
+    label: "02 · the chart colours"
+    colors:
+      - { hex: "#B07A3C", name: "caramel", ink: "light" }
+      - { hex: "#41507A", name: "ink blue", ink: "light" }
+      - { hex: "#55908C", name: "chart teal", ink: "light" }
+      - { hex: "#6E4460", name: "plum", ink: "light" }
+      - { hex: "#5E7A5B", name: "sage", ink: "light" }
+      - { hex: "#7A6119", name: "ochre", ink: "light" }
+      - { hex: "#7A443A", name: "madder", ink: "light" }
+    note: "Ordered, not semantic. The first three survive colour blindness on their own."
+    more:
+      label: "Tell me more"
+      body: "Series one takes colour one, always. Past three series every line carries a shape or a dash as well, so colour never encodes alone. Madder comes last and never sits near error semantics. Magnitude gets its own single hue caramel ramp."
   - kind: "audit"
     stop: "proof"
     label: "05 · the audit"
@@ -106,6 +127,11 @@ pins:
       - { check: "contrast, dark", result: "pass" }
       - { check: "colour blindness", result: "pass" }
       - { check: "reduced motion", result: "pass" }
+  - kind: "stat"
+    stop: "proof"
+    label: "05 · the motion law"
+    value: "2"
+    caption: "Duration roles. Entrances ride one and stop under reduced motion. Feedback rides the other and always lands."
 
 closing:
   heading: "One calm core. Built to be borrowed."
