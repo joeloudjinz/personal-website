@@ -204,7 +204,7 @@ pins:
       demo: "chart"
       label: "Chart the palette"
       intro: "Ordered for reading, not for decoration. Past three series every line carries a shape or a dash as well, so colour never encodes alone."
-      chartNote: "Seven series in their published order, labelled directly. A legend is a lookup table the reader should not need."
+      chartNote: "Seven series in their published order, labelled directly. A legend is a lookup the reader should not need."
       seqLabel: "magnitude, one hue"
       divLabel: "diverging, madder to sage"
       nullLabel: "no data"
@@ -225,7 +225,7 @@ pins:
         - { check: "states on dark", result: "pass" }
         - { check: "colour blindness, simulated", result: "pass" }
         - { check: "prefers more contrast", result: "pass" }
-        - { check: "focus visible everywhere", result: "pass" }
+        - { check: "focus shown everywhere", result: "pass" }
         - { check: "reduced motion honoured", result: "pass" }
       flaggedTitle: "published, not hidden"
       flagged:
