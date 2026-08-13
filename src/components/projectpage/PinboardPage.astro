@@ -205,11 +205,11 @@ const closingWash = splitWash(closing.heading, closing.wash);
             <div class='dsp-board columns-1 gap-5 min-[580px]:columns-2 min-[900px]:columns-3' id='dsp-board'>
                 {pins.map((pin, index) => (
                     /* The tab stop is what lets the rail follow the keyboard,
-                       and it is also what puts nine unnamed stops in a screen
-                       reader's list — so it is named, the way CodeBlock names
-                       its pane: tabindex, a role, and a name. The name is the
-                       pin's own label rather than a string written here, so it
-                       reads "02 · the palette, group" and the Arabic pin
+                       and it is also what would put every pin in a screen
+                       reader's list unnamed — so each is named by its own
+                       label. No role: ARIA allows none of the grouping roles
+                       on an article, and the name alone conforms, so a pin
+                       reads "02 · the palette, article" and the Arabic pin
                        announces itself in Arabic. */
                     <article class:list={['dsp-pin', 'reveal', 'relative', 'inline-block', 'w-full', 'mb-5', 'p-6', 'break-inside-avoid',
                                           {'dsp-pin-dark': pin.kind === 'quote' || pin.kind === 'terminal'}]}
