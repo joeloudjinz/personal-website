@@ -181,8 +181,11 @@ const education = (await getCollection('education')).sort(
         .timeline-entry.is-active .story.collapsed + .story-toggle {
             background-image: none;
             animation: none;
-            /* must be restored — background-clip:text with a transparent colour would
-               otherwise leave the label invisible */
+            /* must be restored — background-clip:text with a transparent colour paints
+               the label in nothing at all once the gradient is gone.
+               Worded around the utility name on purpose: Tailwind scans this file as
+               plain text, so naming a utility here emits its rule into the shared
+               bundle even though no element ever carries the class. */
             color: var(--info);
         }
     }
