@@ -12,7 +12,7 @@ seo:
 masthead:
   kicker: "Joe Inz · design system"
   heading: "A brand from a forgotten doodle."
-  wash: "doodle"
+  wash: "doodle."
   facts: [ "v1.1.0", "two scripts", "one accent", "audited" ]
   lightSwitch:
     toDark: "Turn the lights off"
@@ -109,7 +109,7 @@ pins:
 
 closing:
   heading: "One calm core. Built to be borrowed."
-  wash: "borrowed"
+  wash: "borrowed."
   sub: "The system is a contract, not a kit. Six things you may set, six things you never touch, and everything on this board comes with its proof."
   contract:
     label: "Read the contract"
