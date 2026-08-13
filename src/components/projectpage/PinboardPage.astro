@@ -683,21 +683,31 @@ const closingWash = splitWash(closing.heading, closing.wash);
             transition: background-color var(--dsp-dur-state), color var(--dsp-dur-state), border-color var(--dsp-dur-state), transform var(--dsp-dur-state);
         }
         .dsp-btn:active { transform: scale(.97); }
-        /* The site's own primary button, token for token: global.css sets
-           .btn-primary to --accent under --on-accent, and the light switch and
-           the mirror's flip already hover into that pair. Measured, it is
-           3.07:1 in light and 3.79:1 in dark — the site's 3:1 button treatment,
-           and short of the 4.5:1 a 14px label wants. Repainting it here would
-           be one page's button disagreeing with every other one on the site;
-           the pair is global.css's to change, and that is where the change
-           belongs. The hover is well clear of the bar either way: the ground
-           becomes the page's own ink, at 14.1:1 and 11.7:1. */
-        .dsp-btn-pri { background: var(--accent); border: 1.5px solid var(--accent); color: var(--on-accent); }
-        .dsp-btn-pri:hover { background: var(--text-strong); border-color: var(--text-strong); }
-        /* An exact inversion, so it needs no second rule for dark: the page's
-           ink becomes the ground and the page's ground becomes the ink. Naming
-           --cream for the label instead would read correctly in light and paint
-           cream on cream in dark, at 1:1. This way it is 14.1:1 and 13.6:1. */
+        /* The one place this page departs from the site's own chrome, on
+           purpose. global.css sets .btn-primary to --accent under --on-accent,
+           which measures 3.07:1 in light and 3.79:1 in dark — the site's 3:1
+           button treatment, and short of the 4.5:1 a 14px label wants. Five
+           pins up, this page publishes an audit that says contrast passes in
+           light and in dark. A page cannot print that claim and then set its
+           own loudest control below the bar the claim is about.
+
+           So the label is the page's darkest ink instead, and one rule covers
+           both modes because --accent does not flip: 4.59:1 either side. The
+           site-wide pair is deliberately left alone for now and is the planned
+           site-adjustment pass's to reconcile — one documented fork of one
+           page, not two buttons quietly drifting apart. */
+        .dsp-btn-pri { background: var(--accent); border: 1.5px solid var(--accent); color: var(--choc-ink); }
+        /* Both buttons hover into the same inversion: the page's ink becomes
+           the ground and the page's ground becomes the ink, which is one rule
+           for both modes because both halves flip together. 14.1:1 in light and
+           13.6:1 in dark, for each of them.
+
+           The primary needs its own label here rather than inheriting the rest
+           state's: the hover ground IS --text-strong, and in light that is the
+           same chocolate as the ink above, which would leave 1:1. Naming
+           --cream instead would read in light and paint cream on cream in dark,
+           at 1:1 the other way round. Only the ground token says it once. */
+        .dsp-btn-pri:hover { background: var(--text-strong); border-color: var(--text-strong); color: var(--surface); }
         .dsp-btn-sec { background: transparent; border: 1.5px solid var(--text-strong); color: var(--text-strong); }
         .dsp-btn-sec:hover { background: var(--text-strong); color: var(--surface); }
         .dsp-contract summary::-webkit-details-marker { display: none; }
