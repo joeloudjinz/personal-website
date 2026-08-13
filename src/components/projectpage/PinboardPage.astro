@@ -257,7 +257,12 @@ const closingWash = splitWash(closing.heading, closing.wash);
                         )}
                         {/* Curly marks, not the typewriter pair: the page is a
                             design system showing its own manners. */}
-                        {pin.kind === 'quote' && <p class='dsp-quote'>“{pin.text}”</p>}
+                        {/* The register picks the face, exactly as the mirror's
+                            strip says it does: warm speaks in the display serif,
+                            sharp in the sans. */}
+                        {pin.kind === 'quote' && (
+                            <p class:list={['dsp-quote', {'dsp-quote-sharp': pin.register === 'sharp'}]}>“{pin.text}”</p>
+                        )}
                         {pin.kind === 'nameplate' && (
                             <div dir='rtl' lang='ar' class='text-right'>
                                 <p class='dsp-arname'>{pin.name}</p>
@@ -712,6 +717,12 @@ const closingWash = splitWash(closing.heading, closing.wash);
         .dsp-quote {
             font-family: var(--dsp-font-display); font-style: italic; font-size: 19px;
             line-height: 1.45; color: var(--cream);
+        }
+        /* Sharp register: the sans face, upright and front-loaded, a step
+           smaller because Readex runs wider than Literata at the same size. */
+        .dsp-quote-sharp {
+            font-family: var(--dsp-font-sans); font-style: normal; font-weight: 700;
+            font-size: 17px; letter-spacing: -0.01em;
         }
 
         .dsp-arname {
