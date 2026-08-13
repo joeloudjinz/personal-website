@@ -87,7 +87,7 @@ pins:
       - { text: "✓ one highlight per pane" }
     more:
       label: "Show me how"
-      body: "Adopting the console voice is one class on a container. The system brings the mono face, the recessed well, sixteen terminal colors and the diff and log styles with it. It needs no setup at all."
+      body: "Adopting the console voice is one class on a surface. The system brings the mono face, the recessed well, sixteen terminal colors and the diff and log styles with it. It needs no setup at all."
   - kind: "states"
     stop: "palette"
     label: "02 · the states"
