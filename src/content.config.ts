@@ -132,7 +132,7 @@ const projects = defineCollection({
 // monospace run would be wrong whatever it said: display type, small caps, a
 // pill, or the text of a control. A backtick authored in one of those prints as
 // a backtick, which is the page telling the author the field is the wrong one.
-// The full list, and the reasoning, is at the top of src/pages/[project].astro.
+// The full list, and the reasoning, is at the top of src/components/projectpage/BandPage.astro.
 //
 // This used to be ‘single curly quotes’, which is what an author reaches for
 // when the design system has no treatment to reach for; there is one now.
@@ -316,7 +316,7 @@ const projectPages = defineCollection({
       slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
         message: 'slug must be kebab-case, lower-case only: it becomes the URL segment'
       }),
-      // A bare hostname. src/pages/[project].astro interpolates it into
+      // A bare hostname. src/components/projectpage/BandPage.astro interpolates it into
       // `https://<subdomain>/` for the page's canonical, og:url and twitter:url —
       // which is why a scheme, port, path or trailing slash is rejected here:
       // any of them would produce a malformed URL rather than a wrong one.

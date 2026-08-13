@@ -1,10 +1,10 @@
 /**
- * Class strings shared by src/pages/[project].astro and the band components it
+ * Class strings shared by src/components/projectpage/BandPage.astro and the band components it
  * renders. No types — the module exports one const, and calling it a type sent
  * a reader looking for something that was never here.
  *
  * Only what genuinely crosses the file boundary lives here; the rest of the
- * page's rhythm constants stay hoisted at the top of the route, where they are
+ * page's rhythm constants stay hoisted at the top of BandPage, where they are
  * read alongside the bands that use them.
  */
 

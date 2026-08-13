@@ -52,7 +52,7 @@ export function splitWash(heading: string, wash: string): {before: string; washe
  * the same move, rather than in two moves with one of them forgotten.
  *
  * The order is the template's, not this file's: it has to match the order the
- * bands appear in src/pages/[project].astro, because a nav that lists them in a
+ * bands appear in src/components/projectpage/BandPage.astro, because a nav that lists them in a
  * different order is a nav that lies about where the reader is going.
  */
 const BAND_ORDER = [
