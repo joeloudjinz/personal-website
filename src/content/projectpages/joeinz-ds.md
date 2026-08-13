@@ -56,7 +56,7 @@ pins:
     note: "One saturated accent. A budget, not a paint."
     more:
       label: "Tell me more"
-      body: "Caramel appears in exactly five jobs: the kicker mark, one marker highlight per view, the primary action, focus, and selection. Six extra state colors handle good and bad news, and each one arrives with a glyph so color never carries a meaning alone."
+      body: "Caramel appears in exactly five jobs: the kicker mark, one marker highlight per view, the primary action, focus, and selection. Six extra state colours handle good and bad news, and each one arrives with a glyph so colour never carries a meaning alone."
   - kind: "stat"
     stop: "type"
     label: "03 · the scale"
@@ -65,7 +65,7 @@ pins:
   - kind: "quote"
     stop: "type"
     label: "field note · sharp register"
-    text: "Senior is a behavior, not a title."
+    text: "Senior is a behaviour, not a title."
   - kind: "nameplate"
     stop: "second-script"
     label: "04 · الاسم الحقيقي"
@@ -88,7 +88,7 @@ pins:
       - { text: "✓ one highlight per pane" }
     more:
       label: "Show me how"
-      body: "Adopting the console voice is one class on a surface. The system brings the mono face, the recessed well, sixteen terminal colors and the diff and log styles with it. It needs no setup at all."
+      body: "Adopting the console voice is one class on a surface. The system brings the mono face, the recessed well, sixteen terminal colours and the diff and log styles with it. It needs no setup at all."
   - kind: "states"
     stop: "palette"
     label: "02 · the states"
@@ -97,14 +97,14 @@ pins:
       - { glyph: "i", name: "info", tone: "info" }
       - { glyph: "✕", name: "negative", tone: "negative" }
       - { glyph: "!", name: "caution", tone: "caution" }
-    note: "Color never works alone. Every state has a glyph partner."
+    note: "Colour never works alone. Every state has a glyph partner."
   - kind: "audit"
     stop: "proof"
     label: "05 · the audit"
     rows:
       - { check: "contrast, light", result: "pass" }
       - { check: "contrast, dark", result: "pass" }
-      - { check: "color blindness", result: "pass" }
+      - { check: "colour blindness", result: "pass" }
       - { check: "reduced motion", result: "pass" }
 
 closing:
