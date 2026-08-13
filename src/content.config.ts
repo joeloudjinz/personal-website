@@ -68,17 +68,32 @@ const recommendations = defineCollection({
   })
 });
 
+// A link field: either absent, or an actual link. Shared by the two fields a
+// project card can lead from, so neither can drift from the other on what
+// counts as filled in.
+//
+// A trim-aware refine rather than .min(1), for the reason `wash` gives further
+// down this file: .min(1) admits " ". That matters more here than it does for a
+// heading, because projectLead() in src/utils/projects.ts tests these fields for
+// TRUTH — and " " is truthy. A whitespace value therefore does not degrade to
+// absence, it beats it: it wins the branch and renders href=" ", which resolves
+// to the current page. The card gets a title that looks like a link and goes
+// nowhere, which is the failure this pair of guards exists to make unauthorable.
+const nonBlankLink = z.string().refine((value) => value.trim().length > 0, {
+  message:
+    'must be a non-blank link, or left out altogether: a whitespace value is not ' +
+    'read as absence, it is read as an href, and an href of spaces links to the page it is on'
+});
+
 const projects = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/projects" }),
   schema: ({ image }) => z.object({
     name: z.string(),
     // Optional since the design system: a project with no public repository has
     // nothing honest to put here, and the card omits the "View repository" link
-    // rather than pointing it somewhere that is not one. Non-blank when it is
-    // there: projectLead() tests the field for truth, so an empty string is
-    // absence with none of absence's honesty — it reads as a link in the
-    // frontmatter and degrades exactly as silently as leaving it out.
-    demoLink: z.string().min(1).optional(),
+    // rather than pointing it somewhere that is not one. Absent or real, never
+    // blank — see nonBlankLink above for why the difference is not cosmetic.
+    demoLink: nonBlankLink.optional(),
     demoLinkRel: z.string().optional(),
     // The project's own showcase page in the projectPages collection, when it
     // has one. A separate field rather than a repointed demoLink: every entry
@@ -86,7 +101,13 @@ const projects = defineCollection({
     // card labels it "View repository", so overloading it would make one card's
     // label a lie and leave the repository with nowhere to be linked from. See
     // projectLead() in src/utils/projects.ts for what the card does with the pair.
-    projectPageLink: z.string().optional(),
+    //
+    // Guarded like demoLink, and the more important of the two to guard: this is
+    // the field projectLead() checks FIRST, so a blank one does not fall through
+    // to a perfectly good demoLink sitting beside it — it masks it. ("masks",
+    // not the CSS-property word for the same idea: tailwind.config.mjs records
+    // that exact word leaking a dead rule out of a guard message once already.)
+    projectPageLink: nonBlankLink.optional(),
     tags: z.array(z.string()).optional(),
     description: z.string().optional(),
     postLink: z.string().optional(),
@@ -102,12 +123,17 @@ const projects = defineCollection({
     isFeatured: z.boolean().default(false),
     id: z.string(), // New required property for sorting
     coverImage: image().optional()
-    // Every card has to lead somewhere. The title is an anchor in both places a
-    // project is drawn, and on the home page it is the card's ONLY link, so an
-    // entry with neither field renders a title that goes nowhere rather than a
-    // card that is merely quieter. projectLead() returns an empty attribute bag
-    // in that case, deliberately, and this is what stops one being authored.
-  }).refine(
+  })
+  // Every card has to lead somewhere. The title is an anchor in both places a
+  // project is drawn, and on the home page it is the card's ONLY link, so an
+  // entry with neither field renders a title that goes nowhere rather than a
+  // card that is merely quieter. projectLead() returns an empty attribute bag
+  // in that case, deliberately, and this is what stops one being authored.
+  //
+  // nonBlankLink is what makes this check mean anything: it guarantees that a
+  // field which is present is also usable, so "has one of the two" and "leads
+  // somewhere" are the same statement rather than two that drifted apart.
+  .refine(
     (project) => Boolean(project.demoLink?.trim() || project.projectPageLink?.trim()),
     {
       message:

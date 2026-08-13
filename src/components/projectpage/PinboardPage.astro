@@ -54,7 +54,10 @@ const closingWash = splitWash(closing.heading, closing.wash);
         are hidden the same way but un-hidden by a CSS animation that ends at
         opacity 1 and holds it (fill-mode forwards), which needs no script at
         all — naming it here, and turning that animation off, is the one thing
-        that WOULD leave it unpainted.
+        that WOULD leave it unpainted. ("unpainted" rather than the obvious
+        utility name on purpose: Tailwind scans this file as plain text, so
+        spelling that name here emits its rule into the shared bundle even
+        though no element ever carries the class. See tailwind.config.mjs.)
 
         is:inline keeps this where it is written: an Astro <style> is otherwise
         hoisted into the page's stylesheet, where it would apply to everyone.
