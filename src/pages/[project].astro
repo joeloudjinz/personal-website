@@ -1,8 +1,9 @@
 ---
-// Dispatcher for project showcase pages. The band template (inzsh) lives in
-// BandPage; a second template joins in the pinboard work. getStaticPaths stays
-// here because this file is the route.
+// Dispatcher for project showcase pages. Two templates render them: the band
+// template (inzsh) in BandPage, and the pinboard template (joeinz-ds) in
+// PinboardPage. getStaticPaths stays here because this file is the route.
 import BandPage from '@src/components/projectpage/BandPage.astro';
+import PinboardPage from '@src/components/projectpage/PinboardPage.astro';
 import {getProjectPages, isPinboard, type BandEntry, type PinboardEntry} from '@src/utils/projectPages';
 
 export async function getStaticPaths() {
@@ -20,14 +21,5 @@ interface Props {
 }
 
 const {page} = Astro.props;
-
-// PinboardPage lands in the next task. Until it does a pinboard entry has
-// nothing to render, and a blank page is the one outcome worse than a failed
-// build: it deploys. The throw also narrows `page` to a band entry below.
-if (isPinboard(page)) {
-    throw new Error(
-        `PinboardPage is not implemented yet: entry "${page.data.slug}" has template "pinboard".`
-    );
-}
 ---
-<BandPage page={page}/>
+{isPinboard(page) ? <PinboardPage page={page}/> : <BandPage page={page}/>}

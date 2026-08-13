@@ -3,8 +3,9 @@
  *
  * A `.marker-wash` phrase cannot wrap. The class paints one absolutely-positioned
  * rectangle across the whole span, so a phrase broken over two lines draws a
- * caramel block across the text between them — which is why both washed headings
- * in src/components/projectpage/BandPage.astro set the span `whitespace-nowrap`.
+ * caramel block across the text between them — which is why the washed headings
+ * in src/components/projectpage/BandPage.astro and PinboardPage.astro set the
+ * span `whitespace-nowrap`.
  *
  * An un-wrappable phrase is exactly as wide as its glyphs make it, and nothing
  * downstream can rescue an over-long one. The clamp on those headings floors at

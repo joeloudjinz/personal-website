@@ -1,0 +1,113 @@
+---
+// The pinboard template: the Joe Inz Design System showcase. Layout and
+// behavior live here; every user-visible string comes from the entry.
+// Copy rules for entry strings: no em-dashes, no semicolons, human register.
+import BaseLayout from '@src/layouts/BaseLayout.astro';
+import {splitWash, type PinboardEntry} from '@src/utils/projectPages';
+
+interface Props {
+    page: PinboardEntry;
+}
+
+const {page} = Astro.props;
+const {seo, projectName, masthead, mirror, railCaption, allLabel, stops, pins, closing} = page.data;
+
+const canonical = `https://${page.data.subdomain}/`;
+
+// Same wash contract as the band pages, split by the same shared helper. Null
+// is unreachable (the schema enforces wash-in-heading) but the render guards it
+// anyway, exactly as BandPage does.
+const mastheadWash = splitWash(masthead.heading, masthead.wash);
+const closingWash = splitWash(closing.heading, closing.wash);
+---
+
+<BaseLayout title={seo.title} description={seo.description ?? mirror.en.body} gradient='warm'
+            keywords={seo.keywords?.join(', ')} imageAlt={seo.imageAlt}
+            canonical={canonical} chrome='subdomain' projectName={projectName}>
+    {/* Page-only faces. A <link> in the body is valid HTML and keeps the fonts
+        off every other page. The site's Fraunces/Inter still load via BaseHead
+        for the shared chrome. */}
+    <link rel='stylesheet'
+          href='https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,500&family=Readex+Pro:wght@400;500;600;700&family=Harmattan:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap'/>
+
+    <div class='dsp'>
+        <header class='shell pt-[72px] pb-[8px]'>
+            <div class='dsp-mast'>
+                <div class='dsp-cascade'>
+                    <p class='kicker mb-6'>{masthead.kicker}</p>
+                    <h1 class='dsp-display font-semibold text-strong tracking-[-0.015em] leading-[1.05]'>
+                        {mastheadWash
+                            ? <>{mastheadWash.before}<span class='marker-wash whitespace-nowrap'>{mastheadWash.washed}</span>{mastheadWash.after}</>
+                            : masthead.heading}
+                    </h1>
+                </div>
+                <div class='dsp-aside'>
+                    <button class='dsp-modebtn' type='button' data-light-switch
+                            data-label-to-dark={masthead.lightSwitch.toDark}
+                            data-label-to-light={masthead.lightSwitch.toLight}>
+                        {masthead.lightSwitch.toDark}
+                    </button>
+                    <p class='dsp-facts'>{masthead.facts.join(' · ')}</p>
+                </div>
+            </div>
+        </header>
+        {/* mirror pin lands in Task 4, board in Task 5, closing in Task 6 */}
+    </div>
+
+    <style>
+        /* Page-scoped additions only. Everything else reads the site's own
+           tokens (--cream, --choc, --caramel, --hairline, gradients, grain),
+           which global.css already defines. Never import the DS foundation.css
+           here: it declares the same names with 1.x values and would rewire the
+           shared chrome. */
+        .dsp {
+            --dsp-font-display: 'Literata', Georgia, serif;
+            --dsp-font-sans: 'Readex Pro', system-ui, sans-serif;
+            --dsp-font-ar: 'Harmattan', sans-serif;
+            --dsp-font-mono: 'JetBrains Mono', monospace;
+            --dsp-ease: cubic-bezier(.2, .7, .3, 1);
+            --dsp-dur-enter: .55s;  /* choreography: zeroed under reduced motion */
+            --dsp-dur-state: .25s;  /* feedback: survives reduced motion */
+            font-family: var(--dsp-font-sans);
+        }
+        .dsp-display {
+            font-family: var(--dsp-font-display);
+            /* Same 30px floor as the band heroes, so the schema's washFits bound
+               holds here without a second table. */
+            font-size: clamp(30px, 8.5vw, 84px);
+            max-width: 12ch;
+        }
+        .dsp-mast { display: flex; justify-content: space-between; align-items: flex-end; gap: 28px; flex-wrap: wrap; }
+        .dsp-aside { display: flex; flex-direction: column; gap: 12px; align-items: flex-end; padding-bottom: 10px; }
+        .dsp-facts { font-family: var(--dsp-font-mono); font-size: 11px; line-height: 1.8; color: var(--text-muted); text-align: right; margin: 0; }
+        .dsp-modebtn {
+            cursor: pointer; border: 1.5px solid var(--text-strong); background: transparent;
+            color: var(--text-strong); border-radius: 999px; font-weight: 600; font-size: 13px;
+            padding: 9px 20px;
+            transition: background-color var(--dsp-dur-state), color var(--dsp-dur-state), border-color var(--dsp-dur-state);
+        }
+        .dsp-modebtn:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+    </style>
+
+    <script>
+        // Theme alias: same class, same persistence as the header toggle. One
+        // mechanism, two controls.
+        const bindLightSwitch = () => {
+            const btn = document.querySelector<HTMLButtonElement>('[data-light-switch]');
+            if (!btn || btn.dataset.bound) return;
+            btn.dataset.bound = '1';
+            const setLabel = () => {
+                const dark = document.documentElement.classList.contains('theme-dark');
+                btn.textContent = dark ? (btn.dataset.labelToLight ?? '') : (btn.dataset.labelToDark ?? '');
+            };
+            btn.addEventListener('click', () => {
+                const dark = document.documentElement.classList.toggle('theme-dark');
+                localStorage.setItem('theme', dark ? 'dark' : 'light');
+                setLabel();
+            });
+            setLabel();
+        };
+        const init = () => { bindLightSwitch(); };
+        document.addEventListener('astro:page-load', init);
+    </script>
+</BaseLayout>
