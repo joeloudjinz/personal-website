@@ -345,9 +345,11 @@ const closingWash = splitWash(closing.heading, closing.wash);
                         means this click is the one closing it. */}
                     <details class='dsp-contract'>
                         <summary class='dsp-btn dsp-btn-pri' data-cta='primary' data-cta-location='closing'>{closing.contract.label}</summary>
+                        {/* The prohibitions are the contract's teeth, so the
+                            bold belongs to them rather than to the permissions. */}
                         <div class='dsp-contractbody'>
-                            <p><strong>{closing.contract.may}</strong></p>
-                            <p>{closing.contract.never}</p>
+                            <p>{closing.contract.may}</p>
+                            <p><strong>{closing.contract.never}</strong></p>
                         </div>
                     </details>
                     {/* A link rather than a button, because #dsp-railboard is a
@@ -424,6 +426,28 @@ const closingWash = splitWash(closing.heading, closing.wash);
             max-width: 12ch;
         }
         .dsp-facts { font-family: var(--dsp-font-mono); font-size: 11px; line-height: 1.8; }
+        /* One page, one theme control. The pill below is this page's own voice
+           for the question, and the header's segmented control says the same
+           thing again a few pixels away — so the header's is stood down here,
+           and only here. inzsh has no masthead switch and keeps its own.
+
+           Presentation and nothing else: the mechanism is untouched. The
+           delegated handler in Header.astro still acts on anything carrying
+           .theme-toggle, the pill still rides it, and the hidden control is
+           still kept in step by the same aria-pressed sync.
+
+           Conditioned on the page rather than written as a bare :global rule,
+           because the two project showcase pages SHARE one stylesheet — both
+           link the same _project_ chunk, so an unconditional rule in here would
+           hide inzsh's toggle as well. .dsp is this template's root and appears
+           on no other page in the build, so :has() asks the one question that
+           tells the two apart.
+
+           The child combinator is the other half of the aim. The site's bar is
+           a child of body; this page's masthead is a <header> too, further in
+           and with the pill inside it, so a plain descendant match would hide
+           the very control this rule exists to leave standing. */
+        :global(body:has(.dsp) > header .theme-toggle) { display: none; }
         .dsp-modebtn {
             cursor: pointer; border: 1.5px solid var(--text-strong); background: transparent;
             color: var(--text-strong); border-radius: 999px; font-weight: 600; font-size: 13px;
@@ -520,8 +544,11 @@ const closingWash = splitWash(closing.heading, closing.wash);
         .dsp-railline {
             border: 1px solid var(--hairline);
             border-radius: 999px;
-            /* Nearly opaque, because pins scroll underneath it. */
-            background: color-mix(in srgb, var(--surface) 94%, transparent);
+            /* Solid, because pins scroll underneath it. Content showing
+               through a sticky control row reads as dirt on the row rather
+               than as depth, and the row needs no translucency to feel light:
+               a hairline, a pill and a page's worth of air already say it. */
+            background: var(--surface);
             padding: 5px;
             /* The row is a pill and a platform scrollbar draws a grey bar
                across the bottom of it. The half-cut chip at the right edge is
@@ -541,6 +568,17 @@ const closingWash = splitWash(closing.heading, closing.wash);
             transition: color var(--dsp-dur-state), background-color var(--dsp-dur-state);
         }
         .dsp-stop:hover { color: var(--text-strong); }
+        /* The trade, named exactly: a mouse click leaves the browser's focus
+           indicator on the chip it landed on until something else takes focus,
+           and a marked chip standing beside the lit one reads as a second
+           current stop. Keyboard focus keeps its indicator, which is the half
+           that was ever doing any work.
+
+           Longhand, never the shorthand — see the byte-scan note in
+           tailwind.config.mjs, and the same care CodeBlock takes. The shorthand
+           property name is a utility name, and so is the usual word for the
+           indicator itself, which is why neither is written on this page. */
+        .dsp-stop:focus:not(:focus-visible) { outline-style: none; }
         /* A wash under the current chip rather than a solid accent fill. A
            filled accent needs an ink dark enough to sit on it — see the note on
            .dsp-btn-pri, where the page's three accent fills settle that — and
@@ -692,9 +730,15 @@ const closingWash = splitWash(closing.heading, closing.wash);
         .dsp-term {
             background: var(--navy-deep); border-radius: 12px; color: var(--cream-muted);
             font-family: var(--dsp-font-mono); font-size: 11.5px; line-height: 1.7;
-            padding: 14px 16px; white-space: pre-wrap;
+            padding: 14px 16px; overflow-x: auto;
         }
-        .dsp-term span { display: block; }
+        /* A command stays on one line and the well scrolls sideways under it
+           instead — which is what a terminal does, and the same call CodeBlock
+           and BandPage write out for code: a wrapped command is not a command,
+           it is two lines a reader has to reassemble before they can run it.
+           Stated on the lines rather than on the well, so the pane can scroll
+           while nothing inside it is allowed to fold. */
+        .dsp-term span { display: block; white-space: pre; }
         .dsp-term .dsp-cursor {
             display: inline-block; width: 7px; height: 13px; background: var(--cream-muted);
             vertical-align: -2px; animation: dsp-blink 1.15s steps(1) infinite;
@@ -761,6 +805,14 @@ const closingWash = splitWash(closing.heading, closing.wash);
         .dsp-morebody-ar { font-family: var(--dsp-font-ar); font-size: 14px; line-height: 1.85; }
 
         /* ---- The closing ---- */
+        /* Half the draw, and only for this heading. global.css wipes a
+           .marker-wash over 420ms once the observer marks it, which the
+           masthead can afford: it is drawn on load and the reader arrives with
+           it, so the slow stroke is the reader watching a mark being made. This
+           one is triggered under the fold, so it is FIRST seen mid-stroke, and
+           a mark caught half made does not read as a mark being made. It reads
+           as one that came out wrong. The masthead keeps the site's own timing. */
+        #closing .marker-wash::before { transition-duration: 210ms; }
         .dsp-closing { font-family: var(--dsp-font-display); font-size: clamp(30px, 7vw, 56px); }
         .dsp-closingsub { margin: 14px auto 26px; font-size: 14.5px; color: var(--text-muted); max-width: 48ch; line-height: 1.65; }
         .dsp-btn {
@@ -799,6 +851,12 @@ const closingWash = splitWash(closing.heading, closing.wash);
         .dsp-btn-pri:hover { background: var(--text-strong); border-color: var(--text-strong); color: var(--surface); }
         .dsp-btn-sec { background: transparent; border: 1.5px solid var(--text-strong); color: var(--text-strong); }
         .dsp-btn-sec:hover { background: var(--text-strong); color: var(--surface); }
+        /* Open rests where hover points, so the control admits it is holding
+           the panel. Same three values as the hover above, which cannot fight
+           it while both apply. */
+        .dsp-contract[open] .dsp-btn-pri {
+            background: var(--text-strong); border-color: var(--text-strong); color: var(--surface);
+        }
         .dsp-contract summary::-webkit-details-marker { display: none; }
         /* The panel and its summary are one element, so they cannot sit beside
            the proofs button and underneath it at the same time. Open, the
