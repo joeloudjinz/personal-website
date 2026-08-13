@@ -13,9 +13,9 @@ interface Props {
 }
 
 const {page} = Astro.props;
-// railCaption, allLabel, stops and pins are the board's, drawn in Task 5;
-// closingWash is Task 6's. Destructured here so the sections that land later
-// read their copy off one line rather than reaching into page.data each time.
+// closing is Task 6's and is read only for its wash so far. Destructured here
+// so the sections read their copy off one line rather than reaching into
+// page.data each time.
 const {seo, projectName, masthead, mirror, railCaption, allLabel, stops, pins, closing} = page.data;
 
 const canonical = `https://${page.data.subdomain}/`;
@@ -122,7 +122,145 @@ const closingWash = splitWash(closing.heading, closing.wash);
                 </div>
             </div>
         </section>
-        {/* board in Task 5, closing in Task 6 */}
+        {/* The rail and the board. The rail does two jobs at once: it follows
+            whichever pin the pointer or the keyboard is on, and a click on a
+            stop pins that highlight and dims every pin belonging elsewhere.
+            Both halves are bindRail below.
+
+            A plain stack under 900px and a two-track layout above it, rather
+            than a two-track layout that narrows: the rail is a different
+            object at each size — a row of chips that scrolls sideways, and a
+            vertical spine with a dot per stop — and the narrow one has to be
+            free of the wide one's row to pin itself under the site's bar. */}
+        <div class='shell mt-9 pb-8 block min-[900px]:grid min-[900px]:grid-cols-[216px_1fr] min-[900px]:gap-9'>
+            {/* Named by the page's own caption rather than by a string written
+                in here, so project #2's rail announces itself in its own words.
+                The caption is drawn only at the wide layout and the name
+                survives that: text referenced by aria-labelledby is read out
+                whether or not it is on screen. */}
+            <nav class='dsp-rail sticky self-start z-10 mb-6 min-[900px]:mb-0' aria-labelledby='dsp-railcap'>
+                <p class='dsp-railcap hidden mb-2.5 ml-5 min-[900px]:block' id='dsp-railcap'>{railCaption}</p>
+                {/* An exclusive filter group, so the pressed state sits on each
+                    stop rather than on the row. Authored here as well as kept
+                    in step by the script: with no JS the rail is still a set of
+                    buttons that say which one is current. */}
+                <div class='dsp-railline flex gap-2 overflow-x-auto min-[900px]:flex-col min-[900px]:gap-0 min-[900px]:overflow-visible'>
+                    <button class='dsp-stop is-on relative shrink-0 whitespace-nowrap text-left' type='button'
+                            data-rail-stop='all' aria-pressed='true'>{allLabel}</button>
+                    {stops.map((stop) => (
+                        <button class='dsp-stop relative shrink-0 whitespace-nowrap text-left' type='button'
+                                data-rail-stop={stop.id} aria-pressed='false'>{stop.label}</button>
+                    ))}
+                </div>
+                <p class='dsp-railnote hidden mt-4 ml-5 min-[900px]:block'>The dot follows the pin under your pointer. Choose a stop to focus its pins.</p>
+            </nav>
+
+            <div class='dsp-board columns-1 gap-5 min-[580px]:columns-2 min-[900px]:columns-3' id='dsp-board'>
+                {pins.map((pin) => (
+                    <article class:list={['dsp-pin', 'reveal', 'relative', 'inline-block', 'w-full', 'mb-5', 'p-6', 'break-inside-avoid',
+                                          {'dsp-pin-dark': pin.kind === 'quote' || pin.kind === 'terminal'}]}
+                             data-pin-stop={pin.stop} tabindex='0'>
+                        <span class='dsp-pindot absolute' aria-hidden='true'></span>
+                        {/* The Arabic pin labels itself in Arabic, so the label
+                            carries its own script and its own direction. Every
+                            other pin's label is left alone rather than marked
+                            'en': the page is already in English. */}
+                        <span class:list={['dsp-lbl', 'block', 'mb-3', {'dsp-lbl-ar': pin.kind === 'nameplate'}]}
+                              dir={pin.kind === 'nameplate' ? 'rtl' : undefined}
+                              lang={pin.kind === 'nameplate' ? 'ar' : undefined}>{pin.label}</span>
+
+                        {pin.kind === 'origin' && (
+                            <div class='text-center'>
+                                {/* The site's own avatar, not an entry asset — so the
+                                    entry writes the description and the component owns
+                                    the file. Sized down from the 400px original, which
+                                    is why the intrinsic box is stated and the drawn
+                                    width is not left to the layout. */}
+                                <img src='/avatar.png' alt={pin.alt} width='400' height='400' loading='lazy'
+                                     class='dsp-bubble block mx-auto mt-1 h-auto w-[172px]'/>
+                                <p class='dsp-anno dsp-anno-c mt-3'>{pin.note}</p>
+                            </div>
+                        )}
+                        {pin.kind === 'swatches' && (
+                            <>
+                                <div class='grid grid-cols-2 gap-2'>
+                                    {pin.colors.map((color) => (
+                                        <span class='dsp-sw relative block h-14' style={`background:${color.hex}`}>
+                                            <i class:list={['absolute', 'bottom-1', 'left-1.5', 'not-italic', 'px-1.5', 'py-0.5',
+                                                            {'dsp-sw-light': color.ink === 'light'}]}>{color.name}</i>
+                                        </span>
+                                    ))}
+                                </div>
+                                <p class='dsp-anno mt-3'>{pin.note}</p>
+                            </>
+                        )}
+                        {pin.kind === 'stat' && (
+                            <>
+                                <p class='dsp-statn'>{pin.value}</p>
+                                <p class='dsp-statc mt-2'>{pin.caption}</p>
+                            </>
+                        )}
+                        {/* Curly marks, not the typewriter pair: the page is a
+                            design system showing its own manners. */}
+                        {pin.kind === 'quote' && <p class='dsp-quote'>“{pin.text}”</p>}
+                        {pin.kind === 'nameplate' && (
+                            <div dir='rtl' lang='ar' class='text-right'>
+                                <p class='dsp-arname'>{pin.name}</p>
+                                <p class='dsp-arbody mt-1.5'>{pin.body}</p>
+                            </div>
+                        )}
+                        {pin.kind === 'faces' && (
+                            <>
+                                <p class='dsp-proofline mt-0.5'>Aa <span lang='ar'>ع</span></p>
+                                <p class='dsp-anno mt-3'>{pin.note}</p>
+                            </>
+                        )}
+                        {/* Written with no gaps between the tag and the
+                            expression on purpose: inside a pre, any air left
+                            around them is drawn. */}
+                        {pin.kind === 'terminal' && (
+                            <pre class='dsp-term'>{pin.lines.map((line) => (
+                                <span>{line.prompt ? '$ ' : ''}{line.text}</span>
+                            ))}<span class='dsp-cursor' aria-hidden='true'></span></pre>
+                        )}
+                        {pin.kind === 'states' && (
+                            <>
+                                <div class='flex flex-wrap gap-2'>
+                                    {pin.items.map((item) => (
+                                        <span class={`dsp-st dsp-st-${item.tone} rounded-full px-3 py-1`}>{item.glyph} {item.name}</span>
+                                    ))}
+                                </div>
+                                <p class='dsp-anno mt-3'>{pin.note}</p>
+                            </>
+                        )}
+                        {pin.kind === 'audit' && (
+                            <dl class='dsp-audit'>
+                                {pin.rows.map((row) => (
+                                    <div class='flex justify-between gap-3'><dt>{row.check}</dt><dd>{row.result}</dd></div>
+                                ))}
+                            </dl>
+                        )}
+
+                        {/* data-pin-more carries the pin's own label because
+                            Task 8 reports unfolds by which pin was unfolded,
+                            and the native toggle event is what it listens on —
+                            so nothing here dispatches anything. */}
+                        {pin.more && (
+                            <details class='dsp-more mt-3.5' data-pin-more={pin.label}
+                                     dir={pin.more.lang === 'ar' ? 'rtl' : undefined}
+                                     lang={pin.more.lang === 'ar' ? 'ar' : undefined}>
+                                <summary class:list={['inline-flex', 'items-center', 'gap-1.5',
+                                                      {'dsp-more-ar': pin.more.lang === 'ar'}]}>
+                                    <span class='dsp-chev' aria-hidden='true'>›</span> {pin.more.label}
+                                </summary>
+                                <p class:list={['dsp-morebody', 'mt-3', 'pt-3', {'dsp-morebody-ar': pin.more.lang === 'ar'}]}>{pin.more.body}</p>
+                            </details>
+                        )}
+                    </article>
+                ))}
+            </div>
+        </div>
+        {/* closing in Task 6 */}
     </div>
 
     <style>
@@ -141,8 +279,19 @@ const closingWash = splitWash(closing.heading, closing.wash);
             --dsp-dur-state: .25s;  /* feedback: survives reduced motion */
             --dsp-dur-flip: .18s;   /* the dip has to cover the swap, so CSS and the script read one
                                        number. Keep it in seconds: the script multiplies by 1000. */
+            /* Caramel as TEXT, which is a different budget from caramel as a
+               mark. --accent is 3.1:1 on cream and 3.7:1 on navy — enough for a
+               dot, a bar or a fill, and short of the 4.5:1 a 12px control label
+               needs. So the marks keep --accent and anything set in the accent
+               reads this instead: the same caramel walked toward the page's own
+               ink in light, and the brighter caramel the site already carries
+               in dark. 4.7:1 and 4.6:1 against the pins they sit on. */
+            --dsp-accent-ink: color-mix(in srgb, var(--accent) 72%, var(--choc-ink));
             font-family: var(--dsp-font-sans);
         }
+        :global(html.theme-dark) .dsp { --dsp-accent-ink: var(--caramel-bright); }
+
+        /* ---- The masthead ---- */
         /* Two independent bounds, and they answer different questions.
 
            The clamp floors at 30px because that is the condition washFits is
@@ -173,6 +322,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
         :global(html.theme-dark) .dsp-lbl-to-dark,
         :global(html:not(.theme-dark)) .dsp-lbl-to-light { display: none; }
 
+        /* ---- The mirror ---- */
         /* The mirror card. Its split, padding, position and clipping are plain
            layout and ride Tailwind utilities in the markup; what stays here is
            what reads a token, draws state, or has to survive the flip. */
@@ -228,6 +378,254 @@ const closingWash = splitWash(closing.heading, closing.wash);
         :global(html.theme-dark) .dsp-flipbtn { background: var(--navy-soft); border-color: var(--cream); color: var(--cream); }
         .dsp-flipbtn:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); transform: translate(-50%, -50%) scale(1.05); }
         .dsp-flipbtn b { font-family: var(--dsp-font-ar); font-weight: 700; font-size: 15px; }
+
+        /* ---- The story rail ---- */
+        /* Pinned under the site's own bar rather than at a bare 20px: the
+           header is sticky and 85px tall, so anything that pins itself to the
+           top of the window reads --nav-height or ends up drawn beneath it.
+
+           Narrow first. What is written plainly here is the chip row; the
+           spine, and the dot per stop that only a spine can carry, are declared
+           inside the 900px query rather than switched off outside it. */
+        .dsp-rail { top: var(--nav-height); }
+        .dsp-railline {
+            border: 1px solid var(--hairline);
+            border-radius: 999px;
+            /* Nearly opaque, because pins scroll underneath it. */
+            background: color-mix(in srgb, var(--surface) 94%, transparent);
+            padding: 5px;
+            /* The row is a pill and a platform scrollbar draws a grey bar
+               across the bottom of it. The half-cut chip at the right edge is
+               the affordance, and it is the one the design draws. */
+            scrollbar-width: none;
+        }
+        .dsp-railline::-webkit-scrollbar { display: none; }
+        .dsp-stop {
+            cursor: pointer;
+            background: none;
+            border: none;
+            border-radius: 999px;
+            padding: 7px 14px;
+            font-family: inherit;
+            font-size: 13.5px;
+            color: var(--text-muted);
+            transition: color var(--dsp-dur-state), background-color var(--dsp-dur-state);
+        }
+        .dsp-stop:hover { color: var(--text-strong); }
+        /* A wash under the current chip rather than a solid accent fill. The
+           site's accent-on-on-accent pair is a 3:1 treatment built for a
+           button's own size, and this is a 13.5px label; the marker wash puts
+           the page's strong ink on caramel at 12:1 in light and 7.8:1 in dark,
+           in the same caramel the headings are marked with. */
+        .dsp-stop.is-on { color: var(--text-strong); font-weight: 600; background: var(--accent-wash); }
+        .dsp-railcap {
+            font-family: var(--dsp-font-mono); font-size: 9.5px; letter-spacing: .12em;
+            text-transform: uppercase; color: var(--text-muted);
+        }
+        .dsp-railnote { font-family: var(--dsp-font-mono); font-size: 11.5px; line-height: 1.6; color: var(--text-muted); }
+
+        @media (min-width: 900px) {
+            .dsp-rail { top: calc(var(--nav-height) + 20px); }
+            .dsp-railline {
+                border: 0;
+                border-left: 3px solid color-mix(in srgb, var(--accent) 35%, transparent);
+                border-radius: 0;
+                background: none;
+                padding: 0;
+            }
+            .dsp-stop { padding: 9px 0 9px 20px; border-radius: 0; }
+            .dsp-stop.is-on { background: none; }
+            /* Preflight makes every box border-box, so the 11px here is the
+               whole dot and the 3px band around it eats inward. That is what
+               puts the dot's centre on the spine at left: -7px. */
+            .dsp-stop::before {
+                content: "";
+                position: absolute;
+                left: -7px;
+                top: 13px;
+                width: 11px;
+                height: 11px;
+                border-radius: 50%;
+                background: var(--surface);
+                border: 3px solid color-mix(in srgb, var(--accent) 45%, transparent);
+                transition: background-color var(--dsp-dur-state), border-color var(--dsp-dur-state), transform var(--dsp-dur-state);
+            }
+            .dsp-stop:hover::before { transform: scale(1.15); }
+            .dsp-stop.is-on::before { background: var(--accent); border-color: var(--accent); }
+        }
+
+        /* ---- The board ---- */
+        /* A packed multi-column board: the pins differ in height by design and
+           the browser fits them together. Which is also why the rail follows
+           the pointer and never the scroll offset — a packed board has no one
+           vertical order to read a current stop out of. */
+        .dsp-pin {
+            background: color-mix(in srgb, var(--cream) 55%, transparent);
+            border: 1px solid var(--hairline);
+            border-radius: 20px;
+            box-shadow: var(--shadow-soft);
+            transition: transform .3s var(--dsp-ease), box-shadow .3s var(--dsp-ease), opacity .45s ease, filter .45s ease;
+        }
+        /* :not() rather than a later override, so the two pins that are navy in
+           both modes never enter the argument. */
+        :global(html.theme-dark) .dsp-pin:not(.dsp-pin-dark) { background: color-mix(in srgb, var(--navy-soft) 70%, transparent); }
+        .dsp-pin:hover { transform: translateY(-4px); box-shadow: var(--shadow-card); }
+        /* Set back, never taken away: a pin outside the chosen stop keeps its
+           place, its text and its tab stop, so the rail is emphasis rather than
+           a search. Which is also why reaching one by keyboard restores it —
+           .14 is not something a reader can be left stranded in. */
+        .dsp-pin.is-dim { opacity: .14; transform: scale(.97); filter: saturate(.35); }
+        .dsp-pin.is-dim:focus-within { opacity: 1; transform: none; filter: none; }
+
+        /* ---- The pins ---- */
+        .dsp-pindot {
+            top: -6px; left: 50%; transform: translateX(-50%);
+            width: 12px; height: 12px; border-radius: 50%;
+            background: var(--accent); box-shadow: var(--shadow-soft);
+            transition: transform var(--dsp-dur-state);
+        }
+        .dsp-pin:hover .dsp-pindot { transform: translateX(-50%) scale(1.25); }
+        .dsp-lbl {
+            font-family: var(--dsp-font-mono); font-size: 10px; letter-spacing: .1em;
+            text-transform: uppercase; color: var(--text-muted);
+        }
+        /* The system's Arabic rules again: bigger, and never letter-spaced. */
+        .dsp-lbl-ar { font-family: var(--dsp-font-ar); font-size: 13px; letter-spacing: 0; text-transform: none; }
+
+        .dsp-anno {
+            font-family: var(--dsp-font-display); font-style: italic; font-size: 14.5px;
+            color: var(--text-muted); line-height: 1.55;
+        }
+        .dsp-anno::before {
+            content: ""; display: block; width: 24px; height: 3px;
+            background: var(--accent); border-radius: 2px; margin-bottom: 8px;
+            transition: width .3s var(--dsp-ease);
+        }
+        .dsp-pin:hover .dsp-anno::before { width: 44px; }
+        .dsp-anno-c { text-align: center; }
+        .dsp-anno-c::before { margin-inline: auto; }
+
+        /* The curve is spelled out rather than named: the keyword for it is
+           byte-identical to a utility, and Tailwind reads this file as bytes. */
+        .dsp-bubble { animation: dsp-float 6.5s cubic-bezier(.42, 0, .58, 1) infinite; }
+        @keyframes dsp-float { 50% { transform: translateY(-5px); } }
+
+        .dsp-sw { border: 1px solid var(--hairline); border-radius: 10px; }
+        /* The palette is content, so these labels sit on hexes that do not move
+           with the theme — and one of them cannot carry a bare label at any
+           lightness: cream on caramel reads 3.2:1 and pure white only reaches
+           3.7:1. A small ground under the label settles every swatch at once,
+           at 8.5:1 or better, and reads as a caption rather than as a repair. */
+        .dsp-sw i {
+            font-family: var(--dsp-font-mono); font-size: 8.5px; border-radius: 5px;
+            color: var(--choc-ink);
+            background: color-mix(in srgb, var(--cream-bright) 72%, transparent);
+        }
+        .dsp-sw i.dsp-sw-light {
+            color: var(--cream-soft);
+            background: color-mix(in srgb, var(--choc-ink) 62%, transparent);
+        }
+
+        .dsp-statn {
+            font-family: var(--dsp-font-display); font-size: 76px; font-weight: 600;
+            line-height: .95; letter-spacing: -.02em; color: var(--text-strong);
+        }
+        .dsp-statc { font-size: 12px; line-height: 1.55; color: var(--text-muted); }
+
+        /* Navy in both modes, so everything drawn on it is stated against navy
+           rather than against a token that flips underneath it. */
+        .dsp-pin-dark { background: var(--navy); border-color: transparent; }
+        /* In dark mode the page is that same navy, so these two pins stop being
+           cards and become holes. The edge is what says they are still pins —
+           and it is drawn rather than the colour changed, because everything
+           inside them is written against navy in both modes. */
+        :global(html.theme-dark) .dsp-pin-dark { border-color: var(--hairline); }
+        .dsp-pin-dark .dsp-lbl { color: var(--cream-muted); }
+        .dsp-quote {
+            font-family: var(--dsp-font-display); font-style: italic; font-size: 19px;
+            line-height: 1.45; color: var(--cream);
+        }
+
+        .dsp-arname {
+            font-family: var(--dsp-font-ar); font-size: 33px; font-weight: 700;
+            line-height: 1.45; color: var(--text-strong);
+        }
+        .dsp-arbody { font-family: var(--dsp-font-ar); font-size: 14.5px; line-height: 1.8; color: var(--text-muted); }
+        .dsp-proofline {
+            font-family: var(--dsp-font-display); font-size: 64px; font-weight: 600;
+            line-height: 1; color: var(--text-strong);
+        }
+        .dsp-proofline span { font-family: var(--dsp-font-ar); font-weight: 700; }
+
+        /* One step below the pin it sits in, which is what makes it a well
+           rather than a rectangle the same colour as its surroundings. */
+        .dsp-term {
+            background: var(--navy-deep); border-radius: 12px; color: var(--cream-muted);
+            font-family: var(--dsp-font-mono); font-size: 11.5px; line-height: 1.7;
+            padding: 14px 16px; white-space: pre-wrap;
+        }
+        .dsp-term span { display: block; }
+        .dsp-term .dsp-cursor {
+            display: inline-block; width: 7px; height: 13px; background: var(--cream-muted);
+            vertical-align: -2px; animation: dsp-blink 1.15s steps(1) infinite;
+        }
+        @keyframes dsp-blink { 50% { opacity: 0; } }
+
+        /* Two colours per state and not one: the wash carries the hue and the
+           ink carries the reading. Positive and info could ride --positive and
+           --info, which already flip; negative and caution have no site token,
+           so all four are stated the same way instead of two of them being the
+           odd pair out. Every ink below is 4.5:1 or better on its own wash,
+           measured in both modes. */
+        .dsp-st {
+            font-size: 11px; font-weight: 600;
+            background: color-mix(in srgb, var(--dsp-st-tone) 16%, transparent);
+            color: var(--dsp-st-ink);
+        }
+        .dsp-st-positive { --dsp-st-tone: var(--sage);     --dsp-st-ink: #3F5A3C; }
+        .dsp-st-info     { --dsp-st-tone: var(--ink-blue); --dsp-st-ink: #37456F; }
+        .dsp-st-negative { --dsp-st-tone: #8E4A42;         --dsp-st-ink: #7A3A33; }
+        .dsp-st-caution  { --dsp-st-tone: #B8912F;         --dsp-st-ink: #6B5219; }
+        :global(html.theme-dark) .dsp-st-positive { --dsp-st-ink: var(--sage-bright); }
+        :global(html.theme-dark) .dsp-st-info     { --dsp-st-ink: var(--ink-blue-bright); }
+        :global(html.theme-dark) .dsp-st-negative { --dsp-st-ink: #C98D85; }
+        :global(html.theme-dark) .dsp-st-caution  { --dsp-st-ink: #D4B25E; }
+
+        .dsp-audit { font-family: var(--dsp-font-mono); font-size: 12px; line-height: 2.05; }
+        /* --positive walked one step toward the page's ink. Sage alone is 4:1
+           on a cream pin and 2.9:1 on a navy one; this is 5.3:1 and 6.6:1, and
+           still reads as the same green either side. */
+        .dsp-audit dd { color: color-mix(in srgb, var(--positive) 78%, var(--text-strong)); }
+
+        .dsp-more summary {
+            cursor: pointer; list-style: none;
+            font-size: 12.5px; font-weight: 600; color: var(--dsp-accent-ink);
+            transition: color var(--dsp-dur-state);
+        }
+        .dsp-more summary::-webkit-details-marker { display: none; }
+        .dsp-more summary:hover { color: var(--text-strong); }
+        /* On a navy pin the page's strong ink is chocolate half the time, and
+           the light-mode accent ink is a dark caramel. Both are restated. */
+        .dsp-pin-dark .dsp-more summary { color: var(--caramel-bright); }
+        .dsp-pin-dark .dsp-more summary:hover { color: var(--cream); }
+        .dsp-more-ar { font-family: var(--dsp-font-ar); font-size: 15px; }
+        /* The mark points along the reading direction, and turns to point down
+           when the body is out. Same specificity as the rule above it, so the
+           open state wins on order. */
+        .dsp-chev { display: inline-block; font-size: 11px; transition: transform var(--dsp-dur-state); }
+        .dsp-more[dir='rtl'] .dsp-chev { transform: rotate(180deg); }
+        .dsp-more[open] .dsp-chev { transform: rotate(90deg); }
+        .dsp-morebody {
+            font-size: 12.5px; line-height: 1.65; color: var(--text-muted);
+            border-top: 1px solid var(--hairline);
+            animation: dsp-unfold .35s var(--dsp-ease);
+        }
+        .dsp-pin-dark .dsp-morebody {
+            color: var(--cream-muted);
+            border-top-color: color-mix(in srgb, var(--cream) 18%, transparent);
+        }
+        @keyframes dsp-unfold { from { opacity: 0; transform: translateY(-4px); } }
+        .dsp-morebody-ar { font-family: var(--dsp-font-ar); font-size: 14px; line-height: 1.85; }
     </style>
 
     <script>
@@ -271,6 +669,57 @@ const closingWash = splitWash(closing.heading, closing.wash);
                 }, dip);
             });
         };
-        document.addEventListener('astro:page-load', bindMirror);
+
+        const bindRail = () => {
+            const board = document.getElementById('dsp-board');
+            if (!board || board.dataset.bound) return;
+            board.dataset.bound = '1';
+            const railStops = [...document.querySelectorAll<HTMLButtonElement>('[data-rail-stop]')];
+            const pinEls = [...board.querySelectorAll<HTMLElement>('[data-pin-stop]')];
+            let filtering = 'all';
+
+            // The pressed state goes with the highlight rather than being set
+            // only on click: these buttons are an exclusive group, so whichever
+            // one the rail is currently showing as current is the one a screen
+            // reader should hear as pressed.
+            const light = (id: string) => railStops.forEach((stop) => {
+                const on = stop.dataset.railStop === id;
+                stop.classList.toggle('is-on', on);
+                stop.setAttribute('aria-pressed', String(on));
+            });
+
+            railStops.forEach((stop) => stop.addEventListener('click', () => {
+                filtering = stop.dataset.railStop ?? 'all';
+                light(filtering);
+                pinEls.forEach((pinEl) => {
+                    pinEl.classList.toggle('is-dim', filtering !== 'all' && pinEl.dataset.pinStop !== filtering);
+                });
+                if (filtering !== 'all') {
+                    // Task 8's analytics listens for pinboard:focus. Only a real
+                    // narrowing is reported: going back to all pins is leaving a
+                    // stop rather than choosing one.
+                    document.dispatchEvent(new CustomEvent('pinboard:focus', {detail: {stop: filtering}}));
+                }
+            }));
+
+            // Hover and keyboard focus drive the rail, never scroll: a packed
+            // board has no single vertical order, so scroll offset lies.
+            const track = (pinEl: HTMLElement) => {
+                // A chosen stop owns the rail until another one is chosen.
+                if (filtering !== 'all') return;
+                light(pinEl.dataset.pinStop ?? 'all');
+            };
+            pinEls.forEach((pinEl) => {
+                pinEl.addEventListener('mouseenter', () => track(pinEl));
+                pinEl.addEventListener('focusin', () => track(pinEl));
+            });
+            board.addEventListener('mouseleave', () => { if (filtering === 'all') light('all'); });
+        };
+
+        // One listener for the page, fanning out to the sections. Each half
+        // keeps its own per-element guard, so a section that is already wired
+        // after a View Transitions swap is skipped without skipping the other.
+        const bindPinboard = () => { bindMirror(); bindRail(); };
+        document.addEventListener('astro:page-load', bindPinboard);
     </script>
 </BaseLayout>
