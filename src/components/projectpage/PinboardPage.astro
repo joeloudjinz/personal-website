@@ -166,7 +166,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
                        announces itself in Arabic. */
                     <article class:list={['dsp-pin', 'reveal', 'relative', 'inline-block', 'w-full', 'mb-5', 'p-6', 'break-inside-avoid',
                                           {'dsp-pin-dark': pin.kind === 'quote' || pin.kind === 'terminal'}]}
-                             data-pin-stop={pin.stop} tabindex='0' role='group' aria-labelledby={`dsp-pin-${index}`}>
+                             data-pin-stop={pin.stop} tabindex='0' aria-labelledby={`dsp-pin-${index}`}>
                         <span class='dsp-pindot absolute' aria-hidden='true'></span>
                         {/* The Arabic pin labels itself in Arabic, so the label
                             carries its own script and its own direction. Every
