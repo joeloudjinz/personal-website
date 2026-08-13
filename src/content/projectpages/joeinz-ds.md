@@ -11,7 +11,7 @@ seo:
 
 masthead:
   kicker: "Joe Inz · design system"
-  heading: "A brand from a tucked-away doodle."
+  heading: "A brand from a tucked‑away doodle."
   wash: "doodle."
   facts: [ "v1.1.0", "two scripts", "one accent", "audited" ]
   lightSwitch:
