@@ -62,7 +62,13 @@ export default defineConfig({
     // reads the files sitemap() writes.
     assertCanonicalHosts,
     assertProjectPageRedirects,
-    tailwind()
+    // `src/styles/global.css` owns the three @tailwind directives — it has to,
+    // its token layers are written in between them — so the base stylesheet the
+    // integration injects on its own is a second copy of the same output. The
+    // bundler used to fold the two into one chunk and hide that; once a route
+    // pulled in two page components the fold stopped happening and every page
+    // started linking a full duplicate stylesheet alongside the real one.
+    tailwind({ applyBaseStyles: false })
   ],
   markdown: {
     rehypePlugins: [[autoNewTabExternalLinks, {
