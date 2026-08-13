@@ -6,6 +6,7 @@
 // Comments in this file are scanned as raw bytes by Tailwind — see the note in
 // tailwind.config.mjs before writing one.
 import BaseLayout from '@src/layouts/BaseLayout.astro';
+import ProjectAnalytics from '@src/components/ProjectAnalytics.astro';
 import {splitWash, type PinboardEntry} from '@src/utils/projectPages';
 
 interface Props {
@@ -122,7 +123,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
             left, moving every full stop to the wrong end. Direction of flow
             and direction of script are two different questions here, and the
             markup answers them separately. */}
-        <section class='shell mt-6 reveal'>
+        <section class='shell mt-6 reveal' id='mirror'>
             <div class='dsp-mirror relative grid grid-cols-1 min-[860px]:grid-cols-2 overflow-hidden'
                  id='dsp-mirror'>
                 {/* The one element here that deliberately pins no dir: its
@@ -311,7 +312,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
         {/* The closing. One statement, the contract behind it, and a way back
             into the board — the two controls are the only places on the page
             that ask for anything. */}
-        <section class='border-t border-hairline mt-4'>
+        <section class='border-t border-hairline mt-4' id='closing'>
             <div class='shell py-20 text-center reveal'>
                 <h2 class='dsp-closing font-semibold text-strong tracking-[-0.015em] leading-[1.1]'>
                     {closingWash
@@ -999,4 +1000,6 @@ const closingWash = splitWash(closing.heading, closing.wash);
         const bindPinboard = () => { bindMirror(); bindRail(); bindProofs(); };
         document.addEventListener('astro:page-load', bindPinboard);
     </script>
+
+    <ProjectAnalytics/>
 </BaseLayout>
