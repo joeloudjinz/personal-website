@@ -41,6 +41,29 @@ const closingWash = splitWash(closing.heading, closing.wash);
     <link rel='stylesheet'
           href='https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,500&family=Readex+Pro:wght@400;500;600;700&family=Harmattan:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap'/>
 
+    {/* Without a script this page has no reveal to wait for. global.css starts
+        .reveal at opacity 0 and only the observer in BaseLayout adds
+        .is-visible, so the mirror, all nine pins and the whole closing band
+        would stay blank — nearly the entire page. .marker-wash is the same
+        observer's other client: its bar starts at scaleX(0), so both washed
+        headings would lose their marking. Both are handed their finished state
+        here instead.
+
+        The masthead's .cascade is deliberately NOT in this list. Its children
+        are hidden the same way but un-hidden by a CSS animation that ends at
+        opacity 1 and holds it (fill-mode forwards), which needs no script at
+        all — naming it here, and turning that animation off, is the one thing
+        that WOULD leave it invisible.
+
+        is:inline keeps this where it is written: an Astro <style> is otherwise
+        hoisted into the page's stylesheet, where it would apply to everyone. */}
+    <noscript>
+        <style is:inline>
+            .reveal { opacity: 1 !important; transform: none !important; }
+            .marker-wash::before { transform: none !important; }
+        </style>
+    </noscript>
+
     <div class='dsp'>
         <header class='shell pt-[72px] pb-[8px]'>
             <div class='flex flex-wrap items-end justify-between gap-7'>
@@ -310,8 +333,20 @@ const closingWash = splitWash(closing.heading, closing.wash);
                             <p>{closing.contract.never}</p>
                         </div>
                     </details>
-                    <button class='dsp-btn dsp-btn-sec' type='button' data-proofs-stop={closing.proofsStop}
-                            data-cta='secondary' data-cta-location='closing'>{closing.proofsLabel}</button>
+                    {/* A link rather than a button, because #dsp-railboard is a
+                        real place on this page and a fragment jump is what
+                        still gets a reader there with no script running. The
+                        wrapper's scroll-mt-[var(--anchor-offset)] means even
+                        that bare jump lands clear of the site's bar.
+
+                        The script upgrades it in place: preventDefault, then
+                        the focus, the rail's own click and the motion-aware
+                        scroll that the plain jump cannot do. No role is added
+                        — a control that takes you to a fragment IS a link, and
+                        .dsp-btn is display: inline-block, so an anchor wears it
+                        exactly as the button did. */}
+                    <a class='dsp-btn dsp-btn-sec' href='#dsp-railboard' data-proofs-stop={closing.proofsStop}
+                       data-cta='secondary' data-cta-location='closing'>{closing.proofsLabel}</a>
                 </div>
             </div>
         </section>
@@ -329,8 +364,15 @@ const closingWash = splitWash(closing.heading, closing.wash);
             --dsp-font-ar: 'Harmattan', sans-serif;
             --dsp-font-mono: 'JetBrains Mono', monospace;
             --dsp-ease: cubic-bezier(.2, .7, .3, 1);
-            --dsp-dur-enter: .55s;  /* choreography: zeroed under reduced motion */
-            --dsp-dur-state: .25s;  /* feedback: survives reduced motion */
+            --dsp-dur-state: .25s;  /* hover, press, and the pressed states. Reduced motion does not
+                                       spare this: global.css clamps every duration on the page to
+                                       1ms, so the colour still changes and simply lands at once
+                                       instead of over a quarter second. The feedback survives, the
+                                       travel does not, which is the right half to keep.
+                                       No enter duration is declared beside it because the page has
+                                       none of its own — the one-time entrance is the site's .cascade
+                                       and .reveal on the site's --dur-slow, and global.css switches
+                                       both off under reduced motion rather than clamping them. */
             --dsp-dur-flip: .18s;   /* the dip has to cover the swap, so CSS and the script read one
                                        number. Keep it in seconds: the script multiplies by 1000. */
             /* Caramel as TEXT, which is a different budget from caramel as a
@@ -769,10 +811,20 @@ const closingWash = splitWash(closing.heading, closing.wash);
         .dsp-contractbody p { margin: 0 0 10px; }
         .dsp-contractbody strong { color: var(--text-body); }
 
-        /* global.css caps every animation at 1ms under reduced motion, which
-           finishes a one-shot and makes an endless one flicker instead of
-           stopping. The two endless ones on this page are named off, the same
-           escape hatch .marquee-track takes. */
+        /* global.css caps every animation and transition at 1ms under reduced
+           motion, which finishes a one-shot and makes an endless one flicker
+           instead of stopping. The two endless ones on this page are named off
+           here, the same escape hatch .marquee-track takes.
+
+           The rest of the page's motion, audited against that clamp:
+           dsp-unfold on both disclosure panels is a one-shot and the clamp
+           lands it at its end state; the pin lift, the pin dim, the pindot and
+           spine-dot scales, the annotation rule's stretch and the chevron's
+           quarter turn are all state, so the clamp keeps the state and drops
+           the travel; the mirror's dip is not clamped but skipped, the script
+           branching on the same query and flipping with no fade at all; and the
+           proofs scroll asks for 'instant' rather than letting html's smooth
+           scroll-behavior answer. Nothing here travels under reduced motion. */
         @media (prefers-reduced-motion: reduce) {
             .dsp-bubble, .dsp-term .dsp-cursor { animation: none; }
         }
@@ -881,16 +933,26 @@ const closingWash = splitWash(closing.heading, closing.wash);
         };
 
         const bindProofs = () => {
-            const btn = document.querySelector<HTMLButtonElement>('[data-proofs-stop]');
-            if (!btn || btn.dataset.bound) return;
-            btn.dataset.bound = '1';
-            btn.addEventListener('click', () => {
+            const link = document.querySelector<HTMLAnchorElement>('[data-proofs-stop]');
+            if (!link || link.dataset.bound) return;
+            link.dataset.bound = '1';
+            link.addEventListener('click', (event) => {
+                // The href is what the page does with no script; this handler is
+                // the upgrade and takes the click over completely. Left to run,
+                // the browser's own jump would land first and fight the scroll
+                // below, and put #dsp-railboard in the address bar on the way.
+                event.preventDefault();
+                // Read once and shared by both scrolls below. 'instant' rather
+                // than 'auto': 'auto' does not mean "no animation", it means "go
+                // and ask the computed styles", and global.css sets
+                // scroll-behavior: smooth on html.
+                const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth';
                 // Reuse the rail: a synthetic click gets the dim, the is-on state
                 // and the analytics event from one mechanism instead of three.
                 // The rail stops carry no data-cta, so the cta_click listener
-                // never sees the synthetic click and this button's own click is
+                // never sees the synthetic click and this control's own click is
                 // still counted exactly once.
-                const stop = document.querySelector<HTMLButtonElement>(`[data-rail-stop="${btn.dataset.proofsStop}"]`);
+                const stop = document.querySelector<HTMLButtonElement>(`[data-rail-stop="${link.dataset.proofsStop}"]`);
                 if (stop) {
                     // The page moves, so the keyboard moves with it: focus lands
                     // on the stop this button just chose, and the next Tab
@@ -905,14 +967,17 @@ const closingWash = splitWash(closing.heading, closing.wash);
                     // Only ever true across the click on the next line.
                     viaProofs = true;
                     stop.click();
+                    // Under 900px the rail is a row that scrolls sideways, and
+                    // the chosen chip can sit outside its window — focused,
+                    // lit, and off the side of the screen. inline: 'center'
+                    // brings it in; block: 'nearest' asks the page for the
+                    // least vertical movement it can, and the scroll below then
+                    // supersedes that on the same box rather than fighting it,
+                    // because a second scroll aborts the first. Above 900px the
+                    // row has no overflow to scroll and this does nothing.
+                    stop.scrollIntoView({block: 'nearest', inline: 'center', behavior});
                 }
-                document.getElementById('dsp-railboard')?.scrollIntoView({
-                    // 'instant' rather than 'auto': 'auto' does not mean "no
-                    // animation", it means "go and ask the computed styles",
-                    // and global.css sets scroll-behavior: smooth on html.
-                    behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth',
-                    block: 'start'
-                });
+                document.getElementById('dsp-railboard')?.scrollIntoView({behavior, block: 'start'});
             });
         };
 
