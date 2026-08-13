@@ -69,11 +69,11 @@ pins:
     stop: "second-script"
     label: "04 · الاسم الحقيقي"
     name: "عبد اللّه عدّون"
-    body: "خطّ عربي بقواعده الكاملة، لا طبقة ترجمة. أحجام أكبر، أسطر أوسع، ولا تباعد بين الحروف أبدًا."
+    body: "خطّ عربي بقواعده الكاملة، لا طبقة ترجمة. أحجام أكبر، تباعد أسطر أكبر، ولا تباعد بين الحروف أبدًا."
     more:
       label: "اقرأ المزيد"
       lang: "ar"
-      body: "خطّان للعناوين حسب النبرة، هارمتان للدفء وأميري للاقتباس، وردكس برو لكل ما هو عملي. الأرقام غربية دائمًا، والاقتباس بعلامتيه «هكذا»."
+      body: "خطّان للعناوين حسب النبرة، هارمتان للدفء وأميري للاقتباس، وخطّ ريدكس برو لكل ما هو عملي. الأرقام غربية دائمًا، والاقتباس بعلامتيه «هكذا»."
   - kind: "faces"
     stop: "type"
     label: "03 · the voices"
@@ -87,7 +87,7 @@ pins:
       - { text: "✓ one highlight per pane" }
     more:
       label: "Show me how"
-      body: "Adopting the console voice is one class on a container. The system brings the mono face, the recessed well, sixteen terminal colors and the diff and log styles with it. Nothing to configure, nothing to rebuild."
+      body: "Adopting the console voice is one class on a container. The system brings the mono face, the recessed well, sixteen terminal colors and the diff and log styles with it. It needs no setup at all."
   - kind: "states"
     stop: "palette"
     label: "02 · the states"

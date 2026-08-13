@@ -2,6 +2,9 @@
 // The pinboard template: the Joe Inz Design System showcase. Layout and
 // behavior live here; every user-visible string comes from the entry.
 // Copy rules for entry strings: no em-dashes, no semicolons, human register.
+//
+// Comments in this file are scanned as raw bytes by Tailwind — see the note in
+// tailwind.config.mjs before writing one.
 import BaseLayout from '@src/layouts/BaseLayout.astro';
 import {splitWash, type PinboardEntry} from '@src/utils/projectPages';
 
@@ -10,6 +13,9 @@ interface Props {
 }
 
 const {page} = Astro.props;
+// railCaption, allLabel, stops and pins are the board's, drawn in Task 5;
+// closingWash is Task 6's. Destructured here so the sections that land later
+// read their copy off one line rather than reaching into page.data each time.
 const {seo, projectName, masthead, mirror, railCaption, allLabel, stops, pins, closing} = page.data;
 
 const canonical = `https://${page.data.subdomain}/`;
@@ -26,14 +32,20 @@ const closingWash = splitWash(closing.heading, closing.wash);
             canonical={canonical} chrome='subdomain' projectName={projectName}>
     {/* Page-only faces. A <link> in the body is valid HTML and keeps the fonts
         off every other page. The site's Fraunces/Inter still load via BaseHead
-        for the shared chrome. */}
+        for the shared chrome.
+
+        Four of the system's five faces, and the fifth is left out on purpose:
+        Amiri is the quotation register, and nothing on this page speaks in it.
+        The board's own quote pin is a field note in the sharp register, not a
+        quotation. "Five faces" in the copy describes the system, not what this
+        page downloads — the day a pin quotes something, Amiri joins this list. */}
     <link rel='stylesheet'
           href='https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,500&family=Readex+Pro:wght@400;500;600;700&family=Harmattan:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap'/>
 
     <div class='dsp'>
         <header class='shell pt-[72px] pb-[8px]'>
-            <div class='dsp-mast'>
-                <div class='dsp-cascade'>
+            <div class='flex flex-wrap items-end justify-between gap-7'>
+                <div class='cascade'>
                     <p class='kicker mb-6'>{masthead.kicker}</p>
                     <h1 class='dsp-display font-semibold text-strong tracking-[-0.015em] leading-[1.05]'>
                         {mastheadWash
@@ -41,13 +53,33 @@ const closingWash = splitWash(closing.heading, closing.wash);
                             : masthead.heading}
                     </h1>
                 </div>
-                <div class='dsp-aside'>
-                    <button class='dsp-modebtn' type='button' data-light-switch
-                            data-label-to-dark={masthead.lightSwitch.toDark}
-                            data-label-to-light={masthead.lightSwitch.toLight}>
-                        {masthead.lightSwitch.toDark}
+                <div class='flex flex-col items-end gap-3 pb-[10px]'>
+                    {/* A second control on the site's ONE theme mechanism, not a
+                        second mechanism. The class is the whole wiring: the
+                        handler in Header.astro is delegated on the document and
+                        acts on anything matching .theme-toggle, so this button
+                        gets the class flip, the localStorage write and the
+                        aria-pressed sync for free, and the two controls cannot
+                        drift apart because there is only one of them.
+
+                        Both labels are rendered and CSS picks one off the html
+                        class. No script writes this text, which is what makes it
+                        right on the first paint of a dark-mode load — a label
+                        set by JS would say "Turn the lights off" until the
+                        handler caught up. Hiding with display also keeps the
+                        accessible name honest: only the shown label is in it. */}
+                    <button class='dsp-modebtn theme-toggle' type='button'>
+                        <span class='dsp-lbl-to-dark'>{masthead.lightSwitch.toDark}</span>
+                        <span class='dsp-lbl-to-light'>{masthead.lightSwitch.toLight}</span>
                     </button>
-                    <p class='dsp-facts'>{masthead.facts.join(' · ')}</p>
+                    {/* .stack-line paints the middle dot at the START of each fact
+                        after the first, so a dot can never wrap onto a line by
+                        itself, and it draws them in caramel. Same run BandPage
+                        gives its closing facts; the mono and the 11px are this
+                        page's register and stay in .dsp-facts. */}
+                    <p class='stack-line dsp-facts justify-end'>
+                        {masthead.facts.map((fact) => <span class='stack-tag'>{fact}</span>)}
+                    </p>
                 </div>
             </div>
         </header>
@@ -70,16 +102,25 @@ const closingWash = splitWash(closing.heading, closing.wash);
             --dsp-dur-state: .25s;  /* feedback: survives reduced motion */
             font-family: var(--dsp-font-sans);
         }
+        /* Two independent bounds, and they answer different questions.
+
+           The clamp floors at 30px because that is the condition washFits is
+           measured at — 600 weight, 30px, Georgia as the display fallback,
+           -0.015em — so keeping the floor here is what lets the schema's wash
+           check hold for this heading with no second metrics table. That bound
+           is about ONE un-wrappable phrase against a 320px screen.
+
+           max-width is a measure cap on the WHOLE heading, and is no part of
+           the washFit contract: it decides where a long line breaks at desktop
+           widths, where the clamp is at its 84px ceiling and nothing is close to
+           overflowing. Changing it cannot make a legal wash illegal, and cannot
+           rescue an over-long one either. */
         .dsp-display {
             font-family: var(--dsp-font-display);
-            /* Same 30px floor as the band heroes, so the schema's washFits bound
-               holds here without a second table. */
             font-size: clamp(30px, 8.5vw, 84px);
             max-width: 12ch;
         }
-        .dsp-mast { display: flex; justify-content: space-between; align-items: flex-end; gap: 28px; flex-wrap: wrap; }
-        .dsp-aside { display: flex; flex-direction: column; gap: 12px; align-items: flex-end; padding-bottom: 10px; }
-        .dsp-facts { font-family: var(--dsp-font-mono); font-size: 11px; line-height: 1.8; color: var(--text-muted); text-align: right; margin: 0; }
+        .dsp-facts { font-family: var(--dsp-font-mono); font-size: 11px; line-height: 1.8; }
         .dsp-modebtn {
             cursor: pointer; border: 1.5px solid var(--text-strong); background: transparent;
             color: var(--text-strong); border-radius: 999px; font-weight: 600; font-size: 13px;
@@ -87,27 +128,8 @@ const closingWash = splitWash(closing.heading, closing.wash);
             transition: background-color var(--dsp-dur-state), color var(--dsp-dur-state), border-color var(--dsp-dur-state);
         }
         .dsp-modebtn:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+        /* The label is a consequence of the theme class, never of the click. */
+        :global(html.theme-dark) .dsp-lbl-to-dark,
+        :global(html:not(.theme-dark)) .dsp-lbl-to-light { display: none; }
     </style>
-
-    <script>
-        // Theme alias: same class, same persistence as the header toggle. One
-        // mechanism, two controls.
-        const bindLightSwitch = () => {
-            const btn = document.querySelector<HTMLButtonElement>('[data-light-switch]');
-            if (!btn || btn.dataset.bound) return;
-            btn.dataset.bound = '1';
-            const setLabel = () => {
-                const dark = document.documentElement.classList.contains('theme-dark');
-                btn.textContent = dark ? (btn.dataset.labelToLight ?? '') : (btn.dataset.labelToDark ?? '');
-            };
-            btn.addEventListener('click', () => {
-                const dark = document.documentElement.classList.toggle('theme-dark');
-                localStorage.setItem('theme', dark ? 'dark' : 'light');
-                setLabel();
-            });
-            setLabel();
-        };
-        const init = () => { bindLightSwitch(); };
-        document.addEventListener('astro:page-load', init);
-    </script>
 </BaseLayout>
