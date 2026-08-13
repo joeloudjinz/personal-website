@@ -106,7 +106,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
                     flip is never restored on load, so English-first is always
                     where a fresh page starts. */}
                 <button class='dsp-flipbtn' type='button' data-mirror-flip
-                        aria-pressed='false' aria-label='Switch the reading direction'>
+                        aria-pressed='false' aria-label='EN عربي, switch the reading direction'>
                     EN <span aria-hidden='true'>⇄</span> <b lang='ar'>{mirror.flipLabel}</b>
                 </button>
                 <div class='dsp-mside px-7 py-12 min-[860px]:px-16 min-[860px]:py-14' dir='ltr'>
@@ -139,7 +139,8 @@ const closingWash = splitWash(closing.heading, closing.wash);
             --dsp-ease: cubic-bezier(.2, .7, .3, 1);
             --dsp-dur-enter: .55s;  /* choreography: zeroed under reduced motion */
             --dsp-dur-state: .25s;  /* feedback: survives reduced motion */
-            --dsp-dur-flip: .18s;   /* the dip has to cover the swap, so CSS and the script read one number */
+            --dsp-dur-flip: .18s;   /* the dip has to cover the swap, so CSS and the script read one
+                                       number. Keep it in seconds: the script multiplies by 1000. */
             font-family: var(--dsp-font-sans);
         }
         /* Two independent bounds, and they answer different questions.
