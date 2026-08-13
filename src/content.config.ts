@@ -307,7 +307,9 @@ const projectPages = defineCollection({
       path: ['wash']
     };
 
-    return z.object({
+    // Identity and head-only fields shared by every page template. Hoisted so a
+    // second template cannot drift from the first on how a page names itself.
+    const identity = {
       // Deliberately an explicit field rather than the glob loader's derived id,
       // which is how blog posts work. A Zod regex can validate a schema field and
       // cannot validate a filename — and the regex is what stops a slug like
@@ -352,7 +354,14 @@ const projectPages = defineCollection({
         // rather than anything project-specific. Defaulting it to the page title
         // captions a photograph of a person with the name of a shell theme.
         imageAlt: z.string().max(140).optional()
-      }),
+      })
+    };
+
+    const bandPage = z.object({
+      // Which template renders this entry. Band entries may omit it — inzsh
+      // predates the field — so it is optional here and literal in pinboardPage.
+      template: z.literal('band').optional(),
+      ...identity,
       // Feeds SoftwareApplication JSON-LD in place of the generic WebSite node.
       //
       // Worth being straight about the payoff: this is unlikely to produce a
@@ -610,6 +619,112 @@ const projectPages = defineCollection({
       }).refine(washIsInHeading, washIsInHeadingError),
       credit: z.string().optional()
     });
+
+    // The pinboard template: a masonry board of pins with a story rail, per the
+    // feature spec in the vault KB (design-system-showcase-page). Copy strings
+    // only — layout lives in PinboardPage.astro.
+    const stopId = z.string().regex(/^[a-z0-9-]+$/);
+    // A per-pin "Tell me more" unfold. dir marks the Arabic ones so the
+    // component can set dir/lang without guessing from the text.
+    const more = z.object({
+      label: z.string().max(24),
+      body: z.string().max(420),
+      dir: z.enum(['ltr', 'rtl']).default('ltr')
+    });
+    const pinBase = {
+      stop: stopId,
+      label: z.string().max(28),
+      more: more.optional()
+    };
+    const pin = z.discriminatedUnion('kind', [
+      z.object({ kind: z.literal('origin'), ...pinBase, alt: z.string().max(140), note: z.string().max(160) }),
+      z.object({
+        kind: z.literal('swatches'), ...pinBase,
+        colors: z.array(z.object({
+          hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+          name: z.string().max(16),
+          ink: z.enum(['dark', 'light'])
+        })).min(2).max(8),
+        note: z.string().max(160)
+      }),
+      z.object({ kind: z.literal('stat'), ...pinBase, value: z.string().max(6), caption: z.string().max(160) }),
+      z.object({ kind: z.literal('quote'), ...pinBase, text: z.string().max(140) }),
+      z.object({ kind: z.literal('arabic'), ...pinBase, name: z.string(), body: z.string().max(220) }),
+      z.object({ kind: z.literal('typeProof'), ...pinBase, note: z.string().max(180) }),
+      z.object({ kind: z.literal('terminal'), ...pinBase, lines: z.array(codeLine).min(1).max(6) }),
+      z.object({
+        kind: z.literal('states'), ...pinBase,
+        items: z.array(z.object({
+          glyph: z.string().max(2),
+          name: z.string().max(12),
+          tone: z.enum(['positive', 'info', 'negative', 'caution'])
+        })).min(2).max(6),
+        note: z.string().max(160)
+      }),
+      z.object({
+        kind: z.literal('audit'), ...pinBase,
+        rows: z.array(z.object({ check: z.string().max(28), result: z.string().max(12) })).min(2).max(8)
+      })
+    ]);
+
+    const pinboardPage = z.object({
+      template: z.literal('pinboard'),
+      ...identity,
+      masthead: z.object({
+        kicker,
+        heading: z.string().max(60),
+        // Same wash validator as the band hero: the pinboard masthead clamps to
+        // the same 30px floor, so washFits applies unchanged.
+        wash,
+        facts: z.array(z.string().max(24)).min(1).max(4),
+        // toDark/toLight, never off/on: YAML parses unquoted `off:`/`on:` keys
+        // as booleans, which would silently break the frontmatter.
+        lightSwitch: z.object({ toDark: z.string().max(24), toLight: z.string().max(24) })
+      }).refine(washIsInHeading, washIsInHeadingError),
+      mirror: z.object({
+        flipLabel: z.string().max(8),
+        en: z.object({ kicker, heading: z.string().max(80), body: z.string().max(220) }),
+        ar: z.object({ kicker, heading: z.string().max(80), body: z.string().max(220) })
+      }),
+      railCaption: z.string().max(32),
+      allLabel: z.string().max(16),
+      stops: z.array(z.object({ id: stopId, label: z.string().max(24) })).min(2).max(6),
+      pins: z.array(pin).min(4).max(12),
+      closing: z.object({
+        heading: z.string().max(60),
+        wash,
+        sub: z.string().max(220),
+        contract: z.object({
+          label: z.string().max(24),
+          may: z.string().max(420),
+          never: z.string().max(420)
+        }),
+        proofsLabel: z.string().max(24),
+        proofsStop: stopId
+      }).refine(washIsInHeading, washIsInHeadingError)
+    }).superRefine((page, ctx) => {
+      // Every pin (and the proofs button) must point at a declared stop, or the
+      // rail filter silently matches nothing.
+      const ids = new Set(page.stops.map((stop) => stop.id));
+      page.pins.forEach((entry, index) => {
+        if (!ids.has(entry.stop)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom, path: ['pins', index, 'stop'],
+            message: `pin stop "${entry.stop}" is not one of the declared stops: ${[...ids].join(', ')}`
+          });
+        }
+      });
+      if (!ids.has(page.closing.proofsStop)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom, path: ['closing', 'proofsStop'],
+          message: `proofsStop "${page.closing.proofsStop}" is not a declared stop`
+        });
+      }
+    });
+
+    // Order matters: pinboard first, because its template literal is required —
+    // a band entry (no template field) falls through to bandPage.
+    return z.union([pinboardPage, bandPage]);
   }
 });
 

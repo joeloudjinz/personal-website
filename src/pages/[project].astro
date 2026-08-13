@@ -3,7 +3,7 @@
 // BandPage; a second template joins in the pinboard work. getStaticPaths stays
 // here because this file is the route.
 import BandPage from '@src/components/projectpage/BandPage.astro';
-import {getProjectPages, type ProjectPageEntry} from '@src/utils/projectPages';
+import {getProjectPages, isPinboard, type BandEntry, type PinboardEntry} from '@src/utils/projectPages';
 
 export async function getStaticPaths() {
     // getProjectPages() fails the build if a slug collides with a blog post or a
@@ -12,10 +12,15 @@ export async function getStaticPaths() {
     return pages.map((page) => ({params: {project: page.data.slug}, props: {page}}));
 }
 
+// The union of the two templates rather than the collection entry type, whose
+// `data` is one object holding a union: isPinboard() cannot narrow that in the
+// false branch, and BandPage only accepts a band entry.
 interface Props {
-    page: ProjectPageEntry;
+    page: PinboardEntry | BandEntry;
 }
 
 const {page} = Astro.props;
 ---
-<BandPage page={page}/>
+{isPinboard(page)
+    ? null /* PinboardPage lands in the next task; no pinboard entries exist yet */
+    : <BandPage page={page}/>}

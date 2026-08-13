@@ -44,11 +44,11 @@ import ProjectAnalytics from '@src/components/ProjectAnalytics.astro';
 import ScrollTop from '@src/components/ScrollTop.astro';
 import {bandHeading} from '@src/utils/bandStyles';
 import {
-    BAND_ANCHORS, pageSections, splitWash, type ProjectPageEntry
+    BAND_ANCHORS, pageSections, splitWash, type BandEntry
 } from '@src/utils/projectPages';
 
 interface Props {
-    page: ProjectPageEntry;
+    page: BandEntry;
 }
 
 const {page} = Astro.props;

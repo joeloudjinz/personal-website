@@ -4,6 +4,16 @@ import {NAV_BUDGET_PX, navLabelWidth, navRowFits, navRowWidth} from './navFit';
 
 export type ProjectPageEntry = CollectionEntry<'projectPages'>;
 
+/** The two page templates, split off the schema union by the template literal. */
+export type PinboardEntry = ProjectPageEntry & {
+  data: Extract<ProjectPageEntry['data'], {template: 'pinboard'}>
+};
+export type BandEntry = ProjectPageEntry & {
+  data: Exclude<ProjectPageEntry['data'], {template: 'pinboard'}>
+};
+export const isPinboard = (page: ProjectPageEntry): page is PinboardEntry =>
+  page.data.template === 'pinboard';
+
 /**
  * Top-level route names in src/pages. A project slug matching one of these would
  * be silently swallowed: Astro gives file routes priority over dynamic ones.
@@ -26,7 +36,9 @@ const RESERVED_SLUGS = [...new Set(
 const list = (entries: {file: string; slug: string}[]) =>
   entries.map(({file, slug}) => `"${slug}" (${file})`).join(', ');
 
-type BandKey = keyof ProjectPageEntry['data'];
+// Off the band branch rather than off the union: `keyof` a union of object types
+// yields only the keys they share, which is the identity fields and nothing else.
+type BandKey = keyof BandEntry['data'];
 
 /**
  * Splits a heading around its washed phrase so the marker span — and whatever
@@ -106,7 +118,7 @@ export interface PageSection {
  */
 export function pageSections(data: ProjectPageEntry['data']): PageSection[] {
   return BAND_ORDER.flatMap((band) => {
-    const value = data[band] as {navLabel?: string} | undefined;
+    const value = (data as Record<string, unknown>)[band] as {navLabel?: string} | undefined;
     return value?.navLabel
       ? [{href: `#${BAND_ANCHORS[band]}`, label: value.navLabel}]
       : [];
@@ -198,7 +210,7 @@ export async function getProjectPages(): Promise<ProjectPageEntry[]> {
   const deadAnchors = pages.flatMap((page) => {
     const reachable = new Set<string>(
       Object.entries(BAND_ANCHORS)
-        .filter(([band]) => page.data[band as BandKey] != null)
+        .filter(([band]) => (page.data as Record<string, unknown>)[band] != null)
         .map(([, anchor]) => anchor)
     );
     const found: {path: string; href: string}[] = [];
