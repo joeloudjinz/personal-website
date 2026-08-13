@@ -11,7 +11,7 @@ seo:
 
 masthead:
   kicker: "Joe Inz · design system"
-  heading: "A brand from a forgotten doodle."
+  heading: "A brand from a tucked-away doodle."
   wash: "doodle."
   facts: [ "v1.1.0", "two scripts", "one accent", "audited" ]
   lightSwitch:
@@ -45,7 +45,7 @@ pins:
     stop: "origin"
     label: "01 · the origin"
     alt: "The hand-lettered Joe Inz speech bubble, drawn in ink on cream"
-    note: "Drawn in 2021. Ignored for years. Now it signs everything."
+    note: "Drawn in 2021. Waiting in a folder for years. Now it signs everything."
   - kind: "swatches"
     stop: "palette"
     label: "02 · the palette"
