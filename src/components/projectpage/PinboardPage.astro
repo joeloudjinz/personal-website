@@ -56,7 +56,14 @@ const closingWash = splitWash(closing.heading, closing.wash);
         that WOULD leave it invisible.
 
         is:inline keeps this where it is written: an Astro <style> is otherwise
-        hoisted into the page's stylesheet, where it would apply to everyone. */}
+        hoisted into the page's stylesheet, where it would apply to everyone.
+        A style element in a body noscript is technically non-conforming (the
+        fonts link above IS body-legal, this is the case that is not), but every
+        engine honours it and BaseLayout offers no head slot to put it in.
+
+        What stays inert without a script, accepted by the spec: the rail stops
+        and the mirror flip do nothing, the theme stays light, and the proofs
+        control falls back to its own fragment jump. The content all reads. */}
     <noscript>
         <style is:inline>
             .reveal { opacity: 1 !important; transform: none !important; }
@@ -821,10 +828,12 @@ const closingWash = splitWash(closing.heading, closing.wash);
            lands it at its end state; the pin lift, the pin dim, the pindot and
            spine-dot scales, the annotation rule's stretch and the chevron's
            quarter turn are all state, so the clamp keeps the state and drops
-           the travel; the mirror's dip is not clamped but skipped, the script
-           branching on the same query and flipping with no fade at all; and the
-           proofs scroll asks for 'instant' rather than letting html's smooth
-           scroll-behavior answer. Nothing here travels under reduced motion. */
+           the travel; the flip button's hover swell and the buttons' press dip
+           are the same clamped category; the mirror's dip is not clamped but
+           skipped, the script branching on the same query and flipping with no
+           fade at all; and the proofs scroll asks for 'instant' rather than
+           letting html's smooth scroll-behavior answer. Nothing here travels
+           under reduced motion. */
         @media (prefers-reduced-motion: reduce) {
             .dsp-bubble, .dsp-term .dsp-cursor { animation: none; }
         }
