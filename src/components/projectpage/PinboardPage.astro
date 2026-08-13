@@ -16,7 +16,7 @@ const {page} = Astro.props;
 // closing is Task 6's and is read only for its wash so far. Destructured here
 // so the sections read their copy off one line rather than reaching into
 // page.data each time.
-const {seo, projectName, masthead, mirror, railCaption, allLabel, stops, pins, closing} = page.data;
+const {seo, projectName, masthead, mirror, railCaption, railNote, allLabel, stops, pins, closing} = page.data;
 
 const canonical = `https://${page.data.subdomain}/`;
 
@@ -152,7 +152,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
                                 data-rail-stop={stop.id} aria-pressed='false'>{stop.label}</button>
                     ))}
                 </div>
-                <p class='dsp-railnote hidden mt-4 ml-5 min-[900px]:block'>The dot follows the pin under your pointer. Choose a stop to focus its pins.</p>
+                <p class='dsp-railnote hidden mt-4 ml-5 min-[900px]:block'>{railNote}</p>
             </nav>
 
             <div class='dsp-board columns-1 gap-5 min-[580px]:columns-2 min-[900px]:columns-3' id='dsp-board'>

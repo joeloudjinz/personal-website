@@ -30,6 +30,7 @@ mirror:
     body: "لا جهة هنا أصل ولا جهة ترجمة. اقلب البطاقة وسيتبع التصميم اتجاه القراءة."
 
 railCaption: "The story · tap to focus"
+railNote: "The dot follows the pin under your pointer. Choose a stop to focus its pins."
 allLabel: "All pins"
 stops:
   - { id: "origin", label: "01 · The doodle" }

@@ -702,6 +702,11 @@ const projectPages = defineCollection({
         ar: z.object({ kicker, heading: z.string().max(80), body: z.string().max(220) })
       }),
       railCaption: z.string().max(32),
+      // The sentence under the caption that says how the rail behaves. Required
+      // rather than optional, and entry-owned like every other string a visitor
+      // reads: a rail that never explains itself is the worse page, and the
+      // second project's rail will not behave in this one's words.
+      railNote: z.string().max(120),
       allLabel: z.string().max(16),
       // Two is the fewest that is a filter; six is what the rail row holds.
       stops: z.array(z.object({ id: stopId, label: z.string().max(24) })).min(2).max(6),
