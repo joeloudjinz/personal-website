@@ -3,7 +3,10 @@ name: "Data Seeder for .NET"
 demoLink: "https://github.com/joeloudjinz/InzSeeder"
 publishedPackageLink: "https://www.nuget.org/packages/InzSoftwares.NetSeeder/"
 isUnderConstruction: false
-isFeatured: true
+# Unfeatured when the design system card joined: the home row draws three
+# columns, and four cards leave one orphaned on a second line. Lowest-ranked
+# of the four in PROJECT_ORDER, so it stepped down. Flip back freely.
+isFeatured: false
 version: "2.0.3"
 tags: ["C#", ".NET 9", "Entity Framework Core", "NuGet"]
 id: "data-seeder-dotnet"

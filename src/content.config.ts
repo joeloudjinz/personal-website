@@ -79,7 +79,7 @@ const projects = defineCollection({
     demoLinkRel: z.string().optional(),
     // The project's own showcase page in the projectPages collection, when it
     // has one. A separate field rather than a repointed demoLink: every entry
-    // in this collection points demoLink at a repository and the card labels it
+    // in this collection that has one points demoLink at a repository and the card labels it
     // "View repository", so overloading it would make one card's label a lie and
     // leave the repository with nowhere to be linked from. See projectLead() in
     // src/utils/projects.ts for what the card does with the pair.
