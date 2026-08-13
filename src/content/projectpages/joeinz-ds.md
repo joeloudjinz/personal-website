@@ -37,7 +37,8 @@ stops:
   - { id: "palette", label: "02 · The palette" }
   - { id: "type", label: "03 · The voices" }
   - { id: "second-script", label: "04 · The second script" }
-  - { id: "proof", label: "05 · The proof" }
+  - { id: "charts", label: "05 · The charts" }
+  - { id: "proof", label: "06 · The proof" }
 
 pins:
   - kind: "origin"
@@ -87,7 +88,7 @@ pins:
     text: "Confident about ideas, humble about myself."
   - kind: "terminal"
     stop: "proof"
-    label: "05 · the terminal"
+    label: "06 · the terminal"
     lines:
       - { prompt: true, text: "joeinz --voice console" }
       - { text: "✓ mono on a quiet well" }
@@ -105,8 +106,8 @@ pins:
       - { glyph: "!", name: "caution", tone: "caution" }
     note: "Colour never works alone. Every state has a glyph partner."
   - kind: "swatches"
-    stop: "palette"
-    label: "02 · the chart colours"
+    stop: "charts"
+    label: "05 · the chart colours"
     colors:
       - { hex: "#B07A3C", name: "caramel", ink: "light" }
       - { hex: "#41507A", name: "ink blue", ink: "light" }
@@ -121,7 +122,7 @@ pins:
       body: "Series one takes colour one, always. Past three series every line carries a shape or a dash as well, so colour never encodes alone. Madder comes last and never sits near error semantics. Magnitude gets its own single hue caramel ramp."
   - kind: "audit"
     stop: "proof"
-    label: "05 · the audit"
+    label: "06 · the audit"
     rows:
       - { check: "contrast, light", result: "pass" }
       - { check: "contrast, dark", result: "pass" }
@@ -129,7 +130,7 @@ pins:
       - { check: "reduced motion", result: "pass" }
   - kind: "stat"
     stop: "proof"
-    label: "05 · the motion law"
+    label: "06 · the motion law"
     value: "2"
     caption: "Duration roles. Entrances ride one and stop under reduced motion. Feedback rides the other and always lands."
 
