@@ -144,16 +144,16 @@
             track('rail_focus', {item: detail.stop || '', location: detail.via || ''});
         });
 
-        // Pinboard: which "tell me more" earned an open. The same toggle
-        // mechanics as faq_open and its own name because it answers a different
-        // question — a pin's disclosure is curiosity going deeper, not a
-        // question the page failed to answer.
-        document.addEventListener('toggle', (event) => {
-            const item = event.target;
-            if (!(item instanceof Element) || !item.matches('[data-pin-more]')) return;
-            if (!item.open) return;
-            track('disclosure_open', {item: (item.getAttribute('data-pin-more') || '').slice(0, 60)});
-        }, true); // toggle does not bubble
+        // Pinboard: which pin earned an open. The event name and the item
+        // labels survive from the era when this was a details toggle, so the
+        // reports read continuously across the redesign — the carrier is now
+        // the pinboard:expand event the expansion script dispatches when a
+        // pin opens into its full row, and only when it opens: folding a row
+        // back up is not curiosity and is not counted, exactly as a closing
+        // toggle was not.
+        document.addEventListener('pinboard:expand', (event) => {
+            track('disclosure_open', {item: ((event.detail || {}).item || '').slice(0, 60)});
+        });
 
         // One event per band, once each, replacing a single 90% scroll ping with
         // a funnel. Fires however the reader arrived — scrolled, nav, or CTA —
