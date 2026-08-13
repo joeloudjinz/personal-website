@@ -693,11 +693,156 @@ const projectPages = defineCollection({
       label: z.string().max(28),
       more: more.optional()
     };
+
+    // The expanded row, one shape per pin kind: the collapsed face makes a
+    // claim and the expansion demonstrates it as rendered specimens. Strings
+    // and displayed numbers are authored here like every other visitor-read
+    // value; the specimen colours (ANSI chips, diff bands, ramps, state
+    // washes) are presentation and live in PinboardPage's CSS, each block
+    // traceable to the CD foundation file it was fetched from. Where one pin
+    // kind hosts two different concepts (swatches, stat), `demo` names which
+    // specimen the expansion renders.
+    const expLabel = z.string().max(24);
+    const expIntro = z.string().max(240);
+    // Each keyed specimen list is exhaustive by design: a fixed length plus a
+    // uniqueness check per key, so an entry can neither repeat a specimen nor
+    // silently drop one.
+    const eachOnce = <T,>(pick: (item: T) => string) =>
+      (items: T[]) => new Set(items.map(pick)).size === items.length;
+    const originExpansion = z.object({
+      label: expLabel,
+      intro: expIntro,
+      marks: z.array(z.object({
+        mark: z.enum(['bubble', 'monogram', 'wordmark']),
+        title: z.string().max(28),
+        job: z.string().max(140)
+      })).length(3).refine(eachOnce((item) => item.mark), { message: 'each mark once' }),
+      laws: z.array(z.string().max(110)).min(2).max(4)
+    });
+    const budgetExpansion = z.object({
+      demo: z.literal('budget'),
+      label: expLabel,
+      intro: expIntro,
+      // The five jobs caramel is allowed, each as a live sample the component
+      // renders: the kicker tick, the marker wash, the primary action, the
+      // focus halo, and selection.
+      jobs: z.array(z.object({
+        job: z.enum(['kicker', 'wash', 'action', 'focus', 'selection']),
+        caption: z.string().max(90),
+        sample: z.string().max(32)
+      })).length(5).refine(eachOnce((item) => item.job), { message: 'each job once' }),
+      strip: z.object({ title: z.string().max(40), note: z.string().max(180) })
+    });
+    const chartExpansion = z.object({
+      demo: z.literal('chart'),
+      label: expLabel,
+      intro: expIntro,
+      // The bars reuse the pin's own colors in order; the ramps and the null
+      // hatch are drawn by the component from the published dataviz values.
+      chartNote: z.string().max(180),
+      seqLabel: z.string().max(48),
+      divLabel: z.string().max(48),
+      nullLabel: z.string().max(48),
+      nullNote: z.string().max(140)
+    });
+    const ladderExpansion = z.object({
+      demo: z.literal('ladder'),
+      label: expLabel,
+      intro: expIntro,
+      // One word per script, rendered at every step, rather than a sample per
+      // row: the ladder is about size, and a constant word is what makes the
+      // sizes comparable.
+      sample: z.string().max(20),
+      arSample: z.string().max(20),
+      rows: z.array(z.object({
+        role: z.string().max(14),
+        px: z.number().min(8).max(120),
+        // Not an integer on purpose: the Arabic optical factors land on
+        // halves (25px times 1.1 is 27.5).
+        arPx: z.number().min(8).max(140)
+      })).length(7),
+      denseNote: z.string().max(180),
+      arNote: z.string().max(180)
+    });
+    const motionExpansion = z.object({
+      demo: z.literal('motion'),
+      label: expLabel,
+      intro: expIntro,
+      enterCaption: z.string().max(160),
+      stateCaption: z.string().max(160),
+      replayLabel: z.string().max(20),
+      reducedNote: z.string().max(180)
+    });
+    const quoteExpansion = z.object({
+      label: expLabel,
+      // The register's Arabic sibling, rendered in the face the register
+      // already picked for the Latin one.
+      sibling: z.string().max(140),
+      note: z.string().max(180)
+    });
+    const nameplateExpansion = z.object({
+      // Arabic like the pin it extends: the component pins dir and lang.
+      label: expLabel,
+      intro: expIntro.optional(),
+      specimens: z.array(z.object({
+        law: z.enum(['harmattan', 'amiri', 'digits', 'quotes']),
+        caption: z.string().max(110),
+        sample: z.string().max(60)
+      })).length(4).refine(eachOnce((item) => item.law), { message: 'each law once' })
+    });
+    const facesExpansion = z.object({
+      label: expLabel,
+      intro: expIntro.optional(),
+      rows: z.array(z.object({
+        face: z.enum(['literata', 'readex', 'harmattan', 'amiri', 'mono']),
+        name: z.string().max(24),
+        job: z.string().max(110)
+      })).length(5).refine(eachOnce((item) => item.face), { message: 'each face once' })
+    });
+    const terminalExpansion = z.object({
+      label: expLabel,
+      intro: expIntro.optional(),
+      diffTitle: z.string().max(32),
+      diff: z.array(z.object({
+        mark: z.enum(['add', 'drop', 'change']),
+        text: z.string().max(60)
+      })).min(2).max(5),
+      logTitle: z.string().max(32),
+      // All six levels, quietest to the one filled band, in the entry's order.
+      logs: z.array(z.object({
+        level: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']),
+        text: z.string().max(60)
+      })).length(6).refine(eachOnce((item) => item.level), { message: 'each level once' }),
+      ansiTitle: z.string().max(32),
+      ansiNote: z.string().max(180)
+    });
+    const statesExpansion = z.object({
+      label: expLabel,
+      intro: expIntro.optional(),
+      // The full set of six, where the collapsed pin shows four: neutral and
+      // inactive only make sense next to their caption.
+      items: z.array(z.object({
+        glyph: z.string().max(2),
+        name: z.string().max(12),
+        tone: z.enum(['positive', 'info', 'negative', 'caution', 'neutral', 'inactive']),
+        caption: z.string().max(110)
+      })).length(6).refine(eachOnce((item) => item.tone), { message: 'each tone once' })
+    });
+    const auditExpansion = z.object({
+      label: expLabel,
+      intro: expIntro.optional(),
+      rows: z.array(z.object({ check: z.string().max(40), result: z.string().max(12) })).min(3).max(8),
+      flaggedTitle: z.string().max(40),
+      flagged: z.array(z.object({ pair: z.string().max(60), note: z.string().max(180) })).min(1).max(4)
+    });
     const pin = z.discriminatedUnion('kind', [
       // alt but no src: the artwork is the site's own /avatar.png, deliberately
       // not an entry asset — so the entry authors the description and the
       // component owns the file. Uncapped, like every other alt here.
-      z.object({ kind: z.literal('origin'), ...pinBase, alt: z.string(), note: z.string().max(160) }),
+      z.object({
+        kind: z.literal('origin'), ...pinBase, alt: z.string(), note: z.string().max(160),
+        expansion: originExpansion.optional()
+      }),
       z.object({
         kind: z.literal('swatches'), ...pinBase,
         colors: z.array(z.object({
@@ -707,13 +852,17 @@ const projectPages = defineCollection({
           name: z.string().max(16),
           ink: z.enum(['dark', 'light'])
         })).min(2).max(8),
-        note: z.string().max(160)
+        note: z.string().max(160),
+        expansion: z.discriminatedUnion('demo', [budgetExpansion, chartExpansion]).optional()
       }),
       // value is a numeral or a short token: "7", "1.25", "AA". Four characters
       // is what the 76px display type holds inside a pin at the narrow column,
       // measured rather than guessed: "1.25" reaches the column edge and a
       // fifth character runs past it. The cap is the type's, not the copy's.
-      z.object({ kind: z.literal('stat'), ...pinBase, value: z.string().max(4), caption: z.string().max(160) }),
+      z.object({
+        kind: z.literal('stat'), ...pinBase, value: z.string().max(4), caption: z.string().max(160),
+        expansion: z.discriminatedUnion('demo', [ladderExpansion, motionExpansion]).optional()
+      }),
       z.object({
         kind: z.literal('quote'), ...pinBase,
         text: z.string().max(140),
@@ -721,12 +870,22 @@ const projectPages = defineCollection({
         // in the display serif, sharp ones in the sans. Two quotes labelled
         // with different registers must not render identically — the same law
         // the mirror demonstrates. Warm is the system's own default.
-        register: z.enum(['warm', 'sharp']).default('warm')
+        register: z.enum(['warm', 'sharp']).default('warm'),
+        expansion: quoteExpansion.optional()
       }),
       // Named for the role, not the script: a real name typeset in its own.
-      z.object({ kind: z.literal('nameplate'), ...pinBase, name: z.string(), body: z.string().max(220) }),
-      z.object({ kind: z.literal('faces'), ...pinBase, note: z.string().max(180) }),
-      z.object({ kind: z.literal('terminal'), ...pinBase, lines: z.array(codeLine).min(1).max(6) }),
+      z.object({
+        kind: z.literal('nameplate'), ...pinBase, name: z.string(), body: z.string().max(220),
+        expansion: nameplateExpansion.optional()
+      }),
+      z.object({
+        kind: z.literal('faces'), ...pinBase, note: z.string().max(180),
+        expansion: facesExpansion.optional()
+      }),
+      z.object({
+        kind: z.literal('terminal'), ...pinBase, lines: z.array(codeLine).min(1).max(6),
+        expansion: terminalExpansion.optional()
+      }),
       z.object({
         kind: z.literal('states'), ...pinBase,
         items: z.array(z.object({
@@ -736,11 +895,13 @@ const projectPages = defineCollection({
           name: z.string().max(12),
           tone: z.enum(['positive', 'info', 'negative', 'caution'])
         })).min(2).max(6),
-        note: z.string().max(160)
+        note: z.string().max(160),
+        expansion: statesExpansion.optional()
       }),
       z.object({
         kind: z.literal('audit'), ...pinBase,
-        rows: z.array(z.object({ check: z.string().max(28), result: z.string().max(12) })).min(2).max(8)
+        rows: z.array(z.object({ check: z.string().max(28), result: z.string().max(12) })).min(2).max(8),
+        expansion: auditExpansion.optional()
       })
     ]);
 
