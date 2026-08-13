@@ -83,7 +83,36 @@ const closingWash = splitWash(closing.heading, closing.wash);
                 </div>
             </div>
         </header>
-        {/* mirror pin lands in Task 4, board in Task 5, closing in Task 6 */}
+        {/* The featured element: one idea in two scripts, and the control
+            between them swaps which one is read first.
+
+            Each side pins its own dir. The card's flow direction is what the
+            flip changes — .is-flipped sets direction: rtl on the card, which
+            reverses the two grid tracks — and without dir='ltr' the English
+            side would inherit that flow and set its own sentences right to
+            left, moving every full stop to the wrong end. Direction of flow
+            and direction of script are two different questions here, and the
+            markup answers them separately. */}
+        <section class='shell mt-6 reveal'>
+            <div class='dsp-mirror relative grid grid-cols-1 min-[860px]:grid-cols-2 overflow-hidden'
+                 id='dsp-mirror'>
+                <button class='dsp-flipbtn' type='button' data-mirror-flip>
+                    EN <span aria-hidden='true'>⇄</span> <b lang='ar'>{mirror.flipLabel}</b>
+                </button>
+                <div class='dsp-mside px-7 py-12 min-[860px]:px-16 min-[860px]:py-14' dir='ltr'>
+                    <p class='kicker mb-3'>{mirror.en.kicker}</p>
+                    <h2 class='dsp-mhead'>{mirror.en.heading}</h2>
+                    <p class='dsp-mbody'>{mirror.en.body}</p>
+                </div>
+                <div class='dsp-mside dsp-mside-ar px-7 py-12 min-[860px]:px-16 min-[860px]:py-14'
+                     dir='rtl' lang='ar'>
+                    <p class='kicker dsp-kicker-ar mb-3'>{mirror.ar.kicker}</p>
+                    <h2 class='dsp-mhead dsp-mhead-ar'>{mirror.ar.heading}</h2>
+                    <p class='dsp-mbody dsp-mbody-ar'>{mirror.ar.body}</p>
+                </div>
+            </div>
+        </section>
+        {/* board in Task 5, closing in Task 6 */}
     </div>
 
     <style>
@@ -131,5 +160,90 @@ const closingWash = splitWash(closing.heading, closing.wash);
         /* The label is a consequence of the theme class, never of the click. */
         :global(html.theme-dark) .dsp-lbl-to-dark,
         :global(html:not(.theme-dark)) .dsp-lbl-to-light { display: none; }
+
+        /* The mirror card. Its split, padding, position and clipping are plain
+           layout and ride Tailwind utilities in the markup; what stays here is
+           what reads a token, draws state, or has to survive the flip. */
+        .dsp-mirror {
+            border: 1px solid var(--hairline);
+            border-radius: 20px;
+            background: color-mix(in srgb, var(--cream) 60%, transparent);
+        }
+        :global(html.theme-dark) .dsp-mirror { background: color-mix(in srgb, var(--navy-soft) 70%, transparent); }
+        /* The flip itself: the card's flow reverses, so the two tracks trade
+           places. Each side keeps its own dir, so no sentence is disturbed. */
+        .dsp-mirror.is-flipped { direction: rtl; }
+        .dsp-mside { transition: opacity .18s ease, transform .18s ease; }
+        .dsp-mirror.is-swapping .dsp-mside { opacity: 0; transform: scale(.985); }
+
+        /* The seam between the sides. It is drawn on the Arabic column, on
+           whichever edge faces the English one, and that edge changes when the
+           card flips — so it is stated as a physical edge and swapped by the
+           state class. A flow-relative edge cannot say it: it would resolve
+           against the Arabic column's own dir, which never changes, rather
+           than against the card's flow, which is the thing that flips.
+
+           Stacked, the seam is horizontal instead. The width here has to stay
+           in step with the min-[860px]:grid-cols-2 utility on .dsp-mirror. */
+        .dsp-mside-ar { border-top: 1px solid var(--hairline); }
+        @media (min-width: 860px) {
+            .dsp-mside-ar { border-top: 0; border-left: 1px solid var(--hairline); }
+            .dsp-mirror.is-flipped .dsp-mside-ar { border-left: 0; border-right: 1px solid var(--hairline); }
+        }
+
+        .dsp-mhead {
+            font-family: var(--dsp-font-display);
+            font-size: clamp(22px, 2.6vw, 30px);
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--text-strong);
+            margin: 0 0 8px;
+        }
+        .dsp-mbody { font-size: 13.5px; color: var(--text-muted); line-height: 1.65; margin: 0; }
+        /* The system's Arabic rules, applied rather than described: a larger
+           size, a looser leading, and never any letter spacing. */
+        .dsp-mhead-ar { font-family: var(--dsp-font-ar); font-weight: 700; font-size: clamp(26px, 3vw, 36px); line-height: 1.4; }
+        .dsp-mbody-ar { font-family: var(--dsp-font-ar); font-size: 16px; line-height: 1.85; }
+        .dsp-kicker-ar { font-family: var(--dsp-font-ar); font-size: 13px; letter-spacing: 0; text-transform: none; }
+
+        .dsp-flipbtn {
+            cursor: pointer; position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 3;
+            border: 1.5px solid var(--text-strong); background: var(--cream); color: var(--text-strong);
+            border-radius: 999px; font-weight: 600; font-size: 12.5px; padding: 8px 16px;
+            box-shadow: var(--shadow-card);
+            transition: background-color var(--dsp-dur-state), color var(--dsp-dur-state), transform var(--dsp-dur-state);
+        }
+        :global(html.theme-dark) .dsp-flipbtn { background: var(--navy-soft); border-color: var(--cream); color: var(--cream); }
+        .dsp-flipbtn:hover { background: var(--accent); border-color: var(--accent); color: var(--on-accent); transform: translate(-50%, -50%) scale(1.05); }
+        .dsp-flipbtn b { font-family: var(--dsp-font-ar); font-weight: 700; font-size: 15px; }
     </style>
+
+    <script>
+        const bindMirror = () => {
+            const mirror = document.getElementById('dsp-mirror');
+            const btn = document.querySelector<HTMLButtonElement>('[data-mirror-flip]');
+            if (!mirror || !btn || btn.dataset.bound) return;
+            // Per-element rather than per-window: View Transitions swap in a new
+            // button on every navigation back to this page, so the flag has to
+            // live on the element that carries the listener. The document
+            // listener below is registered once, when this module first runs.
+            btn.dataset.bound = '1';
+            const reduced = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            btn.addEventListener('click', () => {
+                const flip = () => {
+                    mirror.classList.toggle('is-flipped');
+                    // Task 8's analytics listens for pinboard:flip. Emitted here
+                    // rather than measured there so the reading direction the
+                    // event reports is the one the card actually settled on.
+                    document.dispatchEvent(new CustomEvent('pinboard:flip', {
+                        detail: {to: mirror.classList.contains('is-flipped') ? 'to-ar' : 'to-en'}
+                    }));
+                };
+                if (reduced()) { flip(); return; }
+                mirror.classList.add('is-swapping');
+                setTimeout(() => { flip(); mirror.classList.remove('is-swapping'); }, 180);
+            });
+        };
+        document.addEventListener('astro:page-load', bindMirror);
+    </script>
 </BaseLayout>
