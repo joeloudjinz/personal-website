@@ -72,7 +72,10 @@ const projects = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/projects" }),
   schema: ({ image }) => z.object({
     name: z.string(),
-    demoLink: z.string(),
+    // Optional since the design system: a project with no public repository has
+    // nothing honest to put here, and the card omits the "View repository" link
+    // rather than pointing it somewhere that is not one.
+    demoLink: z.string().optional(),
     demoLinkRel: z.string().optional(),
     // The project's own showcase page in the projectPages collection, when it
     // has one. A separate field rather than a repointed demoLink: every entry
