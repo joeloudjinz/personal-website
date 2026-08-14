@@ -679,6 +679,9 @@ const projectPages = defineCollection({
     // only — layout lives in PinboardPage.astro.
     // Rail filter ids, held to the same shape rules as `slug` two screens above.
     const stopId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(24);
+    // A published palette value, written as content. Shared by the swatch
+    // pins and by the audit's measured pairings.
+    const hexColor = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
     const pinBase = {
       stop: stopId,
       label: z.string().max(28)
@@ -823,10 +826,35 @@ const projectPages = defineCollection({
         caption: z.string().max(110)
       })).length(6).refine(eachOnce((item) => item.tone), { message: 'each tone once' })
     });
+    // An audit that only says "pass" is indistinguishable from one nobody
+    // ran, so results are measurements and the panel carries two exhibits a
+    // reader can check for themselves: the quietest pairings drawn as the
+    // real ink on the real ground, and the chart series put through the
+    // colour-blindness simulation the system claims to have run.
     const auditExpansion = z.object({
       label: expLabel,
       intro: expIntro.optional(),
       rows: z.array(z.object({ check: z.string().max(40), result: z.string().max(12) })).min(3).max(8),
+      pairsTitle: z.string().max(40),
+      // Hex is content here for the same reason the palette's is: these are
+      // the system's published measurements, and a measurement shown in
+      // anything other than the colours it was taken on proves nothing.
+      pairs: z.array(z.object({
+        label: z.string().max(28),
+        ink: hexColor,
+        ground: hexColor,
+        ratio: z.string().max(8)
+      })).min(2).max(6),
+      pairsNote: z.string().max(180),
+      simTitle: z.string().max(40),
+      // The row order is the entry's, and the kind picks which simulation
+      // the row is drawn through. One of each, so a row cannot be dropped
+      // and the untouched row can never go missing from the comparison.
+      simRows: z.array(z.object({
+        label: z.string().max(20),
+        kind: z.enum(['normal', 'deuteranopia', 'protanopia'])
+      })).length(3).refine(eachOnce((item) => item.kind), { message: 'each simulation once' }),
+      simNote: z.string().max(220),
       flaggedTitle: z.string().max(40),
       flagged: z.array(z.object({ pair: z.string().max(60), note: z.string().max(180) })).min(1).max(4)
     });
@@ -843,7 +871,7 @@ const projectPages = defineCollection({
         colors: z.array(z.object({
           // The design system's published palette values, displayed as content.
           // Deliberately not read from the site's live CSS tokens.
-          hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/),
+          hex: hexColor,
           name: z.string().max(16),
           ink: z.enum(['dark', 'light'])
         })).min(2).max(8),
@@ -900,7 +928,11 @@ const projectPages = defineCollection({
       }),
       z.object({
         kind: z.literal('audit'), ...pinBase,
+        // result is a measurement, not a verdict. "pass" on every row is
+        // what a system nobody audited would print too, and it gives a
+        // reader nothing to check.
         rows: z.array(z.object({ check: z.string().max(28), result: z.string().max(12) })).min(2).max(8),
+        note: z.string().max(160),
         expansion: auditExpansion.optional()
       })
     ]);

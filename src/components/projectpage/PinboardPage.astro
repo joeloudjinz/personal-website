@@ -343,11 +343,14 @@ const closingWash = splitWash(closing.heading, closing.wash);
                             </>
                         )}
                         {pin.kind === 'audit' && (
-                            <dl class='dsp-audit'>
-                                {pin.rows.map((row) => (
-                                    <div class='flex justify-between gap-3'><dt>{row.check}</dt><dd>{row.result}</dd></div>
-                                ))}
-                            </dl>
+                            <>
+                                <dl class='dsp-audit'>
+                                    {pin.rows.map((row) => (
+                                        <div class='flex justify-between gap-3'><dt>{row.check}</dt><dd>{row.result}</dd></div>
+                                    ))}
+                                </dl>
+                                <p class='dsp-anno mt-3'>{pin.note}</p>
+                            </>
                         )}
 
                         {/* The affordance that replaced the old unfold: same
@@ -606,6 +609,62 @@ const closingWash = splitWash(closing.heading, closing.wash);
                                                     ))}
                                                 </div>
                                             </div>
+                                        </div>
+                                        {/* The first exhibit. A ratio printed on its own
+                                            asks to be taken on trust, so each pairing is
+                                            drawn in the ink it names on the ground it was
+                                            measured against. The hexes come from the entry
+                                            and never move with the theme: a measurement
+                                            shown in colours other than the ones it was
+                                            taken on is not that measurement. */}
+                                        <div>
+                                            <p class='dsp-exptitle'>{pin.expansion.pairsTitle}</p>
+                                            <div class='dsp-pairs'>
+                                                {pin.expansion.pairs.map((pair) => (
+                                                    <div class='dsp-pair'>
+                                                        <span class='dsp-pairink' style={`background:${pair.ground};color:${pair.ink}`}>{pair.label}</span>
+                                                        <span class='dsp-pairratio'>{pair.ratio}</span>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <p class='dsp-expnote mt-2.5'>{pin.expansion.pairsNote}</p>
+                                        </div>
+                                        {/* The second exhibit, and the one thing on this
+                                            board a reader can genuinely check rather than
+                                            believe: the chart series run through the
+                                            colour-blindness simulation the system says it
+                                            ran. The chips reuse the same classes the chart
+                                            pin draws, so there is one set of published
+                                            values and no chance of the proof and the claim
+                                            drifting apart.
+
+                                            sRGB interpolation is stated because the SVG
+                                            default is linearised, which would wash the
+                                            simulation out and understate the very thing it
+                                            is here to test. The matrices are the published
+                                            dichromacy approximations, which is why the copy
+                                            calls this a simulation rather than a verdict. */}
+                                        <div>
+                                            <p class='dsp-exptitle'>{pin.expansion.simTitle}</p>
+                                            <svg aria-hidden='true' focusable='false' width='0' height='0' style='position:absolute'>
+                                                <filter id='dsp-cvd-deuteranopia' color-interpolation-filters='sRGB'>
+                                                    <feColorMatrix type='matrix' values='0.625 0.375 0 0 0 0.7 0.3 0 0 0 0 0.3 0.7 0 0 0 0 0 1 0'/>
+                                                </filter>
+                                                <filter id='dsp-cvd-protanopia' color-interpolation-filters='sRGB'>
+                                                    <feColorMatrix type='matrix' values='0.567 0.433 0 0 0 0.558 0.442 0 0 0 0 0.242 0.758 0 0 0 0 0 1 0'/>
+                                                </filter>
+                                            </svg>
+                                            <div class='dsp-sims'>
+                                                {pin.expansion.simRows.map((row) => (
+                                                    <div class='dsp-simrow'>
+                                                        <span class='dsp-simlbl'>{row.label}</span>
+                                                        <div class={`dsp-simchips dsp-cvd-${row.kind}`}>
+                                                            {[1, 2, 3, 4, 5, 6, 7].map((series) => <i class={`dsp-vz${series}`}></i>)}
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <p class='dsp-expnote mt-2.5'>{pin.expansion.simNote}</p>
                                         </div>
                                     </>
                                 )}
@@ -1357,8 +1416,31 @@ const closingWash = splitWash(closing.heading, closing.wash);
         :global(html.theme-dark) .dsp-stx-inactive { --dsp-stx-ink: #586281; --dsp-stx-wash: #252B42; --dsp-stx-edge: #414965; }
         .dsp-strowcap { margin: 3px 0 0; font-size: 11.5px; line-height: 1.5; color: var(--text-muted); }
 
-        /* The extended audit and its flagged pairs. */
+        /* The extended audit, its flagged pairs, and its two exhibits. */
         .dsp-auditgrid { display: grid; gap: 18px; }
+        /* The measured pairings. The two colours inside the box are authored
+           and never move with the theme, because the box holds exactly the
+           pair that was measured. The hairline around it is chrome rather
+           than part of the specimen, and it has to be there: a cream-ground
+           pairing drawn on a cream pin has no visible edge at all in light
+           mode, and an exhibit you cannot see the extent of proves nothing.
+           Same hairline the palette chips take, for the same reason. */
+        .dsp-pairs { display: grid; gap: 8px; }
+        .dsp-pair { display: flex; align-items: center; gap: 10px; }
+        .dsp-pairink { flex: 1; border: 1px solid var(--hairline); border-radius: 8px; padding: 9px 12px; font-size: 12.5px; }
+        .dsp-pairratio { font-family: var(--dsp-font-mono); font-size: 11px; color: var(--text-muted); }
+        /* The simulation rows. The chips are the chart pin's own classes, so
+           the two pins can never publish different sevens. */
+        .dsp-sims { display: grid; gap: 7px; }
+        .dsp-simrow { display: flex; align-items: center; gap: 12px; }
+        .dsp-simlbl {
+            font-family: var(--dsp-font-mono); font-size: 9.5px; letter-spacing: .08em;
+            text-transform: uppercase; color: var(--text-muted); width: 96px; flex: none;
+        }
+        .dsp-simchips { display: flex; gap: 4px; flex: 1; }
+        .dsp-simchips i { flex: 1; height: 22px; border-radius: 4px; }
+        .dsp-cvd-deuteranopia { filter: url(#dsp-cvd-deuteranopia); }
+        .dsp-cvd-protanopia { filter: url(#dsp-cvd-protanopia); }
         .dsp-flags { display: grid; gap: 10px; }
         .dsp-flag {
             margin: 0; font-size: 12px; line-height: 1.55; color: var(--text-muted);
@@ -1395,6 +1477,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
             .dsp-jobs { grid-template-columns: repeat(2, 1fr); }
             .dsp-arlaws { grid-template-columns: repeat(2, 1fr); }
             .dsp-strows { grid-template-columns: repeat(2, 1fr); }
+            .dsp-pairs { grid-template-columns: repeat(2, 1fr); }
         }
         @media (min-width: 1000px) {
             .dsp-jobs { grid-template-columns: repeat(5, 1fr); }

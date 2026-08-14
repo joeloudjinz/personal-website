@@ -215,20 +215,34 @@ pins:
     stop: "proof"
     label: "06 · the audit"
     rows:
-      - { check: "contrast, light", result: "pass" }
-      - { check: "contrast, dark", result: "pass" }
-      - { check: "colour blindness", result: "pass" }
-      - { check: "reduced motion", result: "pass" }
+      - { check: "contrast, on cream", result: "4.8:1 min" }
+      - { check: "contrast, on navy", result: "4.6:1 min" }
+      - { check: "colour blindness", result: "3 safe alone" }
+      - { check: "reduced motion", result: "travel off" }
+    note: "These are the worst cases, not the averages. The quietest text the system allows still clears the standard on both grounds."
     expansion:
       label: "Read the full audit"
       intro: "Every pairing is measured before it ships, on both surfaces, and the failures are published rather than hidden."
       rows:
-        - { check: "states on light", result: "pass" }
-        - { check: "states on dark", result: "pass" }
-        - { check: "colour blindness, simulated", result: "pass" }
-        - { check: "prefers more contrast", result: "pass" }
-        - { check: "focus shown everywhere", result: "pass" }
-        - { check: "reduced motion honoured", result: "pass" }
+        - { check: "quietest text on cream", result: "4.8:1" }
+        - { check: "quietest text on navy", result: "4.6:1" }
+        - { check: "muted text on cream", result: "5.5:1" }
+        - { check: "muted text on navy", result: "8.9:1" }
+        - { check: "lifted for more contrast", result: "7.5:1" }
+        - { check: "code text on selection", result: "9.5:1" }
+      pairsTitle: "the tightest four, drawn"
+      pairs:
+        - { label: "muted text on cream", ink: "#6B5A4C", ground: "#F3EAD2", ratio: "5.5:1" }
+        - { label: "comment dim on cream", ink: "#746353", ground: "#F3EAD2", ratio: "4.8:1" }
+        - { label: "muted text on navy", ink: "#C9BFA6", ground: "#191F33", ratio: "8.9:1" }
+        - { label: "comment dim on navy", ink: "#8E8874", ground: "#191F33", ratio: "4.6:1" }
+      pairsNote: "Each label is drawn in the ink it names, on the ground it was measured against. The comment dims are the quietest text allowed anywhere, so they set the floor."
+      simTitle: "colour blindness, simulated"
+      simRows:
+        - { label: "as published", kind: "normal" }
+        - { label: "deuteranopia", kind: "deuteranopia" }
+        - { label: "protanopia", kind: "protanopia" }
+      simNote: "The seven chart colours put through a simulation of the two commonest kinds of colour blindness. The first three hold apart in all three rows, which is why every series after them carries a shape or a dash as well."
       flaggedTitle: "published, not hidden"
       flagged:
         - { pair: "caramel as text on cream", note: "3.07 to one. Large type only, and code takes a darker caramel ink instead." }
