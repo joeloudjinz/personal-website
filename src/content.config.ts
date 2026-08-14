@@ -834,7 +834,18 @@ const projectPages = defineCollection({
     const auditExpansion = z.object({
       label: expLabel,
       intro: expIntro.optional(),
-      rows: z.array(z.object({ check: z.string().max(40), result: z.string().max(12) })).min(3).max(8),
+      // A ratio rather than a string, because the panel draws each one
+      // against the floor as well as printing it. One source for the number
+      // means the bar and the figure can never disagree.
+      rows: z.array(z.object({
+        check: z.string().max(40),
+        ratio: z.number().min(1).max(21)
+      })).min(3).max(8),
+      // The threshold every bar is read against, and the words that name it.
+      // Authored rather than hard-coded: the number is a fact about the
+      // standard, and the sentence beside it is a string a visitor reads.
+      floor: z.number().min(1).max(21),
+      floorLabel: z.string().max(28),
       pairsTitle: z.string().max(40),
       // Hex is content here for the same reason the palette's is: these are
       // the system's published measurements, and a measurement shown in

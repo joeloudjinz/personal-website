@@ -31,6 +31,14 @@ const canonical = `https://${page.data.subdomain}/`;
 // anyway, exactly as BandPage does.
 const mastheadWash = splitWash(masthead.heading, masthead.wash);
 const closingWash = splitWash(closing.heading, closing.wash);
+
+// Where a contrast ratio sits on the audit's meter track. The track runs
+// from 1 to 10 rather than to the 21 a ratio can theoretically reach: real
+// text pairings live between 3 and 10, and a track scaled to 21 would squash
+// every one of them into its first half and show a reader nothing. The track
+// deliberately carries no end label, because the only mark on it that means
+// anything is the floor. Anything at or beyond 10 simply fills it.
+const meterPercent = (ratio: number) => Math.max(0, Math.min(100, ((ratio - 1) / 9) * 100));
 ---
 
 <BaseLayout title={seo.title} description={seo.description ?? mirror.en.body} gradient='warm'
@@ -596,11 +604,32 @@ const closingWash = splitWash(closing.heading, closing.wash);
                                     <>
                                         <p class='dsp-expintro'>{pin.expansion.intro}</p>
                                         <div class='dsp-auditgrid'>
-                                            <dl class='dsp-audit'>
-                                                {pin.expansion.rows.map((row) => (
-                                                    <div class='flex justify-between gap-3'><dt>{row.check}</dt><dd>{row.result}</dd></div>
-                                                ))}
-                                            </dl>
+                                            {/* Each measurement drawn against the one
+                                                threshold it has to clear, so the figures
+                                                mean something to a reader who has never
+                                                met a contrast ratio. The floor is the
+                                                only mark on the track, and it is labelled
+                                                where it stands rather than in a legend,
+                                                which is the dataviz layer's own rule. The
+                                                offset is set once on the container and
+                                                every track reads it. */}
+                                            <div class='dsp-meters' style={`--dsp-floor:${meterPercent(pin.expansion.floor)}%`}>
+                                                <span class='dsp-floorhead' aria-hidden='true'><i>{pin.expansion.floorLabel}</i></span>
+                                                <dl class='dsp-meterlist'>
+                                                    {pin.expansion.rows.map((row) => (
+                                                        <div class='dsp-meter'>
+                                                            <dt>{row.check}</dt>
+                                                            {/* The bar repeats what the figure
+                                                                beside it already says, so it is
+                                                                decoration to a screen reader. */}
+                                                            <span class='dsp-metertrack' aria-hidden='true'>
+                                                                <i style={`width:${meterPercent(row.ratio)}%`}></i>
+                                                            </span>
+                                                            <dd>{row.ratio}:1</dd>
+                                                        </div>
+                                                    ))}
+                                                </dl>
+                                            </div>
                                             <div>
                                                 <p class='dsp-exptitle'>{pin.expansion.flaggedTitle}</p>
                                                 <div class='dsp-flags'>
@@ -1418,6 +1447,69 @@ const closingWash = splitWash(closing.heading, closing.wash);
 
         /* The extended audit, its flagged pairs, and its two exhibits. */
         .dsp-auditgrid { display: grid; gap: 18px; }
+        /* The meters. Narrow first, and the narrow one is not the wide one
+           squeezed: the name of what was measured is the whole point of the
+           row, so on a phone it takes a line of its own and wraps, with the
+           track and the figure beneath it. Cutting those names off with an
+           ellipsis, which is what a three-column row does at 340px, leaves a
+           reader with a bar and a number and no idea what either is about. */
+        .dsp-meterlist { display: grid; gap: 12px; }
+        .dsp-meter {
+            display: grid; grid-template-columns: 1fr auto;
+            align-items: center; gap: 5px 10px;
+            font-family: var(--dsp-font-mono); font-size: 11.5px; color: var(--text-muted);
+        }
+        .dsp-meter dt { grid-column: 1 / -1; }
+        .dsp-meter dd { margin: 0; color: var(--text-strong); }
+        @media (min-width: 560px) {
+            .dsp-meterlist { gap: 9px; }
+            .dsp-meter { grid-template-columns: minmax(0, 1fr) minmax(90px, 1.5fr) auto; gap: 12px; }
+            /* Back on one line, and now the name is the flexible column, so
+               a long check shortens rather than pushing the track off the
+               row. It is the only place an ellipsis is the lesser evil. */
+            .dsp-meter dt { grid-column: auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        }
+        /* A magnitude, so the fill is quiet ink rather than a hue: making it
+           green would spend an emphasis on saying twice over what the figure
+           and the floor line already say once. */
+        .dsp-metertrack {
+            position: relative; height: 9px; border-radius: 999px;
+            background: color-mix(in srgb, var(--text-muted) 15%, transparent);
+        }
+        .dsp-metertrack i {
+            display: block; height: 100%; border-radius: 999px;
+            background: color-mix(in srgb, var(--text-muted) 55%, transparent);
+        }
+        /* The floor. Caramel, dashed six on four, exactly as the dataviz
+           layer publishes its reference line — drawn as a gradient rather
+           than a dashed border because a border cannot state its own dash
+           lengths, and those two numbers are the published treatment. */
+        .dsp-metertrack::after {
+            content: ""; position: absolute; left: var(--dsp-floor); top: -3px; bottom: -3px;
+            width: 2px; transform: translateX(-1px);
+            background: repeating-linear-gradient(to bottom, var(--accent) 0 6px, transparent 6px 10px);
+        }
+        :global(html.theme-dark) .dsp-metertrack::after {
+            background: repeating-linear-gradient(to bottom, var(--caramel-bright) 0 6px, transparent 6px 10px);
+        }
+        /* The floor's label, standing over the line it names rather than
+           sitting in a legend, which is the dataviz layer's own rule. The
+           head row mirrors whichever column arrangement the meters are in,
+           so the label lands above the track at either size. */
+        .dsp-floorhead {
+            display: grid; grid-template-columns: 1fr auto;
+            gap: 10px; margin-bottom: 5px;
+        }
+        .dsp-floorhead i {
+            grid-column: 1; position: relative; left: var(--dsp-floor);
+            transform: translateX(-50%); white-space: nowrap; justify-self: start;
+            font-family: var(--dsp-font-mono); font-style: normal; font-size: 9.5px;
+            color: var(--dsp-accent-ink);
+        }
+        @media (min-width: 560px) {
+            .dsp-floorhead { grid-template-columns: minmax(0, 1fr) minmax(90px, 1.5fr) auto; gap: 12px; }
+            .dsp-floorhead i { grid-column: 2; }
+        }
         /* The measured pairings. The two colours inside the box are authored
            and never move with the theme, because the box holds exactly the
            pair that was measured. The hairline around it is chrome rather
@@ -1483,7 +1575,9 @@ const closingWash = splitWash(closing.heading, closing.wash);
             .dsp-jobs { grid-template-columns: repeat(5, 1fr); }
             .dsp-strows { grid-template-columns: repeat(3, 1fr); }
             .dsp-devgrid { grid-template-columns: 1fr 1.25fr 1fr; }
-            .dsp-auditgrid { grid-template-columns: 1fr 1fr; }
+            /* The meters need the wider half: they carry a name, a track and
+               a figure, where the flagged pairs carry sentences only. */
+            .dsp-auditgrid { grid-template-columns: 1.4fr 1fr; }
             .dsp-facelist { grid-template-columns: repeat(5, 1fr); }
             .dsp-facerow { flex-direction: column; align-items: flex-start; gap: 6px; }
         }

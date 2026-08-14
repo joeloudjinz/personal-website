@@ -215,21 +215,23 @@ pins:
     stop: "proof"
     label: "06 · the audit"
     rows:
-      - { check: "contrast, on cream", result: "4.8:1 min" }
-      - { check: "contrast, on navy", result: "4.6:1 min" }
-      - { check: "colour blindness", result: "3 safe alone" }
-      - { check: "reduced motion", result: "travel off" }
-    note: "These are the worst cases, not the averages. The quietest text the system allows still clears the standard on both grounds."
+      - { check: "text on cream", result: "easily read" }
+      - { check: "text on navy", result: "easily read" }
+      - { check: "colour blindness", result: "still clear" }
+      - { check: "reduced motion", result: "respected" }
+    note: "Every colour pairing is measured before it ships, on both backgrounds, and the ones that fall short are published instead of hidden."
     expansion:
       label: "Read the full audit"
-      intro: "Every pairing is measured before it ships, on both surfaces, and the failures are published rather than hidden."
+      intro: "Contrast is measured as a ratio. The standard asks for 4.5 to one at normal text sizes, and anything above that is easier to read. Every number below is the tightest case rather than the average."
       rows:
-        - { check: "quietest text on cream", result: "4.8:1" }
-        - { check: "quietest text on navy", result: "4.6:1" }
-        - { check: "muted text on cream", result: "5.5:1" }
-        - { check: "muted text on navy", result: "8.9:1" }
-        - { check: "lifted for more contrast", result: "7.5:1" }
-        - { check: "code text on selection", result: "9.5:1" }
+        - { check: "quietest text on cream", ratio: 4.8 }
+        - { check: "quietest text on navy", ratio: 4.6 }
+        - { check: "muted text on cream", ratio: 5.5 }
+        - { check: "muted text on navy", ratio: 8.9 }
+        - { check: "lifted for more contrast", ratio: 7.5 }
+        - { check: "code text on selection", ratio: 9.5 }
+      floor: 4.5
+      floorLabel: "4.5, the floor"
       pairsTitle: "the tightest four, drawn"
       pairs:
         - { label: "muted text on cream", ink: "#6B5A4C", ground: "#F3EAD2", ratio: "5.5:1" }
