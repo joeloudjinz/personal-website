@@ -320,9 +320,17 @@ const closingWash = splitWash(closing.heading, closing.wash);
                             expression on purpose: inside a pre, any air left
                             around them is drawn. */}
                         {pin.kind === 'terminal' && (
-                            <pre class='dsp-term'>{pin.lines.map((line) => (
-                                <span>{line.prompt ? '$ ' : ''}{line.text}</span>
-                            ))}<span class='dsp-cursor' aria-hidden='true'></span></pre>
+                            <>
+                                <pre class='dsp-term'>{pin.lines.map((line) => (
+                                    <span>{line.prompt ? '$ ' : ''}{line.text}</span>
+                                ))}<span class='dsp-cursor' aria-hidden='true'></span></pre>
+                                {/* The pane is an ordinary build, deliberately:
+                                    it is a specimen of what the system does to
+                                    a terminal, not a claim about a tool. The
+                                    claim is the note, in the same annotation
+                                    the palette and the states carry. */}
+                                <p class='dsp-anno mt-3'>{pin.note}</p>
+                            </>
                         )}
                         {pin.kind === 'states' && (
                             <>
@@ -549,12 +557,14 @@ const closingWash = splitWash(closing.heading, closing.wash);
                                                 <pre class='dsp-devpre'>{pin.expansion.diff.map((line) => (
                                                     <span class={`dsp-d-${line.mark}`}><i>{line.mark === 'add' ? '+' : line.mark === 'drop' ? '-' : '~'}</i>{line.text}</span>
                                                 ))}</pre>
+                                                <p class='dsp-expnote mt-2.5'>{pin.expansion.diffNote}</p>
                                             </div>
                                             <div>
                                                 <p class='dsp-exptitle'>{pin.expansion.logTitle}</p>
                                                 <pre class='dsp-devpre'>{pin.expansion.logs.map((line) => (
                                                     <span class={`dsp-g-${line.level}`}><i>{line.level}</i>{line.text}</span>
                                                 ))}</pre>
+                                                <p class='dsp-expnote mt-2.5'>{pin.expansion.logNote}</p>
                                             </div>
                                             <div>
                                                 <p class='dsp-exptitle'>{pin.expansion.ansiTitle}</p>
@@ -1027,6 +1037,13 @@ const closingWash = splitWash(closing.heading, closing.wash);
            inside them is written against navy in both modes. */
         :global(html.theme-dark) .dsp-pin-dark { border-color: var(--hairline); }
         .dsp-pin-dark .dsp-lbl { color: var(--cream-muted); }
+        /* The annotation reaches a navy pin for the first time with the
+           console voice's note. The page's muted ink is chocolate half the
+           time, which on navy is unreadable, so the navy pins state the ink
+           they are actually drawn against: 8.9:1, the same pairing every
+           other line of type on these two pins already uses. The caramel bar
+           above it is a mark rather than type and keeps the accent. */
+        .dsp-pin-dark .dsp-anno { color: var(--cream-muted); }
         .dsp-quote {
             font-family: var(--dsp-font-display); font-style: italic; font-size: 19px;
             line-height: 1.45; color: var(--cream);

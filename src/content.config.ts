@@ -789,6 +789,9 @@ const projectPages = defineCollection({
         job: z.string().max(110)
       })).length(5).refine(eachOnce((item) => item.face), { message: 'each face once' })
     });
+    // Each of the three specimens states the rule it demonstrates, the same
+    // shape the chart expansion uses. Without them the panel shows three
+    // handsome colour treatments and never says what governs any of them.
     const terminalExpansion = z.object({
       label: expLabel,
       intro: expIntro.optional(),
@@ -797,12 +800,14 @@ const projectPages = defineCollection({
         mark: z.enum(['add', 'drop', 'change']),
         text: z.string().max(60)
       })).min(2).max(5),
+      diffNote: z.string().max(180),
       logTitle: z.string().max(32),
       // All six levels, quietest to the one filled band, in the entry's order.
       logs: z.array(z.object({
         level: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']),
         text: z.string().max(60)
       })).length(6).refine(eachOnce((item) => item.level), { message: 'each level once' }),
+      logNote: z.string().max(180),
       ansiTitle: z.string().max(32),
       ansiNote: z.string().max(180)
     });
@@ -872,8 +877,13 @@ const projectPages = defineCollection({
         kind: z.literal('faces'), ...pinBase, note: z.string().max(180),
         expansion: facesExpansion.optional()
       }),
+      // note is required for the same reason every other pin's is: a well
+      // full of mono says what the system does to a terminal, and nothing at
+      // all about why a terminal is the design system's business. The pane
+      // is the specimen, the note is the claim.
       z.object({
         kind: z.literal('terminal'), ...pinBase, lines: z.array(codeLine).min(1).max(6),
+        note: z.string().max(160),
         expansion: terminalExpansion.optional()
       }),
       z.object({

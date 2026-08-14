@@ -146,27 +146,29 @@ pins:
       note: "The warm register speaks Harmattan in Arabic, the same voice the serif carries in English. Larger at the same step, and never letter-spaced."
   - kind: "terminal"
     stop: "proof"
-    label: "06 · the terminal"
+    label: "06 · the console voice"
     lines:
-      - { prompt: true, text: "joeinz --voice console" }
-      - { text: "✓ mono on a quiet well" }
-      - { text: "✓ one highlight per pane" }
+      - { prompt: true, text: "npm run build" }
+      - { text: "built 37 pages in 1.8s" }
+    note: "Code, terminals and logs are brand territory too, not a theme bolted on afterwards."
     expansion:
       label: "Show me how"
-      intro: "Adopting the console voice is one class on a surface, and the whole developer layer rides along with it."
+      intro: "Marking a surface as the console voice is one class. The mono face, the recessed well, sixteen terminal colours and the diff and log styles all arrive with it."
       diffTitle: "the diff"
       diff:
-        - { mark: "add", text: "one calm palette" }
-        - { mark: "drop", text: "sixteen loud themes" }
-        - { mark: "change", text: "mono, ligatures off" }
+        - { mark: "add", text: "--type-scale: 1;" }
+        - { mark: "drop", text: "--type-scale: .9375;" }
+        - { mark: "change", text: "font-feature-settings: 'liga' 0;" }
+      diffNote: "The band locates the line. The mark in the gutter carries the meaning, because colour never encodes alone."
       logTitle: "the log"
       logs:
-        - { level: "trace", text: "reading tokens" }
-        - { level: "debug", text: "ladder computed at factor 1" }
-        - { level: "info", text: "surface adopted the console voice" }
-        - { level: "warn", text: "second highlight requested, kept one" }
-        - { level: "error", text: "letter-spacing on Arabic refused" }
-        - { level: "fatal", text: "palette redefined downstream" }
+        - { level: "trace", text: "cache lookup, 2 hits" }
+        - { level: "debug", text: "24 rows rendered" }
+        - { level: "info", text: "listening on port 4321" }
+        - { level: "warn", text: "retrying in 2s" }
+        - { level: "error", text: "upload rejected, file too large" }
+        - { level: "fatal", text: "out of memory" }
+      logNote: "Trace is the quietest and fatal is the only filled band, so a long run reads as a hierarchy instead of a wall."
       ansiTitle: "the sixteen"
       ansiNote: "One canonical mapping for every emulator and prompt. In the light scheme, bright means more ink, not more light, so nothing drops below the contrast floor."
   - kind: "states"
