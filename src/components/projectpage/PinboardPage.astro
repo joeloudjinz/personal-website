@@ -79,7 +79,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
         <style is:inline>
             .reveal { opacity: 1 !important; transform: none !important; }
             .marker-wash::before { transform: none !important; }
-            /* The expanded rows open on click, and a click needs the script.
+            /* The expanded panels open on click, and a click needs the script.
                The old unfolds were details elements and read scriptless for
                free; these panels are held shut by the hidden attribute
                instead, so with no script they are simply shown, every one,
@@ -218,6 +218,25 @@ const closingWash = splitWash(closing.heading, closing.wash);
                 <p class='dsp-railnote hidden mt-4 ml-5 min-[900px]:block'>{railNote}</p>
             </nav>
 
+            {/* The board's own track holds two things stacked: the podium an
+                opened pin is shown on, and the packed board under it. They
+                share one grid cell so the rail stays alongside both rather
+                than being pushed down the page by whatever is open.
+
+                min-w-0 because a grid item's floor is its content's width,
+                and a multi-column box would sooner run past the track than
+                narrow itself to fit. */}
+            <div class='min-w-0'>
+                {/* Where an opened pin is shown, and the answer to the two
+                    things wrong with opening one in place: a pin that grew
+                    where it stood shoved its neighbours around differently
+                    depending on which column it was in, and a pin opened at
+                    the foot of the board opened off screen. One fixed place,
+                    directly above the board, is neither. Empty until a pin is
+                    promoted into it, and drawn away entirely while empty so
+                    the board sits exactly where it always did. */}
+                <div class='dsp-podium scroll-mt-[var(--anchor-offset)]' id='dsp-podium'></div>
+
             <div class='dsp-board columns-1 gap-5 min-[580px]:columns-2 min-[900px]:columns-3' id='dsp-board'>
                 {pins.map((pin, index) => (
                     /* The tab stop is what lets the rail follow the keyboard,
@@ -227,9 +246,15 @@ const closingWash = splitWash(closing.heading, closing.wash);
                        on an article, and the name alone conforms, so a pin
                        reads "02 · the palette, article" and the Arabic pin
                        announces itself in Arabic. */
+                    /* data-pin-index is what sends a pin home. A promoted pin
+                       leaves the board entirely, so on the way back it has to
+                       be put in front of the first pin ordered after it —
+                       appending would file every pin that was ever opened at
+                       the end of the story. */
                     <article class:list={['dsp-pin', 'reveal', 'relative', 'inline-block', 'w-full', 'mb-5', 'p-6', 'break-inside-avoid',
                                           {'dsp-pin-dark': pin.kind === 'quote' || pin.kind === 'terminal'}]}
-                             data-pin-stop={pin.stop} tabindex='0' aria-labelledby={`dsp-pin-${index}`}>
+                             data-pin-stop={pin.stop} data-pin-index={index}
+                             tabindex='0' aria-labelledby={`dsp-pin-${index}`}>
                         <span class='dsp-pindot absolute' aria-hidden='true'></span>
                         {/* The Arabic pin labels itself in Arabic, so the label
                             carries its own script and its own direction. Every
@@ -318,11 +343,12 @@ const closingWash = splitWash(closing.heading, closing.wash);
                         )}
 
                         {/* The affordance that replaced the old unfold: same
-                            register, same spot, but it opens the whole pin
-                            into a full row instead of growing a paragraph
-                            inside the column. data-pin-open carries the pin's
-                            label because the expand event reports opens by
-                            which pin was opened, exactly as the unfolds did. */}
+                            register, same spot, but it lifts the whole pin
+                            onto the podium above the board instead of growing
+                            a paragraph inside the column. data-pin-open
+                            carries the pin's label because the expand event
+                            reports opens by which pin was opened, exactly as
+                            the unfolds did. */}
                         {pin.expansion && (
                             <button class='dsp-open mt-3.5 inline-flex items-center gap-1.5' type='button'
                                     aria-expanded='false' aria-controls={`dsp-exp-${index}`}
@@ -577,6 +603,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
                         )}
                     </article>
                 ))}
+            </div>
             </div>
         </div>
         {/* The closing. One statement, the contract behind it, and a way back
@@ -899,21 +926,32 @@ const closingWash = splitWash(closing.heading, closing.wash);
             border: 1px solid var(--hairline);
             border-radius: 20px;
             box-shadow: var(--shadow-soft);
-            /* transform and clip-path ride the travel duration because the
-               expansion script animates both: the glide of every pin when the
-               board reflows, and the reveal of the opening pin's grown box.
-               The hover lift shares the transform channel and simply rides
-               the same number now. */
-            transition: transform var(--dsp-dur-move) var(--dsp-ease), clip-path var(--dsp-dur-move) var(--dsp-ease), box-shadow .3s var(--dsp-ease), opacity .45s ease, filter .45s ease;
+            /* transform rides the travel duration because the expansion
+               script animates it: every pin that stays on the board glides
+               from where it was to where the repack put it. The hover lift
+               shares that channel and simply rides the same number now. */
+            transition: transform var(--dsp-dur-move) var(--dsp-ease), box-shadow .3s var(--dsp-ease), opacity .45s ease, filter .45s ease;
         }
-        /* The open pin is the full row. column-span needs a block-level box,
-           and the pins are laid inline-block for the column packing, so the
-           display is restated with the span. Opening in place is the point:
-           the row appears at the pin's own position in the story, with the
-           board parting above and below it. */
-        .dsp-pin.is-open { display: block; column-span: all; }
-        /* A full-width row has nowhere to float to. */
+        /* The podium, and the pin standing on it. The pin keeps its own skin
+           on purpose — same surface, same edge, same radius, same caramel dot
+           — so what opens reads as the pin that was clicked rather than as a
+           viewer the board hands things to. Only its width changes.
+
+           display is restated because the pins are laid inline-block for the
+           column packing, and an inline-block on the podium would carry a
+           line box's worth of stray space under it. */
+        .dsp-podium:empty { display: none; }
+        .dsp-pin.is-open { display: block; }
+        /* A full-width panel has nowhere to float to. */
         .dsp-pin.is-open:hover { transform: none; }
+        /* The rise a pin plays where it lands, whether that is the podium or
+           its own place back on the board. It is deliberately not a journey
+           across the board: from the foot of a tall board that trip crosses
+           everything else on the way, and the page is already travelling to
+           meet the panel. The pins that stay put carry the continuity, gliding
+           into the gap the promoted pin left. */
+        .dsp-pin.is-rising { animation: dsp-rise var(--dsp-dur-move) var(--dsp-ease) both; }
+        @keyframes dsp-rise { from { opacity: 0; transform: translateY(14px); } }
         /* :not() rather than a later override, so the two pins that are navy in
            both modes never enter the argument. */
         :global(html.theme-dark) .dsp-pin:not(.dsp-pin-dark) { background: color-mix(in srgb, var(--navy-soft) 70%, transparent); }
@@ -1079,14 +1117,13 @@ const closingWash = splitWash(closing.heading, closing.wash);
         .dsp-open[dir='rtl'][aria-expanded='true'] .dsp-chev { transform: rotate(-90deg); }
         @keyframes dsp-unfold { from { opacity: 0; transform: translateY(-4px); } }
 
-        /* ---- The expanded rows ---- */
+        /* ---- The expanded panels ---- */
         /* The panel's shut state is the hidden attribute, and the rule below
            restates what the attribute means: the display on the open state
            would otherwise beat the browser's own hiding, because author styles
            outrank user-agent ones even against an attribute. */
         .dsp-exp { display: grid; gap: 18px; border-top: 1px solid var(--hairline); margin-top: 16px; padding-top: 16px; }
         .dsp-exp[hidden] { display: none; }
-        .dsp-pin.is-open .dsp-exp { animation: dsp-unfold .35s var(--dsp-ease); }
         .dsp-pin-dark .dsp-exp { border-top-color: color-mix(in srgb, var(--cream) 18%, transparent); }
 
         .dsp-expintro { font-size: 13.5px; line-height: 1.6; color: var(--text-body); margin: 0; max-width: 62ch; }
@@ -1335,7 +1372,7 @@ const closingWash = splitWash(closing.heading, closing.wash);
         }
         .dsp-replay:hover { background: var(--text-strong); color: var(--surface); }
 
-        /* The expanded rows' wide arrangements, gathered in one query. */
+        /* The expanded panels' wide arrangements, gathered in one query. */
         @media (min-width: 700px) {
             .dsp-marks { grid-template-columns: repeat(3, 1fr); }
             .dsp-jobs { grid-template-columns: repeat(2, 1fr); }
@@ -1446,8 +1483,9 @@ const closingWash = splitWash(closing.heading, closing.wash);
            the travel; the flip button's hover swell and the buttons' press dip
            are the same clamped category; the mirror's dip is not clamped but
            skipped, the script branching on the same query and flipping with no
-           fade at all; the expanded rows take the same route, the script
-           skipping the measured glide entirely so open and shut simply land;
+           fade at all; the expanded panels take the same route, the script
+           skipping the measured glide and the rise entirely so open and shut
+           simply land, and asking for an instant scroll to the podium;
            the motion stage's two one-shots clamp to their end states, which
            is the very law that stage exists to demonstrate; and the proofs
            scroll asks for 'instant' rather than letting html's smooth
@@ -1509,8 +1547,8 @@ const closingWash = splitWash(closing.heading, closing.wash);
         let viaProofs = false;
 
         // Assigned further down where the expansion is wired, called by the
-        // rail: a stop filter and a full-width open row answer different
-        // questions, so choosing a stop folds the row first.
+        // rail: a stop filter and an opened pin answer different questions,
+        // so choosing a stop shuts the panel first.
         let closeOpenPin: () => void = () => {};
 
         const bindRail = () => {
@@ -1622,13 +1660,15 @@ const closingWash = splitWash(closing.heading, closing.wash);
         const reducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const openPin = () => document.querySelector<HTMLElement>('.dsp-pin.is-open');
 
-        // Removing and re-adding the class only replays the animation if the
-        // styles are flushed in between, which is what the width read forces.
-        const playStage = (stage: HTMLElement) => {
-            stage.classList.remove('is-playing');
-            void stage.offsetWidth;
-            stage.classList.add('is-playing');
+        // Restarting an animation needs the styles flushed between the
+        // removal and the re-add, which is what reading the width forces.
+        const restart = (el: HTMLElement, name: string) => {
+            el.classList.remove(name);
+            void el.offsetWidth;
+            el.classList.add(name);
         };
+        const playStage = (stage: HTMLElement) => restart(stage, 'is-playing');
+        const rise = (pinEl: HTMLElement) => { if (!reducedMotion()) restart(pinEl, 'is-rising'); };
 
         const setOpen = (pinEl: HTMLElement, open: boolean) => {
             pinEl.classList.toggle('is-open', open);
@@ -1641,68 +1681,135 @@ const closingWash = splitWash(closing.heading, closing.wash);
             if (stage) playStage(stage);
         };
 
-        // The measured glide: record where every pin is, let the board
-        // reflow, then let each pin travel from its old place to its new one
-        // on its own transition. The opening pin gets a clip reveal on top of
-        // the travel, because its box grows from a column to the full row and
-        // a bare snap of that growth is the jump this rework exists to
-        // remove. Folding has no reveal to mirror: a box cannot paint beyond
-        // its shrunken edges, so the fold leans on the travel alone.
-        const morph = (toggled: HTMLElement, opening: boolean, mutate: () => void) => {
+        // A pin comes home in front of the first pin ordered after it. The
+        // board's own children are the register: whatever is still on the
+        // board is in the entry's order, so the first higher index is the
+        // pin this one belongs before.
+        const sendHome = (pinEl: HTMLElement) => {
             const board = document.getElementById('dsp-board');
-            if (!board || reducedMotion()) { mutate(); return; }
-            const els = [...board.querySelectorAll<HTMLElement>('.dsp-pin')];
-            const first = new Map(els.map((el) => [el, el.getBoundingClientRect()]));
+            if (!board) return;
+            const index = Number(pinEl.dataset.pinIndex);
+            const next = [...board.children].find(
+                (el) => Number((el as HTMLElement).dataset.pinIndex) > index
+            );
+            board.insertBefore(pinEl, next ?? null);
+        };
+
+        // The measured glide: record where every pin is, let the board
+        // repack, then let each pin travel from its old place to its new one
+        // on its own transition.
+        //
+        // Page coordinates rather than viewport ones, because the page
+        // itself moves during this: opening scrolls to the podium and
+        // closing corrects for the panel that folded away above. A viewport
+        // delta would fold that scrolling into every pin's travel and send
+        // the whole board sliding.
+        //
+        // `jumpers` are the pins changing places between the board and the
+        // podium. They are left out of the travel on purpose: a pin at the
+        // foot of the board would otherwise fly up through everything above
+        // it, which is exactly the trip the page is already making. They
+        // rise where they land instead, and the pins that stay put carry the
+        // continuity by closing the gap.
+        const glide = (mutate: () => void, jumpers: Set<HTMLElement>, settle?: () => void) => {
+            const els = [...document.querySelectorAll<HTMLElement>('.dsp-pin')];
+            if (reducedMotion()) { mutate(); settle?.(); return; }
+            const first = new Map(els.map((el) => {
+                const box = el.getBoundingClientRect();
+                return [el, {x: box.left + window.scrollX, y: box.top + window.scrollY}];
+            }));
             mutate();
+            settle?.();
             els.forEach((el) => {
                 const was = first.get(el);
-                if (!was) return;
-                const now = el.getBoundingClientRect();
-                const dx = was.left - now.left;
-                const dy = was.top - now.top;
-                const grew = el === toggled && opening;
-                if (!dx && !dy && !grew) return;
+                if (!was || jumpers.has(el)) return;
+                const box = el.getBoundingClientRect();
+                const dx = was.x - (box.left + window.scrollX);
+                const dy = was.y - (box.top + window.scrollY);
+                if (!dx && !dy) return;
                 el.style.transitionProperty = 'none';
-                if (dx || dy) el.style.transform = `translate(${dx}px, ${dy}px)`;
-                if (grew) {
-                    el.style.clipPath =
-                        `inset(0 ${Math.max(now.width - was.width, 0)}px ${Math.max(now.height - was.height, 0)}px 0)`;
-                }
+                el.style.transform = `translate(${dx}px, ${dy}px)`;
                 // Two frames: the first paints the inverted state, the second
                 // releases it so the pin's own transition carries it home.
                 requestAnimationFrame(() => requestAnimationFrame(() => {
                     el.style.transitionProperty = '';
                     el.style.transform = '';
-                    el.style.clipPath = '';
                 }));
             });
         };
 
-        const togglePin = (pinEl: HTMLElement) => {
-            const wasOpen = pinEl.classList.contains('is-open');
-            const current = openPin();
-            morph(pinEl, !wasOpen, () => {
-                // One row at a time: opening a pin folds whichever other pin
-                // held the row, inside the same measured pass, so the two
-                // moves read as one reflow instead of two.
-                if (current && current !== pinEl) setOpen(current, false);
-                setOpen(pinEl, !wasOpen);
+        const showPin = (pinEl: HTMLElement) => {
+            const podium = document.getElementById('dsp-podium');
+            if (!podium) return;
+            const leaving = openPin();
+            const hadCaret = pinEl.contains(document.activeElement);
+            // Both pins that change places are jumpers, so a swap reads as
+            // one repack rather than as two moves fighting each other.
+            const jumpers = new Set([pinEl]);
+            if (leaving && leaving !== pinEl) jumpers.add(leaving);
+            glide(() => {
+                if (leaving && leaving !== pinEl) { setOpen(leaving, false); sendHome(leaving); }
+                podium.appendChild(pinEl);
+                setOpen(pinEl, true);
+            }, jumpers);
+            jumpers.forEach(rise);
+            // Moving an element re-parents it, and the caret does not always
+            // survive the trip. Restored only if it was inside this pin to
+            // begin with, so a mouse click never drags focus about.
+            if (hadCaret) pinEl.querySelector<HTMLButtonElement>('.dsp-open')?.focus({preventScroll: true});
+            // The expand event is the disclosure_open signal's carrier now
+            // that the details elements are gone. Same item labels.
+            const label = pinEl.querySelector<HTMLElement>('.dsp-open')?.dataset.pinOpen || '';
+            document.dispatchEvent(new CustomEvent('pinboard:expand', {detail: {item: label}}));
+            // The page goes to the panel while the board settles behind it,
+            // so a pin opened from the foot of the board can never open out
+            // of sight. The podium carries the same clearance token every
+            // anchor target on the site reads.
+            podium.scrollIntoView({block: 'start', behavior: reducedMotion() ? 'instant' : 'smooth'});
+        };
+
+        const hidePin = () => {
+            const pinEl = openPin();
+            const board = document.getElementById('dsp-board');
+            if (!pinEl || !board) return;
+            const caret = document.activeElement;
+            const hadCaret = !!caret && pinEl.contains(caret);
+            // Whether the browser is drawing that caret, which is the honest
+            // test for "someone is working this by keyboard". It decides
+            // whether the page is allowed to follow the pin home: a keyboard
+            // reader must be able to see where focus went, and a reader who
+            // clicked a control with a mouse must not be carted off after it.
+            const byKeyboard = hadCaret && (caret as HTMLElement).matches(':focus-visible');
+            // Where the board sits on screen before the panel folds away.
+            const before = board.getBoundingClientRect().top;
+            glide(() => {
+                setOpen(pinEl, false);
+                sendHome(pinEl);
+            }, new Set([pinEl]), () => {
+                // The panel is above the board, so folding it pulls the whole
+                // board up by its height and the reader is suddenly looking
+                // at something else. Putting the board's own top back where
+                // it was leaves the view exactly as it was found: closing
+                // takes the panel away and moves nothing else. Instant on
+                // purpose, this is a correction rather than a journey.
+                const after = board.getBoundingClientRect().top;
+                if (after !== before) window.scrollBy({top: after - before, behavior: 'instant'});
             });
-            if (!wasOpen) {
-                // The expand event is the disclosure_open signal's carrier
-                // now that the details elements are gone. Same item labels.
-                const label = pinEl.querySelector<HTMLElement>('.dsp-open')?.dataset.pinOpen || '';
-                document.dispatchEvent(new CustomEvent('pinboard:expand', {detail: {item: label}}));
-                // Keep the opened row on screen once the reflow settles.
-                const behavior = reducedMotion() ? 'instant' as const : 'smooth' as const;
-                requestAnimationFrame(() => pinEl.scrollIntoView({block: 'nearest', behavior}));
+            rise(pinEl);
+            if (hadCaret) {
+                pinEl.querySelector<HTMLButtonElement>('.dsp-open')?.focus({preventScroll: true});
+                // 'nearest' asks for the least movement there is, so a pin
+                // that came home on screen is left exactly where it is.
+                if (byKeyboard) pinEl.scrollIntoView({block: 'nearest', behavior: reducedMotion() ? 'instant' : 'smooth'});
             }
         };
 
-        closeOpenPin = () => {
-            const current = openPin();
-            if (current) morph(current, false, () => setOpen(current, false));
+        const togglePin = (pinEl: HTMLElement) => {
+            if (pinEl.classList.contains('is-open')) hidePin();
+            else showPin(pinEl);
         };
+
+        closeOpenPin = hidePin;
 
         document.addEventListener('click', (event) => {
             if (!(event.target instanceof Element)) return;
@@ -1719,9 +1826,9 @@ const closingWash = splitWash(closing.heading, closing.wash);
                 return;
             }
             // The card itself is the invitation: a click anywhere on a pin
-            // that has a row to open, and is not on some other control, opens
-            // it. Shutting stays with the labelled control, Esc and the rail,
-            // so selecting text in an open row never slams it closed.
+            // that has a panel to open, and is not on some other control,
+            // opens it. Shutting stays with the labelled control, Esc and the
+            // rail, so selecting text in an open panel never slams it shut.
             const pinEl = event.target.closest<HTMLElement>('.dsp-pin');
             if (!pinEl || pinEl.classList.contains('is-open')) return;
             if (event.target.closest('a, button, details, summary')) return;
@@ -1729,14 +1836,11 @@ const closingWash = splitWash(closing.heading, closing.wash);
             togglePin(pinEl);
         });
 
+        // Escape shuts the panel. The caret is not chased here: hidePin
+        // already hands it back to the control that reopens the pin, and only
+        // follows it home when the browser says a keyboard is driving.
         document.addEventListener('keydown', (event) => {
-            if (event.key !== 'Escape') return;
-            const current = openPin();
-            if (!current) return;
-            closeOpenPin();
-            // The row is gone, so the keyboard is handed back to the control
-            // that would reopen it.
-            current.querySelector<HTMLButtonElement>('.dsp-open')?.focus();
+            if (event.key === 'Escape' && openPin()) hidePin();
         });
 
         // One listener for the page, fanning out to the sections. Each part
