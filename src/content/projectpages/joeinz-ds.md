@@ -28,7 +28,7 @@ mirror:
   ar:
     kicker: "خطّان، نظام واحد"
     heading: "فكرة واحدة، مكتوبة مرّتين."
-    body: "لا جهة هنا أصل ولا جهة ترجمة. اقلب البطاقة وسيتبع التصميم اتجاه القراءة."
+    body: "لا يُعدّ أيٌّ من الجانبين هو الأصل ولا أيٌّ منهما هو الترجمة. اقلب البطاقة وسيتكيف التصميم مع اتجاه القراءة."
 
 railCaption: "The story · tap to focus"
 railNote: "The dot follows the pin under your pointer. Choose a stop to focus its pins."
