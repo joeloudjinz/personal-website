@@ -118,13 +118,17 @@
 
 	--grain-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
-	/* Type */
-	--font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-	--font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-	/* Monospace is a stack, not a webfont: nothing here is downloaded, so a
-	   terminal capture and a config identifier cost no extra bytes. Shared so the
-	   code block and the reference tables cannot drift onto different mono faces. */
-	--font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+	/* Type — the foundation's role stacks, adopted verbatim. Harmattan sits in
+	   the display stack as its Arabic member; it is never downloaded here and
+	   never resolves, because the Latin faces carry no Arabic glyphs and this
+	   site has no Arabic content. Removing it would change a published stack. */
+	--font-display: 'Literata', 'Harmattan', Georgia, 'Times New Roman', serif;
+	--font-sans: 'Readex Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	/* Shared so the code block and the reference tables cannot drift onto
+	   different mono faces. */
+	--font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+	/* Ligatures off by default, per the foundation: != stays two glyphs. */
+	--mono-features: 'calt' 0, 'liga' 0;
 
 	/* The sticky header's own height. Measured off the built page rather than
 	   assumed: 18px of nav padding either side of the logo, plus the 1px
@@ -264,6 +268,7 @@
 	pre,
 	code {
 		font-size: 0.875rem;
+		font-feature-settings: var(--mono-features);
 	}
 }
 
@@ -362,6 +367,7 @@
 	   CodeBlock and DataTable read, and .theme-dark redefines the first. */
 	.code-token {
 		font-family: var(--font-mono);
+		font-feature-settings: var(--mono-features);
 		font-size: .92em;
 		color: var(--text-strong);
 		/* An identifier is one unbroken word with no break opportunity in it, and
