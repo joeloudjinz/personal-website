@@ -399,7 +399,12 @@
 
 	.btn-primary {
 		background: var(--accent);
-		color: var(--on-accent);
+		/* choc-ink, not --on-accent: the system's contrast card measures cream on
+		   caramel at 3.07 (AA-LARGE, marked legacy) and publishes choc-ink at
+		   4.59 as the small-text alternative. A 15px semibold label is small
+		   text. --accent does not flip between modes, so one value serves both.
+		   --on-accent is not wrong, it is simply for larger or bolder text. */
+		color: var(--choc-ink);
 	}
 
 	.btn-secondary {
@@ -480,7 +485,8 @@
 		font-weight: 600;
 		letter-spacing: .08em;
 		text-transform: uppercase;
-		color: var(--on-accent);
+		/* 11px is small text, so it takes the small-text ink, not --on-accent. */
+		color: var(--choc-ink);
 		background: var(--accent);
 		border-radius: 999px;
 		padding: 4px 12px;

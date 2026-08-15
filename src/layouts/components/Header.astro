@@ -384,6 +384,10 @@ const menuBreakpoint = hasSections ? 'xl:hidden' : 'md:hidden';
         :global(html:not(.theme-dark)) .toggle-seg-light,
         :global(html.theme-dark) .toggle-seg-dark {
             background: var(--accent);
+            /* This sets currentColor for a 15px SVG icon, not text, so the
+               non-text 3:1 threshold (WCAG 1.4.11) applies rather than 4.5:1.
+               3.07:1 clears that, so this keeps --on-accent while the text
+               consumers moved to the small-text ink. */
             color: var(--on-accent);
         }
 
