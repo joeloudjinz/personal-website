@@ -27,6 +27,23 @@
 	--hair-light: #E4D8BE;
 	--hair-dark: #333C58;
 
+	/* State ramps — the six-state system, per tokens/colors.css */
+	--sage-deep: #4F6B4C;
+	--sage-wash: #E8E2C9;      --sage-wash-dark: #2B3440;
+	--sage-edge: #748A6D;      --sage-edge-dark: #6E8572;
+	--ink-blue-wash: #E5DECB;  --ink-blue-wash-dark: #2C334A;
+	--ink-blue-edge: #7D8497;  --ink-blue-edge-dark: #747EA3;
+	--madder: #7A443A;         --madder-bright: #E0A5AF;
+	--madder-wash: #E9DDC6;    --madder-wash-dark: #343144;
+	--madder-edge: #A27C6D;    --madder-edge-dark: #997683;
+	--ochre: #7A6119;          --ochre-bright: #E4CA83;
+	--ochre-wash: #ECE2C7;     --ochre-wash-dark: #31333C;
+	--ochre-edge: #988246;     --ochre-edge-dark: #8A7E60;
+	--putty-wash: #E7DEC6;     --putty-line: #908171;
+	--putty-text: #9B8D7B;     --putty-fill: #E6DCC5;   --putty-hair: #B9AC99;
+	--slate-wash: #2F3341;     --slate-line: #827F78;
+	--slate-text: #586281;     --slate-fill: #252B42;   --slate-hair: #414965;
+
 	/* Semantic aliases — light mode (default) */
 	--surface: var(--cream);
 	--surface-soft: var(--cream-soft);
@@ -38,6 +55,33 @@
 	--accent-wash: var(--highlight-wash);
 	--positive: var(--sage);
 	--info: var(--ink-blue);
+	--positive-text: var(--sage-deep);
+	--on-positive: var(--cream-bright);
+	--positive-wash: var(--sage-wash);
+	--positive-edge: var(--sage-edge);
+	--info-text: var(--ink-blue);
+	--on-info: var(--cream-bright);
+	--info-wash: var(--ink-blue-wash);
+	--info-edge: var(--ink-blue-edge);
+	--negative: var(--madder);
+	--negative-text: var(--madder);
+	--on-negative: var(--cream-bright);
+	--negative-wash: var(--madder-wash);
+	--negative-edge: var(--madder-edge);
+	--caution: var(--ochre);
+	--caution-text: var(--ochre);
+	--on-caution: var(--cream-bright);
+	--caution-wash: var(--ochre-wash);
+	--caution-edge: var(--ochre-edge);
+	--neutral: var(--choc-soft);
+	--neutral-text: var(--choc-soft);
+	--on-neutral: var(--cream-bright);
+	--neutral-wash: var(--putty-wash);
+	--neutral-edge: var(--putty-line);
+	--inactive-fill: var(--putty-fill);
+	--inactive-text: var(--putty-text);
+	--inactive-edge: var(--putty-hair);
+	--focus-ring: var(--ink-blue);
 	--hairline: var(--hair-light);
 	--on-accent: var(--cream);
 
@@ -116,6 +160,33 @@
 	--accent-wash: var(--highlight-wash-dark);
 	--positive: var(--sage-bright);
 	--info: var(--ink-blue-bright);
+	--positive-text: var(--sage-bright);
+	--on-positive: var(--navy-deep);
+	--positive-wash: var(--sage-wash-dark);
+	--positive-edge: var(--sage-edge-dark);
+	--info-text: var(--ink-blue-bright);
+	--on-info: var(--navy-deep);
+	--info-wash: var(--ink-blue-wash-dark);
+	--info-edge: var(--ink-blue-edge-dark);
+	--negative: var(--madder-bright);
+	--negative-text: var(--madder-bright);
+	--on-negative: var(--navy-deep);
+	--negative-wash: var(--madder-wash-dark);
+	--negative-edge: var(--madder-edge-dark);
+	--caution: var(--ochre-bright);
+	--caution-text: var(--ochre-bright);
+	--on-caution: var(--navy-deep);
+	--caution-wash: var(--ochre-wash-dark);
+	--caution-edge: var(--ochre-edge-dark);
+	--neutral: var(--cream-muted);
+	--neutral-text: var(--cream-muted);
+	--on-neutral: var(--navy-deep);
+	--neutral-wash: var(--slate-wash);
+	--neutral-edge: var(--slate-line);
+	--inactive-fill: var(--slate-fill);
+	--inactive-text: var(--slate-text);
+	--inactive-edge: var(--slate-hair);
+	--focus-ring: var(--ink-blue-bright);
 	--hairline: var(--hair-dark);
 	--on-accent: var(--choc);
 	--page-grad-glow: var(--grad-dark-glow);
@@ -123,6 +194,24 @@
 	--page-grad-warm: var(--grad-dark-warm);
 	--grain-opacity: .06;
 	color-scheme: dark;
+}
+
+/* Low-vision preference. Published by the foundation: the most-read quiet roles
+   must not be the ones that ignore the setting. Values are the system's own. */
+@media (prefers-contrast: more) {
+	:root {
+		--text-muted: #55463A;
+		--neutral-text: #55463A;
+		--inactive-text: #847668;
+		--hairline: #908171;
+	}
+
+	.theme-dark {
+		--text-muted: #D9D0B8;
+		--neutral-text: #D9D0B8;
+		--inactive-text: #8C96B8;
+		--hairline: #747EA3;
+	}
 }
 
 @layer base {
