@@ -1004,31 +1004,69 @@ const meterPercent = (ratio: number) => Math.max(0, Math.min(100, ((ratio - 1) /
         .dsp-railnote { font-family: var(--dsp-font-mono); font-size: 11.5px; line-height: 1.6; color: var(--text-muted); }
 
         @media (min-width: 900px) {
-            .dsp-rail { top: calc(var(--nav-height) + 20px); }
+            .dsp-rail {
+                top: calc(var(--nav-height) + 20px);
+                /* One source for the spine's geometry, because the dot and the
+                   line between dots have to agree exactly and are drawn by two
+                   different rules. */
+                --dsp-dot-top: 13px;
+                --dsp-dot-size: 11px;
+                --dsp-spine-w: 3px;
+            }
             .dsp-railline {
                 border: 0;
-                border-left: 3px solid color-mix(in srgb, var(--accent) 35%, transparent);
                 border-radius: 0;
                 background: none;
-                padding: 0;
+                /* The 3px the spine used to occupy as a left border on this
+                   column, kept as padding now that the line is drawn stop by
+                   stop, so every dot stays exactly where it was. */
+                padding: 0 0 0 var(--dsp-spine-w);
             }
             .dsp-stop { padding: 9px 0 9px 20px; border-radius: 0; }
             .dsp-stop.is-on { background: none; }
             /* Preflight makes every box border-box, so the 11px here is the
                whole dot and the 3px band around it eats inward. That is what
-               puts the dot's centre on the spine at left: -7px. */
+               puts the dot's centre on the spine at left: -7px, which is half
+               the dot plus half the line.
+
+               z-index because the segment below starts at this dot's own
+               centre and ::after paints over ::before on the same element. The
+               dot has to sit on top of the line, not under it. */
             .dsp-stop::before {
                 content: "";
                 position: absolute;
+                z-index: 1;
                 left: -7px;
-                top: 13px;
-                width: 11px;
-                height: 11px;
+                top: var(--dsp-dot-top);
+                width: var(--dsp-dot-size);
+                height: var(--dsp-dot-size);
                 border-radius: 50%;
                 background: var(--surface);
                 border: 3px solid color-mix(in srgb, var(--accent) 45%, transparent);
                 transition: background-color var(--dsp-dur-state), border-color var(--dsp-dur-state), transform var(--dsp-dur-state);
             }
+            /* The spine, drawn one segment at a time: from this stop's own dot
+               down to the next stop's. Every stop is the same height and every
+               dot sits at the same offset inside it, so a segment that starts
+               at the dot's centre and runs the height of one stop lands exactly
+               on the next dot's centre, with no number here having to know what
+               that height is.
+
+               Two things fall out of drawing it this way rather than as a
+               border down the whole column: the first segment starts AT the
+               first dot instead of above it, and the last stop draws no segment
+               at all, so the line stops at the final dot instead of running on
+               past it. */
+            .dsp-stop::after {
+                content: "";
+                position: absolute;
+                left: calc(0px - var(--dsp-spine-w));
+                top: calc(var(--dsp-dot-top) + var(--dsp-dot-size) / 2);
+                width: var(--dsp-spine-w);
+                height: 100%;
+                background: color-mix(in srgb, var(--accent) 35%, transparent);
+            }
+            .dsp-stop:last-child::after { content: none; }
             .dsp-stop:hover::before { transform: scale(1.15); }
             .dsp-stop.is-on::before { background: var(--accent); border-color: var(--accent); }
         }
