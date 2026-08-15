@@ -224,6 +224,14 @@ const sentence = (cell: string | string[]) => (Array.isArray(cell) ? cell.join('
         margin-right: 7px;
     }
 
+    /* Raw caramel on navy measures 4.43:1, which is sub-AA at this mono size.
+       The dark-surface caramel is 5.58:1. The token stays raw caramel on
+       purpose, exactly as the system keeps it, so the lift belongs here at the
+       point of use rather than in the token. */
+    :global(html.theme-dark) .dt-token + .dt-token::before {
+        color: var(--caramel-bright);
+    }
+
     .dt-sentence {
         font-size: 14px;
         line-height: 1.55;

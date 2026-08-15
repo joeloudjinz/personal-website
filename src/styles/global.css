@@ -250,6 +250,17 @@
 		background: var(--accent-wash);
 	}
 
+	/* Code keeps its own selection tint, per the developer layer. */
+	pre::selection, pre ::selection,
+	code::selection, code ::selection {
+		background: #E3D3AE;
+	}
+
+	html.theme-dark pre::selection, html.theme-dark pre ::selection,
+	html.theme-dark code::selection, html.theme-dark code ::selection {
+		background: #443A2B;
+	}
+
 	pre,
 	code {
 		font-size: 0.875rem;
@@ -616,15 +627,28 @@
 
    Both modes are gated on the html class so the two rules carry equal
    specificity. Prose.astro sets a fence background globally at (0,1,1); an
-   ungated selector here would be (0,1,0) and lose to it in light mode only. */
+   ungated selector here would be (0,1,0) and lose to it in light mode only.
+
+   The background is set separately below, on the fence only — Shiki's own
+   --shiki-*-bg is not used for it. */
 html:not(.theme-dark) .astro-code,
 html:not(.theme-dark) .astro-code span {
 	color: var(--shiki-light);
-	background-color: var(--shiki-light-bg);
 }
 
 html.theme-dark .astro-code,
 html.theme-dark .astro-code span {
 	color: var(--shiki-dark);
-	background-color: var(--shiki-dark-bg);
+}
+
+/* The fence sits on the system's own code background rather than the one baked
+   into the syntax theme, which is plain white and reads as a hole punched in
+   the page. Only the fence itself, never the token spans: they carry no
+   background of their own and must not gain one. */
+html:not(.theme-dark) .astro-code {
+	background-color: var(--cream-deep);
+}
+
+html.theme-dark .astro-code {
+	background-color: var(--navy-deep);
 }
