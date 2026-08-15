@@ -9,7 +9,7 @@
  */
 
 /**
- * A band's own H2: Fraunces 44, one step down before there is room for it.
+ * A band's own H2: Literata 44, one step down before there is room for it.
  *
  * Two files draw it. The five split bands go through BandHeader; the full-width
  * ones — the deep dive, the gallery, the assurance cards, and the configuration

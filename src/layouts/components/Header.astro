@@ -40,10 +40,15 @@ const hasSections = isSubdomain && sections.length > 0;
 // 279.9px. The short label is load-bearing, not a nicety.
 //
 // That leaves the name ~130px at 375px, and the schema allows 12 characters.
-// At Fraunces 22 a 12-character name wants ~147px and truncates, so the name
-// drops to 18px below md, where 12 characters need ~121px and fit. Only
-// pathological all-cap-W/M strings still overflow (~183px), which no product
-// name is. At md the padding doubles to 48px and 22px is comfortable again.
+// The widths that decided the 22px/18px split were measured against Fraunces,
+// which this site has since retired for Literata: at Fraunces 22 a 12-character
+// name wanted ~147px and truncated, so the name drops to 18px below md, where
+// 12 characters wanted ~121px and fit, and only pathological all-cap-W/M
+// strings still overflowed (~183px), which no product name is. Those three
+// figures have NOT been re-measured against Literata and should not be read as
+// its widths; the size split they justify still ships and wants re-checking in
+// the new face. At md the padding doubles to 48px and 22px is comfortable
+// again.
 //
 // WHERE THE SECTION ROW FOLDS, which is xl and not the md the main site's own
 // nav appears at. Measured on the built page, in the nav's content box:
@@ -79,8 +84,11 @@ const hasSections = isSubdomain && sections.length > 0;
 // borrows back from the gutter — with the name whole and nothing to spare.
 //
 // What that does NOT buy is room for a LONG name, and nothing on this line can.
-// At 375 the name has 106px, which is about ten characters of Fraunces 18
-// against the twelve the schema allows. It ellipsises rather than overflowing,
+// At 375 the name has 106px against the twelve characters the schema allows.
+// The 106px is a layout fact and holds whatever the name is set in; the old
+// note converted it to about ten characters of Fraunces 18, and that conversion
+// has not been redone for Literata, so treat the count as unbacked until it is.
+// Either way the room is short of twelve. It ellipsises rather than overflowing,
 // and the page's own title says the name in full one tap away, so this is the
 // price of a project asking for a section nav rather than a defect to design
 // around.
