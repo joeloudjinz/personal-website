@@ -19,6 +19,8 @@ No test framework is configured — `npm run check:build` is the primary validat
 
 - Day-to-day work happens on the `dev` branch; changes reach `main` via pull requests.
 - No CI/CD is configured. Deploys are manual (`firebase deploy` after `npm run build`) and often run directly from `dev`, so the live site can be ahead of `main`. Firebase Hosting serves `dist/`; project ID: `personal-website-50382`.
+- **The main site and the project subdomains deploy separately.** Firebase serves `abdellahaddoun.com`; each project page is its own Cloudflare Pages project behind a Porkbun CNAME, converged by `npm run subdomain:* <target>` (`scripts/subdomain/`). Run those from the main checkout, never a worktree — the `checkout` phase blocks it, because a worktree carries a different branch and its own `.env`. Runbook: `docs/subdomain-deploys.md`.
+- A new project page needs both halves: a target in `scripts/subdomain/targets.mjs`, and a `/<slug>{,/**}` redirect in `firebase.json` that only takes effect on the next main-site deploy.
 
 ## Architecture
 
