@@ -13,6 +13,7 @@ masthead:
   kicker: "Joe Inz · design system"
   heading: "A brand from a tucked‑away doodle."
   wash: "doodle."
+  sub: "A design system is the set of rules that keeps everything I make looking like one thing. This one works in two languages, and every rule on this board can be checked."
   facts: [ "v1.1.0", "two scripts", "one accent", "audited" ]
   lightSwitch:
     toDark: "Turn the lights off"
@@ -114,6 +115,7 @@ pins:
     label: "04 · the real name"
     name: "عبد اللّه عدّون"
     body: "خطّ عربي بقواعده الكاملة، لا طبقة ترجمة. أحجام أكبر، تباعد أسطر أكبر، ولا تباعد بين الحروف أبدًا."
+    note: "My name, set in Arabic by its own rules rather than translated into someone else's."
     expansion:
       label: "See the four laws"
       intro: "أربعة قوانين تجعل العربية خطًّا أصيلًا في النظام، لا طبقة ترجمة فوقه."

@@ -908,8 +908,14 @@ const projectPages = defineCollection({
         expansion: quoteExpansion.optional()
       }),
       // Named for the role, not the script: a real name typeset in its own.
+      // `note` is the one English string on this pin and it earns its place:
+      // every specimen here stays Arabic, which is the entire argument, but a
+      // card whose title, body and opening control are all Arabic leaves an
+      // English reader unable to name its subject or read the button. A
+      // signpost describes, it does not translate, so the stance survives it.
       z.object({
         kind: z.literal('nameplate'), ...pinBase, name: z.string(), body: z.string().max(220),
+        note: z.string().max(120),
         expansion: nameplateExpansion.optional()
       }),
       z.object({
@@ -955,6 +961,11 @@ const projectPages = defineCollection({
         kicker,
         // One line beside the light switch, so tighter than the band hero's 80.
         heading: z.string().max(60),
+        // The plain answer to "what am I looking at". Required, because the
+        // rest of the page describes a design system to people who already
+        // know what one is, and a visitor who does not is otherwise left with
+        // the origin story and nothing else.
+        sub: z.string().max(220),
         // Same wash validator as the band hero: the pinboard masthead clamps to
         // the same 30px floor, so washFits applies unchanged.
         wash,

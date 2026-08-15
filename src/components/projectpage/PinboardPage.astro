@@ -109,6 +109,11 @@ const meterPercent = (ratio: number) => Math.max(0, Math.min(100, ((ratio - 1) /
                             ? <>{mastheadWash.before}<span class='marker-wash whitespace-nowrap'>{mastheadWash.washed}</span>{mastheadWash.after}</>
                             : masthead.heading}
                     </h1>
+                    {/* The plain answer to "what am I looking at", placed
+                        before anything else on the page. Everything below it
+                        describes a design system to someone who already knows
+                        what one is. */}
+                    <p class='dsp-sub'>{masthead.sub}</p>
                 </div>
                 <div class='flex flex-col items-end gap-3 pb-[10px]'>
                     {/* A second control on the site's ONE theme mechanism, not a
@@ -264,14 +269,12 @@ const meterPercent = (ratio: number) => Math.max(0, Math.min(100, ((ratio - 1) /
                              data-pin-stop={pin.stop} data-pin-index={index}
                              tabindex='0' aria-labelledby={`dsp-pin-${index}`}>
                         <span class='dsp-pindot absolute' aria-hidden='true'></span>
-                        {/* The Arabic pin labels itself in Arabic, so the label
-                            carries its own script and its own direction. Every
-                            other pin's label is left alone rather than marked
-                            'en': the page is already in English. */}
-                        <span class:list={['dsp-lbl', 'block', 'mb-3', {'dsp-lbl-ar': pin.kind === 'nameplate'}]}
-                              id={`dsp-pin-${index}`}
-                              dir={pin.kind === 'nameplate' ? 'rtl' : undefined}
-                              lang={pin.kind === 'nameplate' ? 'ar' : undefined}>{pin.label}</span>
+                        {/* Every label is English, including the Arabic pin's.
+                            The specimens on that pin stay Arabic, which is the
+                            argument it is making, but its label is a signpost
+                            rather than a specimen and a signpost nobody can
+                            read is not one. */}
+                        <span class='dsp-lbl block mb-3' id={`dsp-pin-${index}`}>{pin.label}</span>
 
                         {pin.kind === 'origin' && (
                             <div class='text-center'>
@@ -313,10 +316,18 @@ const meterPercent = (ratio: number) => Math.max(0, Math.min(100, ((ratio - 1) /
                             <p class:list={['dsp-quote', {'dsp-quote-sharp': pin.register === 'sharp'}]}>“{pin.text}”</p>
                         )}
                         {pin.kind === 'nameplate' && (
-                            <div dir='rtl' lang='ar' class='text-right'>
-                                <p class='dsp-arname'>{pin.name}</p>
-                                <p class='dsp-arbody mt-1.5'>{pin.body}</p>
-                            </div>
+                            <>
+                                <div dir='rtl' lang='ar' class='text-right'>
+                                    <p class='dsp-arname'>{pin.name}</p>
+                                    <p class='dsp-arbody mt-1.5'>{pin.body}</p>
+                                </div>
+                                {/* The one English line on this pin. It names
+                                    the subject so a reader who cannot read the
+                                    specimen can still choose to open it, and
+                                    it describes rather than translates, so
+                                    nothing above becomes a translation of it. */}
+                                <p class='dsp-anno mt-3'>{pin.note}</p>
+                            </>
                         )}
                         {pin.kind === 'faces' && (
                             <>
@@ -371,9 +382,7 @@ const meterPercent = (ratio: number) => Math.max(0, Math.min(100, ((ratio - 1) /
                         {pin.expansion && (
                             <button class='dsp-open mt-3.5 inline-flex items-center gap-1.5' type='button'
                                     aria-expanded='false' aria-controls={`dsp-exp-${index}`}
-                                    data-pin-open={pin.label}
-                                    dir={pin.kind === 'nameplate' ? 'rtl' : undefined}
-                                    lang={pin.kind === 'nameplate' ? 'ar' : undefined}>
+                                    data-pin-open={pin.label}>
                                 <span class='dsp-chev' aria-hidden='true'>›</span> {pin.expansion.label}
                             </button>
                         )}
@@ -817,6 +826,16 @@ const meterPercent = (ratio: number) => Math.max(0, Math.min(100, ((ratio - 1) /
             font-size: clamp(30px, 8.5vw, 84px);
             max-width: 12ch;
         }
+        /* Sits under the display heading and above everything else. Measured
+           rather than sized to match the heading: this is the one paragraph on
+           the page that a visitor who knows nothing has to read, so it takes
+           the body register and a comfortable line, not the display voice. The
+           max-width is wider than the heading's 12ch cap because a sentence
+           wants a reading measure, not a headline one. */
+        .dsp-sub {
+            margin: 18px 0 0; max-width: 52ch;
+            font-size: 15px; line-height: 1.65; color: var(--text-body);
+        }
         .dsp-facts { font-family: var(--dsp-font-mono); font-size: 11px; line-height: 1.8; }
         /* One page, one theme control. The pill below is this page's own voice
            for the question, and the header's segmented control says the same
@@ -1210,16 +1229,15 @@ const meterPercent = (ratio: number) => Math.max(0, Math.min(100, ((ratio - 1) /
            the light-mode accent ink is a dark caramel. Both are restated. */
         .dsp-pin-dark .dsp-open { color: var(--caramel-bright); }
         .dsp-pin-dark .dsp-open:hover { color: var(--cream); }
-        .dsp-open[dir='rtl'] { font-family: var(--dsp-font-ar); font-size: 15px; }
-        /* U+203A is a bidi-mirrored character, so the browser has already
-           flipped the closed glyph to point leftward inside dir='rtl'. Nothing
-           here has to turn it, and a rule that did would undo the browser's own
-           correction. Only the open state needs a direction-aware sign: turning
-           a rightward mark a quarter clockwise points it down, and turning a
-           leftward one the same way points it up. */
+        /* Every opening control is English now, including the Arabic pin's, so
+           the direction-aware chevron rules this page used to carry are gone.
+           Worth keeping the reason on record in case a control is ever set in
+           Arabic again: U+203A is bidi-mirrored, so a browser flips the closed
+           glyph by itself inside dir='rtl' and must not be turned again, while
+           the open state does need its own sign, because a quarter turn
+           clockwise points a rightward mark down and a leftward one up. */
         .dsp-chev { display: inline-block; font-size: 11px; transition: transform var(--dsp-dur-state); }
         .dsp-open[aria-expanded='true'] .dsp-chev { transform: rotate(90deg); }
-        .dsp-open[dir='rtl'][aria-expanded='true'] .dsp-chev { transform: rotate(-90deg); }
         @keyframes dsp-unfold { from { opacity: 0; transform: translateY(-4px); } }
 
         /* ---- The expanded panels ---- */
