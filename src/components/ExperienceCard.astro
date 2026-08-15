@@ -28,12 +28,12 @@ const startYear = startDate.slice(0, 4);
             <span class='cue-back'>Before that</span><span class='cue-forward'>Then</span>
         </p>
         <div class='flex items-center gap-3 flex-wrap mb-3'>
-            <h3 class='font-display text-[27px] font-semibold text-strong leading-tight'>{roleName}</h3>
+            <h3 class='font-display text-[25px] font-semibold text-strong leading-tight'>{roleName}</h3>
             {current && <span class='badge-accent'>Current</span>}
             <span class='badge-outline'>{workTypeLabel}</span>
         </div>
 
-        <p class='text-sm text-muted mb-6'>
+        <p class='text-[15px] text-muted mb-6'>
             {companyName && (companyUrl
                 ? <a href={companyUrl} target='_blank' class='text-info font-semibold'>{companyName}</a>
                 : <span class='text-info font-semibold'>{companyName}</span>)}
@@ -41,10 +41,10 @@ const startYear = startDate.slice(0, 4);
         </p>
 
         <div id={`story-${experience.id}`}
-             class:list={['story text-[15.5px] leading-[1.65] text-body', !current && 'collapsed']}>
+             class:list={['story text-[15px] leading-[1.65] text-body', !current && 'collapsed']}>
             <Content/>
         </div>
-        <button class='story-toggle text-sm font-semibold text-info mt-4'
+        <button class='story-toggle text-[15px] font-semibold text-info mt-4'
                 aria-expanded={current ? 'true' : 'false'}
                 aria-controls={`story-${experience.id}`}>
             {current ? 'Show less ↑' : 'Read the story ↓'}

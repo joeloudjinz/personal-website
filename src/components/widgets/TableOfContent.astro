@@ -16,7 +16,7 @@ const toc = headings.filter((heading) => heading.depth === 2);
 			{toc.map((heading) => (
 				<li>
 					<a href={'#' + heading.slug}
-					   class='toc-link block text-sm text-muted rounded-[9px] px-3 py-2 transition-colors duration-200 hover:text-strong'>
+					   class='toc-link block text-[15px] text-muted rounded-[9px] px-3 py-2 transition-colors duration-200 hover:text-strong'>
 						{heading.text}
 					</a>
 				</li>

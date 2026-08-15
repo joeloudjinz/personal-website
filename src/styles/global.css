@@ -335,13 +335,13 @@
 		color: var(--accent);
 	}
 
-	/* The value half of a labelled row: 15.5px on a 1.65 leading, in body ink.
+	/* The value half of a labelled row: 15px on a 1.65 leading, in body ink.
 	   Here rather than scoped inside DefinitionRows for the reason .micro-label
 	   is here — a second place draws it. A project page's configuration band ends
 	   in a note that is a row's value in everything but its label, and it had a
 	   byte-identical copy of these three declarations written inline. */
 	.def-value {
-		font-size: 15.5px;
+		font-size: 15px;
 		line-height: 1.65;
 		color: var(--text-body);
 	}
@@ -445,7 +445,7 @@
 	/* Tag chip */
 	.chip {
 		display: inline-block;
-		font-size: 12px;
+		font-size: 13px;
 		font-weight: 500;
 		padding: 4px 10px;
 		border-radius: 9px;
