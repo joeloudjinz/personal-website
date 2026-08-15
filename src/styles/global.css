@@ -96,6 +96,12 @@
 	--dur-base: 220ms;
 	--dur-slow: 420ms;
 
+	/* Feedback durations, deliberately separate from --dur-* so the
+	   reduced-motion block can zero choreography without killing them.
+	   The foundation's law: choreography goes, feedback stays. */
+	--dur-feedback: 220ms;
+	--dur-feedback-fast: 120ms;
+
 	/* Gradients */
 	--grad-dark-subtle: linear-gradient(176deg, #212a48, #161c30 55%, #141a2c);
 	--grad-dark-glow: radial-gradient(135% 105% at 12% 8%, #2b3560, #1a2038 44%, #12172a);
@@ -388,8 +394,8 @@
 		font-size: 15px;
 		font-weight: 600;
 		padding: 12px 24px;
-		transition: filter var(--dur-base) var(--ease-standard),
-			background-color var(--dur-base) var(--ease-standard),
+		transition: filter var(--dur-feedback) var(--ease-standard),
+			background-color var(--dur-feedback) var(--ease-standard),
 			transform var(--dur-fast) var(--ease-standard);
 		cursor: pointer;
 	}
@@ -429,7 +435,7 @@
 		border: 1px solid var(--hairline);
 		background: var(--surface-soft);
 		color: var(--text-muted);
-		transition: filter var(--dur-base) var(--ease-standard);
+		transition: filter var(--dur-feedback) var(--ease-standard);
 	}
 
 	.chip:hover { filter: brightness(.95); }
@@ -440,7 +446,7 @@
 		border: 1px solid var(--hairline);
 		border-radius: 14px;
 		box-shadow: var(--shadow-soft);
-		transition: box-shadow var(--dur-base) var(--ease-standard), filter var(--dur-base) var(--ease-standard);
+		transition: box-shadow var(--dur-feedback) var(--ease-standard), filter var(--dur-feedback) var(--ease-standard);
 	}
 
 	.cardx-hover:hover {
@@ -508,7 +514,7 @@
 	.badge-pulse { animation: badge-pulse 3s var(--ease-standard) infinite; }
 
 	/* Arrow links: nudge the arrow on hover */
-	.arrow-link { color: var(--info); font-weight: 600; transition: color var(--dur-base) var(--ease-standard); }
+	.arrow-link { color: var(--info); font-weight: 600; transition: color var(--dur-feedback) var(--ease-standard); }
 	.arrow-link .arrow { display: inline-block; transition: transform var(--dur-base) var(--ease-standard); }
 	.arrow-link:hover { color: var(--accent); }
 	.arrow-link:hover .arrow { transform: translateX(2px); }
@@ -584,10 +590,16 @@
 	.reveal { opacity: 1; transform: none; }
 	.reveal.is-visible { transition: none; }
 
+	/* Choreography goes, feedback stays — the foundation's motion law.
+	   Restricting transition-property is what does the work: a transform-bearing
+	   transition simply stops being a transition, while colour, background and
+	   the brightness effect keep their normal duration. Hover, focus and
+	   selection must not go dead: 120-220ms of colour change is not vestibular,
+	   and removing it makes the interface feel broken rather than calm. */
 	*,
 	*::before,
 	*::after {
-		transition-duration: 1ms !important;
+		transition-property: color, background-color, border-color, filter, box-shadow, opacity !important;
 		animation-duration: 1ms !important;
 	}
 }
