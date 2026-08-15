@@ -21,12 +21,12 @@ masthead:
 mirror:
   flipLabel: "عربي"
   en:
-    kicker: "Two scripts, one voice"
-    heading: "You're not behind. You're paying attention."
+    kicker: "Two scripts, one system"
+    heading: "One idea, written twice."
     body: "Neither side is the original and neither side is the translation. Flip the card and the layout follows the reading direction."
   ar:
-    kicker: "خطّان، صوت واحد"
-    heading: "أنت لست متأخرًا. أنت منتبه."
+    kicker: "خطّان، نظام واحد"
+    heading: "فكرة واحدة، مكتوبة مرّتين."
     body: "لا جهة هنا أصل ولا جهة ترجمة. اقلب البطاقة وسيتبع التصميم اتجاه القراءة."
 
 railCaption: "The story · tap to focus"
@@ -35,8 +35,8 @@ allLabel: "All pins"
 stops:
   - { id: "origin", label: "01 · The doodle" }
   - { id: "palette", label: "02 · The palette" }
-  - { id: "type", label: "03 · The voices" }
-  - { id: "second-script", label: "04 · The second script" }
+  - { id: "type", label: "03 · The type" }
+  - { id: "second-script", label: "04 · Arabic" }
   - { id: "charts", label: "05 · The charts" }
   - { id: "proof", label: "06 · The proof" }
 
@@ -50,13 +50,13 @@ pins:
       label: "Meet the marks"
       intro: "One drawing became a family. Each mark has one job, and none of them may be redrawn, mirrored or re-lettered."
       marks:
-        - { mark: "bubble", title: "The bubble", job: "The drawn original. It signs covers and profiles, and it never holds typeset text." }
-        - { mark: "monogram", title: "The AA dot", job: "Drawn, not typeset. Below a 48px box it stands in for everything else, and its own floor is 24px." }
-        - { mark: "wordmark", title: "The Arabic wordmark", job: "The name in Harmattan 700, kept as drawn paths. Both shaddas are spelling, not decoration." }
+        - { mark: "bubble", title: "The bubble", job: "The drawn original. It signs covers and profiles, and it never holds text that was typed." }
+        - { mark: "monogram", title: "The AA dot", job: "Drawn, not typed. When there is no room for the bubble it stands in for everything else, and it is never used smaller than 24 pixels." }
+        - { mark: "wordmark", title: "The Arabic wordmark", job: "The name drawn in Harmattan, kept as shapes rather than live text. The two small marks in it are spelling, not decoration." }
       laws:
-        - "Never mirrored, even in right to left layouts."
-        - "Never re-lettered, and never recoloured outside the two ink schemes."
-        - "Below 48px the dot replaces the bubble and both wordmarks."
+        - "Never mirrored, not even in right to left layouts."
+        - "Never redrawn, and only two ink pairings are allowed: dark on light, and light on dark."
+        - "Once the space is smaller than a thumbnail, the dot replaces the bubble and both wordmarks."
   - kind: "swatches"
     stop: "palette"
     label: "02 · the palette"
@@ -69,10 +69,10 @@ pins:
     expansion:
       demo: "budget"
       label: "Spend the budget"
-      intro: "Caramel appears in exactly five jobs, spent like money. If it turns up anywhere else, some other use has to give its slot back."
+      intro: "Caramel appears in exactly five jobs, spent like money. If it turns up anywhere else, some other use has to give its slot back. The state colours and the chart colours are separate sets with their own jobs."
       jobs:
-        - { job: "kicker", caption: "The kicker tick that announces a section", sample: "The palette" }
-        - { job: "wash", caption: "One marker highlight per view, never two", sample: "one accent" }
+        - { job: "kicker", caption: "The small dash that marks the start of a section", sample: "The palette" }
+        - { job: "wash", caption: "One marker highlight per screen, never two", sample: "one accent" }
         - { job: "action", caption: "The primary action, filled", sample: "Save changes" }
         - { job: "focus", caption: "The focus halo around the active field", sample: "Your name" }
         - { job: "selection", caption: "Selected text, tinted rather than painted", sample: "select this line" }
@@ -83,11 +83,11 @@ pins:
     stop: "type"
     label: "03 · the scale"
     value: "7"
-    caption: "Sizes in the ladder, one density knob, and every step ships its Arabic size beside it."
+    caption: "Sizes, one setting that resizes them all together, and an Arabic size for every step."
     expansion:
       demo: "ladder"
       label: "Climb the ladder"
-      intro: "Seven roles from one ratio, close to a major third. A surface resizes the whole ladder with one factor and never touches a single step."
+      intro: "Seven roles, each about a quarter larger than the one below. Any surface that uses the system, a page or a screen or a slide, resizes the whole ladder with one number and never touches a single step."
       sample: "Joe Inz"
       arSample: "جو إنز"
       rows:
@@ -98,24 +98,24 @@ pins:
         - { role: "body", px: 16, arPx: 16 }
         - { role: "caption", px: 13, arPx: 13 }
         - { role: "label", px: 11, arPx: 13 }
-      denseNote: "Dense surfaces set one multiplier, 0.9375, and every step follows. Nothing is ever resized by hand."
+      denseNote: "A tightly packed screen sets one number, 0.9375, and every step follows it down together. Nothing is ever resized by hand."
       arNote: "Arabic reads smaller at equal size, so every step ships a pre-computed Arabic size. The one exception: the label never drops to 11px. Weight 700 carries it at 13px."
   - kind: "quote"
     stop: "type"
     register: "sharp"
-    label: "field note · sharp register"
+    label: "in my sharp tone"
     text: "Senior is a behaviour, not a title."
     expansion:
       label: "Hear it in Arabic"
       sibling: "الأقدمية سلوك، لا لقب."
-      note: "The sharp register keeps its voice across scripts. Readex Pro carries both, upright and front-loaded, so the two sentences read as one speaker."
+      note: "The system calls a tone a register, and it has two. Sharp is the declarative one, and it is set in Readex Pro, which carries both scripts so one speaker sounds like one speaker."
   - kind: "nameplate"
     stop: "second-script"
-    label: "04 · الاسم الحقيقي"
+    label: "04 · the real name"
     name: "عبد اللّه عدّون"
     body: "خطّ عربي بقواعده الكاملة، لا طبقة ترجمة. أحجام أكبر، تباعد أسطر أكبر، ولا تباعد بين الحروف أبدًا."
     expansion:
-      label: "قوانين الخطّ"
+      label: "See the four laws"
       intro: "أربعة قوانين تجعل العربية خطًّا أصيلًا في النظام، لا طبقة ترجمة فوقه."
       specimens:
         - { law: "harmattan", caption: "هارمتان للدفء، وهو الوجه الافتراضي", sample: "عبد اللّه عدّون" }
@@ -124,26 +124,26 @@ pins:
         - { law: "quotes", caption: "الاقتباس بعلامتيه المزدوجتين، لا بغيرهما", sample: "«خطّان، صوت واحد»" }
   - kind: "faces"
     stop: "type"
-    label: "03 · the voices"
-    note: "Five faces with defined jobs. A serif that speaks, a sans that works, a mono that computes."
+    label: "03 · the type"
+    note: "Five typefaces, each with one job. One that speaks, one that works, one that computes, and two that carry Arabic."
     expansion:
       label: "Meet the five"
-      intro: "Every face has one job and a script it answers for. Nothing fakes a weight or a slant, and nothing stands in for another."
+      intro: "Every typeface has one job and a script it answers for. None of them is ever faked into a weight or a slant it does not have, and none stands in for another."
       rows:
-        - { face: "literata", name: "Literata", job: "The display serif. It speaks, on covers and headings." }
-        - { face: "readex", name: "Readex Pro", job: "The working sans. One family carries both scripts in the interface." }
-        - { face: "harmattan", name: "Harmattan", job: "Arabic display in the warm register, the system default." }
-        - { face: "amiri", name: "Amiri", job: "Arabic in the formal register. Quotation and literature, at 400 and 700 only." }
-        - { face: "mono", name: "JetBrains Mono", job: "The machine voice. Code, logs and the terminal, ligatures off." }
+        - { face: "literata", name: "Literata", job: "The serif that speaks. Covers, headings, and the warm tone." }
+        - { face: "readex", name: "Readex Pro", job: "The one that works. A single family carries both scripts through the interface." }
+        - { face: "harmattan", name: "Harmattan", job: "Arabic for headings in the warm tone, and the everyday default." }
+        - { face: "amiri", name: "Amiri", job: "Arabic for quotation and formal writing, in its only two weights." }
+        - { face: "mono", name: "JetBrains Mono", job: "The machine one. Code, logs and the terminal, with its joined-up characters switched off." }
   - kind: "quote"
     stop: "type"
     register: "warm"
-    label: "field note · warm register"
+    label: "in my warm tone"
     text: "Confident about ideas, humble about myself."
     expansion:
       label: "Hear it in Arabic"
       sibling: "واثق بالأفكار، متواضع بالنفس."
-      note: "The warm register speaks Harmattan in Arabic, the same voice the serif carries in English. Larger at the same step, and never letter-spaced."
+      note: "Warm is the reassuring tone, set in Literata in English and Harmattan in Arabic. Arabic runs larger at the same step, and it is never letter-spaced."
   - kind: "terminal"
     stop: "proof"
     label: "06 · the console voice"
@@ -159,7 +159,7 @@ pins:
         - { mark: "add", text: "--type-scale: 1;" }
         - { mark: "drop", text: "--type-scale: .9375;" }
         - { mark: "change", text: "font-feature-settings: 'liga' 0;" }
-      diffNote: "The band locates the line. The mark in the gutter carries the meaning, because colour never encodes alone."
+      diffNote: "The tinted band tells you which line changed. The plus or minus at the start of it tells you what happened, because colour never carries a meaning alone."
       logTitle: "the log"
       logs:
         - { level: "trace", text: "cache lookup, 2 hits" }
@@ -169,8 +169,8 @@ pins:
         - { level: "error", text: "upload rejected, file too large" }
         - { level: "fatal", text: "out of memory" }
       logNote: "Trace is the quietest and fatal is the only filled band, so a long run reads as a hierarchy instead of a wall."
-      ansiTitle: "the sixteen"
-      ansiNote: "One canonical mapping for every emulator and prompt. In the light scheme, bright means more ink, not more light, so nothing drops below the contrast floor."
+      ansiTitle: "the sixteen terminal colours"
+      ansiNote: "One fixed set, so every terminal and prompt shows the same sixteen. On a light background, bright means more ink rather than more light, so nothing drops below the contrast floor."
   - kind: "states"
     stop: "palette"
     label: "02 · the states"
@@ -179,17 +179,17 @@ pins:
       - { glyph: "i", name: "info", tone: "info" }
       - { glyph: "✕", name: "negative", tone: "negative" }
       - { glyph: "!", name: "caution", tone: "caution" }
-    note: "Colour never works alone. Every state has a glyph partner."
+    note: "Colour never works alone. Every state carries a symbol as well, so nobody has to see the colour to get the message."
     expansion:
       label: "All six states"
       intro: "Four of them speak, one stays neutral, and one is allowed to whisper."
       items:
-        - { glyph: "✓", name: "positive", tone: "positive", caption: "Good news. Sage ink on its own wash." }
-        - { glyph: "i", name: "info", tone: "info", caption: "Guidance. An ink blue derived from the navy." }
-        - { glyph: "✕", name: "negative", tone: "negative", caption: "Madder, a book-cloth brick. Never alarm red." }
-        - { glyph: "!", name: "caution", tone: "caution", caption: "Dry ochre, darker and greener than caramel on purpose." }
-        - { glyph: "·", name: "neutral", tone: "neutral", caption: "No verdict. The putty chip that carries plain facts." }
-        - { glyph: "–", name: "inactive", tone: "inactive", caption: "Deliberately below the contrast bar. Disabled controls only." }
+        - { glyph: "✓", name: "positive", tone: "positive", caption: "Good news. A soft green called sage, on its own tint." }
+        - { glyph: "i", name: "info", tone: "info", caption: "Guidance. A blue drawn out of the brand's navy." }
+        - { glyph: "✕", name: "negative", tone: "negative", caption: "Bad news. A brick red called madder, never an alarm red." }
+        - { glyph: "!", name: "caution", tone: "caution", caption: "A warning. A dry gold called ochre, kept darker than caramel on purpose." }
+        - { glyph: "·", name: "neutral", tone: "neutral", caption: "No verdict. A soft grey-brown called putty, for plain facts." }
+        - { glyph: "–", name: "inactive", tone: "inactive", caption: "Deliberately faint, and the one thing here allowed to be. Switched-off controls only." }
   - kind: "swatches"
     stop: "charts"
     label: "05 · the chart colours"
@@ -201,14 +201,14 @@ pins:
       - { hex: "#5E7A5B", name: "sage", ink: "light" }
       - { hex: "#7A6119", name: "ochre", ink: "light" }
       - { hex: "#7A443A", name: "madder", ink: "light" }
-    note: "Ordered, not semantic. The first three survive colour blindness on their own."
+    note: "A running order, not a set of meanings. The first three stay apart for colour-blind readers with no extra help."
     expansion:
       demo: "chart"
       label: "Chart the palette"
-      intro: "Ordered for reading, not for decoration. Past three series every line carries a shape or a dash as well, so colour never encodes alone."
-      chartNote: "Seven series in their published order, labelled directly. A legend is a lookup the reader should not need."
-      seqLabel: "magnitude, one hue"
-      divLabel: "diverging, madder to sage"
+      intro: "Ordered for reading, not for decoration. Past the first three, every line carries a shape or a dash as well, so colour never carries a meaning alone."
+      chartNote: "Seven lines in their fixed order, each labelled where it sits. A key off to the side is a lookup the reader should not need."
+      seqLabel: "how much of something, light to dark"
+      divLabel: "worse to better, with a neutral middle"
       nullLabel: "no data"
       nullNote: "Missing values get a hatch, never a grey that could read as a value."
   - kind: "audit"
@@ -228,7 +228,7 @@ pins:
         - { check: "quietest text on navy", ratio: 4.6 }
         - { check: "muted text on cream", ratio: 5.5 }
         - { check: "muted text on navy", ratio: 8.9 }
-        - { check: "lifted for more contrast", ratio: 7.5 }
+        - { check: "when you ask for more contrast", ratio: 7.5 }
         - { check: "code text on selection", ratio: 9.5 }
       floor: 4.5
       floorLabel: "4.5, the floor"
@@ -238,13 +238,13 @@ pins:
         - { label: "comment dim on cream", ink: "#746353", ground: "#F3EAD2", ratio: "4.8:1" }
         - { label: "muted text on navy", ink: "#C9BFA6", ground: "#191F33", ratio: "8.9:1" }
         - { label: "comment dim on navy", ink: "#8E8874", ground: "#191F33", ratio: "4.6:1" }
-      pairsNote: "Each label is drawn in the ink it names, on the ground it was measured against. The comment dims are the quietest text allowed anywhere, so they set the floor."
+      pairsNote: "Each label is drawn in the ink it names, on the ground it was measured against. Comment dim is the faded grey used for code comments, and it is the quietest text allowed anywhere."
       simTitle: "colour blindness, simulated"
       simRows:
         - { label: "as published", kind: "normal" }
-        - { label: "deuteranopia", kind: "deuteranopia" }
-        - { label: "protanopia", kind: "protanopia" }
-      simNote: "The seven chart colours put through a simulation of the two commonest kinds of colour blindness. The first three hold apart in all three rows, which is why every series after them carries a shape or a dash as well."
+        - { label: "red-green, common", kind: "deuteranopia" }
+        - { label: "red-green, rarer", kind: "protanopia" }
+      simNote: "The seven chart colours simulated for the two commonest kinds of red-green colour blindness, deuteranopia and protanopia. The first three hold apart in every row, which is why the later ones also carry a shape or a dash."
       flaggedTitle: "published, not hidden"
       flagged:
         - { pair: "caramel as text on cream", note: "3.07 to one. Large type only, and code takes a darker caramel ink instead." }
@@ -254,15 +254,15 @@ pins:
     stop: "proof"
     label: "06 · the motion law"
     value: "2"
-    caption: "Duration roles. Entrances ride one and stop under reduced motion. Feedback rides the other and always lands."
+    caption: "Two speeds. One for movement, which stops for anyone whose device asks for less motion. One for colour changes, which always happens."
     expansion:
       demo: "motion"
       label: "Play the law"
-      intro: "Two durations with two duties. Choreography rides the entrance and may be taken away. Feedback rides the state and never is."
-      enterCaption: "Entrance, 420ms. The card rises once on the enter duration, and one choreographed moment per surface is the whole budget."
-      stateCaption: "Feedback, 220ms. The chip changes colour on the state duration. Hover, focus and selection must never go dead."
+      intro: "Two speeds with two duties. Movement rides the first and can be taken away. Colour feedback rides the second and never is."
+      enterCaption: "Movement, 420ms. The card rises once as it arrives, and one moment like that per screen is the whole budget."
+      stateCaption: "Feedback, 220ms. The chip changes colour. Hover, focus and selection must never go dead, so this one always runs."
       replayLabel: "Play it again"
-      reducedNote: "Under reduced motion the entrance is zeroed and the colour change stays. Choreography goes, feedback survives."
+      reducedNote: "Animation makes some people genuinely unwell, and their device can say so. When it does, the movement goes and the colour change stays."
 
 closing:
   heading: "One calm core. Built to be borrowed."
@@ -270,8 +270,8 @@ closing:
   sub: "The system is a contract, not a kit. Six things you may set, six things you never touch, and everything on this board comes with its proof."
   contract:
     label: "Read the contract"
-    may: "You may set six things. The voice of a surface, its register, light or dark, its density, its rhythm, and your own tokens under your own prefix."
-    never: "You may never touch six things. The type roles, the font stacks, the palette, the Arabic rules, the motion law, and any name the foundation already owns."
+    may: "You may set six things. What a page is for, the tone it speaks in, light or dark, how tightly it packs, its spacing, and your own settings kept under your own name."
+    never: "You may never touch six things. The type sizes, the typefaces, the palette, the Arabic rules, the motion law, and any name the system already uses."
   proofsLabel: "Show me the proofs"
   proofsStop: "proof"
 ---
