@@ -603,3 +603,28 @@
 		animation-duration: 1ms !important;
 	}
 }
+
+/* Shiki dual-theme. It emits --shiki-light and --shiki-dark on every token and
+   --shiki-light-bg / --shiki-dark-bg on the fence, and this picks which pair
+   applies.
+
+   Deliberately OUTSIDE @layer components. Shiki generates its class inside the
+   markdown pipeline at build time, so it never appears in the source Tailwind
+   scans, and a rule for it placed in a layer is purged from the bundle. The
+   dark rule would survive that purge on its own, because its selector names the
+   theme class, which leaves light mode silently unstyled.
+
+   Both modes are gated on the html class so the two rules carry equal
+   specificity. Prose.astro sets a fence background globally at (0,1,1); an
+   ungated selector here would be (0,1,0) and lose to it in light mode only. */
+html:not(.theme-dark) .astro-code,
+html:not(.theme-dark) .astro-code span {
+	color: var(--shiki-light);
+	background-color: var(--shiki-light-bg);
+}
+
+html.theme-dark .astro-code,
+html.theme-dark .astro-code span {
+	color: var(--shiki-dark);
+	background-color: var(--shiki-dark-bg);
+}

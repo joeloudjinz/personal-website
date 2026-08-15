@@ -72,6 +72,17 @@ export default defineConfig({
     tailwind({ applyBaseStyles: false })
   ],
   markdown: {
+    // Shiki writes its theme into an inline style attribute on every fence,
+    // which beats any stylesheet rule — so the theme has to be set HERE, not
+    // in CSS. Dual themes emit custom properties for both modes and switch on
+    // the .theme-dark class the site already toggles.
+    shikiConfig: {
+      themes: {
+        light: 'github-light',
+        dark: 'github-dark'
+      },
+      defaultColor: false
+    },
     rehypePlugins: [[autoNewTabExternalLinks, {
       domain: 'localhost:4321'
     }]]
