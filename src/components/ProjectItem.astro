@@ -59,9 +59,13 @@ const {target: pageTarget, rel: pageRel} = linkAttrs(projectPageLink ?? '');
                         View the project page <span class='arrow'>→</span>
                     </a>
             )}
-            <a href={demoLink} target='_blank' rel={demoLinkRel} class='arrow-link text-sm'>
-                View repository <span class='arrow'>→</span>
-            </a>
+            {/* Conditional for the same reason the block above is: a project
+                with no public repository has no repository to link. */}
+            {demoLink && (
+                    <a href={demoLink} target='_blank' rel={demoLinkRel} class='arrow-link text-sm'>
+                        View repository <span class='arrow'>→</span>
+                    </a>
+            )}
             {publishedPackageLink && (
                     <a href={publishedPackageLink} target='_blank' class='arrow-link text-sm'>
                         View package on NuGet <span class='arrow'>→</span>

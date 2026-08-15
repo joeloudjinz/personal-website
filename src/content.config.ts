@@ -68,29 +68,83 @@ const recommendations = defineCollection({
   })
 });
 
+// A link field: either absent, or an actual link. Shared by the two fields a
+// project card can lead from, so neither can drift from the other on what
+// counts as filled in.
+//
+// A trim-aware refine rather than .min(1), for the reason `wash` gives further
+// down this file: .min(1) admits " ". That matters more here than it does for a
+// heading, because projectLead() in src/utils/projects.ts tests these fields for
+// TRUTH — and " " is truthy. A whitespace value therefore does not degrade to
+// absence, it beats it: it wins the branch and renders href=" ", which resolves
+// to the current page. The card gets a title that looks like a link and goes
+// nowhere, which is the failure this pair of guards exists to make unauthorable.
+const nonBlankLink = z.string().refine((value) => value.trim().length > 0, {
+  message:
+    'must be a non-blank link, or left out altogether: a whitespace value is not ' +
+    'read as absence, it is read as an href, and an href of spaces links to the page it is on'
+});
+
 const projects = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/projects" }),
   schema: ({ image }) => z.object({
     name: z.string(),
-    demoLink: z.string(),
+    // Optional since the design system: a project with no public repository has
+    // nothing honest to put here, and the card omits the "View repository" link
+    // rather than pointing it somewhere that is not one. Absent or real, never
+    // blank — see nonBlankLink above for why the difference is not cosmetic.
+    demoLink: nonBlankLink.optional(),
     demoLinkRel: z.string().optional(),
     // The project's own showcase page in the projectPages collection, when it
     // has one. A separate field rather than a repointed demoLink: every entry
-    // in this collection points demoLink at a repository and the card labels it
-    // "View repository", so overloading it would make one card's label a lie and
-    // leave the repository with nowhere to be linked from. See projectLead() in
-    // src/utils/projects.ts for what the card does with the pair.
-    projectPageLink: z.string().optional(),
+    // in this collection that has one points demoLink at a repository and the
+    // card labels it "View repository", so overloading it would make one card's
+    // label a lie and leave the repository with nowhere to be linked from. See
+    // projectLead() in src/utils/projects.ts for what the card does with the pair.
+    //
+    // Guarded like demoLink, and the more important of the two to guard: this is
+    // the field projectLead() checks FIRST, so a blank one does not fall through
+    // to a perfectly good demoLink sitting beside it — it masks it. ("masks",
+    // not the CSS-property word for the same idea: tailwind.config.mjs records
+    // that exact word leaking a dead rule out of a guard message once already.)
+    projectPageLink: nonBlankLink.optional(),
     tags: z.array(z.string()).optional(),
     description: z.string().optional(),
     postLink: z.string().optional(),
     isUnderConstruction: z.boolean().default(false),
     publishedPackageLink: z.string().optional(),
     version: z.string().optional(),
+    // The home page's featured row is a three-column grid at desktop
+    // (md:grid-cols-3, src/pages/index.astro), so keep the featured count at
+    // three: a fourth card wraps and sits alone on a second line. The flags are
+    // spread across src/content/projects/*.md rather than listed anywhere, so
+    // promoting one means demoting another — the count is not checked here
+    // because a build that fails on a copy edit is the worse trade.
     isFeatured: z.boolean().default(false),
     id: z.string(), // New required property for sorting
     coverImage: image().optional()
   })
+  // Every card has to lead somewhere. The title is an anchor in both places a
+  // project is drawn, and on the home page it is the card's ONLY link, so an
+  // entry with neither field renders a title that goes nowhere rather than a
+  // card that is merely quieter. projectLead() returns an empty attribute bag
+  // in that case, deliberately, and this is what stops one being authored.
+  //
+  // nonBlankLink is what makes this check mean anything: it guarantees that a
+  // field which is present is also usable, so "has one of the two" and "leads
+  // somewhere" are the same statement rather than two that drifted apart.
+  .refine(
+    (project) => Boolean(project.demoLink?.trim() || project.projectPageLink?.trim()),
+    {
+      message:
+        'a project needs demoLink or projectPageLink: the card title is an anchor and, ' +
+        'on the home page, the card\'s only link. With neither, the title renders as ' +
+        'plain text and the card leads nowhere.',
+      // Reported against demoLink rather than at the object root, where Astro
+      // prints the empty path as "****" and names no field at all.
+      path: ['demoLink']
+    }
+  )
 });
 
 // Project showcase pages — one standalone marketing page per released system,
@@ -132,7 +186,7 @@ const projects = defineCollection({
 // monospace run would be wrong whatever it said: display type, small caps, a
 // pill, or the text of a control. A backtick authored in one of those prints as
 // a backtick, which is the page telling the author the field is the wrong one.
-// The full list, and the reasoning, is at the top of src/pages/[project].astro.
+// The full list, and the reasoning, is at the top of src/components/projectpage/BandPage.astro.
 //
 // This used to be ‘single curly quotes’, which is what an author reaches for
 // when the design system has no treatment to reach for; there is one now.
@@ -307,7 +361,9 @@ const projectPages = defineCollection({
       path: ['wash']
     };
 
-    return z.object({
+    // Identity and head-only fields shared by every page template. Hoisted so a
+    // second template cannot drift from the first on how a page names itself.
+    const identity = {
       // Deliberately an explicit field rather than the glob loader's derived id,
       // which is how blog posts work. A Zod regex can validate a schema field and
       // cannot validate a filename — and the regex is what stops a slug like
@@ -316,7 +372,7 @@ const projectPages = defineCollection({
       slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
         message: 'slug must be kebab-case, lower-case only: it becomes the URL segment'
       }),
-      // A bare hostname. src/pages/[project].astro interpolates it into
+      // A bare hostname. src/components/projectpage/BandPage.astro interpolates it into
       // `https://<subdomain>/` for the page's canonical, og:url and twitter:url —
       // which is why a scheme, port, path or trailing slash is rejected here:
       // any of them would produce a malformed URL rather than a wrong one.
@@ -352,7 +408,14 @@ const projectPages = defineCollection({
         // rather than anything project-specific. Defaulting it to the page title
         // captions a photograph of a person with the name of a shell theme.
         imageAlt: z.string().max(140).optional()
-      }),
+      })
+    };
+
+    const bandPage = z.object({
+      // Which template renders this entry. Band entries may omit it — inzsh
+      // predates the field — so it is optional here and literal in pinboardPage.
+      template: z.literal('band').optional(),
+      ...identity,
       // Feeds SoftwareApplication JSON-LD in place of the generic WebSite node.
       //
       // Worth being straight about the payoff: this is unlikely to produce a
@@ -610,6 +673,394 @@ const projectPages = defineCollection({
       }).refine(washIsInHeading, washIsInHeadingError),
       credit: z.string().optional()
     });
+
+    // The pinboard template: a masonry board of pins with a story rail, per the
+    // feature spec in the vault KB (design-system-showcase-page). Copy strings
+    // only — layout lives in PinboardPage.astro.
+    // Rail filter ids, held to the same shape rules as `slug` two screens above.
+    const stopId = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).max(24);
+    // A published palette value, written as content. Shared by the swatch
+    // pins and by the audit's measured pairings.
+    const hexColor = z.string().regex(/^#[0-9A-Fa-f]{6}$/);
+    const pinBase = {
+      stop: stopId,
+      label: z.string().max(28)
+    };
+
+    // The expanded row, one shape per pin kind: the collapsed face makes a
+    // claim and the expansion demonstrates it as rendered specimens. Strings
+    // and displayed numbers are authored here like every other visitor-read
+    // value; the specimen colours (ANSI chips, diff bands, ramps, state
+    // washes) are presentation and live in PinboardPage's CSS, each block
+    // traceable to the CD foundation file it was fetched from. Where one pin
+    // kind hosts two different concepts (swatches, stat), `demo` names which
+    // specimen the expansion renders.
+    const expLabel = z.string().max(24);
+    const expIntro = z.string().max(240);
+    // Each keyed specimen list is exhaustive by design: a fixed length plus a
+    // uniqueness check per key, so an entry can neither repeat a specimen nor
+    // silently drop one.
+    const eachOnce = <T,>(pick: (item: T) => string) =>
+      (items: T[]) => new Set(items.map(pick)).size === items.length;
+    const originExpansion = z.object({
+      label: expLabel,
+      intro: expIntro,
+      marks: z.array(z.object({
+        mark: z.enum(['bubble', 'monogram', 'wordmark']),
+        title: z.string().max(28),
+        job: z.string().max(140)
+      })).length(3).refine(eachOnce((item) => item.mark), { message: 'each mark once' }),
+      laws: z.array(z.string().max(110)).min(2).max(4)
+    });
+    const budgetExpansion = z.object({
+      demo: z.literal('budget'),
+      label: expLabel,
+      intro: expIntro,
+      // The five jobs caramel is allowed, each as a live sample the component
+      // renders: the kicker tick, the marker wash, the primary action, the
+      // focus halo, and selection.
+      jobs: z.array(z.object({
+        job: z.enum(['kicker', 'wash', 'action', 'focus', 'selection']),
+        caption: z.string().max(90),
+        sample: z.string().max(32)
+      })).length(5).refine(eachOnce((item) => item.job), { message: 'each job once' }),
+      strip: z.object({ title: z.string().max(40), note: z.string().max(180) })
+    });
+    const chartExpansion = z.object({
+      demo: z.literal('chart'),
+      label: expLabel,
+      intro: expIntro,
+      // The bars reuse the pin's own colors in order; the ramps and the null
+      // hatch are drawn by the component from the published dataviz values.
+      chartNote: z.string().max(180),
+      seqLabel: z.string().max(48),
+      divLabel: z.string().max(48),
+      nullLabel: z.string().max(48),
+      nullNote: z.string().max(140)
+    });
+    const ladderExpansion = z.object({
+      demo: z.literal('ladder'),
+      label: expLabel,
+      intro: expIntro,
+      // One word per script, rendered at every step, rather than a sample per
+      // row: the ladder is about size, and a constant word is what makes the
+      // sizes comparable.
+      sample: z.string().max(20),
+      arSample: z.string().max(20),
+      rows: z.array(z.object({
+        role: z.string().max(14),
+        px: z.number().min(8).max(120),
+        // Not an integer on purpose: the Arabic optical factors land on
+        // halves (25px times 1.1 is 27.5).
+        arPx: z.number().min(8).max(140)
+      })).length(7),
+      denseNote: z.string().max(180),
+      arNote: z.string().max(180)
+    });
+    const motionExpansion = z.object({
+      demo: z.literal('motion'),
+      label: expLabel,
+      intro: expIntro,
+      enterCaption: z.string().max(160),
+      stateCaption: z.string().max(160),
+      replayLabel: z.string().max(20),
+      reducedNote: z.string().max(180)
+    });
+    const quoteExpansion = z.object({
+      label: expLabel,
+      // The register's Arabic sibling, rendered in the face the register
+      // already picked for the Latin one.
+      sibling: z.string().max(140),
+      note: z.string().max(180)
+    });
+    const nameplateExpansion = z.object({
+      // Arabic like the pin it extends: the component pins dir and lang.
+      label: expLabel,
+      intro: expIntro.optional(),
+      specimens: z.array(z.object({
+        law: z.enum(['harmattan', 'amiri', 'digits', 'quotes']),
+        caption: z.string().max(110),
+        sample: z.string().max(60)
+      })).length(4).refine(eachOnce((item) => item.law), { message: 'each law once' })
+    });
+    const facesExpansion = z.object({
+      label: expLabel,
+      intro: expIntro.optional(),
+      rows: z.array(z.object({
+        face: z.enum(['literata', 'readex', 'harmattan', 'amiri', 'mono']),
+        name: z.string().max(24),
+        job: z.string().max(110)
+      })).length(5).refine(eachOnce((item) => item.face), { message: 'each face once' })
+    });
+    // Each of the three specimens states the rule it demonstrates, the same
+    // shape the chart expansion uses. Without them the panel shows three
+    // handsome colour treatments and never says what governs any of them.
+    const terminalExpansion = z.object({
+      label: expLabel,
+      intro: expIntro.optional(),
+      diffTitle: z.string().max(32),
+      diff: z.array(z.object({
+        mark: z.enum(['add', 'drop', 'change']),
+        text: z.string().max(60)
+      })).min(2).max(5),
+      diffNote: z.string().max(180),
+      logTitle: z.string().max(32),
+      // All six levels, quietest to the one filled band, in the entry's order.
+      logs: z.array(z.object({
+        level: z.enum(['trace', 'debug', 'info', 'warn', 'error', 'fatal']),
+        text: z.string().max(60)
+      })).length(6).refine(eachOnce((item) => item.level), { message: 'each level once' }),
+      logNote: z.string().max(180),
+      ansiTitle: z.string().max(32),
+      ansiNote: z.string().max(180)
+    });
+    const statesExpansion = z.object({
+      label: expLabel,
+      intro: expIntro.optional(),
+      // The full set of six, where the collapsed pin shows four: neutral and
+      // inactive only make sense next to their caption.
+      items: z.array(z.object({
+        glyph: z.string().max(2),
+        name: z.string().max(12),
+        tone: z.enum(['positive', 'info', 'negative', 'caution', 'neutral', 'inactive']),
+        caption: z.string().max(110)
+      })).length(6).refine(eachOnce((item) => item.tone), { message: 'each tone once' })
+    });
+    // An audit that only says "pass" is indistinguishable from one nobody
+    // ran, so results are measurements and the panel carries two exhibits a
+    // reader can check for themselves: the quietest pairings drawn as the
+    // real ink on the real ground, and the chart series put through the
+    // colour-blindness simulation the system claims to have run.
+    const auditExpansion = z.object({
+      label: expLabel,
+      intro: expIntro.optional(),
+      // A ratio rather than a string, because the panel draws each one
+      // against the floor as well as printing it. One source for the number
+      // means the bar and the figure can never disagree.
+      rows: z.array(z.object({
+        check: z.string().max(40),
+        ratio: z.number().min(1).max(21)
+      })).min(3).max(8),
+      // The threshold every bar is read against, and the words that name it.
+      // Authored rather than hard-coded: the number is a fact about the
+      // standard, and the sentence beside it is a string a visitor reads.
+      floor: z.number().min(1).max(21),
+      floorLabel: z.string().max(28),
+      pairsTitle: z.string().max(40),
+      // Hex is content here for the same reason the palette's is: these are
+      // the system's published measurements, and a measurement shown in
+      // anything other than the colours it was taken on proves nothing.
+      pairs: z.array(z.object({
+        label: z.string().max(28),
+        ink: hexColor,
+        ground: hexColor,
+        ratio: z.string().max(8)
+      })).min(2).max(6),
+      pairsNote: z.string().max(180),
+      simTitle: z.string().max(40),
+      // The row order is the entry's, and the kind picks which simulation
+      // the row is drawn through. One of each, so a row cannot be dropped
+      // and the untouched row can never go missing from the comparison.
+      simRows: z.array(z.object({
+        label: z.string().max(20),
+        kind: z.enum(['normal', 'deuteranopia', 'protanopia'])
+      })).length(3).refine(eachOnce((item) => item.kind), { message: 'each simulation once' }),
+      simNote: z.string().max(220),
+      flaggedTitle: z.string().max(40),
+      flagged: z.array(z.object({ pair: z.string().max(60), note: z.string().max(180) })).min(1).max(4)
+    });
+    const pin = z.discriminatedUnion('kind', [
+      // alt but no src: the artwork is the site's own /avatar.png, deliberately
+      // not an entry asset — so the entry authors the description and the
+      // component owns the file. Uncapped, like every other alt here.
+      z.object({
+        kind: z.literal('origin'), ...pinBase, alt: z.string(), note: z.string().max(160),
+        expansion: originExpansion.optional()
+      }),
+      z.object({
+        kind: z.literal('swatches'), ...pinBase,
+        colors: z.array(z.object({
+          // The design system's published palette values, displayed as content.
+          // Deliberately not read from the site's live CSS tokens.
+          hex: hexColor,
+          name: z.string().max(16),
+          ink: z.enum(['dark', 'light'])
+        })).min(2).max(8),
+        note: z.string().max(160),
+        expansion: z.discriminatedUnion('demo', [budgetExpansion, chartExpansion]).optional()
+      }),
+      // value is a numeral or a short token: "7", "1.25", "AA". Four characters
+      // is what the 76px display type holds inside a pin at the narrow column,
+      // measured rather than guessed: "1.25" reaches the column edge and a
+      // fifth character runs past it. The cap is the type's, not the copy's.
+      z.object({
+        kind: z.literal('stat'), ...pinBase, value: z.string().max(4), caption: z.string().max(160),
+        expansion: z.discriminatedUnion('demo', [ladderExpansion, motionExpansion]).optional()
+      }),
+      z.object({
+        kind: z.literal('quote'), ...pinBase,
+        text: z.string().max(140),
+        // Which register speaks, because the face follows it: warm quotes set
+        // in the display serif, sharp ones in the sans. Two quotes labelled
+        // with different registers must not render identically — the same law
+        // the mirror demonstrates. Warm is the system's own default.
+        register: z.enum(['warm', 'sharp']).default('warm'),
+        expansion: quoteExpansion.optional()
+      }),
+      // Named for the role, not the script: a real name typeset in its own.
+      // `note` is the one English string on this pin and it earns its place:
+      // every specimen here stays Arabic, which is the entire argument, but a
+      // card whose title, body and opening control are all Arabic leaves an
+      // English reader unable to name its subject or read the button. A
+      // signpost describes, it does not translate, so the stance survives it.
+      z.object({
+        kind: z.literal('nameplate'), ...pinBase, name: z.string(), body: z.string().max(220),
+        note: z.string().max(120),
+        expansion: nameplateExpansion.optional()
+      }),
+      z.object({
+        kind: z.literal('faces'), ...pinBase, note: z.string().max(180),
+        expansion: facesExpansion.optional()
+      }),
+      // note is required for the same reason every other pin's is: a well
+      // full of mono says what the system does to a terminal, and nothing at
+      // all about why a terminal is the design system's business. The pane
+      // is the specimen, the note is the claim.
+      z.object({
+        kind: z.literal('terminal'), ...pinBase, lines: z.array(codeLine).min(1).max(6),
+        note: z.string().max(160),
+        expansion: terminalExpansion.optional()
+      }),
+      z.object({
+        kind: z.literal('states'), ...pinBase,
+        items: z.array(z.object({
+          // One glyph. Zod counts UTF-16 code units, so a ZWJ or skin-tone emoji
+          // would blow this cap; ours are single-unit text glyphs — ✓ i ✕ !
+          glyph: z.string().max(2),
+          name: z.string().max(12),
+          tone: z.enum(['positive', 'info', 'negative', 'caution'])
+        })).min(2).max(6),
+        note: z.string().max(160),
+        expansion: statesExpansion.optional()
+      }),
+      z.object({
+        kind: z.literal('audit'), ...pinBase,
+        // result is a measurement, not a verdict. "pass" on every row is
+        // what a system nobody audited would print too, and it gives a
+        // reader nothing to check.
+        rows: z.array(z.object({ check: z.string().max(28), result: z.string().max(12) })).min(2).max(8),
+        note: z.string().max(160),
+        expansion: auditExpansion.optional()
+      })
+    ]);
+
+    const pinboardPage = z.object({
+      template: z.literal('pinboard'),
+      ...identity,
+      masthead: z.object({
+        kicker,
+        // One line beside the light switch, so tighter than the band hero's 80.
+        heading: z.string().max(60),
+        // The plain answer to "what am I looking at". Required, because the
+        // rest of the page describes a design system to people who already
+        // know what one is, and a visitor who does not is otherwise left with
+        // the origin story and nothing else.
+        sub: z.string().max(220),
+        // Same wash validator as the band hero: the pinboard masthead clamps to
+        // the same 30px floor, so washFits applies unchanged.
+        wash,
+        facts: z.array(z.string().max(24)).min(1).max(4),
+        // toDark/toLight, never off/on: YAML parses unquoted `off:`/`on:` keys
+        // as booleans, which would silently break the frontmatter.
+        lightSwitch: z.object({ toDark: z.string().max(24), toLight: z.string().max(24) })
+      }).refine(washIsInHeading, washIsInHeadingError),
+      mirror: z.object({
+        // A script name — "عربي" — not a sentence: the flip is labelled by the
+        // script it flips to.
+        flipLabel: z.string().max(8),
+        en: z.object({ kicker, heading: z.string().max(80), body: z.string().max(220) }),
+        ar: z.object({ kicker, heading: z.string().max(80), body: z.string().max(220) })
+      }),
+      railCaption: z.string().max(32),
+      // The sentence under the caption that says how the rail behaves. Required
+      // rather than optional, and entry-owned like every other string a visitor
+      // reads: a rail that never explains itself is the worse page, and the
+      // second project's rail will not behave in this one's words.
+      railNote: z.string().max(120),
+      allLabel: z.string().max(16),
+      // Two is the fewest that is a filter; six is what the rail row holds.
+      stops: z.array(z.object({ id: stopId, label: z.string().max(24) })).min(2).max(6),
+      // Under four pins the board is not a board; over twelve it stops being curated.
+      pins: z.array(pin).min(4).max(12),
+      closing: z.object({
+        heading: z.string().max(60),
+        wash,
+        // A short paragraph, like the unfold bodies.
+        sub: z.string().max(220),
+        contract: z.object({
+          label: z.string().max(24),
+          // The unfold's budget again: each side of the contract is one paragraph.
+          may: z.string().max(420),
+          never: z.string().max(420)
+        }),
+        proofsLabel: z.string().max(24),
+        proofsStop: stopId
+      }).refine(washIsInHeading, washIsInHeadingError)
+    });
+
+    // Discriminated rather than a plain union, so an error reports against the
+    // template the entry declared: a band entry missing its closing band reads
+    // "closing: Required" instead of the bare "Invalid input" a plain union
+    // gives when neither branch matches. `template` is optional on bandPage —
+    // inzsh predates the field — and Zod routes a template-less entry there.
+    //
+    // The pinboard's cross-field checks hang off the union rather than off
+    // pinboardPage because discriminatedUnion refuses a ZodEffects option, so
+    // the refinement sits outside it and screens out band entries itself.
+    return z.discriminatedUnion('template', [pinboardPage, bandPage])
+      .superRefine((page, ctx) => {
+        if (page.template !== 'pinboard') return;
+        // The rail is a filter over the pins, so the two have to agree in both
+        // directions: a pin pointing at no stop is unreachable, and a stop no
+        // pin points at is a rail filter that matches nothing.
+        const declared = new Set<string>();
+        page.stops.forEach((stop, index) => {
+          if (declared.has(stop.id)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom, path: ['stops', index, 'id'],
+              message:
+                `stop id "${stop.id}" is declared twice. Ids are what pins point at, ` +
+                `so the second stop can never be told from the first.`
+            });
+          }
+          declared.add(stop.id);
+        });
+        page.pins.forEach((entry, index) => {
+          if (!declared.has(entry.stop)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom, path: ['pins', index, 'stop'],
+              message: `pin stop "${entry.stop}" is not one of the declared stops: ${[...declared].join(', ')}`
+            });
+          }
+        });
+        const pointedAt = new Set(page.pins.map((entry) => entry.stop));
+        page.stops.forEach((stop, index) => {
+          if (!pointedAt.has(stop.id)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom, path: ['stops', index, 'id'],
+              message:
+                `no pin points at stop "${stop.id}", so selecting it in the rail empties ` +
+                `the board. Give a pin that stop, or drop the stop.`
+            });
+          }
+        });
+        if (!declared.has(page.closing.proofsStop)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom, path: ['closing', 'proofsStop'],
+            message: `proofsStop "${page.closing.proofsStop}" is not a declared stop`
+          });
+        }
+      });
   }
 });
 

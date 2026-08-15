@@ -11,6 +11,11 @@
         "source": "/inzsh{,/**}",
         "destination": "https://inzsh.abdellahaddoun.com/",
         "type": 301
+      },
+      {
+        "source": "/joeinz-ds{,/**}",
+        "destination": "https://joeinz-ds.abdellahaddoun.com/",
+        "type": 301
       }
     ]
   }

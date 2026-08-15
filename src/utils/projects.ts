@@ -6,6 +6,7 @@ export type ProjectCollectionEntry = CollectionEntry<'projects'>;
 
 // Hand-curated display order (by frontmatter id)
 export const PROJECT_ORDER = [
+  'joeinz-design-system',
   'inzsh-zsh-theme',
   'dynamic-module-loader-dotnet',
   'data-seeder-dotnet',
@@ -21,8 +22,11 @@ export const PROJECT_ORDER = [
  * Where a project card's title leads, as the anchor's whole attribute bag.
  *
  * A project with a showcase page leads there; every other one leads to its
- * repository, which is what `demoLink` is in practice — all nine entries point
- * it at GitHub, and the card has always labelled it "View repository".
+ * repository, which is what `demoLink` is in practice — every entry that has
+ * one points it at GitHub, and the card has always labelled it "View
+ * repository". The design system has neither a repository nor anything honest
+ * to put in its place, which is why the last branch returns no href at all
+ * rather than an empty one: `href=''` is a link back to the current page.
  *
  * Shared because two call sites draw that title — the projects gallery through
  * ProjectItem, and the home page's featured row inline — and the rule that
@@ -47,11 +51,14 @@ export const PROJECT_ORDER = [
  */
 export function projectLead(
   project: ProjectCollectionEntry
-): {href: string; target?: string; rel?: string} {
+): {href?: string; target?: string; rel?: string} {
   const {projectPageLink, demoLink, demoLinkRel} = project.data;
-  return projectPageLink
-    ? {href: projectPageLink, ...linkAttrs(projectPageLink)}
-    : {href: demoLink, target: '_blank', rel: demoLinkRel};
+  if (projectPageLink) return {href: projectPageLink, ...linkAttrs(projectPageLink)};
+  if (demoLink) return {href: demoLink, target: '_blank', rel: demoLinkRel};
+  // Neither link: the bag is empty, so both call sites draw an anchor with no
+  // href — a plain-text title — rather than one that navigates to itself.
+  // Astro drops an undefined attribute, whether it is spread or named.
+  return {};
 }
 
 export async function getAllProjects(): Promise<ProjectCollectionEntry[]> {

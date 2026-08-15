@@ -124,7 +124,7 @@ export function assertForeignCanonicalsNotAdvertised(
     throw new Error(
       `[project-pages] These project pages do not declare a canonical on another host: ` +
       `${missing.join(', ')}. Each is served from its own subdomain, so its page must pass ` +
-      `\`canonical\` through BaseLayout — check src/pages/[project].astro and BaseHead.astro.`
+      `\`canonical\` through BaseLayout — check src/components/projectpage/BandPage.astro and BaseHead.astro.`
     );
   }
 
