@@ -11,7 +11,7 @@
  * Shape follows GA4's limits rather than fighting them. Custom dimensions are
  * property-wide and capped at 50, so the cost of a taxonomy is measured in
  * distinct *parameter* names, not event names. Everything here reuses two:
- * `item` (what) and `location` (where). Two slots of fifty, for nine events.
+ * `item` (what) and `location` (where). Two slots of fifty, for twelve events.
  * The alternative — install_copy, preset_copy, zshrc_copy as separate names —
  * reports nothing extra and cannot be aggregated.
  *
@@ -60,8 +60,17 @@
         document.addEventListener('click', (event) => {
             const location = closestAttr(event.target, '[data-cta]', 'data-cta-location');
             if (location === null) return;
-            const anchor = event.target.closest('[data-cta]');
-            track('cta_click', {item: anchor.textContent.trim(), location});
+            const control = event.target.closest('[data-cta]');
+            // Not every CTA is an anchor: the pinboard's primary one is the
+            // <summary> of a disclosure, and a summary raises click on the way
+            // closed exactly as it does on the way open. Its activation runs
+            // after the event has finished propagating, so `open` still carries
+            // the value from BEFORE this click — true means the click in hand is
+            // the one folding the panel back up, which is not a press of the
+            // button. Anchors and buttons never match this and are untouched.
+            const disclosure = control.tagName === 'SUMMARY' ? control.closest('details') : null;
+            if (disclosure && disclosure.open) return;
+            track('cta_click', {item: control.textContent.trim(), location});
         });
 
         /* ---- Friction ------------------------------------------------------ */
@@ -116,7 +125,35 @@
             }));
         });
 
+        // Pinboard: which script the visitor chose to read, the same kind of
+        // answer the theme toggle gives and the most telling one that page has.
+        // The event carries the direction already settled, so nothing here has
+        // to wait a frame to read it.
+        document.addEventListener('pinboard:flip', (event) => {
+            track('mirror_flip', {item: (event.detail || {}).to || ''});
+        });
+
         /* ---- Read depth ---------------------------------------------------- */
+
+        // Pinboard: which story chapter was deliberately focused, and from which
+        // control. A section_view says the reader arrived; this says the reader
+        // chose. Two parameters, reused: the stop is the what, the control that
+        // asked for it is the where.
+        document.addEventListener('pinboard:focus', (event) => {
+            const detail = event.detail || {};
+            track('rail_focus', {item: detail.stop || '', location: detail.via || ''});
+        });
+
+        // Pinboard: which pin earned an open. The event name and the item
+        // labels survive from the era when this was a details toggle, so the
+        // reports read continuously across the redesign — the carrier is now
+        // the pinboard:expand event the expansion script dispatches when a
+        // pin opens into its full row, and only when it opens: folding a row
+        // back up is not curiosity and is not counted, exactly as a closing
+        // toggle was not.
+        document.addEventListener('pinboard:expand', (event) => {
+            track('disclosure_open', {item: ((event.detail || {}).item || '').slice(0, 60)});
+        });
 
         // One event per band, once each, replacing a single 90% scroll ping with
         // a funnel. Fires however the reader arrived — scrolled, nav, or CTA —

@@ -31,6 +31,15 @@ const targets = {
     branch: 'main',
     mainSite: 'https://abdellahaddoun.com',
   },
+  'joeinz-ds': {
+    slug: 'joeinz-ds',
+    host: 'joeinz-ds.abdellahaddoun.com',
+    zone: 'abdellahaddoun.com',
+    record: 'joeinz-ds',
+    project: 'joeinz-ds',
+    branch: 'main',
+    mainSite: 'https://abdellahaddoun.com',
+  },
 };
 
 export default targets;

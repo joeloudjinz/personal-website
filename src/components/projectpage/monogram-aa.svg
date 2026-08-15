@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" role="img" aria-label="The AA monogram dot">
+<title>The AA monogram dot</title>
+<desc>Joe Inz monogram, drawn paths copied verbatim from the design system's assets/monogram-aa.svg. Ink and ground ride the CSS variables the source declares, so the page themes it without touching a path.</desc>
+<g>
+<circle cx="120" cy="120" r="118" style="fill:var(--monogram-bg,#3A281E);stroke:var(--monogram-edge,none);stroke-width:3"></circle>
+<g transform="translate(4.72 14.4) scale(0.88)" style="fill:var(--monogram-ink,#F3EAD2)">
+<path d="M70 68 86 68 55 172 38 172Z M72 68 88 68 118 172 94 172Z M52 138 102 138 102 151 52 151Z M29 172 Q29.5 166.5 36 164.5 L56 164.5 Q61.5 166.5 62 172Z M86 172 Q86.5 166.5 92 164.5 L120 164.5 Q125.5 166.5 126 172Z M177 68 193 68 162 172 145 172Z M179 68 195 68 225 172 201 172Z M159 138 209 138 209 151 159 151Z M136 172 Q136.5 166.5 143 164.5 L163 164.5 Q168.5 166.5 169 172Z M193 172 Q193.5 166.5 199 164.5 L227 164.5 Q232.5 166.5 233 172Z"></path>
+</g>
+</g>
+</svg>

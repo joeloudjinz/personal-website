@@ -31,12 +31,21 @@ async function probeOne(base, { path, expect, to }) {
 
   const location = response.headers.get('location');
   const statusOk = response.status === expect;
-  const targetOk = !to || location === to;
+
+  // Compare where the reader LANDS, not how the header is spelled. Cloudflare
+  // normalises Location by host: a redirect to the same host it was asked on
+  // comes back as "/", and the identical rule serving *.pages.dev comes back
+  // absolute. Both are correct and both send the reader to the same place, so
+  // a string compare fails a working redirect depending on which host asked —
+  // which is exactly what it did, passing locally against 127.0.0.1 and
+  // failing in production. Resolving is also what a browser does.
+  const landsAt = location ? new URL(location, `${base}${path}`).href : null;
+  const targetOk = !to || landsAt === new URL(to).href;
 
   return {
     path,
     ok: statusOk && targetOk,
-    actual: `${response.status}${location ? ` → ${location}` : ''}`,
+    actual: `${response.status}${landsAt ? ` → ${landsAt}` : ''}`,
   };
 }
 
