@@ -33,7 +33,7 @@ const {target: pageTarget, rel: pageRel} = linkAttrs(projectPageLink ?? '');
 
 <article class='cardx cardx-hover p-8'>
     <div class='flex items-center gap-3 flex-wrap mb-4'>
-        <h2 class='font-display text-[26px] font-semibold text-strong leading-tight'>
+        <h2 class='font-display text-[25px] font-semibold text-strong leading-tight'>
             <a href={leadHref} target={leadTarget} rel={leadRel}>{name}</a>
         </h2>
         {isUnderConstruction && <span class='badge-accent badge-pulse'>In progress</span>}
@@ -55,19 +55,19 @@ const {target: pageTarget, rel: pageRel} = linkAttrs(projectPageLink ?? '');
                 repeated where the title goes. It leads because a project that
                 has a page of its own is asking to be read there first. */}
             {projectPageLink && (
-                    <a href={projectPageLink} target={pageTarget} rel={pageRel} class='arrow-link text-sm'>
+                    <a href={projectPageLink} target={pageTarget} rel={pageRel} class='arrow-link text-[15px]'>
                         View the project page <span class='arrow'>→</span>
                     </a>
             )}
             {/* Conditional for the same reason the block above is: a project
                 with no public repository has no repository to link. */}
             {demoLink && (
-                    <a href={demoLink} target='_blank' rel={demoLinkRel} class='arrow-link text-sm'>
+                    <a href={demoLink} target='_blank' rel={demoLinkRel} class='arrow-link text-[15px]'>
                         View repository <span class='arrow'>→</span>
                     </a>
             )}
             {publishedPackageLink && (
-                    <a href={publishedPackageLink} target='_blank' class='arrow-link text-sm'>
+                    <a href={publishedPackageLink} target='_blank' class='arrow-link text-[15px]'>
                         View package on NuGet <span class='arrow'>→</span>
                     </a>
             )}

@@ -57,15 +57,15 @@ const description = 'Post tags: concise keywords categorizing content for easy n
 		<h1 class='font-display text-4xl md:text-[56px] font-semibold text-strong tracking-[-0.015em] leading-tight mb-6'>
 			All tags.
 		</h1>
-		<p class='text-[21px] text-muted leading-relaxed max-w-[760px]'>{description}</p>
+		<p class='text-[20px] text-muted leading-relaxed max-w-[760px]'>{description}</p>
 	</section>
 	<section class='shell pb-[72px]'>
 		{groupedTags.map(({ letter, tags }) => (
 			<div class='flex gap-6 border-t border-hairline py-6 reveal'>
-				<h2 class='font-display text-[27px] font-semibold text-accent w-8 shrink-0 leading-none'>{letter}</h2>
+				<h2 class='font-display text-[25px] font-semibold text-accent w-8 shrink-0 leading-none'>{letter}</h2>
 				<div class='flex gap-2.5 flex-wrap items-center'>
 					{tags.map((tag: Tag) => (
-						<a class='chip !text-sm !px-3 !py-1.5 no-underline' href={`/tags/${tag.value}/`}>
+						<a class='chip !text-[15px] !px-3 !py-1.5 no-underline' href={`/tags/${tag.value}/`}>
 							{tag.label} <span class='text-accent'>({tag.postCount})</span>
 						</a>
 					))}

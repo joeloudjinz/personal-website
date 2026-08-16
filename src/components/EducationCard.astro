@@ -14,8 +14,8 @@ const {title, universityName, universityUrl, facultyName, facultyUrl, university
     <p class='text-[13px] text-accent font-semibold tabular-nums mb-3'>
         {formatExperienceDate(startDate)} → {formatExperienceDate(endDate)}
     </p>
-    <h3 class='font-display text-2xl font-semibold text-strong mb-3 leading-snug'>{title}</h3>
-    <p class='text-[14.5px] text-muted leading-relaxed mb-3'>
+    <h3 class='font-display text-[25px] font-semibold text-strong mb-3 leading-snug'>{title}</h3>
+    <p class='text-[15px] text-muted leading-relaxed mb-3'>
         {universityUrl
             ? <a href={universityUrl} target='_blank' class='text-info font-semibold'>{universityName}</a>
             : <span>{universityName}</span>}
@@ -25,5 +25,5 @@ const {title, universityName, universityUrl, facultyName, facultyUrl, university
             : <span>{facultyName}</span>}
         <span> · {universityLocation}</span>
     </p>
-    <p class='text-[14.5px] text-muted leading-relaxed'>{education.body}</p>
+    <p class='text-[15px] text-muted leading-relaxed'>{education.body}</p>
 </div>

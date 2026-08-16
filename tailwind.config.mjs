@@ -101,8 +101,9 @@ export default {
                 'on-accent': 'var(--on-accent)'
             },
             fontFamily: {
-                display: ['Fraunces', 'Georgia', '"Times New Roman"', 'serif'],
-                sans: ['Inter', 'system-ui', '-apple-system', '"Segoe UI"', 'sans-serif']
+                display: ['Literata', 'Harmattan', 'Georgia', '"Times New Roman"', 'serif'],
+                sans: ['Readex Pro', 'system-ui', '-apple-system', '"Segoe UI"', 'sans-serif'],
+                mono: ['"JetBrains Mono"', 'ui-monospace', '"SF Mono"', 'Menlo', 'Consolas', 'monospace']
             },
             borderRadius: {
                 chip: '9px',
