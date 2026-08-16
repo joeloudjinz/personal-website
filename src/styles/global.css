@@ -304,7 +304,7 @@
 		.shell { padding-inline: 96px; }
 	}
 
-	/* The site's micro-label treatment: 11px Inter, semibold, small caps. Four
+	/* The site's micro-label treatment: 11px Readex Pro, semibold, small caps. Four
 	   places had grown a byte-identical copy of it — a reference table's column
 	   headings, that table's stacked per-cell labels, a definition row's label,
 	   and the kicker. Declared once for both names rather than as a base class
