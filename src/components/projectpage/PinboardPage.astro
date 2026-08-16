@@ -44,18 +44,20 @@ const meterPercent = (ratio: number) => Math.max(0, Math.min(100, ((ratio - 1) /
 <BaseLayout title={seo.title} description={seo.description ?? mirror.en.body} gradient='warm'
             keywords={seo.keywords?.join(', ')} imageAlt={seo.imageAlt}
             canonical={canonical} chrome='subdomain' projectName={projectName}>
-    {/* Page-only faces. A <link> in the body is valid HTML and keeps the fonts
-        off every other page. The site's Fraunces/Inter still load via BaseHead
-        for the shared chrome.
+    {/* Page-only faces: the Arabic pair, and only them. A <link> in the body is
+        valid HTML and keeps these two off every other page. The Latin three —
+        Literata, Readex Pro and JetBrains Mono — now come from the site's own
+        head, so asking for them again here would request the same families
+        twice.
 
-        All five of the system's faces. An earlier cut of this page left Amiri
-        out because nothing spoke in it, with a note that it would join the day
-        a pin needed it — the expanded pins are that day: the faces row renders
-        its specimen and the nameplate's law cards set the name in it. Only 400
-        and 700 are requested because Amiri ships nothing else, and the
-        system's own law forbids synthesising the weights a face lacks. */}
+        An earlier cut of this page left Amiri out because nothing spoke in it,
+        with a note that it would join the day a pin needed it — the expanded
+        pins are that day: the faces row renders its specimen and the
+        nameplate's law cards set the name in it. Only 400 and 700 are
+        requested because Amiri ships nothing else, and the system's own law
+        forbids synthesising the weights a face lacks. */}
     <link rel='stylesheet'
-          href='https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;0,7..72,700;1,7..72,500&family=Readex+Pro:wght@400;500;600;700&family=Harmattan:wght@400;700&family=Amiri:wght@400;700&family=JetBrains+Mono:wght@400;500&display=swap'/>
+          href='https://fonts.googleapis.com/css2?family=Harmattan:wght@400;700&family=Amiri:wght@400;700&display=swap'/>
 
     {/* Without a script this page has no reveal to wait for. global.css starts
         .reveal at opacity 0 and only the observer in BaseLayout adds
@@ -1669,8 +1671,9 @@ const meterPercent = (ratio: number) => Math.max(0, Math.min(100, ((ratio - 1) /
            three of the page's accent fills take that same pair — this button,
            the light switch and the mirror's flip — so the fork is one decision
            applied consistently, not a button that disagrees with its
-           neighbours. The site-wide pair is deliberately left alone for now and
-           is the planned site-adjustment pass's to reconcile. */
+           neighbours. The site now sets the same pair site-wide, for the same
+           reason and at the same measured ratio, so this is no longer a fork
+           from it. */
         .dsp-btn-pri { background: var(--accent); border: 1.5px solid var(--accent); color: var(--choc-ink); }
         /* Both buttons hover into the same inversion: the page's ink becomes
            the ground and the page's ground becomes the ink, which is one rule

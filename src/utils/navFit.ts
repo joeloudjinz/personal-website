@@ -14,42 +14,54 @@
  *
  * A character count cannot express the bound, for the reason src/utils/washFit.ts
  * gives at length about the washed headings: width follows case, not length.
- * "Prayer times" (12 characters) is 91px and "Verification" (12) is 96px, while
- * "FAQ" (3) is 29px and "Why" (3) is 33px. So the schema caps each label at 14
+ * "Prayer times" (12 characters) is 94px and "Verification" (12) is 86px, while
+ * "FAQ" (3) is 30px and "Why" (3) is 33px. So the schema caps each label at 14
  * characters to stop a heading being pasted into a nav item, and the row is added
  * up here in pixels.
  */
 
 /**
- * Advance width, in px, of one character at the binding condition: Inter, 600
- * weight, 15px.
+ * Advance width, in px, of one character at the binding condition: Readex Pro,
+ * 600 weight, 15px.
  *
  * 600 rather than the 500 the links are set in, because the current section's
  * link is drawn semibold and any of them can be the current one — so the widest
- * state the row ever reaches is every label at 600. Inter rather than a fallback
- * face: unlike the hero's wash, this row is chrome that wraps nothing and moves
- * nothing while the webfont swaps, and the system stack it swaps from is narrower
- * at these sizes than Inter is.
+ * state the row ever reaches is every label at 600. The webfont rather than a
+ * fallback face: unlike the hero's wash, this row is chrome that wraps nothing
+ * and moves nothing while the webfont swaps.
  *
- * Measured in Chrome the way washFit.ts measures its own table — a 20-character
- * run of each glyph, divided — then raised to the next half pixel, so summing
- * them can only over-state a row and never under-state it. Checked against the
- * rendered widths of eleven candidate labels: the sum is 1.4% to 10% generous,
- * the 10% being "FAQ", where the face kerns the F against the A. Kerning only
- * ever narrows, so the direction of the error is the safe one.
+ * Measured 2026-08-15 in Chromium, the way washFit.ts arrives at its own numbers
+ * — a 20-character run of each glyph in a span sized to its own text and with
+ * kerning off, divided by 20 — then raised to the next half pixel, so summing
+ * them can only over-state a row and never under-state it. The check
+ * `document.fonts.check("600 15px 'Readex Pro'")` answered true before a width
+ * was read, so these are the webfont's own advances and not a fallback's.
+ *
+ * Checked against eleven candidate labels: the sum runs from 2.0% generous at
+ * the tightest, "Why", to 6.6% at the loosest, "FAQ", and is never short of what
+ * the browser draws. Kerning only ever narrows, so the direction of the error is
+ * the safe one.
  */
 const ADVANCE_GROUPS: ReadonlyArray<readonly [string, number]> = [
-  [' ijl', 4], ['I', 4.5], ['.,:·!\'', 5], ['tf', 5.5], ['()/', 6],
-  ['r1', 6.5], ['-', 7], ['?sLzxk', 8.5], ['aJcvFye7', 9],
-  ['Eonhu52bdpqg', 9.5], ['3698PSRZB0T&4', 10], ['+K', 10.5], ['YXDU', 11],
-  ['CAVHGN', 11.5], ['OQ', 12], ['w', 13], ['mM', 14], ['W', 16]
+  ['.:\'·', 4], [',!l', 4.5], [' ij', 5], ['ft()', 6], ['-', 6.5],
+  ['r', 7], ['s', 7.5], ['zI?', 8], ['ac127', 8.5], ['evx+/35689', 9],
+  ['hknouyFLST', 9.5], ['bdgpqEJP04', 10], ['ABCYZ', 10.5], ['RVX', 11],
+  ['DKU&', 11.5], ['GH', 12], ['NOQw', 12.5], ['M', 13.5], ['m', 14.5],
+  ['W', 15]
 ];
 
 const ADVANCE = new Map<string, number>(
   ADVANCE_GROUPS.flatMap(([chars, px]) => [...chars].map((c) => [c, px] as const))
 );
 
-/** The widest glyph in the face, and what an unmeasured character is charged. */
+/**
+ * What an unmeasured character is charged.
+ *
+ * Wider than every glyph in the measured set — W, the widest, is 15 — so a
+ * character the set does not cover is over-charged rather than let through
+ * cheap, and the guard keeps erring towards rejecting a row it could have
+ * held.
+ */
 const WIDEST_PX = 16;
 
 /**

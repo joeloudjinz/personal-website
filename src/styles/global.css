@@ -27,6 +27,23 @@
 	--hair-light: #E4D8BE;
 	--hair-dark: #333C58;
 
+	/* State ramps — the six-state system, per tokens/colors.css */
+	--sage-deep: #4F6B4C;
+	--sage-wash: #E8E2C9;      --sage-wash-dark: #2B3440;
+	--sage-edge: #748A6D;      --sage-edge-dark: #6E8572;
+	--ink-blue-wash: #E5DECB;  --ink-blue-wash-dark: #2C334A;
+	--ink-blue-edge: #7D8497;  --ink-blue-edge-dark: #747EA3;
+	--madder: #7A443A;         --madder-bright: #E0A5AF;
+	--madder-wash: #E9DDC6;    --madder-wash-dark: #343144;
+	--madder-edge: #A27C6D;    --madder-edge-dark: #997683;
+	--ochre: #7A6119;          --ochre-bright: #E4CA83;
+	--ochre-wash: #ECE2C7;     --ochre-wash-dark: #31333C;
+	--ochre-edge: #988246;     --ochre-edge-dark: #8A7E60;
+	--putty-wash: #E7DEC6;     --putty-line: #908171;
+	--putty-text: #9B8D7B;     --putty-fill: #E6DCC5;   --putty-hair: #B9AC99;
+	--slate-wash: #2F3341;     --slate-line: #827F78;
+	--slate-text: #586281;     --slate-fill: #252B42;   --slate-hair: #414965;
+
 	/* Semantic aliases — light mode (default) */
 	--surface: var(--cream);
 	--surface-soft: var(--cream-soft);
@@ -38,6 +55,33 @@
 	--accent-wash: var(--highlight-wash);
 	--positive: var(--sage);
 	--info: var(--ink-blue);
+	--positive-text: var(--sage-deep);
+	--on-positive: var(--cream-bright);
+	--positive-wash: var(--sage-wash);
+	--positive-edge: var(--sage-edge);
+	--info-text: var(--ink-blue);
+	--on-info: var(--cream-bright);
+	--info-wash: var(--ink-blue-wash);
+	--info-edge: var(--ink-blue-edge);
+	--negative: var(--madder);
+	--negative-text: var(--madder);
+	--on-negative: var(--cream-bright);
+	--negative-wash: var(--madder-wash);
+	--negative-edge: var(--madder-edge);
+	--caution: var(--ochre);
+	--caution-text: var(--ochre);
+	--on-caution: var(--cream-bright);
+	--caution-wash: var(--ochre-wash);
+	--caution-edge: var(--ochre-edge);
+	--neutral: var(--choc-soft);
+	--neutral-text: var(--choc-soft);
+	--on-neutral: var(--cream-bright);
+	--neutral-wash: var(--putty-wash);
+	--neutral-edge: var(--putty-line);
+	--inactive-fill: var(--putty-fill);
+	--inactive-text: var(--putty-text);
+	--inactive-edge: var(--putty-hair);
+	--focus-ring: var(--ink-blue);
 	--hairline: var(--hair-light);
 	--on-accent: var(--cream);
 
@@ -51,6 +95,12 @@
 	--dur-fast: 120ms;
 	--dur-base: 220ms;
 	--dur-slow: 420ms;
+
+	/* Feedback durations, deliberately separate from --dur-* so the
+	   reduced-motion block can zero choreography without killing them.
+	   The foundation's law: choreography goes, feedback stays. */
+	--dur-feedback: 220ms;
+	--dur-feedback-fast: 120ms;
 
 	/* Gradients */
 	--grad-dark-subtle: linear-gradient(176deg, #212a48, #161c30 55%, #141a2c);
@@ -68,13 +118,17 @@
 
 	--grain-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 
-	/* Type */
-	--font-display: 'Fraunces', Georgia, 'Times New Roman', serif;
-	--font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-	/* Monospace is a stack, not a webfont: nothing here is downloaded, so a
-	   terminal capture and a config identifier cost no extra bytes. Shared so the
-	   code block and the reference tables cannot drift onto different mono faces. */
-	--font-mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+	/* Type — the foundation's role stacks, adopted verbatim. Harmattan sits in
+	   the display stack as its Arabic member; it is never downloaded here and
+	   never resolves, because the Latin faces carry no Arabic glyphs and this
+	   site has no Arabic content. Removing it would change a published stack. */
+	--font-display: 'Literata', 'Harmattan', Georgia, 'Times New Roman', serif;
+	--font-sans: 'Readex Pro', system-ui, -apple-system, 'Segoe UI', sans-serif;
+	/* Shared so the code block and the reference tables cannot drift onto
+	   different mono faces. */
+	--font-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+	/* Ligatures off by default, per the foundation: != stays two glyphs. */
+	--mono-features: 'calt' 0, 'liga' 0;
 
 	/* The sticky header's own height. Measured off the built page rather than
 	   assumed: 18px of nav padding either side of the logo, plus the 1px
@@ -116,6 +170,33 @@
 	--accent-wash: var(--highlight-wash-dark);
 	--positive: var(--sage-bright);
 	--info: var(--ink-blue-bright);
+	--positive-text: var(--sage-bright);
+	--on-positive: var(--navy-deep);
+	--positive-wash: var(--sage-wash-dark);
+	--positive-edge: var(--sage-edge-dark);
+	--info-text: var(--ink-blue-bright);
+	--on-info: var(--navy-deep);
+	--info-wash: var(--ink-blue-wash-dark);
+	--info-edge: var(--ink-blue-edge-dark);
+	--negative: var(--madder-bright);
+	--negative-text: var(--madder-bright);
+	--on-negative: var(--navy-deep);
+	--negative-wash: var(--madder-wash-dark);
+	--negative-edge: var(--madder-edge-dark);
+	--caution: var(--ochre-bright);
+	--caution-text: var(--ochre-bright);
+	--on-caution: var(--navy-deep);
+	--caution-wash: var(--ochre-wash-dark);
+	--caution-edge: var(--ochre-edge-dark);
+	--neutral: var(--cream-muted);
+	--neutral-text: var(--cream-muted);
+	--on-neutral: var(--navy-deep);
+	--neutral-wash: var(--slate-wash);
+	--neutral-edge: var(--slate-line);
+	--inactive-fill: var(--slate-fill);
+	--inactive-text: var(--slate-text);
+	--inactive-edge: var(--slate-hair);
+	--focus-ring: var(--ink-blue-bright);
 	--hairline: var(--hair-dark);
 	--on-accent: var(--choc);
 	--page-grad-glow: var(--grad-dark-glow);
@@ -123,6 +204,24 @@
 	--page-grad-warm: var(--grad-dark-warm);
 	--grain-opacity: .06;
 	color-scheme: dark;
+}
+
+/* Low-vision preference. Published by the foundation: the most-read quiet roles
+   must not be the ones that ignore the setting. Values are the system's own. */
+@media (prefers-contrast: more) {
+	:root {
+		--text-muted: #55463A;
+		--neutral-text: #55463A;
+		--inactive-text: #847668;
+		--hairline: #908171;
+	}
+
+	.theme-dark {
+		--text-muted: #D9D0B8;
+		--neutral-text: #D9D0B8;
+		--inactive-text: #8C96B8;
+		--hairline: #747EA3;
+	}
 }
 
 @layer base {
@@ -155,9 +254,21 @@
 		background: var(--accent-wash);
 	}
 
+	/* Code keeps its own selection tint, per the developer layer. */
+	pre::selection, pre ::selection,
+	code::selection, code ::selection {
+		background: #E3D3AE;
+	}
+
+	html.theme-dark pre::selection, html.theme-dark pre ::selection,
+	html.theme-dark code::selection, html.theme-dark code ::selection {
+		background: #443A2B;
+	}
+
 	pre,
 	code {
 		font-size: 0.875rem;
+		font-feature-settings: var(--mono-features);
 	}
 }
 
@@ -193,7 +304,7 @@
 		.shell { padding-inline: 96px; }
 	}
 
-	/* The site's micro-label treatment: 11px Inter, semibold, small caps. Four
+	/* The site's micro-label treatment: 11px Readex Pro, semibold, small caps. Four
 	   places had grown a byte-identical copy of it — a reference table's column
 	   headings, that table's stacked per-cell labels, a definition row's label,
 	   and the kicker. Declared once for both names rather than as a base class
@@ -224,13 +335,13 @@
 		color: var(--accent);
 	}
 
-	/* The value half of a labelled row: 15.5px on a 1.65 leading, in body ink.
+	/* The value half of a labelled row: 15px on a 1.65 leading, in body ink.
 	   Here rather than scoped inside DefinitionRows for the reason .micro-label
 	   is here — a second place draws it. A project page's configuration band ends
 	   in a note that is a row's value in everything but its label, and it had a
 	   byte-identical copy of these three declarations written inline. */
 	.def-value {
-		font-size: 15.5px;
+		font-size: 15px;
 		line-height: 1.65;
 		color: var(--text-body);
 	}
@@ -256,6 +367,7 @@
 	   CodeBlock and DataTable read, and .theme-dark redefines the first. */
 	.code-token {
 		font-family: var(--font-mono);
+		font-feature-settings: var(--mono-features);
 		font-size: .92em;
 		color: var(--text-strong);
 		/* An identifier is one unbroken word with no break opportunity in it, and
@@ -299,8 +411,8 @@
 		font-size: 15px;
 		font-weight: 600;
 		padding: 12px 24px;
-		transition: filter var(--dur-base) var(--ease-standard),
-			background-color var(--dur-base) var(--ease-standard),
+		transition: filter var(--dur-feedback) var(--ease-standard),
+			background-color var(--dur-feedback) var(--ease-standard),
 			transform var(--dur-fast) var(--ease-standard);
 		cursor: pointer;
 	}
@@ -310,7 +422,12 @@
 
 	.btn-primary {
 		background: var(--accent);
-		color: var(--on-accent);
+		/* choc-ink, not --on-accent: the system's contrast card measures cream on
+		   caramel at 3.07 (AA-LARGE, marked legacy) and publishes choc-ink at
+		   4.59 as the small-text alternative. A 15px semibold label is small
+		   text. --accent does not flip between modes, so one value serves both.
+		   --on-accent is not wrong, it is simply for larger or bolder text. */
+		color: var(--choc-ink);
 	}
 
 	.btn-secondary {
@@ -328,14 +445,14 @@
 	/* Tag chip */
 	.chip {
 		display: inline-block;
-		font-size: 12px;
+		font-size: 13px;
 		font-weight: 500;
 		padding: 4px 10px;
 		border-radius: 9px;
 		border: 1px solid var(--hairline);
 		background: var(--surface-soft);
 		color: var(--text-muted);
-		transition: filter var(--dur-base) var(--ease-standard);
+		transition: filter var(--dur-feedback) var(--ease-standard);
 	}
 
 	.chip:hover { filter: brightness(.95); }
@@ -346,7 +463,7 @@
 		border: 1px solid var(--hairline);
 		border-radius: 14px;
 		box-shadow: var(--shadow-soft);
-		transition: box-shadow var(--dur-base) var(--ease-standard), filter var(--dur-base) var(--ease-standard);
+		transition: box-shadow var(--dur-feedback) var(--ease-standard), filter var(--dur-feedback) var(--ease-standard);
 	}
 
 	.cardx-hover:hover {
@@ -391,7 +508,8 @@
 		font-weight: 600;
 		letter-spacing: .08em;
 		text-transform: uppercase;
-		color: var(--on-accent);
+		/* 11px is small text, so it takes the small-text ink, not --on-accent. */
+		color: var(--choc-ink);
 		background: var(--accent);
 		border-radius: 999px;
 		padding: 4px 12px;
@@ -413,7 +531,7 @@
 	.badge-pulse { animation: badge-pulse 3s var(--ease-standard) infinite; }
 
 	/* Arrow links: nudge the arrow on hover */
-	.arrow-link { color: var(--info); font-weight: 600; transition: color var(--dur-base) var(--ease-standard); }
+	.arrow-link { color: var(--info); font-weight: 600; transition: color var(--dur-feedback) var(--ease-standard); }
 	.arrow-link .arrow { display: inline-block; transition: transform var(--dur-base) var(--ease-standard); }
 	.arrow-link:hover { color: var(--accent); }
 	.arrow-link:hover .arrow { transform: translateX(2px); }
@@ -489,10 +607,54 @@
 	.reveal { opacity: 1; transform: none; }
 	.reveal.is-visible { transition: none; }
 
+	/* Choreography goes, feedback stays — the foundation's motion law.
+	   Restricting transition-property is what does the work: a transform-bearing
+	   transition simply stops being a transition, while colour, background and
+	   the brightness effect keep their normal duration. Hover, focus and
+	   selection must not go dead: 120-220ms of colour change is not vestibular,
+	   and removing it makes the interface feel broken rather than calm. */
 	*,
 	*::before,
 	*::after {
-		transition-duration: 1ms !important;
+		transition-property: color, background-color, border-color, filter, box-shadow, opacity !important;
 		animation-duration: 1ms !important;
 	}
+}
+
+/* Shiki dual-theme. It emits --shiki-light and --shiki-dark on every token and
+   --shiki-light-bg / --shiki-dark-bg on the fence, and this picks which pair
+   applies.
+
+   Deliberately OUTSIDE @layer components. Shiki generates its class inside the
+   markdown pipeline at build time, so it never appears in the source Tailwind
+   scans, and a rule for it placed in a layer is purged from the bundle. The
+   dark rule would survive that purge on its own, because its selector names the
+   theme class, which leaves light mode silently unstyled.
+
+   Both modes are gated on the html class so the two rules carry equal
+   specificity. Prose.astro sets a fence background globally at (0,1,1); an
+   ungated selector here would be (0,1,0) and lose to it in light mode only.
+
+   The background is set separately below, on the fence only — Shiki's own
+   --shiki-*-bg is not used for it. */
+html:not(.theme-dark) .astro-code,
+html:not(.theme-dark) .astro-code span {
+	color: var(--shiki-light);
+}
+
+html.theme-dark .astro-code,
+html.theme-dark .astro-code span {
+	color: var(--shiki-dark);
+}
+
+/* The fence sits on the system's own code background rather than the one baked
+   into the syntax theme, which is plain white and reads as a hole punched in
+   the page. Only the fence itself, never the token spans: they carry no
+   background of their own and must not gain one. */
+html:not(.theme-dark) .astro-code {
+	background-color: var(--cream-deep);
+}
+
+html.theme-dark .astro-code {
+	background-color: var(--navy-deep);
 }

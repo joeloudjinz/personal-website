@@ -38,8 +38,8 @@ const shortDate = (date: Date) =>
                 {posts.map((post) => (
                         <a href={`/${post.id}/`}
                            class='flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 py-6 border-b border-hairline last:border-b-0 group'>
-                            <span class='text-sm text-muted tabular-nums w-[100px] shrink-0'>{shortDate(post.data.pubDate)}</span>
-                            <span class='font-display text-xl md:text-[26px] font-semibold text-strong leading-snug grow group-hover:text-accent transition-colors duration-200'>
+                            <span class='text-[15px] text-muted tabular-nums w-[100px] shrink-0'>{shortDate(post.data.pubDate)}</span>
+                            <span class='font-display text-xl md:text-[25px] font-semibold text-strong leading-snug grow group-hover:text-accent transition-colors duration-200'>
                                 {post.data.title}
                             </span>
                             <span class='flex gap-2 flex-wrap shrink-0'>

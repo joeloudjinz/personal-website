@@ -265,27 +265,27 @@ const canonical = `https://${page.data.subdomain}/`;
                     wash draws a block over the text between them — and a phrase
                     that cannot wrap is as wide as its font-size makes it. At the
                     72px the design asks for, held at every width, "knows the
-                    hour" measures 499px set in Fraunces and 581px in the Georgia
+                    hour" measures 528px set in Literata and 581px in the Georgia
                     fallback — the wider of the two, and so the one that binds —
                     against the 272px content box a 320px screen leaves inside
-                    the shell. That is 227px and 309px past the content edge, far
+                    the shell. That is 256px and 309px past the content edge, far
                     enough to scroll the document rather than merely spill into
                     the gutter. Stepping the size at breakpoints leaves the
                     widths between them untested; scaling with the viewport
                     reaches 72px by 848px, where the design's two-column widths
                     begin, and holds every width below it.
 
-                    The floor is 30px rather than the 34px Fraunces alone would
-                    allow, because Fraunces is not what draws the first paint.
+                    The floor is 30px rather than the 34px Literata alone would
+                    allow, because Literata is not what draws the first paint.
                     It loads with display=swap, so the phrase is set in Georgia —
-                    the next family in the stack — until the webfont lands, and
-                    Georgia is the wider face. Measured at 320px, where the shell
-                    leaves a 272px content box: the span is 263px in Fraunces at
-                    34px and 285px in Georgia, so 34px spent the whole swap
-                    window 13px into the 24px gutter. Nothing scrolled — the
+                    the next Latin family in the stack — until the webfont lands,
+                    and Georgia is the wider face. Measured at 320px, where the
+                    shell leaves a 272px content box: the span is 255px in
+                    Literata at 34px and 285px in Georgia, so 34px spent the whole
+                    swap window 13px into the 24px gutter. Nothing scrolled — the
                     document stayed 320 wide — which is exactly why the clamp,
                     not the scrollbar, has to be the thing that catches it. At
-                    30px Georgia measures 254px, leaving 18px, and Fraunces 232px.
+                    30px Georgia measures 254px, leaving 18px, and Literata 225px.
                     Georgia is the case that sets the floor: the rest of the
                     stack — Times New Roman, then the generic serif — sets the
                     same phrase at 238px where Georgia needs 285px.
@@ -691,7 +691,7 @@ const canonical = `https://${page.data.subdomain}/`;
                 same 30px floor for the same reason — the washed phrase cannot
                 wrap, so its width follows the font-size, and the size has to
                 hold in the Georgia fallback display=swap paints first rather
-                than only in Fraunces.
+                than only in Literata.
 
                 Sharing the floor is what lets the two headings share one bound
                 on their wash: 250px at 30px in Georgia, checked in the schema.

@@ -37,7 +37,7 @@
  * Advance width, in px, of one character at the binding condition: 600 weight,
  * 30px, Georgia, -0.015em tracking.
  *
- * Georgia and not Fraunces because Fraunces loads with `display=swap`, so Georgia
+ * Georgia and not Literata because Literata loads with `display=swap`, so Georgia
  * — the next family in the display stack — is what paints the phrase until the
  * webfont arrives, and it is the wider of the two. 30px because that is the clamp
  * floor, which is what applies at 320px.
@@ -49,6 +49,16 @@
  * SPEED", "Works Everywhere" and "system", the sum matched the rendered
  * getBoundingClientRect().width to 0.0px every time — this face applies no
  * kerning pairs at this size.
+ *
+ * Georgia stayed the wider of the two across the face swap, confirmed by
+ * rendering those same five phrases in Literata at the binding condition on
+ * 2026-08-15: Literata draws "knows the hour" at 225.1px against the 240 charged
+ * here, "ZERO OVERHEAD" at 258.7 against 291, "Works Everywhere" at 273.4
+ * against 296, "MADE FOR SPEED" at 262.0 against 296, and "system" at 100.1
+ * against 107. So the charges below run roughly 6 to 12 per cent over what
+ * Literata actually draws, and a phrase this file admits still fits once the
+ * webfont lands. The numbers stay as they are: they are Georgia's, and Georgia
+ * is what a reader sees first.
  */
 const ADVANCE_GROUPS: ReadonlyArray<readonly [string, number]> = [
   [" '’", 8], ['.,lj', 10], ['i:;!-', 11], ['ft', 12], ['I()', 13],
