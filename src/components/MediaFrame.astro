@@ -60,17 +60,16 @@ interface Props {
      *
      * How many there should be is a question about bytes, not about tidiness. A
      * rung of the WebP ladder is single-digit kB and a rung here is hundreds, so
-     * a ladder of one means every screen takes the largest file there is.
+     * a ladder of one means every screen takes the largest file there is — which
+     * for the hero is 1.6 MiB against the 750 KiB a phone actually needs.
      *
-     * Today every animated capture on this site is a ladder of one, and not by
-     * choice: the rungs have to be RENDERED, and the upstream project publishes
-     * one render per tape. The hero shipped 1000 and 2000 until the 2.0 refresh,
-     * when the 2000 was replaced from a tape whose 1000 upstream has not
-     * committed — so the rung came out rather than being faked by resampling the
-     * larger file, which is what the entry's own note says about the 1.5x rung
-     * that came out before it. Restoring it is one command in the upstream
-     * checkout, not a change here. Ignored for anything the pipeline handles,
-     * which generates its own ladder from `widths`.
+     * Both animated captures ship two rungs, 1000 and 2000, and the count is
+     * upstream's to raise: a rung has to be RENDERED from the tape, because
+     * resampling one here would put a file on the page that no `make demo`
+     * produces. There is no rung between them, and that gap is a property of the
+     * recorder rather than an oversight — its SCALE takes whole multiples only,
+     * so a tablet asking for 1340 takes the 2000. Ignored for anything the
+     * pipeline handles, which generates its own ladder from `widths`.
      */
     variants?: ImageMetadata[];
     loading?: 'lazy' | 'eager';
