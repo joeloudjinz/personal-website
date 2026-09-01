@@ -40,7 +40,7 @@ hero:
   wash: "knows the hour"
   promise: "A zsh prompt that stays calm, bends to how you like it, and knows when the next prayer falls. Your machine does the maths."
   status: "Stable"
-  version: "v1.0.0"
+  version: "v2.0.2"
   ctaPrimary:
     label: "Install InZsh"
     href: "#get-started"
@@ -49,22 +49,28 @@ hero:
     href: "https://github.com/joeloudjinz/inzsh"
   media:
     src: "../../assets/img/inzsh/showcase-2000.gif"
-    # The same tape at 1x. An animated capture skips the image pipeline, so
-    # rendered files are the only candidates it has — 650 KiB and 1.41 MiB. See
-    # variants in content.config.ts.
+    # Two rungs, both rendered upstream. An animated capture skips the image
+    # pipeline — the service decodes one frame and re-encodes it, so a GIF would
+    # come back a still — which means the only candidates a browser can be offered
+    # are files somebody rendered. See variants in content.config.ts, and the GIF
+    # branch in MediaFrame for the markup it turns into.
     #
-    # Two rungs rather than three, and the gap between them is real. Upstream's
-    # SCALE takes 2, 3 or 4 and nothing between — SCALE=1.5 is refused before a
-    # frame is drawn — so the 1.5x rung we used to ship was one we rendered
-    # ourselves. Re-rolling it here would cost the reproduction claim the
-    # verification band makes, which is the more valuable of the two. Measured:
-    # a 768, 1280 or 1440 viewport at DPR 2 now takes the 2000 where it took the
-    # 1500, +410 KiB. A 320 viewport is unaffected — it took the 1000 before and
-    # takes it now. Closing that gap is a request to the upstream project, not
-    # something to work around here.
+    # The 1x went missing for exactly one release. The 2.0 refresh replaced the
+    # 2000 from a new tape whose 1x upstream had not yet committed, and the
+    # smaller rung came out rather than being faked by resampling the larger one —
+    # the same call the 1.5x rung got before it. Upstream now publishes both, so
+    # the ladder is whole again without anything here being resampled.
+    #
+    # UPSTREAM NAMES THESE THE OTHER WAY ROUND. There, the bare name is whichever
+    # size shipped first: docs/assets/showcase.gif IS the 2000, and
+    # showcase-1000.gif the 1000 — while for the stills the bare name is the 1000
+    # and the suffixed one the 2000. Every file here carries its own rendered
+    # width instead, so the two conventions meet once, at the copy, and nothing
+    # downstream has to remember which kind of file it is looking at. When pulling
+    # a fresh capture, read the width out of the file rather than off the name.
     variants:
       - "../../assets/img/inzsh/showcase-1000.gif"
-    alt: "A recording of the InZsh prompt. Coordinates for Mecca are set and a prayer segment appears on the right of the prompt, reading Maghrib 17:50 beside the clock. A directory is created and entered, a repository is opened and its branch shown, a failing command marks the prompt with a cross, then the surface and separator styles change and the prompt is redrawn from the dark sharp preset into the light warm one."
+    alt: "A recording of the InZsh prompt, about two minutes long. Coordinates for Mecca are set and a prayer segment appears on the right of the prompt, reading Maghrib 17:50 beside the clock. A directory is created and entered, a repository is opened and its branch shown, a failing command marks the prompt with a cross. Then the look changes a setting at a time: every segment takes a colour of its own, the separators round off, the ribbon goes flat, and the dark sharp preset is redrawn as the light warm one. It ends on the row axis — the user and host segments move down to a second row and the clock moves to the end of that row, leaving a two-row prompt with rounded separators in the warm register, the prayer times and the clock still ranged right."
 glance:
   kicker: "At a glance"
   items:
@@ -84,25 +90,45 @@ why:
     - "Two other things came with it. Every colour in the prompt has a defined job and a contrast ratio that was measured rather than eyeballed, so it holds up on screens I’ve never seen. And every setting declares the values it accepts and what it falls back to, so a typo quietly degrades the prompt instead of breaking it."
     - "That last part is the one I care about most. The knobs are the architecture rather than a layer on top, so whatever comes next should arrive as new settings rather than a rewrite."
 anatomy:
-  # Five bands are in the header's section row, out of the seven a reader might
-  # plausibly jump to. What is not here, and why:
+  # Six bands are in the header's section row, out of the nine a reader might
+  # plausibly jump to. Rows earned its place at 2.0, and the place had to be paid
+  # for. By src/utils/navFit.ts, against the 480px the bar holds: the five before
+  # it were 428.5px, and adding "Rows" (40.5px) with the 28px gap in front of it
+  # would have been 497px — 17px over. Shortening "Prayer times" (98px) to
+  # "Prayer" (51px) returns 47px, which lands the six at 450px with 30px in hand.
   #
+  # Every number here comes from navFit's own advance table rather than from
+  # counting characters, and it is worth trusting over an eyeball: `t` is 6px and
+  # `o` is 9.5px, so a word's width is not something the length of it predicts.
+  # Re-measure there rather than reasoning from these.
+  #
+  # A label lost a word rather than a band losing its place, which is the right
+  # way round: the band that item points at is headed "Prayer times, in the
+  # prompt" the moment you arrive, so the nav is short for something the
+  # destination says in full. A band nobody can find has no such second chance.
+  #
+  # What is still not here, and why:
+  #
+  #   commands "Commands" is 84.5px, so a seventh label is 562.5px — 82.5px over,
+  #            with no second word left anywhere to cut for it. It sits directly
+  #            under Install, which is in the row.
   #   gallery  Three full-width captures with nothing else in the band. It is the
-  #            one section you cannot scroll past without noticing, and it sits
-  #            directly under Install, which is in the row.
+  #            one section you cannot scroll past without noticing.
   #   specs    A reference list you consult once you have decided, rather than a
   #            place you arrive at. It sits between the gallery and the FAQ, both
   #            of which are a screen away.
   #
-  # Not a taste call about which five look best. By src/utils/navFit.ts, against
-  # the 480px the bar holds at the width the row appears at: all seven are 576px
-  # and six are 502px, so five is what fits and the build says so.
+  # Not a taste call about which six look best; six is what fits and the build
+  # says so. The bar is the real constraint, and it is due to be reworked to hold
+  # more items — a future project needs that — so when it is, this note and the
+  # shortened label it explains are the first two things to revisit rather than
+  # preserve.
   navLabel: "Segments"
   kicker: "Segments · left, right, hidden"
   heading: "What the prompt draws, and in what order."
   # Ranks are written with a real minus, not a hyphen, for the reason the ranges
   # in the configuration band use a real en dash.
-  intro: "One integer settles both questions about a segment. A positive rank puts it on the left, ascending from the left edge; a negative rank puts it on the right, running inward from the right edge. A rank of `0` ships the segment hidden, and it appears the moment you give it one: the rows reading hidden below are the ones sitting at `0`. Every segment then takes its own overrides, `INZSH_<SEGMENT>_RANK`, `_PRIORITY` (what is dropped first as the window narrows, which is a separate question from rank), `_BG`, `_FG` and `_MINCOLS`."
+  intro: "One integer places a segment along a row and decides whether it is drawn at all. A positive rank puts it on the left, ascending from the left edge; a negative rank puts it on the right, running inward from the right edge; and the numbers need not be contiguous, so `1`, `4` and `10` order exactly as they read. A rank of `0` ships the segment hidden — the four rows reading hidden below are the ones sitting at `0` — and it appears the moment you give it another number. WHICH row is a separate question, and a newer one: `INZSH_ROW<N>_LEFT` and `INZSH_ROW<N>_RIGHT` answer it, and naming a segment in one of those arrays overrides its rank outright, a `0` included. That is the other way the four hidden segments below are switched on, and it is what the next band is about. Each segment also takes its own overrides — `INZSH_<SEGMENT>_RANK`, `_PRIORITY` (what is dropped first as the window narrows, which is a separate question from rank), `_BG`, `_FG` and `_MINCOLS`."
   table:
     columns:
       - label: "Segment"
@@ -130,8 +156,56 @@ anatomy:
       - cells: ["jobs", "hidden", "Background jobs this shell is holding."]
       - cells: ["duration", "hidden", "How long the last command took, once it passes a threshold; `3` seconds by default."]
       - cells: ["date", "hidden", "The calendar day, as opposed to the time of day."]
+# The band the segment reference now leads into: that one is the set of parts,
+# this one is how the set is laid out. Shipped with 1.3 and breaking in 2.0, so it
+# is the newest thing on the page and the only headline feature the page has ever
+# been missing.
+#
+# In the section nav, which cost "Prayer times" a word to pay for. The arithmetic
+# is in the anatomy band's note above, where the rest of that reasoning lives.
+arrangement:
+  navLabel: "Rows"
+  kicker: "Rows · one prompt, several lines"
+  heading: "Rank places a block along a row. Rows say which."
+  standfirst: "Until 1.3 every block landed on the same row, and the only choice about lines was whether the input marker got one of its own. Rank still decides where a block sits along a row; `INZSH_ROW<N>_LEFT` and `INZSH_ROW<N>_RIGHT` now decide which row it is drawn on, and a segment named in one of them is placed and shown whatever its rank said."
+  code:
+    label: "Three values in .zshrc"
+    lines:
+      - text: "INZSH_ROW2_LEFT=(USER HOST)"
+      - text: "INZSH_ROW2_RIGHT=(TIME)"
+      - text: "INZSH_MARKER_ROW=own"
+      - text: "# own · inline"
+  media:
+    src: "../../assets/img/inzsh/rows-2000.gif"
+    # Two rendered rungs, like the hero, and for the same reason — see the note
+    # there, which carries the whole of it including why upstream's names for
+    # these two files are the other way round from ours. Lazy rather than eager:
+    # this one is several screens down.
+    variants:
+      - "../../assets/img/inzsh/rows-1000.gif"
+    alt: "A recording of the prompt gaining and losing rows. It begins as a single row — joeinz, joeinz-pc, the path ~/work and a branch segment reading main with a mark for uncommitted changes, with the clock at 12:34 ranged right. Setting INZSH_ROW2_LEFT moves the user and host segments down onto a second row; setting INZSH_ROW2_RIGHT moves the clock to the end of that second row; declaring row 4 puts the branch on a third row drawn directly beneath the second; the input marker then moves off its own line and onto the end of the last row. Everything is unset at the end and the prompt returns to the one row it started as, unchanged."
+  rows:
+    - label: "Which row"
+      value: "`INZSH_ROW<N>_LEFT` and `INZSH_ROW<N>_RIGHT` take an array of segment names in draw order, `<N>` being `1` to `8`. Naming a segment there places and shows it, overriding `INZSH_<SEGMENT>_RANK` entirely — a registered `0` included, which is the other way the four hidden segments appear. `_MINCOLS` still applies: a row array places a segment, it cannot resurrect one the terminal has no room for."
+    - label: "Sort keys, not slots"
+      value: "Row numbers order the rows; they do not reserve them. Declare rows `1` and `4` and you get two rows, drawn next to each other, because a row with nothing on either side is not drawn at all. So there is no gap to leave and no renumbering to do when you take one out."
+    - label: "Per side"
+      value: "The override is per side of a row. Setting one row's left leaves its right to derive from rank as usual — and it leaves off everything else that would have landed on that left, rather than sliding it onto the right or onto another row."
+    - label: "Arrays only"
+      value: "A scalar assignment is refused rather than split on whitespace, so one string naming two segments behaves as if the variable were unset. These are the one family read outside the configuration registry, because every other validator on this page describes a single value rather than a list."
+    - label: "Where you type"
+      value: "`INZSH_MARKER_ROW` settles where the input marker sits. `own` gives it a bare line of its own below every drawn row, which is what the theme ships; `inline` ends the last drawn row with it instead, after that row's left-hand blocks, and you type on that row. Anything else falls back to `own`."
+    - label: "When one will not fit"
+      value: "Fitting is per row: content that will not fit is dropped on its own row and never relocated to another one. `inzsh doctor` names every segment, the row and side it landed on, and the reason where it did not — including a row-array entry that named no segment this build has, which is dropped before the prompt is ever drawn."
+  links:
+    - label: "The configuration reference"
+      href: "https://github.com/joeloudjinz/inzsh/blob/dev/docs/configuration.md"
 deepDive:
-  navLabel: "Prayer times"
+  # "Prayer times" until 2.0, when Rows needed the 47px the second word was
+  # spending. The band's own heading says the whole phrase on arrival — see the
+  # anatomy band's note for the arithmetic and for why this was the right thing
+  # to cut.
+  navLabel: "Prayer"
   kicker: "Prayer times · computed locally"
   heading: "Prayer times, in the prompt."
   standfirst: "Your machine does the calculation, from coordinates you give it or, if you ask, ones it looks up once. The times are never fetched, and the segment stays hidden until you set it up."
@@ -144,8 +218,13 @@ deepDive:
       - text: "INZSH_SALAH_ASR=shafi"
       - text: "# standard · shafi · hanafi"
   media:
-    src: "../../assets/img/inzsh/shot-salah.png"
-    alt: "A single row of prompt on black, with the prayer times as its subject rather than a detail: joeinz, joeinz-pc, the path ~/work and a branch segment reading main in pink with a mark for uncommitted changes, then the cursor. Ranged right, in segments of their own, Maghrib · 17:50 and the clock at 15:34: the next prayer and the time it falls, computed on the machine from the Mecca coordinates."
+    # The alt gained the input marker when this was repointed at upstream's own
+    # 2x file: the render the site had been carrying was made before the marker
+    # was drawn inline, so it ended on a bare cursor. Nothing else in the frame
+    # moved. That drift is the reason these now track a published file rather
+    # than a local run of the same tape.
+    src: "../../assets/img/inzsh/shot-salah-2000.png"
+    alt: "A single row of prompt on black, with the prayer times as its subject rather than a detail: joeinz, joeinz-pc, the path ~/work and a branch segment reading main in pink with a mark for uncommitted changes, then the caramel input marker ending the row, and the cursor. Ranged right, in segments of their own, Maghrib · 17:50 and the clock at 15:34: the next prayer and the time it falls, computed on the machine from the Mecca coordinates."
   rows:
     - label: "Methods:"
       value: "`MWL` Muslim World League · `ISNA` Islamic Society of North America · `UmmAlQura` Umm al-Qura University, Makkah · `Egyptian` Egyptian General Authority of Survey · `Karachi` University of Islamic Sciences, Karachi · `Algeria` Ministry of Religious Affairs and Wakfs, Algeria; default `MWL`."
@@ -179,7 +258,7 @@ config:
   # minimal, behind three INZSH_LADDER_*_COLS variables) were removed rather than
   # tuned, because fitting from real measurements turned out simpler and exact.
   # Nothing on this page may claim a feature the docs record as deleted.
-  intro: "Nothing here needs a fork. Every setting declares what it takes, segments can be overridden individually, and `inzsh preset` changes the look without restarting your shell. The engine knobs:"
+  intro: "Nothing here needs a fork. Every setting declares what it takes, segments can be overridden individually, and `inzsh preset` changes the look without restarting your shell. The reference documents about fifty; these are the engine knobs, the ones that change the prompt rather than one part of it:"
   # Columns, then rows of cells in that order. The headers are copy, not the
   # component's: "fallback" prints as "Default" here. The widths are the four
   # this band was drawn at; a band with three columns declares its own.
@@ -226,6 +305,21 @@ config:
           - "1"
           - "Columns of air either side of every block."
       - cells:
+          - "INZSH_MARKER_ROW"
+          - ["own", "inline"]
+          - "own"
+          - "Where the input marker sits. `own` gives it a bare line of its own below every drawn row; `inline` ends the last drawn row with it, after that row's left-hand blocks, and you type on that row."
+      - cells:
+          - "INZSH_ROW<N>_LEFT"
+          - ["an array of segment names"]
+          - "unset"
+          - "Which row a segment's left side draws on, in place of its rank. `<N>` is `1` to `8`, and the numbers sort the rows rather than reserving them. Arrays only: a scalar is refused rather than split on whitespace."
+      - cells:
+          - "INZSH_ROW<N>_RIGHT"
+          - ["the same shape"]
+          - "unset"
+          - "The same, for a row's right side. The override is per side, so setting one leaves the other to derive from rank as usual."
+      - cells:
           - "INZSH_TRANSIENT"
           - ["1", "0"]
           - "1"
@@ -240,7 +334,7 @@ config:
           - ["1–60"]
           - "2"
           - "Seconds before the git call is killed."
-  note: "Every knob states what it accepts and where it lands if you get it wrong. A bad value falls back instead of breaking your prompt."
+  note: "Every knob states what it accepts and where it lands if you get it wrong. A bad value falls back instead of breaking your prompt. A misspelled name has nothing to validate against, so `inzsh doctor` reaches for the nearest registered name instead — and a name a past release retired gets its replacement named outright, since there is no spec left to refuse the value and nothing about the old name resembles the new one."
   link:
     label: "The configuration reference"
     href: "https://github.com/joeloudjinz/inzsh/blob/dev/docs/configuration.md"
@@ -250,7 +344,7 @@ steps:
   navLabel: "Install"
   kicker: "Get started"
   heading: "Three steps in."
-  intro: "You’ll need zsh 5.8+ and a Nerd Font (the prompt draws powerline separators). The installer is reversible: `--uninstall` takes everything back out."
+  intro: "You’ll need zsh 5.8+ and a Nerd Font (the prompt draws powerline separators). The installer is reversible: `--uninstall` takes everything back out. If you would rather not keep a clone, every release attaches `inzsh.zsh-theme` — the whole library concatenated in dependency order — to be downloaded and sourced from .zshrc on its own. That is also the only shape in which `inzsh doctor` reports a version number, because the version is stamped into the bundle as it is built; installed from a source tree, the theme reports the literal word `source`."
   link:
     label: "The install guide"
     href: "https://github.com/joeloudjinz/inzsh/blob/dev/docs/install.md"
@@ -274,6 +368,23 @@ steps:
         - text: "INZSH_SALAH_ASR=shafi"
         - text: "# standard · shafi · hanafi"
       note: "Latitude, longitude, calculation method, Asr school. Off unless these are set."
+# No navLabel, for the reason the anatomy band's note gives in pixels: the row is
+# full at six, and "Commands" is the widest label that did not get in — there is
+# no second word left anywhere to cut for it. It sits directly under Install,
+# which is in the row.
+usage:
+  kicker: "Commands · what you can type"
+  heading: "One command, four verbs."
+  intro: "`inzsh` is the only name the theme puts in your namespace, and everything it offers to be typed is a subcommand of it. A value that names itself is positional — `inzsh preset warm` — and anything a reader would have to guess at takes a named flag instead, which is why the injected clock the pinned suites need is `--now <epoch>` and never a bare number."
+  items:
+    - label: "Diagnose"
+      value: "`inzsh doctor` prints one block: the version, how it was installed and from where, the environment, the resolved prompt shape, where every segment landed and why, and any setting being ignored."
+    - label: "Switch register"
+      value: "`inzsh preset warm` switches a shell that is already running, from the next prompt on; `inzsh preset` alone says which is in force. It reads no file, so a clone and the bundle behave identically."
+    - label: "Refresh the position"
+      value: "`inzsh locate` looks your coordinates up only when the stored ones are past the TTL, so it is safe to run at every login. `--force` asks regardless. It is the only thing here that touches the network."
+    - label: "Read the timetable"
+      value: "`inzsh salah` prints the whole of today, `inzsh salah --days 7` today and the next six. The header names the method, the school and the zone shown — never your position, or anything derived from it."
 gallery:
   kicker: "Gallery"
   heading: "The same prompt, three ways."
@@ -286,17 +397,17 @@ gallery:
   # The alts describe the prompt; the captions name which of the three it is. See
   # the note on alt in content.config.ts for why that is two strings and not one.
   items:
-    - src: "../../assets/img/inzsh/shot-sharp.png"
+    - src: "../../assets/img/inzsh/shot-sharp-2000.png"
       caption: "The sharp preset: dark, full colour."
       alt: "A prompt on black, drawn as arrow-tipped segments on dark slate-blue: the user joeinz, the host joeinz-pc, the path ~/work, then a branch segment reading main in pink with a mark for uncommitted changes. Ranged right, in segments of their own, Maghrib 17:50 and the clock at 15:34."
       width: 1000
       height: 200
-    - src: "../../assets/img/inzsh/shot-warm.png"
+    - src: "../../assets/img/inzsh/shot-warm-2000.png"
       caption: "The warm preset: light, editorial."
       alt: "The same prompt on white: the same segments in the same order, drawn as sand-coloured blocks with dark brown type, and the branch segment in deep red. Maghrib 17:50 and the clock at 15:34 are ranged right, as before."
       width: 1000
       height: 200
-    - src: "../../assets/img/inzsh/shot-256.png"
+    - src: "../../assets/img/inzsh/shot-256-2000.png"
       caption: "The 256-colour fallback, as macOS Terminal.app renders it."
       alt: "The sharp preset again, at 256 colours: the segments, the separators and the prayer times all hold their shape and order, but the greys are flatter and the branch pink and the olive clock sit slightly off the full-colour ones. Close rather than identical."
       width: 1000
@@ -338,7 +449,7 @@ pillars:
     - title: "An honest fallback."
       body: "256-colour terminals get a hand-tuned palette that holds the theme’s shape. It’s close rather than identical, and says so."
 verification:
-  kicker: "Verification · 52 spec files"
+  kicker: "Verification · 54 spec files"
   heading: "Built not to break."
   rows:
     # Still two rows, but the second is a recipe that runs now. It had to be
@@ -351,30 +462,53 @@ verification:
     # multiplied pinned dimensions. Every file in src/assets/img/inzsh came out of
     # those two commands — checked by running them, not by reading the Makefile.
     #
-    # The first row was true as written and is untouched.
+    # REPRODUCIBLE IN GEOMETRY AND CONTENT, NOT IN BYTES, and the second row now
+    # says so. It used to say "rebuild every file on this page", which a reader is
+    # entitled to hear as byte-for-byte and which is not true: two renders of one
+    # tape agree on dimensions and on every glyph, and compare at SSIM 0.9999 —
+    # the residue is the cursor blink landing on a different frame.
+    #
+    # Measured here rather than taken on faith, and it is the sharper illustration
+    # of both halves. Of the four stills, two came back byte-identical to
+    # upstream's published render and two did not; of those two, one differed only
+    # below an 8/255 threshold, and the other had drifted in CONTENT — an older
+    # render made before the input marker was drawn inline. Bytes are the wrong
+    # test in both directions: it called a match on files that had diverged in
+    # meaning, and a mismatch on files that had not.
+    #
+    # Which is the argument for the whole split, and why these track a published
+    # file rather than a local run. The claim the page can stand behind is that a
+    # rerun gives the same picture, and that no file here was resampled to a size
+    # no tape produced.
     - label: "Fixtures"
-      value: "Every still and recording here is rendered from the project’s VHS tapes in the pinned fixture environment (fixed repository, clock and identity), and nothing is hand-edited or cropped."
+      value: "Every still and recording here is rendered from the project’s VHS tapes in the pinned fixture environment (fixed repository, clock and identity), and nothing is hand-edited, cropped or resampled."
     - label: "Rebuilding"
-      value: "`make shots` and `make demo` rebuild every file on this page from those tapes. `SCALE` renders them larger: the 2× captures here are `SCALE=2`."
+      value: "`make shots` and `make demo` rebuild every file here from those tapes — in geometry and content rather than byte for byte: two renders agree on every glyph and differ only in where the cursor blink fell. `SCALE` renders them larger; these are `SCALE=2`."
     - label: "Test suites"
-      value: "52 spec files across unit, render, pty terminal-grid, installer and perf-budget suites, plus golden files that fail when the prompt changes shape."
-    # No millisecond figure here, deliberately. A measured time is a fact about
-    # the machine that measured it, and every other number on this page is a
-    # property of the software that holds wherever it runs. The repo also
-    # declares a 30 ms house budget while the benchmark gates the render row at
-    # 12 ms; until that is settled upstream, quoting either would be quoting the
-    # one that suited us.
+      value: "54 spec files, 27 unit and 27 render, plus 11 terminal-grid tests driving a real pty, an installer suite against a throwaway HOME and a perf suite: 3,231 examples and 91 UI tests. Golden files fail when the prompt changes shape."
+    # The millisecond figure is here now, and the reason it was withheld is gone.
+    # The repo used to declare a 30 ms house budget while the benchmark gated the
+    # render row at 12 ms, and quoting either would have been quoting the one that
+    # suited us. Upstream settled it: 30 ms warm, stated in the configuration
+    # reference as a property of the software — "options change what the prompt
+    # looks like, never what it is allowed to cost" — and enforced on every push.
+    #
+    # 8.23 ms is still a fact about the machine that measured it, which is why the
+    # sentence names CI as that machine rather than presenting the number bare.
+    # The share of the budget is the part that travels.
     - label: "Render path"
-      value: "No subprocesses at all: arithmetic and parameter expansion. Git status comes from a background worker and a cache, so a slow repository can’t stall it. 16 benchmarks gate it; a breach fails the build."
+      value: "No subprocesses: arithmetic and parameter expansion. Git status comes from a background worker and a cache, so a slow repository can’t stall it. Warm, it renders in 8.23 ms on CI against the 30 ms budget the build enforces — 27% of it, gated by 16 benchmarks."
     - label: "CI"
       value: "Runs on Linux and macOS, against zsh 5.8."
     - label: "Diagnostics"
-      value: "`inzsh doctor` prints one diagnostic block (zsh version, terminal, `$TERM`, colour depth, locale, Nerd Font, tmux), plus any setting it is ignoring and what that one accepts. Never your coordinates."
+      value: "`inzsh doctor` reports what resolved, not what a knob asked for: the shape actually drawn, where each segment landed and why, the prayer cache’s health, and every setting being ignored. Never your coordinates, and the theme root with `$HOME` collapsed to `~`."
 # <!-- provisional: FAQ answers 2 and 3 pending rewrite -->
 # Answers 2 and 3 are placeholders assembled from facts stated elsewhere on this
 # page; the user has deferred rewriting them. The rest are approved copy: 1 always
 # was, and the doctor answer was rewritten once doctor turned out to do more than
-# print an environment block.
+# print an environment block — then again at 2.0, when the block grew a version,
+# an install method, a resolved shape and a line per segment. Answer 6 is new at
+# 2.0 and is the one entry here addressed to somebody who already has the theme.
 faq:
   navLabel: "FAQ"
   kicker: "FAQ"
@@ -401,7 +535,9 @@ faq:
     # same setting, is rejected the same way, and names no utility. Check any
     # replacement against the note in tailwind.config.mjs before editing this line.
     - q: "What is `inzsh doctor` for?"
-      a: "Two things. It prints one diagnostic block: zsh version, terminal, `$TERM`, colour depth, locale, Nerd Font, tmux. And it lists every setting you have typed that the theme is ignoring, with what that setting actually accepts, a line each: `ignored INZSH_SEPARATOR_STYLE=arrows - accepts arrow · round · divider`. That second half is the other side of a bad value falling back instead of breaking your prompt. The fallback keeps you working; this is how you find out one happened. Nothing is printed when everything is valid. It never prints your coordinates, so the block stays safe to paste into a public issue."
+      a: "Three questions now, where it started with two. What is running: the version, how it was installed and from where — with your home directory collapsed to `~`, so the path is real and your account name is not. What the prompt actually resolved to: the shape it drew, the separator that really drew and a note when that is not the one you asked for, and a line per segment giving the row and side it landed on, or the reason it landed nowhere. And what is being ignored: every value the theme refused, with the vocabulary it should have used, a line each — `ignored INZSH_SEPARATOR_STYLE=arrows - accepts arrow · round · divider` — plus the nearest registered name for one it does not recognise, the replacement for one a past release retired, and any row-array entry that named no segment this build has. The prayer segment gets two rows of its own: where the position came from, and whether today’s table is cached. Nothing is printed when everything is valid, and your coordinates are never printed at all, so the block stays safe to paste into a public issue."
+    - q: "I’m on 1.x. What did 2.0 remove?"
+      a: "Two names, and neither of them quietly. `INZSH_PROMPT_LINES` was `INZSH_MARKER_ROW`’s deprecated alias through 1.x — `1` meant `inline`, `2` meant `own` — and 2.0.0 removed it rather than carry two names for one fact indefinitely. A .zshrc still setting it draws exactly as if that line were not there: never an error, never a wrong shape. And `inzsh doctor` names both the replacement and the value that means what yours meant, so a line left behind is a row in the block rather than a setting that quietly stopped counting. The other is the injected clock the pinned suites need, which was `inzsh locate <epoch>` and is now `inzsh locate --now <epoch>`: a positional argument is only allowed where the value names itself, and an epoch does not."
 closing:
   heading: "Give your prompt a system."
   wash: "system"

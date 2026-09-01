@@ -361,6 +361,57 @@ const projectPages = defineCollection({
       path: ['wash']
     };
 
+    // The long-form band: a standfirst, an optional code block, an optional
+    // capture, and however many labelled paragraphs the subject needs. Named for
+    // the role, not for what fills it — InZsh puts its prayer times in one and its
+    // row layout in the other, and the next project puts its own two in.
+    //
+    // Declared once and used twice, because `arrangement` and `deepDive` are the
+    // same band drawn at two points in the page. It was written out once, inline
+    // at deepDive, and the second one wanted every word of it: a copy would be a
+    // second place for a cap to be raised in one and left in the other.
+    const featureBand = z.object({
+      navLabel,
+      kicker,
+      heading: bandHeading,
+      standfirst: z.string(),
+      // The block and its label are one optional object, not two independent
+      // optionals. The label is what tells this block's copy control apart
+      // from the ones the steps band renders — several controls on a page all
+      // named "Copy this code block" are indistinguishable in a screen
+      // reader's list of controls, which is the defect the label exists to
+      // fix. Nested, a block without a label cannot be written down; as two
+      // sibling optionals it merely had not been written down yet.
+      code: z.object({
+        // e.g. "Four values in .zshrc" — drawn above the block, and the
+        // subject of its copy control's accessible name.
+        label: z.string().max(40),
+        // At least one. `code` as a whole is optional, so a project with
+        // nothing to show omits it; declaring the block and leaving it empty
+        // is the case this rejects. An empty block is not blank — it renders
+        // a bare navy bar and, since the pane is a keyboard tab stop, a stop
+        // that announces "Code: <label>, group" over nothing at all.
+        lines: z.array(codeLine).min(1)
+      }).optional(),
+      media: media.optional(),
+      // Eight rather than six. Six was the number the band happened to hold
+      // the day it was written, and it was full — so the first edit that split
+      // one row in two, naming the calculation authorities and moving their
+      // aliases out from under them, was a copy change that failed the build.
+      // A cap the copy reaches on its first rewording is not protecting the
+      // layout; these rows stack, and the eighth costs what the seventh does.
+      // Eight leaves the headroom the split just used up, and stops short of
+      // the dozen that would make this a reference list drawn as a band.
+      rows: z.array(labelled(400)).min(2).max(8),
+      // Sources, not further reading. A band that states how something is
+      // calculated should say where the definitions came from, and these are
+      // the only strings on the page a reader can go and check for themselves.
+      // Plural because no one document covers it: the prayer definitions, the
+      // solar arithmetic and the authorities' parameters are three separate
+      // references. Rendered as arrow links, so linkAttrs decides the tab.
+      links: z.array(link).max(4).optional()
+    });
+
     // Identity and head-only fields shared by every page template. Hoisted so a
     // second template cannot drift from the first on how a page names itself.
     const identity = {
@@ -496,53 +547,21 @@ const projectPages = defineCollection({
         intro: z.string(),
         table: dataTable
       }).optional(),
-      // The long-form band for a project's signature feature: a standfirst, an
-      // optional code block, and however many labelled paragraphs that feature
-      // needs. Named for the role, not the subject — InZsh fills it with prayer
-      // times, the next project fills it with something else, and neither has to
-      // touch this file. Row order is the author's, not a side effect of where
-      // the fields happen to sit in the schema.
-      deepDive: z.object({
-        navLabel,
-        kicker,
-        heading: bandHeading,
-        standfirst: z.string(),
-        // The block and its label are one optional object, not two independent
-        // optionals. The label is what tells this block's copy control apart
-        // from the ones the steps band renders — several controls on a page all
-        // named "Copy this code block" are indistinguishable in a screen
-        // reader's list of controls, which is the defect the label exists to
-        // fix. Nested, a block without a label cannot be written down; as two
-        // sibling optionals it merely had not been written down yet.
-        code: z.object({
-          // e.g. "Four values in .zshrc" — drawn above the block, and the
-          // subject of its copy control's accessible name.
-          label: z.string().max(40),
-          // At least one. `code` as a whole is optional, so a project with
-          // nothing to show omits it; declaring the block and leaving it empty
-          // is the case this rejects. An empty block is not blank — it renders
-          // a bare navy bar and, since the pane is a keyboard tab stop, a stop
-          // that announces "Code: <label>, group" over nothing at all.
-          lines: z.array(codeLine).min(1)
-        }).optional(),
-        media: media.optional(),
-        // Eight rather than six. Six was the number the band happened to hold
-        // the day it was written, and it was full — so the first edit that split
-        // one row in two, naming the calculation authorities and moving their
-        // aliases out from under them, was a copy change that failed the build.
-        // A cap the copy reaches on its first rewording is not protecting the
-        // layout; these rows stack, and the eighth costs what the seventh does.
-        // Eight leaves the headroom the split just used up, and stops short of
-        // the dozen that would make this a reference list drawn as a band.
-        rows: z.array(labelled(400)).min(2).max(8),
-        // Sources, not further reading. A band that states how something is
-        // calculated should say where the definitions came from, and these are
-        // the only strings on the page a reader can go and check for themselves.
-        // Plural because no one document covers it: the prayer definitions, the
-        // solar arithmetic and the authorities' parameters are three separate
-        // references. Rendered as arrow links, so linkAttrs decides the tab.
-        links: z.array(link).max(4).optional()
-      }).optional(),
+      // How the parts the anatomy band listed are arranged relative to one
+      // another — the band that answers "and where does each of them go?".
+      //
+      // It sits between the anatomy and the deep dive for the reason the anatomy
+      // band sits before both: a reader is shown the set, then how the set is
+      // laid out, then one member of it in full. InZsh fills it with rows; the
+      // next project fills it with whatever its own parts are arranged by.
+      arrangement: featureBand.optional(),
+      // The long-form band for a project's signature feature. Named for the role,
+      // not the subject — InZsh fills it with prayer times, the next project fills
+      // it with something else, and neither has to touch this file. Row order is
+      // the author's, not a side effect of where the fields happen to sit in the
+      // schema. Same shape as `arrangement` above, and deliberately so: see
+      // featureBand.
+      deepDive: featureBand.optional(),
       // The one band the approved design runs without a kicker, so kicker is optional here.
       config: z.object({
         navLabel,
@@ -576,6 +595,29 @@ const projectPages = defineCollection({
           lines: z.array(codeLine).min(1).optional(),
           note: z.string().max(110).optional()
         })).min(2).max(4)
+      }).optional(),
+      // What the thing offers to be used, once it is installed: the verbs, the
+      // screens, the entry points — whatever a project's public surface is made
+      // of. After the steps band, because there is nothing to use until it is
+      // installed, and before the gallery, which shows the result of using it.
+      //
+      // Labelled rows rather than a table: each of these is a name and a
+      // paragraph about it, which is the shape DefinitionRows draws and the shape
+      // the specs and verification bands already use. The name goes in the row's
+      // VALUE and not its label — the label is the 11px small-caps register, where
+      // a monospace run reads as broken letterspacing, so a label is a heading for
+      // the row and never the thing being typed. See DefinitionRows.astro.
+      //
+      // The value cap is the verification band's 200 rather than the specs band's
+      // 90: a compatibility row is a phrase, and a row here has to say what a verb
+      // does as well as name it.
+      usage: z.object({
+        navLabel,
+        kicker,
+        heading: bandHeading,
+        intro: z.string().optional(),
+        link: link.optional(),
+        items: z.array(labelled(200)).min(2).max(6)
       }).optional(),
       // A caption is copy and ships before its capture exists, so src is optional
       // within an item. items itself is not optional: a gallery band with a
@@ -653,7 +695,16 @@ const projectPages = defineCollection({
         // it was written, and it was full — so the first row added after it, the
         // one saying what the render path costs, was a copy change that failed
         // the build. These rows stack, and the sixth costs what the fifth did.
-        rows: z.array(labelled(200)).min(3).max(6)
+        //
+        // 260 rather than 200, and the same argument one level down. The row
+        // count was full at six, so the 2.0 refresh had to say more in the rows
+        // it had: the render row gained the millisecond figure it had been
+        // withholding while upstream's budget was unsettled, and the diagnostics
+        // row gained everything `inzsh doctor` grew over eight releases. Both
+        // landed a few characters over. A value here is a paragraph beside a
+        // label and wraps like one, so the cap is protecting nothing that 260
+        // breaks.
+        rows: z.array(labelled(260)).min(3).max(6)
       }).optional(),
       faq: z.object({
         navLabel,
