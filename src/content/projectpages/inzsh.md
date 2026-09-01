@@ -49,24 +49,27 @@ hero:
     href: "https://github.com/joeloudjinz/inzsh"
   media:
     src: "../../assets/img/inzsh/showcase-2000.gif"
-    # One rung, and not by choice. An animated capture skips the image pipeline —
-    # one frame is what would come back — so the only candidates it can offer are
-    # files somebody rendered, and upstream commits one render per tape. See
-    # variants in content.config.ts.
+    # Two rungs, both rendered upstream. An animated capture skips the image
+    # pipeline — the service decodes one frame and re-encodes it, so a GIF would
+    # come back a still — which means the only candidates a browser can be offered
+    # are files somebody rendered. See variants in content.config.ts, and the GIF
+    # branch in MediaFrame for the markup it turns into.
     #
-    # This shipped 1000 and 2000 until the 2.0 refresh. The 2000 was replaced from
-    # the new tape, whose 1x upstream has not committed, so the smaller rung came
-    # out rather than being faked by resampling the larger one. That is the call
-    # the 1.5x rung got before it, and for the same reason: upstream's SCALE takes
-    # 2, 3 or 4 and nothing between — SCALE=1.5 is refused before a frame is drawn
-    # — so a rung we rendered ourselves would cost the reproduction claim the
-    # verification band makes, which is the more valuable of the two.
+    # The 1x went missing for exactly one release. The 2.0 refresh replaced the
+    # 2000 from a new tape whose 1x upstream had not yet committed, and the
+    # smaller rung came out rather than being faked by resampling the larger one —
+    # the same call the 1.5x rung got before it. Upstream now publishes both, so
+    # the ladder is whole again without anything here being resampled.
     #
-    # What it costs, measured: a 320 viewport took the 1000 at 652 KiB and now
-    # takes the 2000 at 1.6 MiB. Unlike the 1.5x gap this one IS reproducible —
-    # `make demo` with no SCALE writes the 1000 — so closing it is one command in
-    # the upstream checkout and a file dropped in beside this one, rather than
-    # something to work around here.
+    # UPSTREAM NAMES THESE THE OTHER WAY ROUND. There, the bare name is whichever
+    # size shipped first: docs/assets/showcase.gif IS the 2000, and
+    # showcase-1000.gif the 1000 — while for the stills the bare name is the 1000
+    # and the suffixed one the 2000. Every file here carries its own rendered
+    # width instead, so the two conventions meet once, at the copy, and nothing
+    # downstream has to remember which kind of file it is looking at. When pulling
+    # a fresh capture, read the width out of the file rather than off the name.
+    variants:
+      - "../../assets/img/inzsh/showcase-1000.gif"
     alt: "A recording of the InZsh prompt, about two minutes long. Coordinates for Mecca are set and a prayer segment appears on the right of the prompt, reading Maghrib 17:50 beside the clock. A directory is created and entered, a repository is opened and its branch shown, a failing command marks the prompt with a cross. Then the look changes a setting at a time: every segment takes a colour of its own, the separators round off, the ribbon goes flat, and the dark sharp preset is redrawn as the light warm one. It ends on the row axis — the user and host segments move down to a second row and the clock moves to the end of that row, leaving a two-row prompt with rounded separators in the warm register, the prayer times and the clock still ranged right."
 glance:
   kicker: "At a glance"
@@ -174,6 +177,12 @@ arrangement:
       - text: "# own · inline"
   media:
     src: "../../assets/img/inzsh/rows-2000.gif"
+    # Two rendered rungs, like the hero, and for the same reason — see the note
+    # there, which carries the whole of it including why upstream's names for
+    # these two files are the other way round from ours. Lazy rather than eager:
+    # this one is several screens down.
+    variants:
+      - "../../assets/img/inzsh/rows-1000.gif"
     alt: "A recording of the prompt gaining and losing rows. It begins as a single row — joeinz, joeinz-pc, the path ~/work and a branch segment reading main with a mark for uncommitted changes, with the clock at 12:34 ranged right. Setting INZSH_ROW2_LEFT moves the user and host segments down onto a second row; setting INZSH_ROW2_RIGHT moves the clock to the end of that second row; declaring row 4 puts the branch on a third row drawn directly beneath the second; the input marker then moves off its own line and onto the end of the last row. Everything is unset at the end and the prompt returns to the one row it started as, unchanged."
   rows:
     - label: "Which row"
@@ -209,8 +218,13 @@ deepDive:
       - text: "INZSH_SALAH_ASR=shafi"
       - text: "# standard · shafi · hanafi"
   media:
-    src: "../../assets/img/inzsh/shot-salah.png"
-    alt: "A single row of prompt on black, with the prayer times as its subject rather than a detail: joeinz, joeinz-pc, the path ~/work and a branch segment reading main in pink with a mark for uncommitted changes, then the cursor. Ranged right, in segments of their own, Maghrib · 17:50 and the clock at 15:34: the next prayer and the time it falls, computed on the machine from the Mecca coordinates."
+    # The alt gained the input marker when this was repointed at upstream's own
+    # 2x file: the render the site had been carrying was made before the marker
+    # was drawn inline, so it ended on a bare cursor. Nothing else in the frame
+    # moved. That drift is the reason these now track a published file rather
+    # than a local run of the same tape.
+    src: "../../assets/img/inzsh/shot-salah-2000.png"
+    alt: "A single row of prompt on black, with the prayer times as its subject rather than a detail: joeinz, joeinz-pc, the path ~/work and a branch segment reading main in pink with a mark for uncommitted changes, then the caramel input marker ending the row, and the cursor. Ranged right, in segments of their own, Maghrib · 17:50 and the clock at 15:34: the next prayer and the time it falls, computed on the machine from the Mecca coordinates."
   rows:
     - label: "Methods:"
       value: "`MWL` Muslim World League · `ISNA` Islamic Society of North America · `UmmAlQura` Umm al-Qura University, Makkah · `Egyptian` Egyptian General Authority of Survey · `Karachi` University of Islamic Sciences, Karachi · `Algeria` Ministry of Religious Affairs and Wakfs, Algeria; default `MWL`."
@@ -383,17 +397,17 @@ gallery:
   # The alts describe the prompt; the captions name which of the three it is. See
   # the note on alt in content.config.ts for why that is two strings and not one.
   items:
-    - src: "../../assets/img/inzsh/shot-sharp.png"
+    - src: "../../assets/img/inzsh/shot-sharp-2000.png"
       caption: "The sharp preset: dark, full colour."
       alt: "A prompt on black, drawn as arrow-tipped segments on dark slate-blue: the user joeinz, the host joeinz-pc, the path ~/work, then a branch segment reading main in pink with a mark for uncommitted changes. Ranged right, in segments of their own, Maghrib 17:50 and the clock at 15:34."
       width: 1000
       height: 200
-    - src: "../../assets/img/inzsh/shot-warm.png"
+    - src: "../../assets/img/inzsh/shot-warm-2000.png"
       caption: "The warm preset: light, editorial."
       alt: "The same prompt on white: the same segments in the same order, drawn as sand-coloured blocks with dark brown type, and the branch segment in deep red. Maghrib 17:50 and the clock at 15:34 are ranged right, as before."
       width: 1000
       height: 200
-    - src: "../../assets/img/inzsh/shot-256.png"
+    - src: "../../assets/img/inzsh/shot-256-2000.png"
       caption: "The 256-colour fallback, as macOS Terminal.app renders it."
       alt: "The sharp preset again, at 256 colours: the segments, the separators and the prayer times all hold their shape and order, but the greys are flatter and the branch pink and the olive clock sit slightly off the full-colour ones. Close rather than identical."
       width: 1000
@@ -448,11 +462,28 @@ verification:
     # multiplied pinned dimensions. Every file in src/assets/img/inzsh came out of
     # those two commands — checked by running them, not by reading the Makefile.
     #
-    # The first row was true as written and is untouched.
+    # REPRODUCIBLE IN GEOMETRY AND CONTENT, NOT IN BYTES, and the second row now
+    # says so. It used to say "rebuild every file on this page", which a reader is
+    # entitled to hear as byte-for-byte and which is not true: two renders of one
+    # tape agree on dimensions and on every glyph, and compare at SSIM 0.9999 —
+    # the residue is the cursor blink landing on a different frame.
+    #
+    # Measured here rather than taken on faith, and it is the sharper illustration
+    # of both halves. Of the four stills, two came back byte-identical to
+    # upstream's published render and two did not; of those two, one differed only
+    # below an 8/255 threshold, and the other had drifted in CONTENT — an older
+    # render made before the input marker was drawn inline. Bytes are the wrong
+    # test in both directions: it called a match on files that had diverged in
+    # meaning, and a mismatch on files that had not.
+    #
+    # Which is the argument for the whole split, and why these track a published
+    # file rather than a local run. The claim the page can stand behind is that a
+    # rerun gives the same picture, and that no file here was resampled to a size
+    # no tape produced.
     - label: "Fixtures"
-      value: "Every still and recording here is rendered from the project’s VHS tapes in the pinned fixture environment (fixed repository, clock and identity), and nothing is hand-edited or cropped."
+      value: "Every still and recording here is rendered from the project’s VHS tapes in the pinned fixture environment (fixed repository, clock and identity), and nothing is hand-edited, cropped or resampled."
     - label: "Rebuilding"
-      value: "`make shots` and `make demo` rebuild every file on this page from those tapes. `SCALE` renders them larger: the 2× captures here are `SCALE=2`."
+      value: "`make shots` and `make demo` rebuild every file here from those tapes — in geometry and content rather than byte for byte: two renders agree on every glyph and differ only in where the cursor blink fell. `SCALE` renders them larger; these are `SCALE=2`."
     - label: "Test suites"
       value: "54 spec files, 27 unit and 27 render, plus 11 terminal-grid tests driving a real pty, an installer suite against a throwaway HOME and a perf suite: 3,231 examples and 91 UI tests. Golden files fail when the prompt changes shape."
     # The millisecond figure is here now, and the reason it was withheld is gone.
