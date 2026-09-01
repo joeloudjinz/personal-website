@@ -695,7 +695,16 @@ const projectPages = defineCollection({
         // it was written, and it was full — so the first row added after it, the
         // one saying what the render path costs, was a copy change that failed
         // the build. These rows stack, and the sixth costs what the fifth did.
-        rows: z.array(labelled(200)).min(3).max(6)
+        //
+        // 260 rather than 200, and the same argument one level down. The row
+        // count was full at six, so the 2.0 refresh had to say more in the rows
+        // it had: the render row gained the millisecond figure it had been
+        // withholding while upstream's budget was unsettled, and the diagnostics
+        // row gained everything `inzsh doctor` grew over eight releases. Both
+        // landed a few characters over. A value here is a paragraph beside a
+        // label and wraps like one, so the cap is protecting nothing that 260
+        // breaks.
+        rows: z.array(labelled(260)).min(3).max(6)
       }).optional(),
       faq: z.object({
         navLabel,
