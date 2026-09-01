@@ -87,26 +87,39 @@ why:
     - "Two other things came with it. Every colour in the prompt has a defined job and a contrast ratio that was measured rather than eyeballed, so it holds up on screens I’ve never seen. And every setting declares the values it accepts and what it falls back to, so a typo quietly degrades the prompt instead of breaking it."
     - "That last part is the one I care about most. The knobs are the architecture rather than a layer on top, so whatever comes next should arrive as new settings rather than a rewrite."
 anatomy:
-  # Five bands are in the header's section row, out of the nine a reader might
-  # plausibly jump to. What is not here, and why:
+  # Six bands are in the header's section row, out of the nine a reader might
+  # plausibly jump to. Rows earned its place at 2.0, and the place had to be paid
+  # for. By src/utils/navFit.ts, against the 480px the bar holds: the five before
+  # it were 428.5px, and adding "Rows" (40.5px) with the 28px gap in front of it
+  # would have been 497px — 17px over. Shortening "Prayer times" (98px) to
+  # "Prayer" (51px) returns 47px, which lands the six at 450px with 30px in hand.
   #
-  #   rows     The band directly under this one, and the newest thing on the page.
-  #            It is not in the row because the row is full, not because it does
-  #            not deserve one: by src/utils/navFit.ts the five below add up to
-  #            446px of the 480px the bar holds, and "Rows" is another 43.5px plus
-  #            a 28px gap — 517.5px, over by 37.5. A reader who jumps to Segments
-  #            scrolls into it, which is the same argument the gallery gets.
-  #   commands Same arithmetic and worse: "Commands" is 85.5px, so six labels
-  #            would be 559.5px. It sits directly under Install, which is in the
-  #            row.
+  # Every number here comes from navFit's own advance table rather than from
+  # counting characters, and it is worth trusting over an eyeball: `t` is 6px and
+  # `o` is 9.5px, so a word's width is not something the length of it predicts.
+  # Re-measure there rather than reasoning from these.
+  #
+  # A label lost a word rather than a band losing its place, which is the right
+  # way round: the band that item points at is headed "Prayer times, in the
+  # prompt" the moment you arrive, so the nav is short for something the
+  # destination says in full. A band nobody can find has no such second chance.
+  #
+  # What is still not here, and why:
+  #
+  #   commands "Commands" is 84.5px, so a seventh label is 562.5px — 82.5px over,
+  #            with no second word left anywhere to cut for it. It sits directly
+  #            under Install, which is in the row.
   #   gallery  Three full-width captures with nothing else in the band. It is the
   #            one section you cannot scroll past without noticing.
   #   specs    A reference list you consult once you have decided, rather than a
   #            place you arrive at. It sits between the gallery and the FAQ, both
   #            of which are a screen away.
   #
-  # Not a taste call about which five look best. Five is what fits, the build says
-  # so, and a sixth means giving one of these five up rather than widening the bar.
+  # Not a taste call about which six look best; six is what fits and the build
+  # says so. The bar is the real constraint, and it is due to be reworked to hold
+  # more items — a future project needs that — so when it is, this note and the
+  # shortened label it explains are the first two things to revisit rather than
+  # preserve.
   navLabel: "Segments"
   kicker: "Segments · left, right, hidden"
   heading: "What the prompt draws, and in what order."
@@ -145,10 +158,10 @@ anatomy:
 # is the newest thing on the page and the only headline feature the page has ever
 # been missing.
 #
-# No navLabel, and not for want of deserving one — the header's row is full at
-# five. The arithmetic is in the anatomy band's note above, where the rest of that
-# reasoning already lives.
+# In the section nav, which cost "Prayer times" a word to pay for. The arithmetic
+# is in the anatomy band's note above, where the rest of that reasoning lives.
 arrangement:
+  navLabel: "Rows"
   kicker: "Rows · one prompt, several lines"
   heading: "Rank places a block along a row. Rows say which."
   standfirst: "Until 1.3 every block landed on the same row, and the only choice about lines was whether the input marker got one of its own. Rank still decides where a block sits along a row; `INZSH_ROW<N>_LEFT` and `INZSH_ROW<N>_RIGHT` now decide which row it is drawn on, and a segment named in one of them is placed and shown whatever its rank said."
@@ -179,7 +192,11 @@ arrangement:
     - label: "The configuration reference"
       href: "https://github.com/joeloudjinz/inzsh/blob/dev/docs/configuration.md"
 deepDive:
-  navLabel: "Prayer times"
+  # "Prayer times" until 2.0, when Rows needed the 47px the second word was
+  # spending. The band's own heading says the whole phrase on arrival — see the
+  # anatomy band's note for the arithmetic and for why this was the right thing
+  # to cut.
+  navLabel: "Prayer"
   kicker: "Prayer times · computed locally"
   heading: "Prayer times, in the prompt."
   standfirst: "Your machine does the calculation, from coordinates you give it or, if you ask, ones it looks up once. The times are never fetched, and the segment stays hidden until you set it up."
@@ -337,9 +354,10 @@ steps:
         - text: "INZSH_SALAH_ASR=shafi"
         - text: "# standard · shafi · hanafi"
       note: "Latitude, longitude, calculation method, Asr school. Off unless these are set."
-# No navLabel, for the reason the anatomy band's note gives in pixels: the header
-# row is full at five, and "Commands" is the widest of the labels that did not get
-# in. It sits directly under Install, which is in the row.
+# No navLabel, for the reason the anatomy band's note gives in pixels: the row is
+# full at six, and "Commands" is the widest label that did not get in — there is
+# no second word left anywhere to cut for it. It sits directly under Install,
+# which is in the row.
 usage:
   kicker: "Commands · what you can type"
   heading: "One command, four verbs."
