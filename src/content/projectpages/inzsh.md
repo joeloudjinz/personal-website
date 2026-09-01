@@ -49,22 +49,25 @@ hero:
     href: "https://github.com/joeloudjinz/inzsh"
   media:
     src: "../../assets/img/inzsh/showcase-2000.gif"
-    # The same tape at 1x. An animated capture skips the image pipeline, so
-    # rendered files are the only candidates it has — 650 KiB and 1.41 MiB. See
+    # One rung, and not by choice. An animated capture skips the image pipeline —
+    # one frame is what would come back — so the only candidates it can offer are
+    # files somebody rendered, and upstream commits one render per tape. See
     # variants in content.config.ts.
     #
-    # Two rungs rather than three, and the gap between them is real. Upstream's
-    # SCALE takes 2, 3 or 4 and nothing between — SCALE=1.5 is refused before a
-    # frame is drawn — so the 1.5x rung we used to ship was one we rendered
-    # ourselves. Re-rolling it here would cost the reproduction claim the
-    # verification band makes, which is the more valuable of the two. Measured:
-    # a 768, 1280 or 1440 viewport at DPR 2 now takes the 2000 where it took the
-    # 1500, +410 KiB. A 320 viewport is unaffected — it took the 1000 before and
-    # takes it now. Closing that gap is a request to the upstream project, not
+    # This shipped 1000 and 2000 until the 2.0 refresh. The 2000 was replaced from
+    # the new tape, whose 1x upstream has not committed, so the smaller rung came
+    # out rather than being faked by resampling the larger one. That is the call
+    # the 1.5x rung got before it, and for the same reason: upstream's SCALE takes
+    # 2, 3 or 4 and nothing between — SCALE=1.5 is refused before a frame is drawn
+    # — so a rung we rendered ourselves would cost the reproduction claim the
+    # verification band makes, which is the more valuable of the two.
+    #
+    # What it costs, measured: a 320 viewport took the 1000 at 652 KiB and now
+    # takes the 2000 at 1.6 MiB. Unlike the 1.5x gap this one IS reproducible —
+    # `make demo` with no SCALE writes the 1000 — so closing it is one command in
+    # the upstream checkout and a file dropped in beside this one, rather than
     # something to work around here.
-    variants:
-      - "../../assets/img/inzsh/showcase-1000.gif"
-    alt: "A recording of the InZsh prompt. Coordinates for Mecca are set and a prayer segment appears on the right of the prompt, reading Maghrib 17:50 beside the clock. A directory is created and entered, a repository is opened and its branch shown, a failing command marks the prompt with a cross, then the surface and separator styles change and the prompt is redrawn from the dark sharp preset into the light warm one."
+    alt: "A recording of the InZsh prompt, about two minutes long. Coordinates for Mecca are set and a prayer segment appears on the right of the prompt, reading Maghrib 17:50 beside the clock. A directory is created and entered, a repository is opened and its branch shown, a failing command marks the prompt with a cross. Then the look changes a setting at a time: every segment takes a colour of its own, the separators round off, the ribbon goes flat, and the dark sharp preset is redrawn as the light warm one. It ends on the row axis — the user and host segments move down to a second row and the clock moves to the end of that row, leaving a two-row prompt with rounded separators in the warm register, the prayer times and the clock still ranged right."
 glance:
   kicker: "At a glance"
   items:

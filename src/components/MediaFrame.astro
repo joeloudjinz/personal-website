@@ -59,14 +59,18 @@ interface Props {
      * not matter; they are sorted by width on the way out.
      *
      * How many there should be is a question about bytes, not about tidiness. A
-     * rung of the WebP ladder is single-digit kB and a rung here is hundreds:
-     * the one animated capture this site ships offers 1000 and 2000, and a
-     * tablet asking for 1340 takes the 2000 and pays about 400 KiB over what a
-     * rung between them would have cost. There is no rung between them because
-     * these files come from a recorder that re-renders at whole multiples only
-     * — see the note beside `variants` in the entry, which carries the
-     * measurements. Ignored for anything the pipeline handles, which generates
-     * its own ladder from `widths`.
+     * rung of the WebP ladder is single-digit kB and a rung here is hundreds, so
+     * a ladder of one means every screen takes the largest file there is.
+     *
+     * Today every animated capture on this site is a ladder of one, and not by
+     * choice: the rungs have to be RENDERED, and the upstream project publishes
+     * one render per tape. The hero shipped 1000 and 2000 until the 2.0 refresh,
+     * when the 2000 was replaced from a tape whose 1000 upstream has not
+     * committed — so the rung came out rather than being faked by resampling the
+     * larger file, which is what the entry's own note says about the 1.5x rung
+     * that came out before it. Restoring it is one command in the upstream
+     * checkout, not a change here. Ignored for anything the pipeline handles,
+     * which generates its own ladder from `widths`.
      */
     variants?: ImageMetadata[];
     loading?: 'lazy' | 'eager';
@@ -98,9 +102,9 @@ const altText = alt ?? label ?? '';
 // Whether this asset has to skip the image pipeline. The service decodes one
 // frame and re-encodes it, so an animated GIF would come out the other side as
 // a still — but that is a fact about GIF, not about "captures". Read off the
-// asset's own metadata rather than assumed for the whole component: of the five
-// captures on this page exactly one is a GIF, and the other four would
-// otherwise ship at source size in source format for its sake.
+// asset's own metadata rather than assumed for the whole component: of the six
+// captures on this page two are GIFs, and the other four would otherwise ship
+// at source size in source format for their sake.
 //
 // This read is NOT why the originals of the four stills are in dist alongside
 // their WebP, which is the obvious suspicion and was measured to be wrong.
