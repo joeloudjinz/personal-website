@@ -1,0 +1,114 @@
+---
+// The long-form band: a heading block, a code-and-capture pair, labelled rows,
+// and optional sources under them.
+//
+// Drawn twice on a band page — once for the arrangement band and once for the
+// deep dive — from one schema shape (`featureBand` in content.config.ts) and, so
+// that the two cannot drift, from one piece of markup. It lived inline in
+// BandPage.astro while there was only one of them.
+//
+// Comments in this file are scanned as raw bytes by Tailwind — see the note in
+// tailwind.config.mjs before writing one.
+//
+// Which strings go through CodeSpans is BandPage's decision, applied here: the
+// standfirst and the rows' values do, because an identifier can turn up in any
+// of them; the heading, the kicker and the code block's label do not, because
+// they are display type, small caps and the name of a control respectively.
+import ArrowLink from '@src/components/ArrowLink.astro';
+import CodeBlock from '@src/components/CodeBlock.astro';
+import CodeSpans from '@src/components/CodeSpans.astro';
+import DefinitionRows from '@src/components/DefinitionRows.astro';
+import MediaFrame from '@src/components/MediaFrame.astro';
+import {band, bandHeading, bandInner, readingCopy} from '@src/utils/bandStyles';
+import type {BandEntry} from '@src/utils/projectPages';
+
+interface Props {
+    /**
+     * The band's own data. Taken off the entry type rather than restated, so a
+     * change to `featureBand` in the schema reaches this file as a type error.
+     * NonNullable because the caller has already decided the band is present.
+     */
+    data: NonNullable<BandEntry['data']['deepDive']>;
+    /** The in-page id, from BAND_ANCHORS — never spelled out at a call site. */
+    anchor: string;
+    /** The capture's ladder and the layout width it is picked against. */
+    widths: number[];
+    sizes: string;
+}
+
+const {data, anchor, widths, sizes} = Astro.props;
+
+// Whether the code-and-capture pair is a spread or a single thing at its own
+// measure. Both halves are optional and independently so, so "both are present"
+// is the only condition under which two columns have two occupants.
+const isSplit = Boolean(data.code && data.media);
+---
+
+<section class={band} id={anchor}>
+    {/* Three stacked parts at a 44px rhythm: the heading block, the
+        code-and-capture pair, and the labelled rows under their own
+        hairline. gap rather than margins, so a part that has no data
+        leaves no space behind it. */}
+    <div class:list={[bandInner, 'reveal flex flex-col gap-11']}>
+        <div>
+            <p class='kicker mb-4'>{data.kicker}</p>
+            <h2 class:list={[bandHeading, 'mb-5']}>{data.heading}</h2>
+            <p class:list={[readingCopy, 'max-w-[720px]']}><CodeSpans text={data.standfirst}/></p>
+        </div>
+
+        {/* The pair splits into two columns only when both halves have
+            something in them — see isSplit. Both are optional and
+            independently so, and a split keyed to either one alone
+            pins the half that exists against a column of air. That is
+            the same rule the hero encodes with its centred variant: a
+            spread is for two things, and one thing gets the measure.
+
+            Which measure depends on which one it is. The code keeps the
+            standfirst's 720px, because a terminal line set across the
+            whole shell is a line nobody tracks back. A capture takes the
+            full width, for the reason the gallery band states at length:
+            these are wide strips, and a strip held to 720px is a picture
+            of a terminal nobody can read. */}
+        {(data.code || data.media) && (
+                <div class:list={['grid gap-10',
+                                  isSplit && 'lg:grid-cols-[1fr_1.08fr] lg:gap-20 items-center']}>
+                    {data.code && (
+                            // min-w-0 so the code block's own horizontal scroll is
+                            // what absorbs a long line, rather than the grid track
+                            // widening to fit it.
+                            <div class:list={['min-w-0', !isSplit && 'max-w-[720px]']}>
+                                {/* One string, drawn once and spoken once: the
+                                    on-screen label above the block is also what
+                                    names its copy control. */}
+                                <p class='micro-label mb-3'>{data.code.label}</p>
+                                <CodeBlock lines={data.code.lines} copyFor={data.code.label}/>
+                            </div>
+                    )}
+                    {/* No label, for the reason the hero states: media
+                        here carries a src by schema, so the placeholder
+                        branch is unreachable. */}
+                    {data.media && (
+                            <MediaFrame src={data.media.src} variants={data.media.variants}
+                                        alt={data.media.alt} widths={widths} sizes={sizes}/>
+                    )}
+                </div>
+        )}
+
+        {/* The rows carry their own separators between them and none
+            above the first, so this is the edge the band owes them. */}
+        <div class='border-t border-hairline'>
+            <DefinitionRows items={data.rows}/>
+        </div>
+
+        {/* Sources sit under the rows they back, in a column rather
+            than a row: four of them side by side read as a nav bar,
+            and these are citations. */}
+        {data.links && (
+                <ul class='mt-8 flex flex-col items-start gap-3' role='list'>
+                    {data.links.map((source) => (
+                            <li><ArrowLink href={source.href} label={source.label}/></li>
+                    ))}
+                </ul>
+        )}
+    </div>
+</section>

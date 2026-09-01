@@ -39,10 +39,11 @@ import CtaPair from '@src/components/CtaPair.astro';
 import DataTable from '@src/components/DataTable.astro';
 import DefinitionRows from '@src/components/DefinitionRows.astro';
 import FaqDisclosure from '@src/components/FaqDisclosure.astro';
+import FeatureBand from '@src/components/projectpage/FeatureBand.astro';
 import MediaFrame from '@src/components/MediaFrame.astro';
 import ProjectAnalytics from '@src/components/ProjectAnalytics.astro';
 import ScrollTop from '@src/components/ScrollTop.astro';
-import {bandHeading} from '@src/utils/bandStyles';
+import {band, bandHeading, bandInner, readingCopy} from '@src/utils/bandStyles';
 import {
     BAND_ANCHORS, pageSections, splitWash, type BandEntry
 } from '@src/utils/projectPages';
@@ -53,8 +54,8 @@ interface Props {
 
 const {page} = Astro.props;
 const {
-    seo, software, hero, glance, why, anatomy, deepDive, config, steps, gallery, specs, pillars,
-    verification, faq, closing, credit
+    seo, software, hero, glance, why, anatomy, arrangement, deepDive, config, steps, usage,
+    gallery, specs, pillars, verification, faq, closing, credit
 } = page.data;
 
 // softwareVersion wants the bare number. hero.version carries the "v" because
@@ -92,31 +93,16 @@ const sections = pageSections(page.data);
 const configIsSubsection = Boolean(deepDive);
 const ConfigHeading = configIsSubsection ? 'h3' : 'h2';
 
-// Whether the deep dive's code-and-capture pair is a spread or a single thing at
-// its own measure. Both halves are optional and independently so, so "both are
-// present" is the only condition under which two columns have two occupants.
-const deepDiveIsSplit = Boolean(deepDive?.code && deepDive?.media);
-
 // The schema takes three or four assurance cards; the row is as wide as the
 // count, so three do not leave a fourth cell empty.
 const pillarColumns = pillars?.cards.length === 3 ? 'lg:grid-cols-3' : 'lg:grid-cols-4';
 
-// Section rhythm: every band is full-width so its hairline runs edge to edge,
-// with the 96px side padding coming from .shell inside it. The hero opens the
-// page against the header's own bottom hairline, so only the bands after it
-// carry a top rule — which also means an absent optional band leaves no orphan.
-//
-// Every band carries the anchor clearance rather than only the ones something
-// links to today, because every band carries an id: the ids come from
-// BAND_ANCHORS, which is also what decides whether an "#href" is legal, so a band
-// that renders is a band that can be jumped to. The clearance reads the token
-// shared with article headings rather than restating the number — see
-// --anchor-offset in global.css for what it is made of.
-const band = 'border-t border-hairline scroll-mt-[var(--anchor-offset)]';
-const bandInner = 'shell py-[72px]';
+// Section rhythm — `band` and `bandInner` — moved to src/utils/bandStyles.ts when
+// the long-form band moved out into FeatureBand.astro, which draws its own
+// section and needs the identical pair. That file carries the reasoning.
 
-// Five bands share one shape: a 420px heading column beside a longer content
-// column, 80px apart. Four of them also pin the heading — see stickyColumn — and
+// Six bands share one shape: a 420px heading column beside a longer content
+// column, 80px apart. Five of them also pin the heading — see stickyColumn — and
 // the FAQ states at its own call site why it does not. Below lg the two stack,
 // because 420px of the remaining width would leave the content column narrower
 // than the heading beside it.
@@ -132,9 +118,6 @@ const stickyColumn = 'lg:sticky lg:top-[var(--anchor-offset)] self-start';
 const configHeading = configIsSubsection
     ? 'font-display text-[34px] font-semibold text-strong leading-tight'
     : bandHeading;
-// Reading copy — the standfirsts and paragraphs a visitor is meant to read
-// through, as opposed to the muted register labels and notes are set in.
-const readingCopy = 'text-[17px] leading-[1.7] text-body';
 
 /**
  * How wide each capture is actually drawn, so the browser can pick a file rather
@@ -145,12 +128,16 @@ const readingCopy = 'text-[17px] leading-[1.7] text-body';
  * 1440px artboard — so it stops growing at 1248px. That is the whole story for
  * the gallery, whose strips run the full width of the band.
  *
- * The hero and the deep dive each hand their capture the wider half of a
- * 1fr/1.08fr pair from 1024 up, which is 1.08/2.08 of what the gap leaves —
- * 72px of gap in the hero, 80px in the deep dive. Below 1024 both stack and the
- * capture takes the content box whole, so the widest either is ever drawn is not
- * at the widest viewport: it is 927px at 1023px, the last width before the
- * split. After it the hero tops out at 611px and the deep dive at 607px.
+ * The hero and the two long-form bands each hand their capture the wider half of
+ * a 1fr/1.08fr pair from 1024 up, which is 1.08/2.08 of what the gap leaves —
+ * 72px of gap in the hero, 80px in a long-form band. Below 1024 both stack and
+ * the capture takes the content box whole, so the widest either is ever drawn is
+ * not at the widest viewport: it is 927px at 1023px, the last width before the
+ * split. After it the hero tops out at 611px and a long-form band at 607px.
+ *
+ * One figure for both long-form bands, because they are one band drawn twice —
+ * the arrangement band and the deep dive share a component and therefore a
+ * column. See FeatureBand.astro.
  *
  * The hero is the one place the arithmetic is a ceiling rather than the answer.
  * Its heading column is a 1fr track, and a grid track's automatic minimum is its
@@ -208,7 +195,7 @@ const splitWidth = (gap: number) => [
     'calc(100vw - 48px)'
 ].join(', ');
 const heroWidth = splitWidth(72);
-const deepDiveWidth = splitWidth(80);
+const featureWidth = splitWidth(80);
 
 /**
  * The rungs the pipeline renders each capture at.
@@ -414,76 +401,17 @@ const canonical = `https://${page.data.subdomain}/`;
             </section>
     )}
 
+    {/* Between the anatomy and the deep dive: the set, then how the set is laid
+        out, then one member of it in full. The same argument the anatomy band
+        makes for coming first, applied one step further along. */}
+    {arrangement && (
+            <FeatureBand data={arrangement} anchor={BAND_ANCHORS.arrangement}
+                         widths={captureWidths} sizes={featureWidth}/>
+    )}
+
     {deepDive && (
-            <section class={band} id={BAND_ANCHORS.deepDive}>
-                {/* Three stacked parts at a 44px rhythm: the heading block, the
-                    code-and-capture pair, and the labelled rows under their own
-                    hairline. gap rather than margins, so a part that has no data
-                    leaves no space behind it. */}
-                <div class:list={[bandInner, 'reveal flex flex-col gap-11']}>
-                    <div>
-                        <p class='kicker mb-4'>{deepDive.kicker}</p>
-                        <h2 class:list={[bandHeading, 'mb-5']}>{deepDive.heading}</h2>
-                        <p class:list={[readingCopy, 'max-w-[720px]']}><CodeSpans text={deepDive.standfirst}/></p>
-                    </div>
-
-                    {/* The pair splits into two columns only when both halves have
-                        something in them — see deepDiveIsSplit. Both are optional
-                        and independently so, and a split keyed to either one alone
-                        pins the half that exists against a column of air. That is
-                        the same rule the hero encodes with its centred variant: a
-                        spread is for two things, and one thing gets the measure.
-
-                        Which measure depends on which one it is. The code keeps the
-                        standfirst's 720px, because a terminal line set across the
-                        whole shell is a line nobody tracks back. A capture takes the
-                        full width, for the reason the gallery band states at length:
-                        these are wide strips, and a strip held to 720px is a picture
-                        of a terminal nobody can read. */}
-                    {(deepDive.code || deepDive.media) && (
-                            <div class:list={['grid gap-10',
-                                              deepDiveIsSplit && 'lg:grid-cols-[1fr_1.08fr] lg:gap-20 items-center']}>
-                                {deepDive.code && (
-                                        // min-w-0 so the code block's own horizontal scroll is
-                                        // what absorbs a long line, rather than the grid track
-                                        // widening to fit it.
-                                        <div class:list={['min-w-0', !deepDiveIsSplit && 'max-w-[720px]']}>
-                                            {/* One string, drawn once and spoken once: the
-                                                on-screen label above the block is also what
-                                                names its copy control. */}
-                                            <p class='micro-label mb-3'>{deepDive.code.label}</p>
-                                            <CodeBlock lines={deepDive.code.lines}
-                                                       copyFor={deepDive.code.label}/>
-                                        </div>
-                                )}
-                                {/* No label, for the reason the hero states: media
-                                    here carries a src by schema, so the placeholder
-                                    branch is unreachable. */}
-                                {deepDive.media && (
-                                        <MediaFrame src={deepDive.media.src} alt={deepDive.media.alt}
-                                                    widths={captureWidths} sizes={deepDiveWidth}/>
-                                )}
-                            </div>
-                    )}
-
-                    {/* The rows carry their own separators between them and none
-                        above the first, so this is the edge the band owes them. */}
-                    <div class='border-t border-hairline'>
-                        <DefinitionRows items={deepDive.rows}/>
-                    </div>
-
-                    {/* Sources sit under the rows they back, in a column rather
-                        than a row: four of them side by side read as a nav bar,
-                        and these are citations. */}
-                    {deepDive.links && (
-                            <ul class='mt-8 flex flex-col items-start gap-3' role='list'>
-                                {deepDive.links.map((source) => (
-                                        <li><ArrowLink href={source.href} label={source.label}/></li>
-                                ))}
-                            </ul>
-                    )}
-                </div>
-            </section>
+            <FeatureBand data={deepDive} anchor={BAND_ANCHORS.deepDive}
+                         widths={captureWidths} sizes={featureWidth}/>
     )}
 
     {config && (
@@ -562,6 +490,21 @@ const canonical = `https://${page.data.subdomain}/`;
                                 </li>
                         ))}
                     </ol>
+                </div>
+            </section>
+    )}
+
+    {/* After the steps, because there is nothing to use until it is installed,
+        and before the gallery, which shows the result of using it. Same split
+        shape as the specs band below — a heading column beside labelled rows —
+        because it is the same kind of content: a name and a paragraph about it,
+        several times over. */}
+    {usage && (
+            <section class={band} id={BAND_ANCHORS.usage}>
+                <div class:list={[bandInner, split]}>
+                    <BandHeader kicker={usage.kicker} heading={usage.heading} intro={usage.intro}
+                                link={usage.link} class={stickyColumn}/>
+                    <DefinitionRows items={usage.items}/>
                 </div>
             </section>
     )}
@@ -720,7 +663,7 @@ const canonical = `https://${page.data.subdomain}/`;
     </section>
 
     {/* Last in the document, which is also where it belongs in the tab order: a
-        reader who has tabbed to the end of thirteen bands is exactly who wants
+        reader who has tabbed to the end of fifteen bands is exactly who wants
         the way back. It draws itself against the viewport rather than here, and
         only once the reader is a screen down. */}
     <ScrollTop/>
