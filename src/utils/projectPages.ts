@@ -68,8 +68,8 @@ export function splitWash(heading: string, wash: string): {before: string; washe
  * different order is a nav that lies about where the reader is going.
  */
 const BAND_ORDER = [
-  'glance', 'why', 'anatomy', 'deepDive', 'config', 'steps',
-  'gallery', 'specs', 'pillars', 'verification', 'faq'
+  'glance', 'why', 'anatomy', 'arrangement', 'deepDive', 'config', 'steps',
+  'usage', 'gallery', 'specs', 'pillars', 'verification', 'faq'
 ] as const satisfies readonly BandKey[];
 
 type NavigableBand = (typeof BAND_ORDER)[number];
