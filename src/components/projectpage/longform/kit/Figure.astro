@@ -1,0 +1,96 @@
+---
+// The wrapper every drawn diagram sits in. It carries the animate hook the
+// page script watches, the shown caption, and the description a screen
+// reader gets instead of the drawing. The description's id is the figure's id
+// plus "-desc"; an Astro slot cannot hand a prop to its children, so the
+// diagram inside names that id itself in its describedBy prop.
+interface Props {
+    caption: string;
+    /** What the figure shows and its final values, in a sentence or two. */
+    description: string;
+    /** Unique on the page; the diagram's aria-describedby points at `${id}-desc`. */
+    id: string;
+    class?: string;
+}
+const {caption, description, id, class: className} = Astro.props;
+const describedBy = `${id}-desc`;
+---
+
+<figure class:list={['lfp-figure', className]} data-animate id={id}>
+    {/* A drawing wider than a phone scrolls sideways here, and a keyboard can
+        only scroll a box it can focus. */}
+    <div class='lfp-figure-body' tabindex='0' role='group' aria-label={caption}>
+        <slot/>
+    </div>
+    <p class='sr-only' id={describedBy}>{description}</p>
+    <figcaption class='lfp-figure-caption'>{caption}</figcaption>
+</figure>
+
+<style>
+    .lfp-figure {
+        margin: 0;
+        display: grid;
+        gap: 12px;
+    }
+
+    .lfp-figure-body {
+        border: 1px solid var(--hairline);
+        border-radius: 16px;
+        background: var(--surface-card);
+        padding: 24px;
+        overflow-x: auto;
+    }
+
+    .lfp-figure-body:focus-visible {
+        outline-width: 2px;
+        outline-style: solid;
+        outline-color: var(--focus-ring);
+        outline-offset: 2px;
+    }
+
+    .lfp-figure-caption {
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--text-muted);
+    }
+
+    /* The reveal every diagram shares: a node rises in on its own delay, an edge
+       draws itself. Both wait for the page script to add is-in, and both are
+       already in their final state under reduced motion or with no script
+       (LongformPage ships the noscript rule). */
+    .lfp-figure :global(.lfp-node) {
+        opacity: 0;
+        transform: translateY(8px);
+        transition: opacity var(--dur-slow) var(--ease-standard), transform var(--dur-slow) var(--ease-standard);
+        transition-delay: calc(var(--i, 0) * var(--lfp-stagger, 80ms));
+    }
+
+    .lfp-figure.is-in :global(.lfp-node) {
+        opacity: 1;
+        transform: none;
+    }
+
+    .lfp-figure :global(.lfp-edge) {
+        stroke-dasharray: 1;
+        stroke-dashoffset: 1;
+        transition: stroke-dashoffset var(--dur-slow) var(--ease-standard);
+        transition-delay: calc(var(--i, 0) * var(--lfp-stagger, 80ms));
+    }
+
+    .lfp-figure.is-in :global(.lfp-edge) {
+        stroke-dashoffset: 0;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .lfp-figure :global(.lfp-node) {
+            opacity: 1;
+            transform: none;
+            transition: none;
+        }
+
+        .lfp-figure :global(.lfp-edge) {
+            stroke-dashoffset: 0;
+            transition: none;
+        }
+    }
+</style>

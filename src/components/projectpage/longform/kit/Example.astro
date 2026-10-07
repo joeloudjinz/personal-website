@@ -1,0 +1,45 @@
+---
+// A worked example: a title that is not a heading, a setup line, the figure,
+// and the caption every example carries so no reader takes the numbers for a
+// real shop's.
+interface Props {
+    title: string;
+    setup: string;
+}
+const {title, setup} = Astro.props;
+const NOTE = 'Example figures, not a real store.';
+---
+
+<div class='lfp-example'>
+    <p class='lfp-example-title'>{title}</p>
+    <p class='lfp-example-setup'>{setup}</p>
+    <slot/>
+    <p class='lfp-example-note'>{NOTE}</p>
+</div>
+
+<style>
+    .lfp-example {
+        display: grid;
+        gap: 12px;
+        padding-block: 8px;
+    }
+
+    .lfp-example-title {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--accent);
+    }
+
+    .lfp-example-setup {
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--text-body);
+    }
+
+    .lfp-example-note {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+</style>

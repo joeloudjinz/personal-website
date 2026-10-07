@@ -1,0 +1,78 @@
+---
+// A screenshot slot drawn as a phone. With a src it shows the capture through
+// MediaFrame; without one it reserves the box at `ratio` and shows the caption
+// as a label, so adding the capture later shifts nothing.
+import MediaFrame from '@src/components/MediaFrame.astro';
+import type {ImageMetadata} from 'astro';
+
+interface Props {
+    src?: ImageMetadata;
+    alt: string;
+    caption: string;
+    /** Placeholder ratio as "w / h". Ignored once src is set. */
+    ratio?: string;
+    /** A short chip in the frame's corner: "Dark", "عربي". */
+    tag?: string;
+    /** Layout width the browser picks a rung against. */
+    sizes?: string;
+    loading?: 'lazy' | 'eager';
+    class?: string;
+}
+
+const {
+    src, alt, caption, ratio = '9 / 20', tag, sizes = '(min-width: 640px) 360px, 100vw',
+    loading = 'lazy', class: className
+} = Astro.props;
+const [ratioW, ratioH] = ratio.split('/').map((part) => Number(part.trim()));
+const widths = [400, 600, 900, 1200];
+---
+
+<figure class:list={['lfp-phone', className]} data-placeholder={src ? undefined : ''}>
+    <div class='lfp-phone-shell'>
+        <MediaFrame src={src} alt={alt} width={src ? undefined : ratioW * 40} height={src ? undefined : ratioH * 40}
+                    label={src ? undefined : caption} widths={widths} sizes={sizes} loading={loading}
+                    class='lfp-phone-screen'/>
+        {tag && <span class='lfp-phone-tag chip'>{tag}</span>}
+    </div>
+    <figcaption class='lfp-phone-caption'>{caption}</figcaption>
+</figure>
+
+<style>
+    .lfp-phone {
+        margin: 0;
+        display: grid;
+        gap: 12px;
+        justify-items: center;
+    }
+
+    .lfp-phone-shell {
+        position: relative;
+        width: 100%;
+        max-width: 360px;
+        padding: 10px;
+        border-radius: 40px;
+        border: 1px solid var(--hairline);
+        background: var(--surface-card);
+        /* The raised level the system draws stat cards with, in both themes, as
+           the cards themselves keep it. */
+        box-shadow: var(--shadow-soft);
+    }
+
+    .lfp-phone-shell :global(.lfp-phone-screen) {
+        border-radius: 30px;
+    }
+
+    .lfp-phone-tag {
+        position: absolute;
+        inset-block-start: 20px;
+        inset-inline-end: 20px;
+    }
+
+    .lfp-phone-caption {
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--text-muted);
+        text-align: center;
+        max-width: 360px;
+    }
+</style>

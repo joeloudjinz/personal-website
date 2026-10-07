@@ -26,8 +26,8 @@ interface PageProps {
 		name: string;
 		applicationCategory: string;
 		operatingSystem: string;
-		license: string;
-		repository: string;
+		license?: string;
+		repository?: string;
 		version?: string;
 	};
 }
@@ -109,6 +109,9 @@ const footerProps = Astro.props.chrome === 'subdomain'
 	</head>
 	<body class={`page-grad-${gradient} min-h-screen flex flex-col`}>
 		<div class='grain-overlay' aria-hidden='true'></div>
+		{/* A page's skip link goes before the header, so it is the first thing a
+		   keyboard reaches rather than the sixth. */}
+		<slot name='skip'/>
 		<Header {...headerProps}/>
 		<main class='flex-1'>
 			<slot />

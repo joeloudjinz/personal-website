@@ -1,0 +1,224 @@
+---
+// Longform template for project showcase pages: a spine of hero, glance,
+// chapters and closing, with the chapter bodies rendered from their MDX files
+// and a table of contents the page owns. The header shows no section row —
+// seventeen chapters do not fit its bar — so BaseLayout gets no sections.
+import BaseLayout from '@src/layouts/BaseLayout.astro';
+import ProjectAnalytics from '@src/components/ProjectAnalytics.astro';
+import ScrollTop from '@src/components/ScrollTop.astro';
+import {getCollection} from 'astro:content';
+import {loadChapters} from '@src/utils/longformChapters';
+import type {LongformEntry} from '@src/utils/projectPages';
+import LongformHero from './LongformHero.astro';
+import GlanceStrip from './GlanceStrip.astro';
+import Toc from './Toc.astro';
+import JumpList from './JumpList.astro';
+import ChapterList from './ChapterList.astro';
+import LongformClosing from './LongformClosing.astro';
+
+interface Props {
+    page: LongformEntry;
+}
+const {page} = Astro.props;
+const {seo, software, hero, glance, chapters: spine, closing, credit, locale} = page.data;
+
+const chapters = await loadChapters(page, await getCollection('projectPageChapters'));
+const firstChapter = spine[0]?.id ?? '';
+
+const softwareNode = software && {
+    ...software,
+    name: page.data.projectName,
+    version: hero.version?.replace(/^v/, '')
+};
+const canonical = `https://${page.data.subdomain}/`;
+
+// The template's own affordance strings, not the project's copy — the same
+// line content.config.ts draws for the copy control's "Copy".
+const LABELS = {
+    product: 'The product',
+    technical: 'For technical readers',
+    jump: 'Chapters',
+    skip: 'Skip to the chapters',
+    reserved: 'Running in a store since June 2026. More here soon.'
+};
+const DIVIDERS = {
+    product: {kicker: LABELS.product, standfirst: 'What the app does for the shop, in the order a day at the counter meets it.'},
+    technical: {kicker: LABELS.technical, standfirst: 'How it is built, and the discipline that keeps a cash register honest.'}
+};
+---
+
+<BaseLayout title={seo.title} description={seo.description ?? hero.promise} gradient='warm'
+            keywords={seo.keywords?.join(', ')} imageAlt={seo.imageAlt}
+            software={softwareNode} canonical={canonical}
+            chrome='subdomain' projectName={page.data.projectName} credit={credit}>
+    <a slot='skip' class='lfp-skip' href={`#${firstChapter}`} lang={locale}
+       dir={locale === 'ar' ? 'rtl' : 'ltr'}>{LABELS.skip}</a>
+    <div class='lfp' lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
+        <noscript>
+            <style is:inline>
+                html .lfp .lfp-figure .lfp-node { opacity: 1; transform: none; }
+                html .lfp .lfp-figure .lfp-edge { stroke-dashoffset: 0; }
+            </style>
+        </noscript>
+
+        <LongformHero hero={hero}/>
+        <GlanceStrip items={glance}/>
+
+        <div class='shell lfp-body'>
+            <aside class='lfp-rail'>
+                <Toc chapters={spine} location='rail' labels={LABELS}/>
+            </aside>
+            <div class='lfp-column'>
+                <ChapterList chapters={chapters} dividers={DIVIDERS} reservedNote={LABELS.reserved}/>
+            </div>
+        </div>
+
+        <LongformClosing closing={closing}/>
+        <JumpList chapters={spine} labels={LABELS}/>
+    </div>
+    <ScrollTop/>
+    <ProjectAnalytics/>
+</BaseLayout>
+
+<style>
+    .lfp {
+        --lfp-rail: 240px;
+        --lfp-measure: 760px;
+        --lfp-gap: 72px;
+        --lfp-stagger: 80ms;
+    }
+
+    .lfp-skip {
+        position: absolute;
+        inset-block-start: 8px;
+        inset-inline-start: 8px;
+        z-index: 60;
+        padding: 10px 16px;
+        border-radius: 999px;
+        background: var(--surface-card);
+        border: 1px solid var(--hairline);
+        color: var(--text-strong);
+        font-weight: 600;
+        transform: translateY(-200%);
+    }
+
+    .lfp-skip:focus-visible {
+        transform: none;
+        outline-width: 2px;
+        outline-style: solid;
+        outline-color: var(--focus-ring);
+    }
+
+    .lfp-body {
+        display: grid;
+        gap: var(--lfp-gap);
+        padding-block-end: 24px;
+    }
+
+    .lfp-rail {
+        display: none;
+    }
+
+    .lfp-column {
+        max-width: var(--lfp-measure);
+    }
+
+    @media (min-width: 1280px) {
+        .lfp-body {
+            grid-template-columns: var(--lfp-rail) minmax(0, var(--lfp-measure));
+        }
+
+        .lfp-rail {
+            display: block;
+            position: sticky;
+            top: calc(var(--nav-height) + 24px);
+            align-self: start;
+            max-height: calc(100vh - var(--nav-height) - 48px);
+            overflow-y: auto;
+            padding-block-start: 72px;
+        }
+    }
+</style>
+
+<script>
+    import {observeSections} from '@src/utils/scrollSpy';
+
+    if (!window.__lfpBound) {
+        window.__lfpBound = true;
+
+        // Everything one visit binds, released at the start of the next init:
+        // a view transition swaps the page but keeps window, so a scroll
+        // listener left behind would hold the old page's nodes and keep
+        // measuring them on every page after.
+        let teardown: Array<() => void> = [];
+
+        const init = () => {
+            const root = document.querySelector('.lfp');
+            teardown.forEach((release) => release());
+            teardown = [];
+            if (!root) return;
+
+            // One spy over every chapter link, rail and jump list together, so
+            // both mark the same current chapter.
+            const links = Array.from(root.querySelectorAll<HTMLAnchorElement>('[data-section-link]'));
+            teardown.push(observeSections(links));
+
+            // The jump summary reads the current chapter's label. Mirrors the
+            // rail's mark rather than computing a second one.
+            const current = root.querySelector<HTMLElement>('[data-jump-current]');
+            const fallback = current?.textContent ?? '';
+            const sync = () => {
+                const on = root.querySelector<HTMLAnchorElement>('.lfp-toc-rail .lfp-toc-link.is-current');
+                if (current) current.textContent = on?.textContent ?? fallback;
+            };
+            const marks = new MutationObserver(sync);
+            marks.observe(root, {subtree: true, attributes: true, attributeFilter: ['class']});
+            teardown.push(() => marks.disconnect());
+
+            // Figures animate once, when a quarter of them is on screen.
+            if ('IntersectionObserver' in window) {
+                const animator = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (!entry.isIntersecting) continue;
+                        entry.target.classList.add('is-in');
+                        animator.unobserve(entry.target);
+                    }
+                }, {threshold: 0.25});
+                root.querySelectorAll('[data-animate]').forEach((figure) => animator.observe(figure));
+                teardown.push(() => animator.disconnect());
+            } else {
+                root.querySelectorAll('[data-animate]').forEach((figure) => figure.classList.add('is-in'));
+            }
+
+            // The rail's progress bar: how far through the chapter column the
+            // reader is, as a scale on a hairline.
+            const bar = root.querySelector<HTMLElement>('[data-progress]');
+            const column = root.querySelector<HTMLElement>('.lfp-column');
+            if (bar && column) {
+                const paint = () => {
+                    const rect = column.getBoundingClientRect();
+                    const total = rect.height - window.innerHeight;
+                    const done = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 1;
+                    bar.style.transform = `scaleX(${done})`;
+                };
+                paint();
+                window.addEventListener('scroll', paint, {passive: true});
+                teardown.push(() => window.removeEventListener('scroll', paint));
+            }
+        };
+
+        // A jump closes the list, so it does not sit open over the chapter the
+        // reader chose. Focus is left to the browser: its own fragment
+        // navigation moves it to the target.
+        document.addEventListener('click', (event) => {
+            const target = event.target;
+            if (!(target instanceof Element)) return;
+            const link = target.closest('[data-jump] [data-section-link]');
+            const details = link?.closest<HTMLDetailsElement>('[data-jump]');
+            if (!details) return;
+            details.open = false;
+        });
+
+        document.addEventListener('astro:page-load', init);
+    }
+</script>

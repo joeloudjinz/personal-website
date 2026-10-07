@@ -1,18 +1,24 @@
 import type {CollectionEntry} from 'astro:content';
 import {getCollection} from 'astro:content';
 import {NAV_BUDGET_PX, navLabelWidth, navRowFits, navRowWidth} from './navFit';
+import {assertChaptersPaired} from './longformChapters';
 
 export type ProjectPageEntry = CollectionEntry<'projectPages'>;
 
-/** The two page templates, split off the schema union by the template literal. */
+/** The three page templates, split off the schema union by the template literal. */
 export type PinboardEntry = ProjectPageEntry & {
   data: Extract<ProjectPageEntry['data'], {template: 'pinboard'}>
 };
+export type LongformEntry = ProjectPageEntry & {
+  data: Extract<ProjectPageEntry['data'], {template: 'longform'}>
+};
 export type BandEntry = ProjectPageEntry & {
-  data: Exclude<ProjectPageEntry['data'], {template: 'pinboard'}>
+  data: Exclude<ProjectPageEntry['data'], {template: 'pinboard'} | {template: 'longform'}>
 };
 export const isPinboard = (page: ProjectPageEntry): page is PinboardEntry =>
   page.data.template === 'pinboard';
+export const isLongform = (page: ProjectPageEntry): page is LongformEntry =>
+  page.data.template === 'longform';
 
 /**
  * Top-level route names in src/pages. A project slug matching one of these would
@@ -209,9 +215,11 @@ export async function getProjectPages(): Promise<ProjectPageEntry[]> {
 
   const deadAnchors = pages.flatMap((page) => {
     const reachable = new Set<string>(
-      Object.entries(BAND_ANCHORS)
-        .filter(([band]) => (page.data as Record<string, unknown>)[band] != null)
-        .map(([, anchor]) => anchor)
+      isLongform(page)
+        ? page.data.chapters.map((chapter) => chapter.id)
+        : Object.entries(BAND_ANCHORS)
+            .filter(([band]) => (page.data as Record<string, unknown>)[band] != null)
+            .map(([, anchor]) => anchor)
     );
     const found: {path: string; href: string}[] = [];
     collectHrefs(page.data, found);
@@ -299,6 +307,10 @@ export async function getProjectPages(): Promise<ProjectPageEntry[]> {
       `site passes. Remove the variants, or check the asset is the animated one you meant.`
     );
   }
+
+  // Longform pages: every chapter the spine lists has a file, or says it does
+  // not. The heading checks need the rendered bodies and run in LongformPage.
+  assertChaptersPaired(pages.filter(isLongform), await getCollection('projectPageChapters'));
 
   return pages;
 }

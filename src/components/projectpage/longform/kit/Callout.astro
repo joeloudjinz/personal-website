@@ -1,0 +1,66 @@
+---
+// A short aside in one of the system's semantic states. The glyph is text,
+// not an icon: this site has no icon set, and a drawn mark here would be the
+// first one on it.
+interface Props {
+    tone?: 'info' | 'caution' | 'positive' | 'neutral';
+    label: string;
+}
+const {tone = 'info', label} = Astro.props;
+const GLYPHS = {info: 'i', caution: '!', positive: '✓', neutral: '·'} as const;
+---
+
+<aside class:list={['lfp-callout', `lfp-callout-${tone}`]}>
+    <span class='lfp-callout-glyph' aria-hidden='true'>{GLYPHS[tone]}</span>
+    <div>
+        <p class='lfp-callout-label'>{label}</p>
+        <div class='lfp-callout-body'><slot/></div>
+    </div>
+</aside>
+
+<style>
+    .lfp-callout {
+        display: grid;
+        grid-template-columns: 28px 1fr;
+        gap: 12px;
+        margin-block: 24px;
+        padding: 16px 20px;
+        border-radius: 16px;
+        border: 1px solid var(--lfp-callout-edge);
+        background: var(--lfp-callout-wash);
+    }
+
+    .lfp-callout-info { --lfp-callout-edge: var(--info-edge); --lfp-callout-wash: var(--info-wash); --lfp-callout-ink: var(--info-text); }
+    .lfp-callout-caution { --lfp-callout-edge: var(--caution-edge); --lfp-callout-wash: var(--caution-wash); --lfp-callout-ink: var(--caution-text); }
+    .lfp-callout-positive { --lfp-callout-edge: var(--positive-edge); --lfp-callout-wash: var(--positive-wash); --lfp-callout-ink: var(--positive-text); }
+    .lfp-callout-neutral { --lfp-callout-edge: var(--neutral-edge); --lfp-callout-wash: var(--neutral-wash); --lfp-callout-ink: var(--neutral-text); }
+
+    .lfp-callout-glyph {
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 999px;
+        font-weight: 700;
+        color: var(--lfp-callout-ink);
+        border: 1px solid var(--lfp-callout-edge);
+    }
+
+    .lfp-callout-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--lfp-callout-ink);
+        margin-block-end: 4px;
+    }
+
+    .lfp-callout-body {
+        font-size: 15px;
+        line-height: 1.6;
+        color: var(--text-body);
+    }
+
+    .lfp-callout-body :global(p) { margin: 0; }
+    .lfp-callout-body :global(p + p) { margin-block-start: .6em; }
+</style>

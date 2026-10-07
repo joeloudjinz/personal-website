@@ -1,0 +1,49 @@
+---
+// Two phone frames side by side with one caption under both, stacking below
+// 640px. The frames are the slot; the pair owns only the gap and the caption.
+interface Props {
+    caption: string;
+    class?: string;
+}
+const {caption, class: className} = Astro.props;
+---
+
+<figure class:list={['lfp-pair', className]}>
+    <div class='lfp-pair-frames'>
+        <slot/>
+    </div>
+    <figcaption class='lfp-pair-caption'>{caption}</figcaption>
+</figure>
+
+<style>
+    .lfp-pair {
+        margin: 0;
+        display: grid;
+        gap: 16px;
+    }
+
+    .lfp-pair-frames {
+        display: grid;
+        gap: 24px;
+        justify-items: center;
+    }
+
+    @media (min-width: 640px) {
+        .lfp-pair-frames {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    /* The inner frames keep their own captions as tags; the pair's caption is
+       the one sentence about both. */
+    .lfp-pair-frames :global(.lfp-phone-caption) {
+        font-size: 12px;
+    }
+
+    .lfp-pair-caption {
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--text-muted);
+        text-align: center;
+    }
+</style>

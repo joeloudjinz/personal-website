@@ -1,0 +1,88 @@
+---
+// The chapter list below 1280px: a details element pinned at the bottom
+// inline-start corner, whose summary reads the current chapter. Native, so it
+// opens and closes without script; the page script only closes it after a
+// jump and keeps the summary's label in step.
+import Toc from './Toc.astro';
+import type {SpineChapter} from '@src/utils/longformChapters';
+
+interface Props {
+    chapters: SpineChapter[];
+    labels: {product: string; technical: string; jump: string};
+}
+const {chapters, labels} = Astro.props;
+---
+
+<details class='lfp-jump' data-jump>
+    <summary class='lfp-jump-summary'>
+        <span class='lfp-jump-current' data-jump-current>{labels.jump}</span>
+        <span aria-hidden='true'>↕</span>
+    </summary>
+    <div class='lfp-jump-panel'>
+        <Toc chapters={chapters} location='jump' labels={labels}/>
+    </div>
+</details>
+
+<style>
+    .lfp-jump {
+        position: fixed;
+        inset-block-end: calc(20px + env(safe-area-inset-bottom, 0px));
+        inset-inline-start: 20px;
+        z-index: 45;
+        max-width: calc(100vw - 104px);
+    }
+
+    @media (min-width: 1280px) {
+        .lfp-jump {
+            display: none;
+        }
+    }
+
+    .lfp-jump-summary {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 16px;
+        border-radius: 999px;
+        border: 1px solid var(--hairline);
+        background: var(--surface-card);
+        color: var(--text-strong);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        list-style: none;
+        box-shadow: var(--shadow-card);
+    }
+
+    .lfp-jump-summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .lfp-jump-summary:focus-visible {
+        outline-width: 2px;
+        outline-style: solid;
+        outline-color: var(--focus-ring);
+        outline-offset: 2px;
+    }
+
+    .lfp-jump-current {
+        max-width: 50vw;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .lfp-jump-panel {
+        position: absolute;
+        inset-block-end: calc(100% + 8px);
+        inset-inline-start: 0;
+        width: min(320px, calc(100vw - 40px));
+        max-height: 60vh;
+        overflow-y: auto;
+        padding: 16px;
+        border-radius: 16px;
+        border: 1px solid var(--hairline);
+        background: var(--surface-card);
+        box-shadow: var(--shadow-card);
+    }
+</style>

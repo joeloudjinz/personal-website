@@ -462,26 +462,26 @@ const projectPages = defineCollection({
       })
     };
 
+    // Feeds SoftwareApplication JSON-LD in place of the generic WebSite node.
+    // Shared by every template that describes a piece of software. Licence and
+    // repository are optional because a closed-source product has neither to
+    // declare, and BaseHead emits codeRepository and the free Offer only when a
+    // repository is given — a page with no repository is not claiming to be free.
+    const software = z.object({
+      // schema.org values: DeveloperApplication, BusinessApplication, etc.
+      applicationCategory: z.string().max(40),
+      operatingSystem: z.string().max(80),
+      // SPDX identifier or a URL. Must match what the repository actually ships.
+      license: z.string().max(60).optional(),
+      repository: z.string().url().optional()
+    });
+
     const bandPage = z.object({
       // Which template renders this entry. Band entries may omit it — inzsh
       // predates the field — so it is optional here and literal in pinboardPage.
       template: z.literal('band').optional(),
       ...identity,
-      // Feeds SoftwareApplication JSON-LD in place of the generic WebSite node.
-      //
-      // Worth being straight about the payoff: this is unlikely to produce a
-      // visual rich result, because Google leans on aggregateRating for those and
-      // inventing ratings is not on the table. What it does is let a crawler know
-      // the page is a piece of software with a version, a licence and a
-      // repository, rather than an unspecified web page.
-      software: z.object({
-        // schema.org values: DeveloperApplication, UtilitiesApplication, etc.
-        applicationCategory: z.string().max(40),
-        operatingSystem: z.string().max(80),
-        // SPDX identifier or a URL. Must match what the repository actually ships.
-        license: z.string().max(60),
-        repository: z.string().url()
-      }).optional(),
+      software: software.optional(),
       hero: z.object({
         kicker,
         // The full H1, including its own trailing punctuation.
@@ -721,6 +721,73 @@ const projectPages = defineCollection({
         ctaPrimary: cta(18),
         ctaSecondary: cta(22),
         facts: z.array(z.string().max(14)).max(4).optional()
+      }).refine(washIsInHeading, washIsInHeadingError),
+      credit: z.string().optional()
+    });
+
+    // The longform template: a spine of identity, hero, glance, chapter list and
+    // closing, with each chapter's body in its own MDX file under
+    // src/content/projectpages/<slug>/chapters/. Every string here is copy the
+    // entry owns; the chapter bodies carry the reading matter. See the
+    // hanotna-showcase-page KB in the vault for the design.
+    const chapterId = z.string().max(32).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, {
+      message: 'chapter id must be kebab-case, lower-case only: it becomes the section anchor'
+    });
+    // The two calls to action a longform page offers at the top and the bottom.
+    // Written as mailto: links with a subject so the OS hands them off and no
+    // new tab opens — see src/utils/links.ts for how a scheme is classified.
+    const quickAction = z.object({ label: z.string().max(22), href: z.string() });
+    const quickActions = z.tuple([quickAction, quickAction]);
+    const longformPage = z.object({
+      template: z.literal('longform'),
+      ...identity,
+      // Sets lang and dir on the page root. 'en' now; an Arabic mirror of the
+      // product chapters is a later phase that reuses the same components.
+      locale: z.enum(['en', 'ar']).default('en'),
+      software: software.optional(),
+      hero: z.object({
+        kicker,
+        heading: z.string().max(80),
+        wash,
+        promise: z.string().max(140),
+        status: z.string().max(20).refine((value) => value.trim().length > 0, {
+          message: 'status must contain a non-blank label; a blank one renders an empty, padded badge'
+        }),
+        version: z.string().max(20).optional(),
+        actions: quickActions,
+        // The hero capture. src is optional on purpose: the frame ships as a
+        // labelled placeholder until a screenshot exists, and wiring one in is
+        // adding an attribute rather than changing markup.
+        shot: z.object({
+          src: image().optional(),
+          alt: z.string().max(140),
+          caption: z.string().max(70)
+        })
+      }).refine(washIsInHeading, washIsInHeadingError),
+      glance: z.array(z.object({ value: z.string().max(12), label: z.string().max(60) }))
+        .min(3).max(6),
+      // The chapters, in reading order. Ids are the section anchors and the table
+      // of contents is exactly this list, so a chapter with no file has to say
+      // so with `reserved` — the pairing guard in src/utils/longformChapters.ts
+      // rejects anything else.
+      chapters: z.array(z.object({
+        id: chapterId,
+        title: z.string().max(60),
+        // Longer than the band's 14: this label sits in a 240px rail, not a
+        // header row. Width is still checked in pixels by the pairing guard.
+        navLabel: z.string().max(24),
+        group: z.enum(['product', 'technical']),
+        // A one-line note of the figure the chapter carries. Read by the plan
+        // and shown as the rail row's title attribute; never rendered as copy.
+        visual: z.string().max(40),
+        reserved: z.literal(true).optional()
+      })).min(1).max(24),
+      closing: z.object({
+        heading: z.string().max(36),
+        wash,
+        sub: z.string().max(90),
+        actions: quickActions,
+        facts: z.array(z.string().max(18)).max(4).optional()
       }).refine(washIsInHeading, washIsInHeadingError),
       credit: z.string().optional()
     });
@@ -1068,8 +1135,24 @@ const projectPages = defineCollection({
     // The pinboard's cross-field checks hang off the union rather than off
     // pinboardPage because discriminatedUnion refuses a ZodEffects option, so
     // the refinement sits outside it and screens out band entries itself.
-    return z.discriminatedUnion('template', [pinboardPage, bandPage])
+    return z.discriminatedUnion('template', [pinboardPage, bandPage, longformPage])
       .superRefine((page, ctx) => {
+        if (page.template === 'longform') {
+          // Ids are anchors and table-of-contents keys, so a repeat makes one
+          // chapter unreachable from the rail. Checked here rather than in the
+          // branch because discriminatedUnion refuses a ZodEffects option.
+          const seen = new Set<string>();
+          page.chapters.forEach((chapter, index) => {
+            if (seen.has(chapter.id)) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom, path: ['chapters', index, 'id'],
+                message: `chapter id "${chapter.id}" is declared twice; ids are the section anchors`
+              });
+            }
+            seen.add(chapter.id);
+          });
+          return;
+        }
         if (page.template !== 'pinboard') return;
         // The rail is a filter over the pins, so the two have to agree in both
         // directions: a pin pointing at no stop is unreachable, and a stop no
@@ -1115,6 +1198,22 @@ const projectPages = defineCollection({
   }
 });
 
+// One MDX file per chapter of a longform project page, under
+// src/content/projectpages/<slug>/chapters/. The glob is one directory deep on
+// purpose: a chapter belongs to exactly one page, and the page's own entry sits
+// one level up in a .md file the projectPages loader reads and this one cannot.
+// Never put a .md file inside a page's folder — projectPagesBuild.ts reads
+// every .md under the base as a page when it derives slugs for the sitemap.
+const projectPageChapters = defineCollection({
+  loader: glob({ pattern: '*/chapters/*.mdx', base: PROJECT_PAGES_BASE }),
+  schema: z.object({
+    // The owning page's slug and the chapter id it fills. Both are checked
+    // against the spine by src/utils/longformChapters.ts at build time.
+    page: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    chapter: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+  })
+});
+
 const interests = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/interests" }),
   schema: z.object({
@@ -1124,4 +1223,7 @@ const interests = defineCollection({
   })
 });
 
-export const collections = { blog, majorSkills, experiences, education, recommendations, projects, interests, projectPages };
+export const collections = {
+  blog, majorSkills, experiences, education, recommendations, projects, interests,
+  projectPages, projectPageChapters
+};
