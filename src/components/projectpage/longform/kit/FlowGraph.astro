@@ -1,0 +1,135 @@
+---
+import {slugify} from '@src/utils';
+
+// Boxes and arrows from data: nodes as rounded rectangles on a 1000-wide
+// grid, each in one of four lanes coloured by the system's state washes,
+// edges as straight arrows between box edges with a haloed label. Reveals in
+// node order, then edge order, through the kit's rules.
+export interface FlowNode {
+    id: string;
+    label: string;
+    x: number;
+    y: number;
+    w?: number;
+    lane?: 'a' | 'b' | 'c' | 'd';
+}
+export interface FlowEdge {
+    from: string;
+    to: string;
+    label?: string;
+}
+interface Props {
+    nodes: FlowNode[];
+    edges: FlowEdge[];
+    height?: number;
+    title: string;
+    describedBy?: string;
+}
+const {nodes, edges, height = 360, title, describedBy} = Astro.props;
+const BOX_H = 52;
+const arrowId = `lfp-fg-${slugify(title)}-arrow`;
+const byId = new Map(nodes.map((node) => [node.id, {...node, w: node.w ?? 180}]));
+
+// Where a straight line from one box centre to another leaves the first box
+// and enters the second: the centre offset by the box's half size along the
+// line, whichever side it meets first.
+const exit = (box: {x: number; y: number; w: number}, dx: number, dy: number) => {
+    const hw = box.w / 2;
+    const hh = BOX_H / 2;
+    const t = Math.min(dx === 0 ? Infinity : hw / Math.abs(dx), dy === 0 ? Infinity : hh / Math.abs(dy));
+    return {x: box.x + dx * t, y: box.y + dy * t};
+};
+// A pair of boxes joined both ways would draw one line with two heads and
+// two labels on one point, so each direction is shifted a little to its own
+// side of the centre line.
+const hasReverse = (edge: FlowEdge) => edges.some((other) => other.from === edge.to && other.to === edge.from);
+const lines = edges.flatMap((edge, index) => {
+    const from = byId.get(edge.from);
+    const to = byId.get(edge.to);
+    if (!from || !to) return [];
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    if (dx === 0 && dy === 0) return [];
+    const span = Math.hypot(dx, dy);
+    const shift = hasReverse(edge) ? 10 : 0;
+    const ox = (-dy / span) * shift;
+    const oy = (dx / span) * shift;
+    const a = exit(from, dx, dy);
+    const b = exit(to, -dx, -dy);
+    const length = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+    const x1 = a.x + ox;
+    const y1 = a.y + oy;
+    const x2 = b.x + ox - ((b.x - a.x) / length) * 8;
+    const y2 = b.y + oy - ((b.y - a.y) / length) * 8;
+    return [{...edge, index, x1, y1, x2, y2, mx: (x1 + x2) / 2, my: (y1 + y2) / 2 + 4}];
+});
+---
+
+<svg class='lfp-fg lfp-mirror' viewBox={`0 0 1000 ${height}`} role='img' aria-describedby={describedBy}>
+    <title>{title}</title>
+    <defs>
+        <marker id={arrowId} viewBox='0 0 10 10' refX='9' refY='5' markerWidth='8' markerHeight='8' orient='auto-start-reverse'>
+            <path d='M 0 0 L 10 5 L 0 10 z' fill='currentColor'/>
+        </marker>
+    </defs>
+    {/* Lines first, boxes over them, labels last so a label never hides under a box. */}
+    {lines.map((line) => (
+        <g style={`--i: ${nodes.length + line.index}`}>
+            <line class='lfp-edge' x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2} pathLength='1' marker-end={`url(#${arrowId})`}/>
+        </g>
+    ))}
+    {[...byId.values()].map((node, index) => (
+        <g class='lfp-node' style={`--i: ${index}`}>
+            <rect class:list={['lfp-fg-box', node.lane && `lfp-fg-lane-${node.lane}`]}
+                  x={node.x - node.w / 2} y={node.y - BOX_H / 2} width={node.w} height={BOX_H} rx='12'/>
+            <text class='lfp-fg-label' x={node.x} y={node.y} text-anchor='middle' dominant-baseline='middle'>{node.label}</text>
+        </g>
+    ))}
+    {lines.map((line) => line.label && (
+        <text class='lfp-fg-edge-label lfp-node' style={`--i: ${nodes.length + line.index}`}
+              x={line.mx} y={line.my} text-anchor='middle'>{line.label}</text>
+    ))}
+</svg>
+
+<style>
+    .lfp-fg {
+        display: block;
+        width: 100%;
+        min-width: 560px;
+        height: auto;
+        color: var(--text-muted);
+        font-family: var(--font-sans);
+    }
+
+    .lfp-fg-box {
+        fill: var(--surface);
+        stroke: var(--hairline);
+        stroke-width: 1.5;
+    }
+
+    .lfp-fg-lane-a { fill: var(--info-wash); stroke: var(--info-edge); }
+    .lfp-fg-lane-b { fill: var(--positive-wash); stroke: var(--positive-edge); }
+    .lfp-fg-lane-c { fill: var(--caution-wash); stroke: var(--caution-edge); }
+    .lfp-fg-lane-d { fill: var(--neutral-wash); stroke: var(--neutral-edge); }
+
+    .lfp-fg-label {
+        font-size: 14px;
+        font-weight: 600;
+        fill: var(--text-strong);
+    }
+
+    .lfp-edge {
+        stroke: var(--text-muted);
+        stroke-width: 2;
+        fill: none;
+    }
+
+    .lfp-fg-edge-label {
+        font-size: 13px;
+        fill: var(--text-muted);
+        paint-order: stroke;
+        stroke: var(--surface-card);
+        stroke-width: 6px;
+        stroke-linejoin: round;
+    }
+</style>
