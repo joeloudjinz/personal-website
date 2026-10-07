@@ -145,18 +145,22 @@ const DIVIDERS = {
     if (!window.__lfpBound) {
         window.__lfpBound = true;
 
-        let stopSpy: (() => void) | null = null;
+        // Everything one visit binds, released at the start of the next init:
+        // a view transition swaps the page but keeps window, so a scroll
+        // listener left behind would hold the old page's nodes and keep
+        // measuring them on every page after.
+        let teardown: Array<() => void> = [];
 
         const init = () => {
             const root = document.querySelector('.lfp');
-            stopSpy?.();
-            stopSpy = null;
+            teardown.forEach((release) => release());
+            teardown = [];
             if (!root) return;
 
             // One spy over every chapter link, rail and jump list together, so
             // both mark the same current chapter.
             const links = Array.from(root.querySelectorAll<HTMLAnchorElement>('[data-section-link]'));
-            stopSpy = observeSections(links);
+            teardown.push(observeSections(links));
 
             // The jump summary reads the current chapter's label. Mirrors the
             // rail's mark rather than computing a second one.
@@ -166,7 +170,9 @@ const DIVIDERS = {
                 const on = root.querySelector<HTMLAnchorElement>('.lfp-toc-rail .lfp-toc-link.is-current');
                 if (current) current.textContent = on?.textContent ?? fallback;
             };
-            new MutationObserver(sync).observe(root, {subtree: true, attributes: true, attributeFilter: ['class']});
+            const marks = new MutationObserver(sync);
+            marks.observe(root, {subtree: true, attributes: true, attributeFilter: ['class']});
+            teardown.push(() => marks.disconnect());
 
             // Figures animate once, when a quarter of them is on screen.
             if ('IntersectionObserver' in window) {
@@ -178,6 +184,7 @@ const DIVIDERS = {
                     }
                 }, {threshold: 0.25});
                 root.querySelectorAll('[data-animate]').forEach((figure) => animator.observe(figure));
+                teardown.push(() => animator.disconnect());
             } else {
                 root.querySelectorAll('[data-animate]').forEach((figure) => figure.classList.add('is-in'));
             }
@@ -195,6 +202,7 @@ const DIVIDERS = {
                 };
                 paint();
                 window.addEventListener('scroll', paint, {passive: true});
+                teardown.push(() => window.removeEventListener('scroll', paint));
             }
         };
 
