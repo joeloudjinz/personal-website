@@ -2,8 +2,8 @@
 // Releases on a time axis, with the month's commit counts as bars under it.
 // Positions come from the dates. A tick's label is its version only, so the
 // words go in the caption: major ticks stand taller with the label below,
-// minor ones carry theirs above on two alternating rows, so thirteen ticks in
-// five months do not collide. SVG text throughout, 13px at the smallest.
+// minor ones carry theirs above, each on the lowest row where it clears its
+// neighbours. SVG text throughout, 13px at the smallest.
 export interface Tick {
     date: string;
     label: string;
@@ -29,12 +29,30 @@ const AXIS = 150;
 const t0 = Date.parse(start);
 const t1 = Date.parse(end);
 const xAt = (date: string) => PAD + ((Date.parse(date) - t0) / (t1 - t0)) * (W - 2 * PAD);
-// Minor labels alternate between two rows above the axis, counted among the
-// minors only, so two releases ten days apart never share a row.
-let minorCount = 0;
+// A minor label takes the lowest row above the axis where its estimated width
+// meets no label already there. The lowest row sits level with the top of a
+// major tick, so a label is kept off it when a major tick falls under it.
+const CHAR = 7.4;
+const GAP = 10;
+const ROWS = 4;
+const span = (x: number, label: string) => [x - (label.length * CHAR) / 2 - GAP, x + (label.length * CHAR) / 2 + GAP];
+const majorXs = ticks.filter((tick) => tick.major).map((tick) => xAt(tick.date));
+const taken: number[][][] = Array.from({length: ROWS}, () => []);
+const rowFor = (x: number, label: string) => {
+    const [a, b] = span(x, label);
+    for (let row = 0; row < ROWS; row++) {
+        if (row === 0 && majorXs.some((m) => m >= a && m <= b)) continue;
+        if (taken[row].every(([c, d]) => b <= c || a >= d)) {
+            taken[row].push([a, b]);
+            return row;
+        }
+    }
+    return ROWS - 1;
+};
 const placed = ticks.map((tick, index) => {
-    const row = tick.major ? 0 : (minorCount++ % 2);
-    return {...tick, index, x: xAt(tick.date), labelY: tick.major ? AXIS + 54 : AXIS - 24 - row * 20};
+    const x = xAt(tick.date);
+    const row = tick.major ? 0 : rowFor(x, tick.label);
+    return {...tick, index, x, labelY: tick.major ? AXIS + 54 : AXIS - 24 - row * 20};
 });
 const peak = Math.max(...months.map((m) => m.value), 1);
 const barW = (W - 2 * PAD) / months.length;
