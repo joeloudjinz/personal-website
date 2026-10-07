@@ -70,7 +70,6 @@ chapters:
     navLabel: "Credit customers"
     group: "product"
     visual: "credit-sale ledger"
-    reserved: true
   - id: "owe"
     title: "Money you owe"
     navLabel: "Money you owe"
