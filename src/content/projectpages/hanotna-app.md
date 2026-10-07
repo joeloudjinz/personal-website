@@ -65,7 +65,6 @@ chapters:
     navLabel: "The stock room"
     group: "product"
     visual: "recount tape"
-    reserved: true
   - id: "credit"
     title: "Customers who buy on credit"
     navLabel: "Credit customers"
