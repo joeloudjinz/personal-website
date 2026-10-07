@@ -17,7 +17,9 @@ const describedBy = `${id}-desc`;
 ---
 
 <figure class:list={['lfp-figure', className]} data-animate id={id}>
-    <div class='lfp-figure-body'>
+    <!-- A drawing wider than a phone scrolls sideways here, and a keyboard can
+         only scroll a box it can focus. -->
+    <div class='lfp-figure-body' tabindex='0' role='group' aria-label={caption}>
         <slot/>
     </div>
     <p class='sr-only' id={describedBy}>{description}</p>
@@ -37,6 +39,13 @@ const describedBy = `${id}-desc`;
         background: var(--surface-card);
         padding: 24px;
         overflow-x: auto;
+    }
+
+    .lfp-figure-body:focus-visible {
+        outline-width: 2px;
+        outline-style: solid;
+        outline-color: var(--focus-ring);
+        outline-offset: 2px;
     }
 
     .lfp-figure-caption {
