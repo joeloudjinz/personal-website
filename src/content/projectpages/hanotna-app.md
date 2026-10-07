@@ -90,7 +90,6 @@ chapters:
     navLabel: "The dashboard"
     group: "product"
     visual: "home screens"
-    reserved: true
   - id: "production"
     title: "In production"
     navLabel: "In production"
