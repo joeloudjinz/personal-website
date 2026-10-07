@@ -80,7 +80,6 @@ chapters:
     navLabel: "The partnership"
     group: "product"
     visual: "profit-split waterfall"
-    reserved: true
   - id: "algerian"
     title: "Speaks Algerian"
     navLabel: "Speaks Algerian"
