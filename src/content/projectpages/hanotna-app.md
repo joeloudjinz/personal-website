@@ -85,7 +85,6 @@ chapters:
     navLabel: "Speaks Algerian"
     group: "product"
     visual: "EN/AR mirror"
-    reserved: true
   - id: "dashboard"
     title: "The dashboard"
     navLabel: "The dashboard"
