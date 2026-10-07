@@ -79,17 +79,24 @@ export interface LoadedChapter {
  * Headings inside a chapter are H3 only — the chapter's own title is the H2 —
  * and every H3 slug is unique across the page, because Astro gives headings
  * bare ids and two chapters with "What it stores" would share one anchor.
- * Authors disambiguate in the heading text.
+ * Chapter ids are anchors too, so a heading may not take one: a "Testing" H3
+ * would share the testing chapter's id. Authors disambiguate in the heading text.
  */
 export function assertChapterHeadings(page: LongformEntry, chapters: LoadedChapter[]): void {
   const problems: string[] = [];
+  const SPINE = '<spine>';
   const seen = new Map<string, string>();
+  for (const chapter of page.data.chapters) seen.set(chapter.id, SPINE);
   for (const chapter of chapters) {
     for (const heading of chapter.headings) {
       if (heading.depth !== 3) {
         problems.push(`chapter "${chapter.spine.id}": heading "${heading.text}" is an H${heading.depth}; chapters use H3 only`);
       }
       const owner = seen.get(heading.slug);
+      if (owner === SPINE) {
+        problems.push(`chapter "${chapter.spine.id}": heading slug "${heading.slug}" collides with chapter id "${heading.slug}"`);
+        continue;
+      }
       if (owner && owner !== chapter.spine.id) {
         problems.push(`chapter "${chapter.spine.id}": heading slug "${heading.slug}" is already used in chapter "${owner}"`);
       }
