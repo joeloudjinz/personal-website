@@ -1,0 +1,35 @@
+---
+// A string the app itself says, quoted in its own language. Arabic gets its
+// direction and language on the element so the browser shapes and orders it.
+interface Props {
+    text: string;
+    lang?: 'en' | 'ar';
+    source?: string;
+}
+const {text, lang = 'en', source} = Astro.props;
+---
+
+<blockquote class='lfp-quote' lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+    <p class='lfp-quote-text'>{text}</p>
+    {source && <footer class='lfp-quote-source'>{source}</footer>}
+</blockquote>
+
+<style>
+    .lfp-quote {
+        margin-block: 20px;
+        padding-inline-start: 20px;
+        border-inline-start: 3px solid var(--accent);
+    }
+
+    .lfp-quote-text {
+        font-size: 17px;
+        line-height: 1.7;
+        color: var(--text-strong);
+    }
+
+    .lfp-quote-source {
+        margin-block-start: 6px;
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+</style>

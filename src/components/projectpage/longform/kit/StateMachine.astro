@@ -1,0 +1,102 @@
+---
+// A state diagram drawn from its data: nodes placed on a 1000 by `height` grid,
+// edges as straight lines with an arrowhead and a label at the midpoint. Nodes
+// reveal in list order and edges draw themselves once the page script adds
+// is-in to the figure around this (see Figure.astro). The ink is the system's,
+// and a terminal node gets a second circle.
+export interface SmNode {
+    id: string;
+    label: string;
+    x: number;
+    y: number;
+    terminal?: boolean;
+}
+export interface Edge {
+    from: string;
+    to: string;
+    label?: string;
+}
+interface Props {
+    nodes: SmNode[];
+    edges: Edge[];
+    height?: number;
+    /** The id of the Figure's sr-only description: the figure's id plus "-desc". */
+    describedBy?: string;
+    title: string;
+}
+const {nodes, edges, height = 360, describedBy, title} = Astro.props;
+const RADIUS = 46;
+const byId = new Map(nodes.map((node) => [node.id, node]));
+const lines = edges.flatMap((edge, index) => {
+    const from = byId.get(edge.from);
+    const to = byId.get(edge.to);
+    if (!from || !to) return [];
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    const length = Math.hypot(dx, dy) || 1;
+    // Start and end on the rings, not at the centres, so the arrowhead shows.
+    const x1 = from.x + (dx / length) * RADIUS;
+    const y1 = from.y + (dy / length) * RADIUS;
+    const x2 = to.x - (dx / length) * (RADIUS + 8);
+    const y2 = to.y - (dy / length) * (RADIUS + 8);
+    return [{...edge, index, x1, y1, x2, y2, mx: (x1 + x2) / 2, my: (y1 + y2) / 2 - 8}];
+});
+---
+
+<svg class='lfp-sm' viewBox={`0 0 1000 ${height}`} role='img' aria-describedby={describedBy}>
+    <title>{title}</title>
+    <defs>
+        <marker id='lfp-sm-arrow' viewBox='0 0 10 10' refX='9' refY='5' markerWidth='8' markerHeight='8' orient='auto-start-reverse'>
+            <path d='M 0 0 L 10 5 L 0 10 z' fill='currentColor'/>
+        </marker>
+    </defs>
+    {lines.map((line) => (
+        <g class='lfp-sm-edge-group' style={`--i: ${nodes.length + line.index}`}>
+            <line class='lfp-edge' x1={line.x1} y1={line.y1} x2={line.x2} y2={line.y2}
+                  pathLength='1' marker-end='url(#lfp-sm-arrow)'/>
+            {line.label && <text class='lfp-sm-edge-label lfp-node' x={line.mx} y={line.my} text-anchor='middle'>{line.label}</text>}
+        </g>
+    ))}
+    {nodes.map((node, index) => (
+        <g class='lfp-node' style={`--i: ${index}`}>
+            <circle class='lfp-sm-ring' cx={node.x} cy={node.y} r={RADIUS}/>
+            {node.terminal && <circle class='lfp-sm-ring' cx={node.x} cy={node.y} r={RADIUS - 6}/>}
+            <text class='lfp-sm-label' x={node.x} y={node.y} text-anchor='middle' dominant-baseline='middle'>{node.label}</text>
+        </g>
+    ))}
+</svg>
+
+<style>
+    .lfp-sm {
+        display: block;
+        width: 100%;
+        min-width: 560px;
+        height: auto;
+        /* The arrowhead takes currentColor, so this is the edge's ink. */
+        color: var(--text-muted);
+        font-family: var(--font-sans);
+    }
+
+    .lfp-sm-ring {
+        fill: var(--surface);
+        stroke: var(--accent);
+        stroke-width: 2;
+    }
+
+    .lfp-sm-label {
+        font-size: 15px;
+        font-weight: 600;
+        fill: var(--text-strong);
+    }
+
+    .lfp-edge {
+        stroke: var(--text-muted);
+        stroke-width: 2;
+        fill: none;
+    }
+
+    .lfp-sm-edge-label {
+        font-size: 13px;
+        fill: var(--text-muted);
+    }
+</style>

@@ -1,0 +1,62 @@
+---
+// The folded half of a technical chapter. A native details element so it works
+// without script and announces its own state; drawn like FaqDisclosure, but
+// with a slot because what it holds is a run of markdown, not a q/a pair.
+// Closed by default: the narrative above it is the chapter, this is the depth.
+const SUMMARY = 'For engineers';
+---
+
+<details class='lfp-eng' data-for-engineers>
+    <summary class='lfp-eng-summary'>
+        <span class='kicker'>{SUMMARY}</span>
+        <span class='lfp-eng-glyph' aria-hidden='true'>↓</span>
+    </summary>
+    <div class='lfp-eng-body'>
+        <slot/>
+    </div>
+</details>
+
+<style>
+    .lfp-eng {
+        margin-block: 32px;
+        border: 1px solid var(--hairline);
+        border-radius: 16px;
+        background: var(--surface-soft);
+    }
+
+    .lfp-eng-summary {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 20px;
+        cursor: pointer;
+        list-style: none;
+    }
+
+    .lfp-eng-summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .lfp-eng-summary:focus-visible {
+        outline-width: 2px;
+        outline-style: solid;
+        outline-color: var(--focus-ring);
+        outline-offset: 2px;
+        border-radius: 16px;
+    }
+
+    .lfp-eng-glyph {
+        color: var(--info);
+        font-weight: 600;
+        transition: transform var(--dur-fast) var(--ease-standard);
+    }
+
+    .lfp-eng[open] .lfp-eng-glyph {
+        transform: rotate(180deg);
+    }
+
+    .lfp-eng-body {
+        padding: 0 20px 20px;
+    }
+</style>
