@@ -116,7 +116,6 @@ chapters:
     navLabel: "Testing"
     group: "technical"
     visual: "stat tiles"
-    reserved: true
   - id: "rtl"
     title: "Arabic engineering"
     navLabel: "Arabic engineering"
