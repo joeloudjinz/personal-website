@@ -106,7 +106,6 @@ chapters:
     navLabel: "Stack and flavors"
     group: "technical"
     visual: "flavor matrix"
-    reserved: true
   - id: "guards"
     title: "Guard rails as code"
     navLabel: "Guard rails"

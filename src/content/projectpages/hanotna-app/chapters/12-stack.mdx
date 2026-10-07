@@ -1,0 +1,28 @@
+---
+page: hanotna-app
+chapter: stack
+---
+import {flavors} from '../data/stack';
+
+Flutter and Dart on the phone, Firebase behind it, Riverpod for state and GoRouter for navigation. The choices are ordinary on purpose. What is less ordinary is that the same code ships as three apps that are kept apart by name, by icon and by database.
+
+### Three flavors, three apps
+
+The development build connects to local emulators and reports nothing anywhere. Staging and production each have their own Firebase project, crash reporting, analytics and performance tracing, and an offline cache with lifetimes tuned for a shop's day. Photos are on in development and production, and off in staging, which runs on the free plan.
+
+<Figure id="fig-flavors" caption="What differs between the three builds."
+        description="A table of five settings across dev, staging and production: the Firebase project, crash reports and analytics and traces, the offline cache, cache lifetimes, and product photos.">
+  <DataTable columns={flavors.columns} rows={flavors.rows} />
+</Figure>
+
+### Routing with guards
+
+Thirty-nine routes behind one router. The capital screens require a partner who may read capital, the cycle calculator requires a system admin, and logging a capital entry with no open cycle sends the reader to the screen that starts one. The home, stock, orders and capital tabs live in one floating bar, and the fourth slot shows capital to a partner and the settings menu to everyone else.
+
+### Observability in one place each
+
+One logger, one analytics gateway, one tracing helper. The flavor decides once whether they report, rather than at two hundred call sites, and there is a single place where personal data is scrubbed before anything leaves the phone. Eighteen custom traces time the operations that matter at the counter: confirming a sale, a quick sale, a return, a stock update, loading the dashboard.
+
+<ForEngineers>
+  Flutter 3.38 and Dart 3.10, per the project's README and pubspec. Riverpod 3.0.3 with riverpod_generator, GoRouter 17. The packages: firebase_core, cloud_firestore, firebase_auth, firebase_crashlytics, firebase_analytics, firebase_performance, firebase_storage, mobile_scanner for barcodes, camera and image for product photos, flutter_svg for the brand mark, url_launcher for tapping a phone number. The three entry files are one line each and name the backend bundle, the only place a backend is chosen. Release builds minify with R8. Distribution goes through Firebase App Distribution to a testers group and a production-users group, not through a store.
+</ForEngineers>
