@@ -121,7 +121,6 @@ chapters:
     navLabel: "Arabic engineering"
     group: "technical"
     visual: "bidi before and after"
-    reserved: true
   - id: "i18n"
     title: "The translation pipeline"
     navLabel: "Translation"
