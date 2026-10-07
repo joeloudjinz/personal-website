@@ -101,7 +101,6 @@ chapters:
     navLabel: "Architecture"
     group: "technical"
     visual: "layer stack"
-    reserved: true
   - id: "stack"
     title: "The stack and the three flavors"
     navLabel: "Stack and flavors"
