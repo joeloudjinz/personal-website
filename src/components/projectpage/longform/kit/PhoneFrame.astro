@@ -53,12 +53,9 @@ const widths = [400, 600, 900, 1200];
         border-radius: 40px;
         border: 1px solid var(--hairline);
         background: var(--surface-card);
-        /* The raised level the system draws stat cards with. */
-        box-shadow: 0 4px 16px -8px rgba(58, 40, 30, .25);
-    }
-
-    :global(html.theme-dark) .lfp-phone-shell {
-        box-shadow: 0 4px 16px -8px rgba(0, 0, 0, .35);
+        /* The raised level the system draws stat cards with, in both themes, as
+           the cards themselves keep it. */
+        box-shadow: var(--shadow-soft);
     }
 
     .lfp-phone-shell :global(.lfp-phone-screen) {
