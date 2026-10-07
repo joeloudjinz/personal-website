@@ -7,7 +7,7 @@ export const productOrder = {
     {id: 'draft', label: 'Draft', x: 360, y: 60},
     {id: 'confirmed', label: 'Confirmed', x: 620, y: 180},
     {id: 'cancelled', label: 'Cancelled', x: 900, y: 180, terminal: true},
-    {id: 'deleted', label: 'Deleted', x: 100, y: 300, terminal: true}
+    {id: 'deleted', label: 'Deleted', x: 100, y: 60, terminal: true}
   ],
   edges: [
     {from: 'start', to: 'draft', label: 'save a draft'},
