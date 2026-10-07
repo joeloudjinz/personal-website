@@ -131,7 +131,6 @@ chapters:
     navLabel: "How it was built"
     group: "technical"
     visual: "timeline"
-    reserved: true
   - id: "mark"
     title: "The mark"
     navLabel: "The mark"

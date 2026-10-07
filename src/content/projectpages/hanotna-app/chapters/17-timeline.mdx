@@ -1,0 +1,28 @@
+---
+page: hanotna-app
+chapter: timeline
+---
+import {releases} from '../data/timeline';
+
+From an empty repository to a cash register in daily use took 58 days. From there to a redesigned, bilingual, hardened fourth version took the rest of a summer. The numbers below are the repository's own.
+
+<Figure id="fig-timeline" caption="Twenty tagged releases in 136 days, and the commits that went into each month. The four taller marks: the first production release on 26 June, the rebuilt data layer in v3 on 27 July, the redesign in v4 on 6 August, and Arabic on 31 August."
+        description="A timeline from late April to mid September 2026 with thirteen tick groups covering twenty release tags, four of them major: the first production release on 26 June, version 3 on 27 July, version 4 on 6 August, and the Arabic release on 31 August. Below it, commits per month: 22 in April, 548 in May, 871 in June, 805 in July, 440 in August, 189 in September.">
+  <Timeline title="Releases and commits" describedBy="fig-timeline-desc" start={releases.start} end={releases.end} ticks={releases.ticks} months={releases.months} />
+</Figure>
+
+### How a change gets in
+
+Every substantial change starts as an issue on a board before any code is written. A ticket is not built until it has passed a readiness gate of brainstorm, specification and plan. One branch per issue, a pull request into the development branch, and the owner merges every one. A milestone is a release and a scope contract: new work mid-milestone waits for the next one.
+
+### What the history is made of
+
+2,875 commits, 371 pull requests merged, twenty tags, and about 99 per cent of commits following one message convention. Tests and documentation together outnumber feature commits. Sixty-seven fixed bugs each have a write-up kept in the archive, because the reason behind a non-obvious line is worth more than the line.
+
+### Releases, for shopkeepers
+
+A release is built and sent through Firebase App Distribution to a testers group and then to the shop. Its notes are written for the people behind the counter, in sections for what is new, what changed and what was fixed, each fix described by its effect at the till.
+
+<ForEngineers>
+  Commit types over the history: 647 features, 429 tests, 400 documentation, 366 fixes, 311 refactors, 260 chores. The definition of done is written down: criteria met, the suite green, analysis clean, the version bumped, the pull request reviewed and merged by the owner, the issue closed. A version milestone's major bump is its final commit. Release engineering keeps the three Firebase configurations out of version control and signs release builds with a key the repository never sees.
+</ForEngineers>
