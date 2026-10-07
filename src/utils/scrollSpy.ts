@@ -41,14 +41,19 @@ export function observeSections(links: HTMLAnchorElement[], options: ScrollSpyOp
   };
 
   const bar = Math.round(document.querySelector(barSelector)?.getBoundingClientRect().height ?? 0);
+  // The edge never sits above the bottom of the pinned bar. On a short
+  // landscape phone the bar can be taller than the top fraction, and an edge
+  // above it would turn the observer's window inside out and silence it.
+  const edgeOf = () => Math.max(bar, window.innerHeight * topFraction);
+  const bottom = Math.max(0, Math.round(100 - (edgeOf() / window.innerHeight) * 100));
   const observer = new IntersectionObserver(() => {
-    const edge = window.innerHeight * topFraction;
+    const edge = edgeOf();
     let current: string | null = null;
     for (const target of targets) {
       if (target.section.getBoundingClientRect().top <= edge) current = target.href;
     }
     mark(current);
-  }, {rootMargin: `-${bar}px 0px -${Math.round((1 - topFraction) * 100)}% 0px`});
+  }, {rootMargin: `-${bar}px 0px -${bottom}% 0px`});
   targets.forEach((target) => observer.observe(target.section));
   return () => observer.disconnect();
 }
