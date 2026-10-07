@@ -1,0 +1,91 @@
+---
+// The rail: two groups of chapter links, the current one marked by the page
+// script, and a page-progress bar under them. Plain anchors, so it works as a
+// list of jumps with no script at all.
+import type {SpineChapter} from '@src/utils/longformChapters';
+
+interface Props {
+    chapters: SpineChapter[];
+    /** Where the links sit, for analytics: 'rail' or 'jump'. */
+    location: 'rail' | 'jump';
+    labels: {product: string; technical: string};
+}
+const {chapters, location, labels} = Astro.props;
+const groups = (['product', 'technical'] as const)
+    .map((group) => ({group, label: labels[group], rows: chapters.filter((chapter) => chapter.group === group)}))
+    .filter((entry) => entry.rows.length > 0);
+---
+
+<nav class:list={['lfp-toc', `lfp-toc-${location}`]} aria-label='Chapters'>
+    {groups.map((entry) => (
+        <div class='lfp-toc-group'>
+            <p class='kicker'>{entry.label}</p>
+            <ol class='lfp-toc-list'>
+                {entry.rows.map((chapter) => (
+                    <li>
+                        <a class='lfp-toc-link' href={`#${chapter.id}`} title={chapter.visual}
+                           data-section-link data-section-location={location}>{chapter.navLabel}</a>
+                    </li>
+                ))}
+            </ol>
+        </div>
+    ))}
+    {location === 'rail' && <div class='lfp-progress' aria-hidden='true'><div class='lfp-progress-bar' data-progress></div></div>}
+</nav>
+
+<style>
+    .lfp-toc {
+        display: grid;
+        gap: 24px;
+        font-size: 14px;
+    }
+
+    .lfp-toc-list {
+        margin-block-start: 8px;
+        display: grid;
+        gap: 2px;
+    }
+
+    .lfp-toc-link {
+        display: block;
+        padding: 6px 10px;
+        border-radius: 8px;
+        color: var(--text-muted);
+        font-weight: 500;
+        line-height: 1.4;
+        transition: color var(--dur-fast) var(--ease-standard), background-color var(--dur-fast) var(--ease-standard);
+    }
+
+    .lfp-toc-link:hover {
+        color: var(--text-strong);
+        background: var(--surface-soft);
+    }
+
+    .lfp-toc-link.is-current {
+        color: var(--accent);
+        background: var(--accent-wash);
+        font-weight: 600;
+    }
+
+    .lfp-toc-link:focus-visible {
+        outline-width: 2px;
+        outline-style: solid;
+        outline-color: var(--focus-ring);
+        outline-offset: 2px;
+    }
+
+    .lfp-progress {
+        height: 3px;
+        border-radius: 999px;
+        background: var(--hairline);
+        overflow: hidden;
+    }
+
+    .lfp-progress-bar {
+        height: 100%;
+        width: 100%;
+        background: var(--accent);
+        transform-origin: left;
+        transform: scaleX(0);
+    }
+</style>

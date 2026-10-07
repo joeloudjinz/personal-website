@@ -1,0 +1,17 @@
+---
+// A chapter the spine lists and nothing fills yet. One line, no body.
+interface Props {
+    note: string;
+}
+const {note} = Astro.props;
+---
+
+<p class='lfp-reserved'>{note}</p>
+
+<style>
+    .lfp-reserved {
+        margin-block-start: 16px;
+        font-size: 15px;
+        color: var(--text-muted);
+    }
+</style>

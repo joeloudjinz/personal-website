@@ -1,0 +1,64 @@
+---
+// The chapter column: a divider before each group, then every chapter as a
+// section whose id is its spine id, with a zero-height sentinel the analytics
+// observer watches, the H2, and either the rendered MDX inside Prose or the
+// reserved note.
+import Prose from '@src/components/Prose.astro';
+import {band, bandHeading} from '@src/utils/bandStyles';
+import type {LoadedChapter} from '@src/utils/longformChapters';
+import {kit} from './kit/index';
+import GroupDivider from './GroupDivider.astro';
+import ReservedChapter from './ReservedChapter.astro';
+
+interface Props {
+    chapters: LoadedChapter[];
+    dividers: {product: {kicker: string; standfirst: string}; technical: {kicker: string; standfirst: string}};
+    reservedNote: string;
+}
+const {chapters, dividers, reservedNote} = Astro.props;
+---
+
+{chapters.map((chapter, index) => {
+    const first = index === 0 || chapters[index - 1].spine.group !== chapter.spine.group;
+    const Content = chapter.Content;
+    return (
+        <Fragment>
+            {first && <GroupDivider {...dividers[chapter.spine.group]}/>}
+            <section id={chapter.spine.id} class:list={['lfp-chapter', band]} data-group={chapter.spine.group}>
+                {/* Zero height but laid out: an element with no box is never
+                    reported as intersecting, so the analytics observer would
+                    never see a chapter it could not see. */}
+                <span class='lfp-sentinel' data-chapter-sentinel aria-hidden='true'></span>
+                <h2 class:list={[bandHeading, 'lfp-chapter-title']}>{chapter.spine.title}</h2>
+                {Content
+                    ? <Prose><Content components={kit}/></Prose>
+                    : <ReservedChapter note={reservedNote}/>}
+            </section>
+        </Fragment>
+    );
+})}
+
+<style>
+    .lfp-chapter {
+        padding-block: 72px;
+    }
+
+    .lfp-sentinel {
+        display: block;
+        height: 0;
+    }
+
+    .lfp-chapter-title {
+        margin-block-end: 24px;
+    }
+
+    /* Prose sets its own H2 at 31px; the chapter title sits outside it. The
+       body's figures may run to the column edge. */
+    .lfp-chapter :global(.article) {
+        max-width: none;
+    }
+
+    .lfp-chapter :global(.article > :first-child) {
+        margin-block-start: 0;
+    }
+</style>

@@ -1,0 +1,48 @@
+---
+// The facts strip under the hero: a row of value-and-label tiles.
+import CodeSpans from '@src/components/CodeSpans.astro';
+import {band} from '@src/utils/bandStyles';
+
+interface Props {
+    items: {value: string; label: string}[];
+}
+const {items} = Astro.props;
+---
+
+<section class={band}>
+    <div class='shell py-[56px]'>
+        <ul class='lfp-glance' role='list'>
+            {items.map((item) => (
+                <li class='lfp-glance-item'>
+                    <p class='font-display text-[34px] font-semibold text-strong leading-none'>{item.value}</p>
+                    <p class='mt-2 text-sm text-muted leading-snug'><CodeSpans text={item.label}/></p>
+                </li>
+            ))}
+        </ul>
+    </div>
+</section>
+
+<style>
+    .lfp-glance {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 768px) {
+        .lfp-glance {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (min-width: 1100px) {
+        .lfp-glance {
+            grid-template-columns: repeat(6, 1fr);
+        }
+    }
+
+    .lfp-glance-item {
+        padding-inline-start: 16px;
+        border-inline-start: 1px solid var(--hairline);
+    }
+</style>

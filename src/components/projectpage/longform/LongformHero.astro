@@ -1,0 +1,37 @@
+---
+// The band hero's split layout with the longform spine's fields: copy on the
+// inline-start side, the phone frame on the other, the two quick actions as a
+// CtaPair. The cascade's delays key off nth-child, so its five children are the
+// five rows and nothing else.
+import CodeSpans from '@src/components/CodeSpans.astro';
+import CtaPair from '@src/components/CtaPair.astro';
+import PhoneFrame from './kit/PhoneFrame.astro';
+import {splitWash, type LongformEntry} from '@src/utils/projectPages';
+
+interface Props {
+    hero: LongformEntry['data']['hero'];
+}
+const {hero} = Astro.props;
+const heading = splitWash(hero.heading, hero.wash);
+---
+
+<section class='shell pt-[88px] pb-[72px]'>
+    <div class='grid gap-12 lg:grid-cols-[1fr_0.8fr] lg:gap-[72px] items-center'>
+        <div class='cascade'>
+            <p class='kicker mb-6'>{hero.kicker}</p>
+            <h1 class='font-display text-[clamp(30px,8.5vw,72px)] font-semibold text-strong tracking-[-0.015em] leading-[1.1] mb-7 max-w-[900px]'>
+                {heading
+                    ? <>{heading.before}<span class='marker-wash whitespace-nowrap'>{heading.washed}</span>{heading.after}</>
+                    : hero.heading}
+            </h1>
+            <p class='text-[21px] text-muted leading-relaxed mb-8 max-w-[560px]'><CodeSpans text={hero.promise}/></p>
+            <div class='flex flex-wrap items-center gap-3 mb-8'>
+                <span class='badge-accent'>{hero.status}</span>
+                {hero.version && <span class='badge-outline'>{hero.version}</span>}
+            </div>
+            <CtaPair primary={hero.actions[0]} secondary={hero.actions[1]} location='hero'/>
+        </div>
+        <PhoneFrame src={hero.shot.src} alt={hero.shot.alt} caption={hero.shot.caption} loading='eager'
+                    class='justify-self-center lg:justify-self-end'/>
+    </div>
+</section>

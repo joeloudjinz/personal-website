@@ -22,3 +22,7 @@ interface Window {
   __faqDisclosureBound?: boolean;
   __scrollTopBound?: boolean;
 }
+
+interface Window {
+    __lfpBound?: boolean;
+}
