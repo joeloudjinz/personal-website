@@ -51,7 +51,7 @@ const {chapters, labels} = Astro.props;
         font-weight: 600;
         cursor: pointer;
         list-style: none;
-        box-shadow: 0 10px 30px -12px rgba(25, 31, 51, .3);
+        box-shadow: var(--shadow-card);
     }
 
     .lfp-jump-summary::-webkit-details-marker {
@@ -83,6 +83,6 @@ const {chapters, labels} = Astro.props;
         border-radius: 16px;
         border: 1px solid var(--hairline);
         background: var(--surface-card);
-        box-shadow: 0 10px 30px -12px rgba(25, 31, 51, .3);
+        box-shadow: var(--shadow-card);
     }
 </style>
