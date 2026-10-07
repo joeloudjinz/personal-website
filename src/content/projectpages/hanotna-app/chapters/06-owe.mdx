@@ -1,0 +1,37 @@
+---
+page: hanotna-app
+chapter: owe
+---
+import {period, settlement} from '../data/owe';
+
+A shop owes money too: to the supplier who delivered on Tuesday, to the landlord every month, to the people behind the counter. Hanotna records all three in the same ledger the partners read, so the money the shop owes is never a surprise at the end of a cycle.
+
+<PhonePair caption="A supplier bill with its goods total, its transport legs and a partial payment, and the rent screen with the date the shop is covered until.">
+  <PhoneFrame alt="A supplier bill detail screen with a goods total, transport costs and payments listed." caption="Supplier bill" />
+  <PhoneFrame alt="The rent screen showing the monthly rate, the landlord and a paid-until date." caption="Rent" />
+</PhonePair>
+
+### Bills that keep their own balance
+
+One bill per delivery. The goods total is what the shop owes, payments are added against it, and the balance is worked out rather than stored, so it cannot drift. Transport on a delivery is posted once as an expense and the bill remembers that it was, so it cannot be posted twice.
+
+### Rent covered until a date
+
+The owner sets the rent up once, with the landlord and the date the shop is paid until. Each payment says how many months it covers, and the paid-until date is derived from the payments, never typed again. Gaps and overlaps are shown, not blocked.
+
+### Wages as a proposal, not a decree
+
+Each employee has a pay profile: a rate by the month, the day or the hour, the days of the week they work, and a start date that anchors their pay period. Days off are recorded as exceptions, paid or unpaid. When a period ends the app proposes a figure, the owner can change it before paying, and both the computed and the paid amounts are kept.
+
+<Example title="One month's wages" setup="Karim is paid 1,500 a day, works Saturday to Thursday, and started on 12 September 2026. He took one paid day off and one unpaid day, and had an advance of 10,000 during the month.">
+  <Figure id="fig-period" caption="The period, counted."
+          description="Four figures: 26 days scheduled, 1 paid day off, 1 unpaid day off, 25 days paid.">
+    <TileGrid columns={4} tiles={period} />
+  </Figure>
+  <Figure id="fig-settlement" caption="From days paid to the amount left to settle."
+          description="A waterfall: 25 days at 1,500 is 37,500, minus an advance of 10,000, leaves 27,500 to settle.">
+    <Waterfall title="Karim's settlement" describedBy="fig-settlement-desc" steps={settlement} />
+  </Figure>
+</Example>
+
+Advances, settlements and rent payments all write ordinary expense rows into the capital ledger, and the feature that wrote a row is the only one allowed to void it. That way there are never two ways to undo the same money.

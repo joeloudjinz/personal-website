@@ -75,7 +75,6 @@ chapters:
     navLabel: "Money you owe"
     group: "product"
     visual: "settlement waterfall"
-    reserved: true
   - id: "partnership"
     title: "The partnership"
     navLabel: "The partnership"
