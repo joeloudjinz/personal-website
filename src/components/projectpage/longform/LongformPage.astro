@@ -51,8 +51,9 @@ const DIVIDERS = {
             keywords={seo.keywords?.join(', ')} imageAlt={seo.imageAlt}
             software={softwareNode} canonical={canonical}
             chrome='subdomain' projectName={page.data.projectName} credit={credit}>
+    <a slot='skip' class='lfp-skip' href={`#${firstChapter}`} lang={locale}
+       dir={locale === 'ar' ? 'rtl' : 'ltr'}>{LABELS.skip}</a>
     <div class='lfp' lang={locale} dir={locale === 'ar' ? 'rtl' : 'ltr'}>
-        <a class='lfp-skip' href={`#${firstChapter}`}>{LABELS.skip}</a>
         <noscript>
             <style is:inline>
                 html .lfp .lfp-figure .lfp-node { opacity: 1; transform: none; }
