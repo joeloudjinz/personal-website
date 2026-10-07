@@ -21,8 +21,5 @@ interface Window {
   __codeCopyBound?: boolean;
   __faqDisclosureBound?: boolean;
   __scrollTopBound?: boolean;
-}
-
-interface Window {
-    __lfpBound?: boolean;
+  __lfpBound?: boolean;
 }

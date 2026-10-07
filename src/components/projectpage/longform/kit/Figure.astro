@@ -17,8 +17,8 @@ const describedBy = `${id}-desc`;
 ---
 
 <figure class:list={['lfp-figure', className]} data-animate id={id}>
-    <!-- A drawing wider than a phone scrolls sideways here, and a keyboard can
-         only scroll a box it can focus. -->
+    {/* A drawing wider than a phone scrolls sideways here, and a keyboard can
+        only scroll a box it can focus. */}
     <div class='lfp-figure-body' tabindex='0' role='group' aria-label={caption}>
         <slot/>
     </div>

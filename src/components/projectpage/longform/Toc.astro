@@ -23,7 +23,7 @@ const groups = (['product', 'technical'] as const)
             <ol class='lfp-toc-list'>
                 {entry.rows.map((chapter) => (
                     <li>
-                        <a class='lfp-toc-link' href={`#${chapter.id}`} title={chapter.visual}
+                        <a class='lfp-toc-link' href={`#${chapter.id}`} title={chapter.visual !== 'none' ? chapter.visual : undefined}
                            data-section-link data-section-location={location}>{chapter.navLabel}</a>
                     </li>
                 ))}
