@@ -136,7 +136,6 @@ chapters:
     navLabel: "The mark"
     group: "technical"
     visual: "storefront build-up"
-    reserved: true
 closing:
   heading: "Built for one shop. Made to last."
   wash: "one shop"
