@@ -13,13 +13,13 @@ A sale at the counter is one screen and one tap. The cashier picks products, typ
 
 ### What one tap does
 
-Every line in the cart freezes the product's name, SKU, unit, list price and cost price at the moment it is added. An order is a record of what was sold, not a view onto the catalogue, so a price change next week never rewrites last week's receipt. A per-line price override exists for the real world, and the sheet that takes it watches for typos: an override far from the list price asks before it is accepted.
+Every line in the cart freezes the product's name, SKU, unit, list price and cost price at the moment it is added. An order is a record of what was sold, not a view onto the catalogue, so a price change next week never rewrites last week's order. A per-line price override exists for the real world, and the sheet that takes it watches for typos: an override far from the list price asks before it is accepted.
 
 Discounts come in two kinds, a flat amount or a percentage, and a percentage is re-applied to the new subtotal whenever the order is edited. Shipping is one cost on a confirmed order. The total is the subtotal less the discount plus shipping less anything returned, and it never goes below zero.
 
 ### Never sell what is not there
 
-A product sale that would push stock below zero is refused outright. There is no override. The rule was reversed from an earlier "warn and let them force it" after it became clear that selling goods that do not exist corrupts the stock count, and a stock count the owner cannot trust is worse than a sale that has to wait.
+A product sale that would push stock below zero is refused outright. There is no override. The rule used to warn and let the cashier force it. Since June 2026 a product sale that would go below zero is refused.
 
 <Figure id="fig-order-lifecycle" caption="The life of a product order. A quick sale skips the draft. A confirmed order can be edited, returned against or cancelled, and cancelling restocks what was not already returned."
         description="A state diagram with five states. A new sale becomes either a draft or, through quick sale, a confirmed order. A draft can be confirmed, deleted or cancelled. A confirmed order can be cancelled, which restocks and refunds. Cancelled and deleted are terminal.">
@@ -35,5 +35,5 @@ A return is composed first and committed once. The cashier picks quantities per 
 </Callout>
 
 <ForEngineers>
-  The order and its stock moves commit in one Firestore transaction. Stock is re-read inside the transaction, every affected product gets an adjustment row of type `order_confirm`, and the write set is bounded by the chapter's rule of two documents per product plus the order, at most one payment and at most one customer. An oversell throws `InsufficientStockException` from the adapter, which the quick-sale, order-detail and order-edit screens all handle. Seven call sites write stock, all through one shared primitive that chains moves across lines so two lines of the same product deduct twice.
+  The order and its stock moves commit in one Firestore transaction. Stock is re-read inside the transaction, every affected product gets an adjustment row of type `order_confirm`, and the write set is bounded to two documents per product plus the order, at most one payment and at most one customer. An oversell throws `InsufficientStockException` from the adapter, which the quick-sale, order-detail and order-edit screens all handle. Seven call sites write stock, all through one shared primitive that chains moves across lines so two lines of the same product deduct twice.
 </ForEngineers>
