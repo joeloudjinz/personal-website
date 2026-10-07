@@ -1198,6 +1198,22 @@ const projectPages = defineCollection({
   }
 });
 
+// One MDX file per chapter of a longform project page, under
+// src/content/projectpages/<slug>/chapters/. The glob is one directory deep on
+// purpose: a chapter belongs to exactly one page, and the page's own entry sits
+// one level up in a .md file the projectPages loader reads and this one cannot.
+// Never put a .md file inside a page's folder — projectPagesBuild.ts reads
+// every .md under the base as a page when it derives slugs for the sitemap.
+const projectPageChapters = defineCollection({
+  loader: glob({ pattern: '*/chapters/*.mdx', base: PROJECT_PAGES_BASE }),
+  schema: z.object({
+    // The owning page's slug and the chapter id it fills. Both are checked
+    // against the spine by src/utils/longformChapters.ts at build time.
+    page: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    chapter: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
+  })
+});
+
 const interests = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/interests" }),
   schema: z.object({
@@ -1207,4 +1223,7 @@ const interests = defineCollection({
   })
 });
 
-export const collections = { blog, majorSkills, experiences, education, recommendations, projects, interests, projectPages };
+export const collections = {
+  blog, majorSkills, experiences, education, recommendations, projects, interests,
+  projectPages, projectPageChapters
+};
