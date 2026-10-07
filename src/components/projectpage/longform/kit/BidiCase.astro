@@ -61,6 +61,7 @@ const PDI = String.fromCodePoint(0x2069);
         letter-spacing: .08em;
         text-transform: uppercase;
         color: var(--text-muted);
+        margin: 0;
         margin-block-end: 8px;
     }
 
@@ -69,7 +70,9 @@ const PDI = String.fromCodePoint(0x2069);
         gap: 6px;
     }
 
+    /* The article's paragraph margin would part the two lines of a case. */
     .lfp-bidi-line {
+        margin: 0;
         display: flex;
         align-items: baseline;
         gap: 12px;
@@ -95,6 +98,7 @@ const PDI = String.fromCodePoint(0x2069);
     }
 
     .lfp-bidi-note {
+        margin: 0;
         margin-block-start: 8px;
         font-size: 13px;
         line-height: 1.5;

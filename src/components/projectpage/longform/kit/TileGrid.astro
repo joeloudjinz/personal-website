@@ -40,14 +40,22 @@ const {tiles, variant = 'stat', columns = 3} = Astro.props;
         .lfp-tiles-4 { grid-template-columns: repeat(4, 1fr); }
     }
 
+    /* Rendered inside the article, whose list items carry a margin and a
+       caramel dot and whose paragraphs a wide margin. A tile wants neither. */
     .lfp-tile {
+        margin: 0;
         padding: 14px 16px;
         border-radius: 12px;
         border: 1px solid var(--hairline);
         background: var(--surface);
     }
 
+    .lfp-tile::before {
+        content: none;
+    }
+
     .lfp-tile-value {
+        margin: 0;
         font-family: var(--font-display);
         font-size: 30px;
         font-weight: 600;
@@ -57,6 +65,7 @@ const {tiles, variant = 'stat', columns = 3} = Astro.props;
     }
 
     .lfp-tile-label {
+        margin: 0;
         margin-block-start: 6px;
         font-size: 14px;
         line-height: 1.4;
@@ -70,6 +79,7 @@ const {tiles, variant = 'stat', columns = 3} = Astro.props;
     }
 
     .lfp-tile-note {
+        margin: 0;
         margin-block-start: 4px;
         font-size: 12px;
         line-height: 1.4;
