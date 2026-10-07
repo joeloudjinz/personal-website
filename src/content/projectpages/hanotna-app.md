@@ -126,7 +126,6 @@ chapters:
     navLabel: "Translation"
     group: "technical"
     visual: "pipeline flow"
-    reserved: true
   - id: "timeline"
     title: "How it was built"
     navLabel: "How it was built"
