@@ -38,6 +38,10 @@ const describedBy = `${id}-desc`;
         background: var(--surface-card);
         padding: 24px;
         overflow-x: auto;
+        /* Sideways only: a part still rising past the foot of the drawing must
+           not make this a vertical scroller, which the browser would then make
+           a keyboard stop of its own. */
+        overflow-y: hidden;
     }
 
     .lfp-figure-body:focus-visible {
