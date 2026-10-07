@@ -61,4 +61,10 @@ const {chapters, dividers, reservedNote} = Astro.props;
     .lfp-chapter :global(.article > :first-child) {
         margin-block-start: 0;
     }
+
+    .lfp-chapter :global(.lfp-mark-stage) {
+        width: min(100%, 220px);
+        margin-inline: auto;
+        margin-block: 24px;
+    }
 </style>

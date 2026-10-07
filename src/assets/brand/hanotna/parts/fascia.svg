@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- hanotna mark part: fascia. Same viewBox/fit as every other part — stack to compose. -->
+  <g transform="translate(512 512) scale(0.605192) translate(-527 -566)"><g transform="translate(0,1133) scale(0.1,-0.1)" fill="#241B14"><path d="M1177 9389 c-90 -21 -169 -87 -211 -178 -20 -43 -21 -64 -24 -369
+l-3 -322 1513 2 1513 3 27 125 c15 69 26 130 24 136 -3 7 -160 147 -350 313
+l-345 301 -1053 -1 c-579 -1 -1070 -5 -1091 -10z"/><path d="M6898 9119 c-177 -155 -335 -294 -351 -308 l-28 -27 26 -109 c14 -61
+27 -120 30 -132 l5 -23 1511 0 1510 0 -3 323 c-3 311 -4 324 -26 372 -30 65
+-92 128 -156 157 l-51 23 -1072 3 -1071 2 -324 -281z"/></g></g>
+</svg>

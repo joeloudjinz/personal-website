@@ -1,0 +1,34 @@
+---
+// The storefront, injected inline so its two fills can follow the theme: the
+// dark theme repaints the ink cream and the star bright caramel, which is what
+// the app's own dark variant file does, without a second file.
+import mark from '@src/assets/brand/hanotna/mark.svg?raw';
+
+interface Props {
+    class?: string;
+}
+const {class: className} = Astro.props;
+---
+
+<span class:list={['lfp-mark', className]}><Fragment set:html={mark}/></span>
+
+<style>
+    .lfp-mark {
+        display: block;
+        width: 100%;
+    }
+
+    .lfp-mark :global(svg) {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    :global(html.theme-dark) .lfp-mark :global(#hp-structure) {
+        fill: #F3EAD2;
+    }
+
+    :global(html.theme-dark) .lfp-mark :global(#hp-star) {
+        fill: #C68A45;
+    }
+</style>

@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+  <!-- hanotna mark part: posts. Same viewBox/fit as every other part — stack to compose. -->
+  <g transform="translate(512 512) scale(0.605192) translate(-527 -566)"><g transform="translate(0,1133) scale(0.1,-0.1)" fill="#241B14"><path d="M1467 5545 c-127 -97 -310 -172 -481 -196 l-86 -12 0 -2112 0 -2112
+31 -61 c34 -70 85 -115 159 -143 46 -17 81 -19 400 -19 l350 0 0 2265 0 2265
+-67 34 c-38 19 -103 59 -146 90 -43 31 -81 56 -85 55 -4 0 -38 -25 -75 -54z"/><path d="M8927 5554 c-38 -28 -104 -71 -148 -95 l-79 -44 0 -2263 0 -2263 368
+3 367 3 53 30 c59 32 91 66 125 129 l22 41 3 2121 2 2122 -79 11 c-180 27
+-362 101 -496 203 l-70 53 -68 -51z"/></g></g>
+</svg>
