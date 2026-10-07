@@ -1,0 +1,91 @@
+---
+// The architecture's layers stacked top to bottom, each a row with its name,
+// what it owns and a count, and one dashed seam between two rows carrying
+// the rule the test enforces. HTML rows reveal in order; the seam is an edge.
+interface Layer {
+    name: string;
+    detail: string;
+    count?: string;
+}
+interface Props {
+    layers: Layer[];
+    /** The seam is drawn after the layer at this index. */
+    seamAfter: number;
+    seamLabel: string;
+    title: string;
+}
+const {layers, seamAfter, seamLabel, title} = Astro.props;
+---
+
+<ol class='lfp-layers' role='list' aria-label={title}>
+    {layers.map((layer, index) => (
+        <Fragment>
+            <li class='lfp-layer lfp-node' style={`--i: ${index}`}>
+                <span class='lfp-layer-name'>{layer.name}</span>
+                <span class='lfp-layer-detail'>{layer.detail}</span>
+                {layer.count && <span class='lfp-layer-count chip'>{layer.count}</span>}
+            </li>
+            {index === seamAfter && (
+                <li class='lfp-seam lfp-node' style={`--i: ${index + 1}`} aria-label={seamLabel}>
+                    <span class='lfp-seam-label'>{seamLabel}</span>
+                </li>
+            )}
+        </Fragment>
+    ))}
+</ol>
+
+<style>
+    .lfp-layers {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .lfp-layer {
+        display: grid;
+        grid-template-columns: 170px 1fr auto;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--hairline);
+        background: var(--surface);
+    }
+
+    @media (max-width: 639px) {
+        .lfp-layer {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .lfp-layer-name {
+        font-weight: 600;
+        color: var(--text-strong);
+    }
+
+    .lfp-layer-detail {
+        font-size: 14px;
+        line-height: 1.45;
+        color: var(--text-body);
+    }
+
+    .lfp-seam {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-block: 6px;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
+    .lfp-seam::before, .lfp-seam::after {
+        content: '';
+        flex: 1;
+        border-block-start: 2px dashed var(--accent);
+    }
+</style>
