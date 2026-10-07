@@ -55,7 +55,6 @@ chapters:
     navLabel: "The problem"
     group: "product"
     visual: "flow of the four actors"
-    reserved: true
   - id: "counter"
     title: "The counter"
     navLabel: "The counter"
