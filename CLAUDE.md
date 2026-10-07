@@ -26,7 +26,7 @@ No test framework is configured — `npm run check:build` is the primary validat
 
 ### Content Collections
 
-All site content lives in `src/content/` as Markdown files managed by Astro's content collections (defined in `src/content.config.ts` with Zod schemas). Seven collections exist:
+All site content lives in `src/content/` as Markdown files managed by Astro's content collections (defined in `src/content.config.ts` with Zod schemas). Nine collections exist:
 
 - **blog/** — Posts in `date-slug/index.md` format. Schema: title, description, pubDate (required); seoTitle, updatedDate, tags, coverImage (optional).
 - **experiences/** — Work history entries sorted by numeric ID prefix (e.g. `01-dubai-backend.md`).
@@ -35,6 +35,8 @@ All site content lives in `src/content/` as Markdown files managed by Astro's co
 - **majorskills/** — Skill areas sorted by `order` field.
 - **recommendations/** — Professional testimonials with LinkedIn links.
 - **interests/** — Short personal interests with cover images.
+- **projectpages/** — One frontmatter-only entry per project showcase page, rendered by the band, pinboard or longform template (`src/components/projectpage/`) and deployed to its own subdomain. Schema has a `template` discriminator; slug and subdomain must also appear in `firebase.json` and `scripts/subdomain/targets.mjs`.
+- **projectpages/<slug>/chapters/** — MDX chapter bodies for a longform page, one file per chapter, paired to the entry's `chapters` spine by build-time guards in `src/utils/longformChapters.ts`. Outside the Tailwind scan.
 
 ### Routing
 

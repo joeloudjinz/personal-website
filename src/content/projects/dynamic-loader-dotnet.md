@@ -3,7 +3,7 @@ name: "Dynamic Module Loader for .NET"
 demoLink: "https://github.com/joeloudjinz/InzDynamicModuleLoader"
 publishedPackageLink: "https://www.nuget.org/packages/InzSoftwares.NetDynamicModuleLoader"
 isUnderConstruction: false
-isFeatured: true
+isFeatured: false
 version: "1.1.0"
 tags: [ "C#", ".NET 9", "Modularity", "Plugins", "Plug & Play", "Logic Isolation", "Swappability" ]
 id: "dynamic-module-loader-dotnet"

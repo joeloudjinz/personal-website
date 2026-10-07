@@ -6,6 +6,7 @@ export type ProjectCollectionEntry = CollectionEntry<'projects'>;
 
 // Hand-curated display order (by frontmatter id)
 export const PROJECT_ORDER = [
+  'hanotna-app',
   'joeinz-design-system',
   'inzsh-zsh-theme',
   'dynamic-module-loader-dotnet',
