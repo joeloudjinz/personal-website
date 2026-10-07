@@ -111,7 +111,6 @@ chapters:
     navLabel: "Guard rails"
     group: "technical"
     visual: "guard wall"
-    reserved: true
   - id: "testing"
     title: "Testing"
     navLabel: "Testing"
