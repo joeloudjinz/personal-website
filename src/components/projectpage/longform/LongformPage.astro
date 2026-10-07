@@ -207,8 +207,9 @@ const DIVIDERS = {
             }
         };
 
-        // A jump-list link closes the list before the browser scrolls, so the
-        // landing offset is measured against the layout it leaves behind.
+        // A jump closes the list, so it does not sit open over the chapter the
+        // reader chose. Focus is left to the browser: its own fragment
+        // navigation moves it to the target.
         document.addEventListener('click', (event) => {
             const target = event.target;
             if (!(target instanceof Element)) return;
@@ -216,7 +217,6 @@ const DIVIDERS = {
             const details = link?.closest<HTMLDetailsElement>('[data-jump]');
             if (!details) return;
             details.open = false;
-            details.querySelector<HTMLElement>('summary')?.focus({preventScroll: true});
         });
 
         document.addEventListener('astro:page-load', init);
