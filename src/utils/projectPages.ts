@@ -4,15 +4,20 @@ import {NAV_BUDGET_PX, navLabelWidth, navRowFits, navRowWidth} from './navFit';
 
 export type ProjectPageEntry = CollectionEntry<'projectPages'>;
 
-/** The two page templates, split off the schema union by the template literal. */
+/** The three page templates, split off the schema union by the template literal. */
 export type PinboardEntry = ProjectPageEntry & {
   data: Extract<ProjectPageEntry['data'], {template: 'pinboard'}>
 };
+export type LongformEntry = ProjectPageEntry & {
+  data: Extract<ProjectPageEntry['data'], {template: 'longform'}>
+};
 export type BandEntry = ProjectPageEntry & {
-  data: Exclude<ProjectPageEntry['data'], {template: 'pinboard'}>
+  data: Exclude<ProjectPageEntry['data'], {template: 'pinboard'} | {template: 'longform'}>
 };
 export const isPinboard = (page: ProjectPageEntry): page is PinboardEntry =>
   page.data.template === 'pinboard';
+export const isLongform = (page: ProjectPageEntry): page is LongformEntry =>
+  page.data.template === 'longform';
 
 /**
  * Top-level route names in src/pages. A project slug matching one of these would

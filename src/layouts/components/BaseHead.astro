@@ -41,8 +41,8 @@ interface Props {
         name: string;
         applicationCategory: string;
         operatingSystem: string;
-        license: string;
-        repository: string;
+        license?: string;
+        repository?: string;
         version?: string;
     };
 }
@@ -94,17 +94,20 @@ const structuredData = software
         'author': authorNode,
         'applicationCategory': software.applicationCategory,
         'operatingSystem': software.operatingSystem,
-        'license': software.license,
-        'codeRepository': software.repository,
+        ...(software.license && {'license': software.license}),
+        ...(software.repository && {'codeRepository': software.repository}),
         ...(software.version && {'softwareVersion': software.version}),
-        // The project is free and open source, and saying so is a fact rather
-        // than a rich-result trick. No aggregateRating: there are no ratings to
-        // report, and inventing them to chase a rich result is not on the table.
-        'offers': {
-            '@type': 'Offer',
-            'price': '0',
-            'priceCurrency': 'USD'
-        },
+        // Only a project with a public repository is free and open source, and
+        // saying so is a fact rather than a rich-result trick. A page with no
+        // repository makes no offer at all. No aggregateRating: there are no
+        // ratings to report, and inventing them is not on the table.
+        ...(software.repository && {
+            'offers': {
+                '@type': 'Offer',
+                'price': '0',
+                'priceCurrency': 'USD'
+            }
+        }),
         ...(tags && {'keywords': tags.join(', ')})
     }
     : {
