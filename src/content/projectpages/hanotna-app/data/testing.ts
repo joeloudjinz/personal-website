@@ -5,5 +5,5 @@ export const testingStats = [
   {value: '66', label: 'end-to-end scenarios asserting three ends'},
   {value: '26', label: 'architecture guards'},
   {value: '23', label: 'security-rules suites, 422 cases'},
-  {value: '126k', label: 'lines of test code, more than the app'}
+  {value: '123k', label: 'lines of test code, more than the app'}
 ];

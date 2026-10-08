@@ -12,7 +12,7 @@ Nothing in the screens says left or right. Padding, alignment, positions and bor
 
 ### Neutral characters need an isolate
 
-A minus sign, a date stamp, an arrow or a counter has no direction of its own, so the bidi algorithm decides for it from its neighbours. Inside an Arabic sentence that decision is often wrong. Hanotna wraps such a run in a first-strong isolate, and only such a run: a phrase that holds an Arabic word is never forced, because forcing it breaks it.
+A minus sign, a date stamp, an arrow or a counter has no direction of its own, so the bidi algorithm decides for it from its neighbours. Inside an Arabic sentence that decision is often wrong. Hanotna wraps such a run in a left-to-right isolate, and only such a run: a phrase that holds an Arabic word is never forced, because forcing it breaks it.
 
 <Figure id="fig-bidi" caption="Three runs inside Arabic text, as typed and with an isolate. The browser is drawing both, so this is the real reordering."
         description="Three cases. A signed amount: typed as is the minus sign drifts, with an isolate it stays before the digits. A date stamp: typed as is it reads day first, with an isolate it reads year first. A date range holding Arabic words: typed as is it is right, with an isolate the leading number is stranded.">
