@@ -2,8 +2,8 @@
 export const pipeline = {
   nodes: [
     {id: 'sweep', label: 'Sweep the code', x: 110, y: 70, lane: 'd' as const},
-    {id: 'glossary', label: '48-term glossary first', x: 380, y: 70, lane: 'a' as const},
-    {id: 'batches', label: '13 batches, cut per screen', x: 650, y: 70, w: 220, lane: 'a' as const},
+    {id: 'glossary', label: '48-term glossary first', x: 420, y: 70, lane: 'a' as const},
+    {id: 'batches', label: '13 batches, cut per screen', x: 700, y: 70, w: 220, lane: 'a' as const},
     {id: 'translator', label: 'Translator', x: 880, y: 180, lane: 'b' as const},
     {id: 'checker', label: 'The checker', x: 650, y: 290, lane: 'c' as const},
     {id: 'arb', label: 'app_ar.arb', x: 380, y: 290, lane: 'a' as const},

@@ -26,7 +26,7 @@ const {layers, seamAfter, seamLabel, title} = Astro.props;
                 {layer.count && <span class='lfp-layer-count chip'>{layer.count}</span>}
             </li>
             {index === seamAfter && (
-                <li class='lfp-seam lfp-node' style={`--i: ${index + 1}`} aria-label={seamLabel}>
+                <li class='lfp-seam lfp-node' style={`--i: ${index + 1}`}>
                     <span class='lfp-seam-label'>{seamLabel}</span>
                 </li>
             )}

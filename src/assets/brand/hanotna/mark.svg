@@ -1,21 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="hanotna">
-  <title>hanotna</title>
-
-  <!--
-    hanotna brand mark — vectorised from the approved raster with potrace.
-    Palette: ink #241B14 · accent #B07A3C · cream #F3EAD2 (background, icon build only)
-
-    Presentation attributes, not CSS (flutter_svg does not fully support CSS).
-    Variants: -dark (#F3EAD2/#C68A45) · -mono (single ink) · -adaptive (circle-safe framing)
-
-    Shape separation is TRUE NEGATIVE SPACE, so the mark composites on any
-    background and the star stays readable with colour removed — which is what
-    Android themed icons and iOS tinted icons require.
-
-    Animation handles:
-      #star #canopy #fascia #posts
-      #figures > #figure-left #figure-right #figure-center
-  -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024" role="img" aria-label="The Hanotna storefront mark">
+  <title>The Hanotna storefront mark</title>
 
   <g id="hp-mark" transform="translate(512 512) scale(0.605192) translate(-527.0 -566.0)">
     <g transform="translate(0,1133) scale(0.1,-0.1)">
