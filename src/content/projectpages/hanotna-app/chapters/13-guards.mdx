@@ -1,0 +1,26 @@
+---
+page: hanotna-app
+chapter: guards
+---
+import {guards} from '../data/guards';
+
+Every rule the team learnt the hard way is written as a test that reads the source code and refuses to pass if the rule is broken again. There are twenty-six of them, and many were born from a bug that shipped.
+
+### Prove it bites
+
+A test that asserts an absence passes trivially if it is looking in the wrong place. So the contributor guide's rule for writing one is to prove the guard bites: plant the fault first, watch the test fail, then take the fault out. Each guard carries its own check that its scan is not vacuous.
+
+### The wall
+
+<Figure id="fig-guards" caption="The twenty-six architecture guards, each with the reason it exists."
+        description="Twenty-six named tests, from the Firebase import boundary and the Firestore write guard through colour literals, direction-blind layout, bidi glyphs, money formatting, date formatting, translation contracts and stock mutation flushing.">
+  <TileGrid variant="brick" columns={3} tiles={guards} />
+</Figure>
+
+### The kinds of thing they catch
+
+Some guard the architecture: the Firebase boundary, every database write wrapped in the error mapper, no display text inside a port. Some guard the screen: no raw colour, no left or right geometry that would break under Arabic, no hand-written sign in front of money. Some guard the books: returns never subtracted twice, no currency arithmetic in a widget, every stock run flushed. And some guard the language: ledger notes stored in English, every category shown through its label, the Arabic file's contract checked forever.
+
+<ForEngineers>
+  The guards live in test/architecture and run with the rest of the suite. Beside them, a pre-pull-request script is the authoritative floor. It checks that generated code is fresh and that the translation files and catalogue are in step. It runs static analysis, the tests and the security-rules suites on the emulators. It flags conventions such as edits to protected paths or a missing version bump. Continuous integration runs the same script on pull requests into the release branch.
+</ForEngineers>

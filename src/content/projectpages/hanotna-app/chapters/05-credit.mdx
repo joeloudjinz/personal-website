@@ -1,0 +1,31 @@
+---
+page: hanotna-app
+chapter: credit
+---
+import {creditSale} from '../data/credit';
+
+Many customers of a neighbourhood shop pay some now and the rest later. Hanotna treats that as the normal case. A sale records what was received, the unpaid remainder goes onto the customer's balance with an optional due date, and the shop can see at a glance who owes what and who is overdue.
+
+<PhonePair caption="The customers and debts list with an overdue customer, and one customer's tab with the balance and the payment history.">
+  <PhoneFrame alt="The debtors list screen showing customers with balances and one marked overdue." caption="Customers and debts" />
+  <PhoneFrame alt="A customer's tab with a balance figure and a list of payments received." caption="One customer" />
+</PhonePair>
+
+### Oldest debt first
+
+A repayment is spread across the customer's open orders, oldest first, and the app shows where the money will land before it is committed. The rule is how shop credit is settled by hand, written down once as a pure function that a test can check.
+
+### Not revenue until it is paid
+
+Every amount the shop actually receives is a row in a payments ledger, and revenue is the sum of that ledger. An unpaid remainder writes no row, so a credit sale is not revenue until the customer pays. The ledger is never edited: cancelling a sale writes a negative row, and the history of what was collected stays visible.
+
+<Example title="A credit sale, start to finish" setup="A customer buys goods worth 1,000, pays 400 at the counter, pays 300 more a week later, and then the sale is cancelled.">
+  <Figure id="fig-credit-tape" caption="Three rows on the payments ledger that net to nothing, and a customer balance that ends at zero."
+          description="A ledger with three rows: plus 400 received at the counter, plus 300 repaid later, minus 700 when the order is cancelled. The total is zero.">
+    <LedgerTape title="A credit sale on the ledger" rows={creditSale.rows} total={creditSale.total} />
+  </Figure>
+</Example>
+
+### Forgiving a debt is a row too
+
+A debt can be written off, with a note saying why. The write-off is itself a ledger row that is kept out of revenue, so the books still add up, and an admin can reverse it later if the customer comes back. No interest is ever charged on anything owed.

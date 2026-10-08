@@ -108,6 +108,10 @@ One entry in `scripts/subdomain/targets.mjs`. Nothing else in that tree is proje
 `_redirects` is generated from `slug` and `mainSite`, and the verification matrix is derived from
 the built page, so the rules cannot drift or be mis-ordered per project.
 
+Targets today: `inzsh`, `joeinz-ds`, `hanotna-app`. A page built from the longform template
+(`src/components/projectpage/longform/`) deploys exactly like the others: the whole `dist/` goes up
+and the generated `_redirects` hides everything but the page.
+
 Two things live outside the tool and are easy to forget:
 
 - **The main site's redirect.** `firebase.json` needs a rule sending `/<slug>{,/**}` to the

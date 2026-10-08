@@ -1,0 +1,96 @@
+---
+// The storefront assembled part by part on the app's own splash timeline:
+// 1920ms, the same curve as the site's standard ease. Each part is one SVG
+// stacked on the others and revealed with its own motion and delay once the
+// figure around this gains is-in. The timings are the app's _kSpecs.
+import canopy from '@src/assets/brand/hanotna/parts/canopy.svg?raw';
+import fascia from '@src/assets/brand/hanotna/parts/fascia.svg?raw';
+import posts from '@src/assets/brand/hanotna/parts/posts.svg?raw';
+import figureLeft from '@src/assets/brand/hanotna/parts/figure-left.svg?raw';
+import figureRight from '@src/assets/brand/hanotna/parts/figure-right.svg?raw';
+import figureCenter from '@src/assets/brand/hanotna/parts/figure-center.svg?raw';
+import star from '@src/assets/brand/hanotna/parts/star.svg?raw';
+
+interface Props {
+    title: string;
+    /** The id of the Figure's sr-only description: the figure's id plus "-desc". */
+    describedBy?: string;
+}
+const {title, describedBy} = Astro.props;
+
+const PARTS = [
+    {name: 'canopy', svg: canopy, motion: 'drop', start: 0},
+    {name: 'fascia', svg: fascia, motion: 'drop', start: 180},
+    {name: 'posts', svg: posts, motion: 'extend', start: 360},
+    {name: 'figure-left', svg: figureLeft, motion: 'rise', start: 600},
+    {name: 'figure-right', svg: figureRight, motion: 'rise', start: 780},
+    {name: 'figure-center', svg: figureCenter, motion: 'rise', start: 960},
+    {name: 'star', svg: star, motion: 'bloom', start: 1260}
+] as const;
+---
+
+<div class='lfp-parts' role='img' aria-label={title} aria-describedby={describedBy}>
+    {PARTS.map((part) => (
+        <span class:list={['lfp-part', 'lfp-node', `lfp-part-${part.motion}`]}
+              style={`--delay: ${part.start}ms`} data-part={part.name}>
+            <Fragment set:html={part.svg}/>
+        </span>
+    ))}
+</div>
+
+<style>
+    .lfp-parts {
+        position: relative;
+        width: min(100%, 360px);
+        aspect-ratio: 1;
+        margin-inline: auto;
+    }
+
+    .lfp-part {
+        position: absolute;
+        inset: 0;
+    }
+
+    .lfp-part :global(svg) {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    :global(html.theme-dark) .lfp-part:not([data-part='star']) :global(path) {
+        fill: #F3EAD2;
+    }
+
+    :global(html.theme-dark) .lfp-part[data-part='star'] :global(path) {
+        fill: #C68A45;
+    }
+
+    /* The kit's reveal is a rise; these parts each have their own, on the
+       app's start times and a 660ms step, so they override the shared rule.
+       The figure wrapper belongs to Figure.astro and carries that file's
+       scope, so it is addressed as global here: a scoped compound on it
+       would never match. */
+    :global(.lfp-figure) .lfp-part.lfp-node {
+        transition: opacity 660ms var(--ease-standard), transform 660ms var(--ease-standard);
+        transition-delay: var(--delay);
+        transform-origin: center top;
+    }
+
+    :global(.lfp-figure) .lfp-part-drop.lfp-node { transform: translateY(-12%); }
+    :global(.lfp-figure) .lfp-part-extend.lfp-node { transform: scaleY(0.2); }
+    :global(.lfp-figure) .lfp-part-rise.lfp-node { transform: translateY(10%); }
+    :global(.lfp-figure) .lfp-part-bloom.lfp-node { transform: scale(0.4) rotate(-30deg); transform-origin: center; }
+
+    :global(.lfp-figure.is-in) .lfp-part.lfp-node {
+        opacity: 1;
+        transform: none;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        :global(.lfp-figure) .lfp-part.lfp-node {
+            opacity: 1;
+            transform: none;
+            transition: none;
+        }
+    }
+</style>

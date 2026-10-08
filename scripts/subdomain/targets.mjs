@@ -40,6 +40,15 @@ const targets = {
     branch: 'main',
     mainSite: 'https://abdellahaddoun.com',
   },
+  'hanotna-app': {
+    slug: 'hanotna-app',
+    host: 'hanotna-app.abdellahaddoun.com',
+    zone: 'abdellahaddoun.com',
+    record: 'hanotna-app',
+    project: 'hanotna-app',
+    branch: 'main',
+    mainSite: 'https://abdellahaddoun.com',
+  },
 };
 
 export default targets;

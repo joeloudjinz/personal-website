@@ -1,0 +1,36 @@
+---
+page: hanotna-app
+chapter: stock
+---
+import {recount, adjustmentTypes} from '../data/stock';
+
+The stock room is a book the app keeps so the owner does not have to. Every product has a name, a code, an optional barcode, a cost and a list price, and a unit of sale. Every change to what is on the shelf is written down with its reason, and the book can be checked against the shelf at any time.
+
+<PhonePair caption="The products list with its search and scan controls, and the label sheet with a preview at the roll's real proportions.">
+  <PhoneFrame alt="The products list screen with a search field and a barcode scan icon." caption="Products" />
+  <PhoneFrame alt="The label sheet showing a QR label preview, the roll size and a print button." caption="Label sheet" />
+</PhonePair>
+
+### Sold by the piece, the kilo or the metre
+
+Five units of sale: piece, kilogram, metre, litre and box. The kilo, the metre and the litre take decimal quantities and the piece and the box do not. A product can carry a manufacturer barcode. Scanning one at the counter, in the products list or in the product form goes through the same lookup every time, so the app's own labels and a packet's printed barcode resolve the same way.
+
+### Counting the shelf, not editing a number
+
+A stock correction is a recount. The person types what is on the shelf, and the app works out the difference and writes it to the log beside the product, in the same transaction, so the two can never disagree.
+
+<Figure id="fig-recount" caption="A recount, as the app shows it: what the book said, what the shelf holds, and the adjustment it writes."
+        description="A short ledger: the book held 24 pieces, the shelf count was 27, so an adjustment of plus 3 pieces was written.">
+  <LedgerTape title="A recount" rows={recount.rows} total={recount.total} />
+</Figure>
+
+The log is append-only and every entry says why it exists. Eight reasons cover everything that can move stock, and six of them are written by other parts of the app rather than by hand.
+
+<Figure id="fig-adjustments" caption="The eight reasons a stock adjustment can carry."
+        description="Eight adjustment types: manual, bill, order confirm, order edit, order cancel, return, service material and service cancel.">
+  <TileGrid variant="brick" columns={4} tiles={adjustmentTypes} />
+</Figure>
+
+### Labels from a thermal printer
+
+A product can be printed as a shelf label: a QR code of its code, the store's name and the price, on a roll the owner defines in millimetres, sent over the shop's Wi-Fi to a label printer. The app finds the printer on the local network, tells the owner when it is reachable, and says plainly that reachable does not mean there is paper in it.

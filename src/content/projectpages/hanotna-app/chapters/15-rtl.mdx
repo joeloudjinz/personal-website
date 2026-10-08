@@ -1,0 +1,32 @@
+---
+page: hanotna-app
+chapter: rtl
+---
+import {bidiCases} from '../data/rtl';
+
+Making an app read right to left is not a translation job. It is geometry, glyphs and the bidirectional algorithm every browser and phone runs on mixed text, and each of those has a way of being quietly wrong. Hanotna's Arabic milestone took 79 issues and 347 commits, and left behind rules that tests now enforce.
+
+### Geometry from the text direction
+
+Nothing in the screens says left or right. Padding, alignment, positions and borders are written as start and end, and a test rejects any physical left or right under the screen folders, as well as any hard-coded text direction that would opt a whole subtree out of mirroring. The rule was born when a segmented control's thumb slid the wrong way under Arabic.
+
+### Neutral characters need an isolate
+
+A minus sign, a date stamp, an arrow or a counter has no direction of its own, so the bidi algorithm decides for it from its neighbours. Inside an Arabic sentence that decision is often wrong. Hanotna wraps such a run in a left-to-right isolate, and only such a run: a phrase that holds an Arabic word is never forced, because forcing it breaks it.
+
+<Figure id="fig-bidi" caption="Three runs inside Arabic text, as typed and with an isolate. The browser is drawing both, so this is the real reordering."
+        description="Three cases. A signed amount: typed as is the minus sign drifts, with an isolate it stays before the digits. A date stamp: typed as is it reads day first, with an isolate it reads year first. A date range holding Arabic words: typed as is it is right, with an isolate the leading number is stranded.">
+  <BidiCase cases={bidiCases} />
+</Figure>
+
+### The thousand-times money bug that never shipped
+
+Arabic locale data uses a full stop as the thousands separator. Had the money formatter followed the locale, `1.250` would have been written out and read back as one dinar and a quarter. The formatter is pinned to a fixed number format in both languages, and a test says so, which is why every amount in the app keeps Western digits.
+
+### Arrows and icons
+
+An arrow glyph is not mirrored by the bidi algorithm, so the app chooses the glyph from the direction and never writes one bare. Only eight of the app's 123 icons mirror on their own, so the directional ones are declared as explicit twins and a test checks they flip.
+
+<ForEngineers>
+  The isolate helper wraps a run in U+2066 and U+2069, isolates rather than embeddings or marks, because those leak into the surrounding text. Signs use U+2212 and are passed as a flag, never inferred, because cost of goods is stored positive and shown as a deduction. The money formatter uses a fixed `#,##0` pattern, snaps to cents, then truncates. Input normalises both Arabic-Indic digit blocks to ASCII. Headlines in Arabic use the Arabic face at a real bold weight, because a synthesised bold smears the diacritics, and a test refuses any weight the bundled faces cannot serve.
+</ForEngineers>

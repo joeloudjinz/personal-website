@@ -1,0 +1,35 @@
+---
+page: hanotna-app
+chapter: mark
+---
+import {markPipeline} from '../data/mark';
+
+The mark is a small storefront: a scalloped canopy, a sign band, two posts, three figures and one caramel star rising from a notch in the roof. It was drawn as flat artwork with the help of an image model, then rebuilt as seven vector parts so the app could assemble it on screen and so every icon size would stay crisp.
+
+<div class="lfp-mark-stage"><BrandMark /></div>
+
+<Figure id="fig-mark" caption="The storefront, assembled part by part on the app's own splash timeline of 1,920 milliseconds."
+        description="The Hanotna mark built up from seven parts: the canopy drops in, then the sign band, the posts extend, three figures rise, and a caramel star blooms last.">
+  <PartsBuild title="The Hanotna mark" describedBy="fig-mark-desc" />
+</Figure>
+
+### Seven parts, one timeline
+
+The splash screen stacks the seven parts and builds the shop front-to-back over 1,920 milliseconds on one easing curve: canopy, sign band, posts, the three figures, and the star last, turning in as it grows. The figure above plays the same timeline in the browser, and stands still for anyone who has asked their system for less motion.
+
+### From a picture to vectors
+
+Hand-drawing the mark was tried four times and never matched the approved artwork. So the artwork was traced instead, one ink at a time.
+
+<Figure id="fig-mark-pipeline" caption="How a flat raster became the app's SVG marks."
+        description="A flow: the flat raster is split into its inks by nearest reference colour, each ink is traced on its own, the paths are recoloured to the exact brand hexes rather than the sampled ones, the variants are derived by swapping fills, and every one is rendered at 512, 48 and 32 pixels to check.">
+  <FlowGraph title="Raster to SVG" describedBy="fig-mark-pipeline-desc" nodes={markPipeline.nodes} edges={markPipeline.edges} height={280} />
+</Figure>
+
+### Why true negative space
+
+The shapes are separated by real gaps rather than by colour, so the mark sits on any background and the star still reads when the colour is taken away, which is what themed icons on Android and tinted icons on iOS require.
+
+<ForEngineers>
+  Each pixel is assigned to its nearest reference colour, with the references refined once from the mean. Each ink is traced with potrace at its own speckle threshold, which took the star from 46 spurious paths to one. The traced paths are reassembled with the brand hexes, since the scan read them a few values off. The light, dark and mono variants are derived by substituting fills, so the geometry cannot drift between them, and every variant is verified with resvg at three sizes, in mono, and with a fill-stripped diff. The parts share one viewBox and one fit transform, so they compose pixel for pixel.
+</ForEngineers>

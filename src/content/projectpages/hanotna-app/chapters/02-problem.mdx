@@ -1,0 +1,20 @@
+---
+page: hanotna-app
+chapter: problem
+---
+import {actors} from '../data/problem';
+
+A small shop in Algeria runs on cash, on credit between neighbours, and on partners who put money in and expect a fair share out. A generic point of sale handles the first of those and ignores the other two. Hanotna was built for one such shop and its partners, and every feature on this page answers something that shop actually needed.
+
+### Four parties, one till
+
+Customers pay at the counter, and some of them pay later. Partners put capital in and take profit out at the end of a trading cycle. Suppliers deliver and are paid against bills. Rent, wages and the utilities leave the till every month. The app keeps one honest record of all four, in the owner's own vocabulary, in English and in Arabic.
+
+<Figure id="fig-actors" caption="Where the shop's money comes from and where it goes. Every arrow is a screen in the app."
+        description="A flow diagram with the shop's cash in the centre. Customers send cash and credit sales in. Partners send capital in and receive the profit split. The shop pays suppliers against bills, and pays rent, wages and other expenses.">
+  <FlowGraph title="The four parties" describedBy="fig-actors-desc" nodes={actors.nodes} edges={actors.edges} />
+</Figure>
+
+### Built for its users, not for a market
+
+There is no public download and no sign-up page. The owner creates every account by hand, because a sign-up flow would have needed paid server functions the project chose not to run. Those two facts shaped more of the design than any feature list did: the people inside the app are known, trusted and few.

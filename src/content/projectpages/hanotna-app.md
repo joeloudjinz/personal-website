@@ -55,7 +55,6 @@ chapters:
     navLabel: "The problem"
     group: "product"
     visual: "flow of the four actors"
-    reserved: true
   - id: "counter"
     title: "The counter"
     navLabel: "The counter"
@@ -66,37 +65,31 @@ chapters:
     navLabel: "The stock room"
     group: "product"
     visual: "recount tape"
-    reserved: true
   - id: "credit"
     title: "Customers who buy on credit"
     navLabel: "Credit customers"
     group: "product"
     visual: "credit-sale ledger"
-    reserved: true
   - id: "owe"
     title: "Money you owe"
     navLabel: "Money you owe"
     group: "product"
     visual: "settlement waterfall"
-    reserved: true
   - id: "partnership"
     title: "The partnership"
     navLabel: "The partnership"
     group: "product"
     visual: "profit-split waterfall"
-    reserved: true
   - id: "algerian"
     title: "Speaks Algerian"
     navLabel: "Speaks Algerian"
     group: "product"
     visual: "EN/AR mirror"
-    reserved: true
   - id: "dashboard"
     title: "The dashboard"
     navLabel: "The dashboard"
     group: "product"
     visual: "home screens"
-    reserved: true
   - id: "production"
     title: "In production"
     navLabel: "In production"
@@ -108,49 +101,41 @@ chapters:
     navLabel: "Architecture"
     group: "technical"
     visual: "layer stack"
-    reserved: true
   - id: "stack"
     title: "The stack and the three flavors"
     navLabel: "Stack and flavors"
     group: "technical"
     visual: "flavor matrix"
-    reserved: true
   - id: "guards"
     title: "Guard rails as code"
     navLabel: "Guard rails"
     group: "technical"
     visual: "guard wall"
-    reserved: true
   - id: "testing"
     title: "Testing"
     navLabel: "Testing"
     group: "technical"
     visual: "stat tiles"
-    reserved: true
   - id: "rtl"
     title: "Arabic engineering"
     navLabel: "Arabic engineering"
     group: "technical"
     visual: "bidi before and after"
-    reserved: true
   - id: "i18n"
     title: "The translation pipeline"
     navLabel: "Translation"
     group: "technical"
     visual: "pipeline flow"
-    reserved: true
   - id: "timeline"
     title: "How it was built"
     navLabel: "How it was built"
     group: "technical"
     visual: "timeline"
-    reserved: true
   - id: "mark"
     title: "The mark"
     navLabel: "The mark"
     group: "technical"
     visual: "storefront build-up"
-    reserved: true
 closing:
   heading: "Built for one shop. Made to last."
   wash: "one shop"

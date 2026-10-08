@@ -1,0 +1,137 @@
+---
+// Releases on a time axis, with the month's commit counts as bars under it.
+// Positions come from the dates. A tick's label is its version only, so the
+// words go in the caption: major ticks stand taller with the label below,
+// minor ones carry theirs above, each on the lowest row where it clears its
+// neighbours. SVG text throughout, 13px at the smallest.
+export interface Tick {
+    date: string;
+    label: string;
+    major?: boolean;
+}
+export interface MonthBar {
+    label: string;
+    value: number;
+}
+interface Props {
+    start: string;
+    end: string;
+    ticks: Tick[];
+    months: MonthBar[];
+    title: string;
+    describedBy?: string;
+}
+const {start, end, ticks, months, title, describedBy} = Astro.props;
+
+const W = 1000;
+const PAD = 40;
+const AXIS = 150;
+const t0 = Date.parse(start);
+const t1 = Date.parse(end);
+const xAt = (date: string) => PAD + ((Date.parse(date) - t0) / (t1 - t0)) * (W - 2 * PAD);
+// A minor label takes the lowest row above the axis where its estimated width
+// meets no label already there. The lowest row sits level with the top of a
+// major tick, so a label is kept off it when a major tick falls under it.
+const CHAR = 7.4;
+const GAP = 10;
+const ROWS = 4;
+const span = (x: number, label: string) => [x - (label.length * CHAR) / 2 - GAP, x + (label.length * CHAR) / 2 + GAP];
+const majorXs = ticks.filter((tick) => tick.major).map((tick) => xAt(tick.date));
+const taken: number[][][] = Array.from({length: ROWS}, () => []);
+const rowFor = (x: number, label: string) => {
+    const [a, b] = span(x, label);
+    for (let row = 0; row < ROWS; row++) {
+        if (row === 0 && majorXs.some((m) => m >= a && m <= b)) continue;
+        if (taken[row].every(([c, d]) => b <= c || a >= d)) {
+            taken[row].push([a, b]);
+            return row;
+        }
+    }
+    return ROWS - 1;
+};
+const placed = ticks.map((tick, index) => {
+    const x = xAt(tick.date);
+    const row = tick.major ? 0 : rowFor(x, tick.label);
+    return {...tick, index, x, labelY: tick.major ? AXIS + 54 : AXIS - 24 - row * 20};
+});
+const peak = Math.max(...months.map((m) => m.value), 1);
+const barW = (W - 2 * PAD) / months.length;
+const BAR_TOP = 250;
+const BAR_BASE = 340;
+---
+
+<svg class='lfp-tl lfp-mirror' viewBox={`0 0 ${W} 380`} role='img' aria-describedby={describedBy}>
+    <title>{title}</title>
+    <line class='lfp-edge lfp-tl-axis' x1={PAD} y1={AXIS} x2={W - PAD} y2={AXIS} pathLength='1' style='--i: 0'/>
+    {placed.map((tick) => (
+        <g class='lfp-node' style={`--i: ${tick.index + 1}`}>
+            <line class:list={['lfp-tl-tick', tick.major && 'lfp-tl-major']}
+                  x1={tick.x} y1={tick.major ? AXIS - 36 : AXIS - 14} x2={tick.x} y2={tick.major ? AXIS + 36 : AXIS + 14}/>
+            <text class:list={['lfp-tl-label', tick.major && 'lfp-tl-major-label']}
+                  x={tick.x} y={tick.labelY} text-anchor='middle'>{tick.label}</text>
+        </g>
+    ))}
+    {months.map((month, index) => {
+        const h = (month.value / peak) * (BAR_BASE - BAR_TOP);
+        return (
+            <g class='lfp-node' style={`--i: ${placed.length + 1 + index}`}>
+                <rect class='lfp-tl-bar' x={PAD + index * barW + 6} y={BAR_BASE - h} width={barW - 12} height={h} rx='4'/>
+                <text class='lfp-tl-count' x={PAD + index * barW + barW / 2} y={BAR_BASE - h - 8} text-anchor='middle'>{month.value}</text>
+                <text class='lfp-tl-month' x={PAD + index * barW + barW / 2} y={BAR_BASE + 20} text-anchor='middle'>{month.label}</text>
+            </g>
+        );
+    })}
+</svg>
+
+<style>
+    .lfp-tl {
+        display: block;
+        width: 100%;
+        min-width: 640px;
+        height: auto;
+        font-family: var(--font-sans);
+    }
+
+    .lfp-tl-axis {
+        stroke: var(--text-strong);
+        stroke-width: 2;
+    }
+
+    .lfp-tl-tick {
+        stroke: var(--text-muted);
+        stroke-width: 2;
+    }
+
+    .lfp-tl-major {
+        stroke: var(--accent);
+        stroke-width: 3;
+    }
+
+    .lfp-tl-label {
+        font-size: 13px;
+        fill: var(--text-muted);
+    }
+
+    .lfp-tl-major-label {
+        font-size: 13px;
+        font-weight: 600;
+        fill: var(--text-strong);
+    }
+
+    .lfp-tl-bar {
+        fill: var(--accent-wash);
+        stroke: var(--accent);
+        stroke-width: 1;
+    }
+
+    .lfp-tl-count {
+        font-size: 13px;
+        fill: var(--text-strong);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .lfp-tl-month {
+        font-size: 13px;
+        fill: var(--text-muted);
+    }
+</style>

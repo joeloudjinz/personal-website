@@ -1,0 +1,30 @@
+---
+page: hanotna-app
+chapter: algerian
+---
+import {settlementCard} from '../data/algerian';
+
+Hanotna does not speak generic Arabic with an English accent. It writes the dinar the way an Algerian writes it, names the months the way Algeria names them, keeps the digits everyone here reads, and lays out every screen right to left when the phone is set to Arabic.
+
+### The dinar, on the number
+
+Every amount reads like `1,250 د.ج`: whole dinars, the symbol after the number, never before it. Amounts are truncated and never rounded up. The code `DZD` appears only where the user is choosing a currency or reading an exchange rate, and the symbol belongs to the number rather than to the label beside it.
+
+### Western digits, Algerian months
+
+Numbers keep Western digits in both languages. A reader who types Arabic-Indic digits is still understood, because the input is normalised the other way. Dates in Arabic use the Algerian month names, جانفي and فيفري and أوت among them, with Latin digits, and the app deliberately does not correct them to the Modern Standard set.
+
+<Quote text="لا يوجد ما يتطلب انتباهك" lang="ar" source="The home screen when nothing is overdue, open or pending. In English: Nothing needs your attention." />
+
+### French is not a language here
+
+Many Algerian phones are set to French. The app follows the phone's language but offers only English and Arabic, and a French phone gets English rather than an Arabic layout wrapped around English words. French-derived loanwords in Algerian Arabic are kept, because they are the correct words.
+
+### The same card, both ways
+
+<Figure id="fig-mirror" caption="One settlement card, rendered twice by the browser from the same data: left to right in English, right to left in Arabic. The three labels are the app's own."
+        description="Two cards with the same three rows. In English: Total 37,500 dinars, Paid 10,000, Owed 27,500. In Arabic the labels are الإجمالي, المدفوع and المستحق, the card is laid out right to left, and the numbers keep Western digits.">
+  <MirrorPair rows={settlementCard.rows} />
+</Figure>
+
+Arabic is structural in Hanotna, not decorative. The chapter on Arabic engineering further down says how that was done.

@@ -1,0 +1,48 @@
+---
+page: hanotna-app
+chapter: partnership
+---
+import {cycle, cycleIncome, profitSplit} from '../data/capital';
+
+The shop belongs to several people. Some put money in, some put work in, some both. Hanotna's capital ledger is their shared diary: what each partner put in, what the shop is worth, what a trading cycle earned, and how the profit is split. It is the feature the app exists for, and the one with the most rules.
+
+<PhonePair caption="The capital dashboard with the estimated cash on hand, and the close-cycle sheet comparing counted figures with the estimate.">
+  <PhoneFrame alt="The capital dashboard with a cash-on-hand figure, the open cycle and the partners' ownership." caption="Capital dashboard" />
+  <PhoneFrame alt="The close-cycle sheet with counted cash, stock value, debts and a variance line." caption="Closing a cycle" />
+</PhonePair>
+
+### A ledger with no edits
+
+Every injection, withdrawal and expense is a row in one ledger, in one of fifteen categories. Nothing is edited. A mistake is corrected by a reverse entry that points at the row it undoes, so every balance can be rebuilt from the log at any time. Partners can put money in as dinars, or in EUR, USD and stablecoins at a rate they type.
+
+### Ownership follows the money
+
+A partner's capital account is what they have really put in, and their share of the shop is that account over the total. Nobody owns a percentage by decree. A working partner can also hold a work share: a fixed cut of each cycle's profit, taken before the investors are paid. The work shares together can never pass one hundred per cent, a rule the database enforces as well as the app.
+
+### Trading cycles
+
+Profit is measured over a cycle. Closing one takes a photograph of the business, works out the cycle's income, splits it, and opens the next cycle in the same transaction, so there is never a moment without one.
+
+<Figure id="fig-cycle" caption="A cycle is opened once and closed once. Closing it opens the next."
+        description="A state diagram with three states: cycle N open, cycle N closed, cycle N plus one open. Closing takes the snapshot, computes the income and the split, and the next cycle opens in the same transaction.">
+  <StateMachine title="Cycle lifecycle" describedBy="fig-cycle-desc" nodes={cycle.nodes} edges={cycle.edges} height={300} />
+</Figure>
+
+<Example title="A cycle's income and its split" setup="Three partners: Yacine put in three quarters of the capital, Nadia one quarter, and Amine works in the shop for a 20% share of profit. Over the cycle the business grew from 500,000 to 620,000 in value.">
+  <Figure id="fig-income" caption="Income is the growth in what the business is worth, corrected for what the partners moved in and out."
+          description="A ledger: business value rose by 120,000, partners took out 30,000 more than before, partners put in 40,000 more than before. The cycle income is 110,000.">
+    <LedgerTape title="Cycle income" rows={cycleIncome.rows} total={cycleIncome.total} />
+  </Figure>
+  <Figure id="fig-split" caption="Labour first, then capital: the work share comes off the top and the rest is split by ownership."
+          description="A waterfall: 110,000 of income, minus Amine's 20% work share of 22,000, leaves an investor pool of 88,000, split into 66,000 for Yacine at 75% and 22,000 for Nadia at 25%.">
+    <Waterfall title="The profit split" describedBy="fig-split-desc" steps={profitSplit} />
+  </Figure>
+</Example>
+
+### Principal only, never interest
+
+A partner can lend the shop money. The loan is tracked apart from ownership and repaid at face value. The app never models interest (riba) in any form, and the code has no field where a rate could even be written.
+
+<ForEngineers>
+  The headline profit is a flow calculation, revenue less cost of goods less expenses, with cost of goods taken from a snapshot at the moment of each sale. The growth-in-value calculation shown above is kept as the reconciliation, and an optional physical count turns it into an actual figure. Closing is one Firestore transaction that re-reads the cycle, writes the end snapshot and the split, opens the next cycle with that snapshot as its start, and flips a metadata flag that lets sales proceed. The cap of one hundred per cent on work shares is enforced twice: an optimistic-concurrency aggregate in the app, and a rule on the database that reads the post-write state.
+</ForEngineers>

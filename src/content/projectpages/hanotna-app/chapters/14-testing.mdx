@@ -1,0 +1,28 @@
+---
+page: hanotna-app
+chapter: testing
+---
+import {testingStats} from '../data/testing';
+
+There is more test code in Hanotna than application code. That ratio is not a target, it is what happens when a cash register is tested the way a cash register should be: every money path, every permission, every past bug, replayed against a fake of the real database on every run.
+
+<Figure id="fig-testing" caption="The suite, counted."
+        description="Six figures: 607 test files, over 3,900 test cases, 66 end-to-end scenarios, 26 architecture guards, 23 security-rules suites with 422 cases, and about 123 thousand lines of test code.">
+  <TileGrid columns={3} tiles={testingStats} />
+</Figure>
+
+### Three ends of every scenario
+
+The end-to-end harness builds the whole app over a fake database and a fake sign-in, through the same seam production uses to install Firebase. Drivers for commerce, capital, partners and users call the real services, so no test writes a document by hand. Each scenario then asserts three ends at once: the value a provider computed, the raw document in the store, and the screen the user would see.
+
+### Written once, run forever
+
+Sixty-six scenarios cover founding a partnership, splitting profit, reinvesting, lending, a partner leaving, a sale through every state, returns, credit and write-offs, wages, rent and roles. Past bugs have a file of their own. The suite runs entirely offline.
+
+### The database is tested too
+
+The security rules are the real gate, so they have their own suite: twenty-three files and 422 cases run against the Firestore and Storage emulators. They check who may read and write what, and that the invariants the app enforces are enforced again where the app cannot be trusted.
+
+<ForEngineers>
+  Tests use flutter_test, mocktail, fake_cloud_firestore and firebase_auth_mocks. The scenario harness is a world object that starts a provider container over a test backend bundle, with a shared clock, and exposes drivers that mirror the screens' calls. Four emulator smoke tests cover what the fake cannot. The rule for contributors is test first, and a committed test's assertions are never weakened to get green.
+</ForEngineers>

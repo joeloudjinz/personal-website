@@ -1,0 +1,91 @@
+---
+// The same card twice: once left to right in English, once right to left in
+// Arabic, each with its own dir and lang so the browser does the mirroring.
+// A start-side rule on each card is on purpose: it is the border the vault
+// records as the one that does not flip when written physically.
+interface Row {
+    en: string;
+    ar: string;
+    value: string;
+}
+interface Props {
+    /** Optional: every string shown must be one the app ships, and a card
+     *  needs no title to make its point. */
+    heading?: {en: string; ar: string};
+    rows: Row[];
+}
+const {heading, rows} = Astro.props;
+const sides = [
+    {dir: 'ltr', lang: 'en', title: heading?.en, key: 'en' as const},
+    {dir: 'rtl', lang: 'ar', title: heading?.ar, key: 'ar' as const}
+];
+---
+
+<div class='lfp-mirror-pair'>
+    {sides.map((side, sideIndex) => (
+        <div class='lfp-mirror-card lfp-node' dir={side.dir} lang={side.lang} style={`--i: ${sideIndex}`}>
+            {side.title && <p class='lfp-mirror-title'>{side.title}</p>}
+            <dl class='lfp-mirror-rows'>
+                {rows.map((row) => (
+                    <div class='lfp-mirror-row'>
+                        <dt>{row[side.key]}</dt>
+                        <dd><bdi>{row.value}</bdi></dd>
+                    </div>
+                ))}
+            </dl>
+        </div>
+    ))}
+</div>
+
+<style>
+    .lfp-mirror-pair {
+        display: grid;
+        gap: 16px;
+    }
+
+    @media (min-width: 640px) {
+        .lfp-mirror-pair {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+
+    .lfp-mirror-card {
+        padding: 16px 18px;
+        border-radius: 12px;
+        border: 1px solid var(--hairline);
+        border-inline-start: 4px solid var(--accent);
+        background: var(--surface);
+    }
+
+    .lfp-mirror-title {
+        font-weight: 600;
+        color: var(--text-strong);
+        margin: 0;
+        margin-block-end: 10px;
+    }
+
+    .lfp-mirror-rows {
+        margin: 0;
+        display: grid;
+        gap: 8px;
+    }
+
+    .lfp-mirror-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        font-size: 15px;
+    }
+
+    .lfp-mirror-row dt {
+        color: var(--text-body);
+    }
+
+    .lfp-mirror-row dd {
+        margin: 0;
+        font-family: var(--font-mono);
+        font-size: 14px;
+        color: var(--text-strong);
+        font-variant-numeric: tabular-nums;
+    }
+</style>

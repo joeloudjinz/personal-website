@@ -1,0 +1,88 @@
+---
+// A grid of tiles: a stat (big value over a label) or a brick (a rule and the
+// bug it came from). HTML, not SVG, so every number is text. Tiles reveal in
+// order through the kit's node rule.
+interface Tile {
+    value?: string;
+    label: string;
+    note?: string;
+}
+interface Props {
+    tiles: Tile[];
+    variant?: 'stat' | 'brick';
+    columns?: 2 | 3 | 4;
+}
+const {tiles, variant = 'stat', columns = 3} = Astro.props;
+---
+
+<ul class:list={['lfp-tiles', `lfp-tiles-${variant}`, `lfp-tiles-${columns}`]} role='list'>
+    {tiles.map((tile, index) => (
+        <li class='lfp-tile lfp-node' style={`--i: ${index}`}>
+            {tile.value && <p class='lfp-tile-value'>{tile.value}</p>}
+            <p class='lfp-tile-label'>{tile.label}</p>
+            {tile.note && <p class='lfp-tile-note'>{tile.note}</p>}
+        </li>
+    ))}
+</ul>
+
+<style>
+    .lfp-tiles {
+        display: grid;
+        gap: 12px;
+        grid-template-columns: 1fr 1fr;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    @media (min-width: 640px) {
+        .lfp-tiles-3 { grid-template-columns: repeat(3, 1fr); }
+        .lfp-tiles-4 { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    /* Rendered inside the article, whose list items carry a margin and a
+       caramel dot and whose paragraphs a wide margin. A tile wants neither. */
+    .lfp-tile {
+        margin: 0;
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--hairline);
+        background: var(--surface);
+    }
+
+    .lfp-tile::before {
+        content: none;
+    }
+
+    .lfp-tile-value {
+        margin: 0;
+        font-family: var(--font-display);
+        font-size: 30px;
+        font-weight: 600;
+        line-height: 1;
+        color: var(--text-strong);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .lfp-tile-label {
+        margin: 0;
+        margin-block-start: 6px;
+        font-size: 14px;
+        line-height: 1.4;
+        color: var(--text-body);
+    }
+
+    .lfp-tiles-brick .lfp-tile-label {
+        margin-block-start: 0;
+        font-weight: 600;
+        color: var(--text-strong);
+    }
+
+    .lfp-tile-note {
+        margin: 0;
+        margin-block-start: 4px;
+        font-size: 12px;
+        line-height: 1.4;
+        color: var(--text-muted);
+    }
+</style>

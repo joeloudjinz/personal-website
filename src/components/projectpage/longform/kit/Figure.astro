@@ -14,12 +14,11 @@ interface Props {
 }
 const {caption, description, id, class: className} = Astro.props;
 const describedBy = `${id}-desc`;
+// A drawing wider than a phone scrolls sideways; the page script makes the box focusable only when it does.
 ---
 
 <figure class:list={['lfp-figure', className]} data-animate id={id}>
-    {/* A drawing wider than a phone scrolls sideways here, and a keyboard can
-        only scroll a box it can focus. */}
-    <div class='lfp-figure-body' tabindex='0' role='group' aria-label={caption}>
+    <div class='lfp-figure-body' role='group' aria-label={caption} data-figure-body>
         <slot/>
     </div>
     <p class='sr-only' id={describedBy}>{description}</p>
@@ -39,6 +38,10 @@ const describedBy = `${id}-desc`;
         background: var(--surface-card);
         padding: 24px;
         overflow-x: auto;
+        /* Sideways only: a part still rising past the foot of the drawing must
+           not make this a vertical scroller, which the browser would then make
+           a keyboard stop of its own. */
+        overflow-y: hidden;
     }
 
     .lfp-figure-body:focus-visible {
@@ -70,14 +73,17 @@ const describedBy = `${id}-desc`;
         transform: none;
     }
 
+    /* The dash trick below counts in path units, so every edge element must carry pathLength="1" or it never draws. Every diagram in the kit sets it. */
     .lfp-figure :global(.lfp-edge) {
+        opacity: 0;
         stroke-dasharray: 1;
         stroke-dashoffset: 1;
-        transition: stroke-dashoffset var(--dur-slow) var(--ease-standard);
+        transition: opacity var(--dur-slow) var(--ease-standard), stroke-dashoffset var(--dur-slow) var(--ease-standard);
         transition-delay: calc(var(--i, 0) * var(--lfp-stagger, 80ms));
     }
 
     .lfp-figure.is-in :global(.lfp-edge) {
+        opacity: 1;
         stroke-dashoffset: 0;
     }
 
@@ -89,8 +95,22 @@ const describedBy = `${id}-desc`;
         }
 
         .lfp-figure :global(.lfp-edge) {
+            opacity: 1;
             stroke-dashoffset: 0;
             transition: none;
         }
+    }
+
+    /* An Arabic entry reads the drawing right to left too. The drawing is
+       flipped as a whole and each text run flipped back, so geometry mirrors
+       and words do not. Only figures that opt in with lfp-mirror take it. */
+    :global(.lfp[dir='rtl']) .lfp-figure :global(svg.lfp-mirror) {
+        transform: scaleX(-1);
+    }
+
+    :global(.lfp[dir='rtl']) .lfp-figure :global(svg.lfp-mirror text) {
+        transform: scaleX(-1);
+        transform-box: fill-box;
+        transform-origin: center;
     }
 </style>

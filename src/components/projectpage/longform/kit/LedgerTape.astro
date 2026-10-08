@@ -1,0 +1,70 @@
+---
+// Rows of a ledger appended one by one, netting to a total. The amounts are
+// authored strings so the chapter owns the formatting, and every figure is
+// text in the page. A tone colours the amount: money in, money out, neutral.
+interface Row {
+    label: string;
+    amount: string;
+    tone?: 'in' | 'out' | 'neutral';
+}
+interface Props {
+    rows: Row[];
+    total: {label: string; amount: string};
+    title: string;
+}
+const {rows, total, title} = Astro.props;
+---
+
+<div class='lfp-tape' role='table' aria-label={title}>
+    <div role='rowgroup'>
+        {rows.map((row, index) => (
+            <div class='lfp-tape-row lfp-node' role='row' style={`--i: ${index}`}>
+                <span class='lfp-tape-label' role='cell'>{row.label}</span>
+                <span class:list={['lfp-tape-amount', `lfp-tape-${row.tone ?? 'neutral'}`]} role='cell'>{row.amount}</span>
+            </div>
+        ))}
+        <div class='lfp-tape-row lfp-tape-total lfp-node' role='row' style={`--i: ${rows.length}`}>
+            <span class='lfp-tape-label' role='cell'>{total.label}</span>
+            <span class='lfp-tape-amount' role='cell'>{total.amount}</span>
+        </div>
+    </div>
+</div>
+
+<style>
+    .lfp-tape {
+        font-variant-numeric: tabular-nums;
+    }
+
+    .lfp-tape-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding-block: 10px;
+        border-block-end: 1px solid var(--hairline);
+        font-size: 15px;
+    }
+
+    .lfp-tape-label {
+        color: var(--text-body);
+    }
+
+    .lfp-tape-amount {
+        font-family: var(--font-mono);
+        font-size: 14px;
+        color: var(--text-strong);
+    }
+
+    .lfp-tape-in { color: var(--positive-text); }
+    .lfp-tape-out { color: var(--negative-text); }
+
+    .lfp-tape-total {
+        border-block-end: 0;
+        border-block-start: 2px solid var(--text-strong);
+        margin-block-start: 4px;
+        font-weight: 600;
+    }
+
+    .lfp-tape-total .lfp-tape-label {
+        color: var(--text-strong);
+    }
+</style>

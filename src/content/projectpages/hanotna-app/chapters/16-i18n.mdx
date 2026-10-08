@@ -1,0 +1,28 @@
+---
+page: hanotna-app
+chapter: i18n
+---
+import {pipeline} from '../data/i18n';
+
+Every string a user sees goes through one catalogue, and the catalogue is kept honest by tools rather than by memory. Arabic arrived late, after months of English-only screens, which is exactly when a pipeline earns its keep.
+
+<Figure id="fig-i18n" caption="From hard-coded English to a checked Arabic file."
+        description="A flow: a sweep of the code finds 1,171 strings. A 48-term glossary is settled first, then 13 batches cut per screen go to a translator. Each return passes through a checker, which sends a re-ask on failure, and accepted returns fill the Arabic file with 1,357 keys. Guards run on it forever.">
+  <FlowGraph title="The translation pipeline" describedBy="fig-i18n-desc" nodes={pipeline.nodes} edges={pipeline.edges} />
+</Figure>
+
+### A glossary before a single batch
+
+Forty-eight terms were settled first, so that a cycle, a draw, a write-off and a settlement would be the same word on every screen. Then the English was cut into thirteen batches along screen boundaries, each carrying for every string its key, its context, its role on the screen, its placeholders and a length limit.
+
+### A checker that says no
+
+Every returned batch is checked by a tool before it is accepted. The key set must match exactly and placeholders must survive. No Eastern-Arabic digits may appear, and the currency symbol must never be followed by a digit. Length limits hold, every plural carries all six Arabic forms, and the tokens that must not be translated are checked against a list. A failure writes a re-ask file rather than a patch.
+
+### Kept at parity, by a guard
+
+1,357 keys in English and 1,357 in Arabic, none missing and none extra, with 204 placeholders and 25 plurals, across sixteen areas of the app. A guard checks the Arabic file's contract on every test run, so the parity is a fact rather than a memory.
+
+<ForEngineers>
+  Keys follow an area, screen, role and slug pattern, are assigned once and never renamed, and anything used in two places takes the common prefix. The template file keeps its keys sorted with each metadata block beside its key, a hygiene rule a tool enforces so parallel extraction slices never conflict. Stored values stay English on the wire and are translated only at display, with a display twin for each unit, category and status. Guards reject a translated string persisted into data, and a raw wire value inside a translated sentence.
+</ForEngineers>
