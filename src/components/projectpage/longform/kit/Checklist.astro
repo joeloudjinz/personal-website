@@ -1,0 +1,162 @@
+---
+// A register of rules in groups: a tick, the rule's name and the reason it
+// exists, one row each, under the kind of thing it guards. An optional header
+// line names the directory the rules live in and counts them. HTML, so every
+// word is text. Inside a Figure the rows reveal in order through the kit's
+// node rule, and each tick draws itself through the edge rule.
+interface Row {
+    label: string;
+    note: string;
+}
+interface Group {
+    title: string;
+    items: Row[];
+}
+interface Props {
+    groups: Group[];
+    /** Where the rules live, shown in the header line beside the count. */
+    path?: string;
+    /** What one row is, for the count: "guards". */
+    noun?: string;
+}
+const {groups, path, noun = 'rules'} = Astro.props;
+let next = 0;
+const kinds = groups.map((group) => ({title: group.title, items: group.items.map((row) => ({...row, i: next++}))}));
+---
+
+<div class='lfp-check'>
+    {path && <p class='lfp-check-head'><span class='lfp-check-path'>{path}</span><span>{next} {noun}</span></p>}
+    {kinds.map((kind) => (
+        <section class='lfp-check-group'>
+            <p class='lfp-check-kind'>{kind.title}<span class='lfp-check-count'>{kind.items.length}</span></p>
+            <ul role='list'>
+                {kind.items.map((row) => (
+                    <li class='lfp-check-row lfp-node' style={`--i: ${row.i}`}>
+                        <svg class='lfp-check-tick' viewBox='0 0 14 14' aria-hidden='true'><path class='lfp-edge' pathLength='1' d='M2.5 7.5l3 3 6-7'/></svg>
+                        <span class='lfp-check-name'>{row.label}</span>
+                        <span class='lfp-check-note'>{row.note}</span>
+                    </li>
+                ))}
+            </ul>
+        </section>
+    ))}
+</div>
+
+<style>
+    /* Twenty-odd rows at the kit's usual stagger would take two seconds to
+       land; a shorter step keeps the run brisk. */
+    .lfp-check {
+        --lfp-stagger: 45ms;
+        display: grid;
+        gap: 20px;
+    }
+
+    .lfp-check p {
+        margin: 0;
+    }
+
+    .lfp-check-head {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding-block-end: 10px;
+        border-block-end: 1px solid var(--hairline);
+        font-size: 12px;
+        line-height: 1.5;
+        color: var(--text-muted);
+    }
+
+    .lfp-check-path,
+    .lfp-check-name {
+        font-family: var(--font-mono);
+    }
+
+    .lfp-check-group {
+        display: grid;
+        gap: 6px;
+    }
+
+    .lfp-check-kind {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        font-family: var(--font-display);
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--text-strong);
+    }
+
+    .lfp-check-count {
+        font-family: var(--font-sans);
+        font-size: 12px;
+        font-weight: 400;
+        color: var(--text-muted);
+    }
+
+    .lfp-check ul {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    /* Rendered inside the article, whose list items carry a margin and a
+       caramel dot. A row wants neither. On a phone the reason sits under the
+       name; from 640px it takes a column of its own beside it. */
+    .lfp-check-row {
+        margin: 0;
+        padding: 6px 0;
+        display: grid;
+        grid-template-columns: 14px minmax(0, 1fr);
+        gap: 2px 12px;
+        align-items: baseline;
+        border-block-start: 1px solid var(--hairline);
+    }
+
+    .lfp-check-row::before {
+        content: none;
+    }
+
+    .lfp-check-row:first-child {
+        border-block-start: 0;
+    }
+
+    .lfp-check-tick {
+        width: 14px;
+        height: 14px;
+        color: var(--positive);
+    }
+
+    .lfp-check-tick path {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+
+    .lfp-check-name {
+        font-size: 12.5px;
+        font-weight: 500;
+        line-height: 1.45;
+        color: var(--text-strong);
+        overflow-wrap: anywhere;
+    }
+
+    .lfp-check-note {
+        grid-column: 2;
+        font-size: 13px;
+        line-height: 1.45;
+        color: var(--text-muted);
+    }
+
+    @media (min-width: 640px) {
+        .lfp-check-row {
+            grid-template-columns: 14px minmax(0, 300px) minmax(0, 1fr);
+        }
+
+        .lfp-check-note {
+            grid-column: auto;
+        }
+    }
+</style>

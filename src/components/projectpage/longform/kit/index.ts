@@ -10,6 +10,7 @@ import Callout from './Callout.astro';
 import Quote from './Quote.astro';
 import StateMachine from './StateMachine.astro';
 import TileGrid from './TileGrid.astro';
+import Checklist from './Checklist.astro';
 import LedgerTape from './LedgerTape.astro';
 import Waterfall from './Waterfall.astro';
 import FlowGraph from './FlowGraph.astro';
@@ -23,6 +24,6 @@ import CodeBlock from '@src/components/CodeBlock.astro';
 
 export const kit = {
   PhoneFrame, PhonePair, Figure, Example, ForEngineers, Callout, Quote, StateMachine,
-  TileGrid, LedgerTape, Waterfall, FlowGraph, LayerStack, Timeline, BidiCase,
+  TileGrid, Checklist, LedgerTape, Waterfall, FlowGraph, LayerStack, Timeline, BidiCase,
   PartsBuild, BrandMark, DataTable, CodeBlock
 };
