@@ -50,6 +50,11 @@ glance:
   - value: "3,900+"
     label: "automated test cases, run before every pull request"
 chapters:
+  - id: "nutshell"
+    title: "In a nutshell"
+    navLabel: "In a nutshell"
+    group: "overview"
+    visual: "linked tiles"
   - id: "problem"
     title: "One shop, several partners"
     navLabel: "The problem"
