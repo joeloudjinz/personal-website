@@ -11,3 +11,28 @@ export const layers = [
 ];
 export const seamAfter = 4;
 export const seamLabel = 'Firebase imports only below this line. A test proves it.';
+
+// Who uses whom, checked edge by edge in the source.
+export const importEdges = {
+  nodes: [
+    {id: 'screens', label: 'Screens', x: 100, y: 200, lane: 'a' as const},
+    {id: 'usecases', label: 'Use cases', x: 560, y: 60, lane: 'b' as const},
+    {id: 'ports', label: 'Ports', x: 860, y: 60, lane: 'c' as const},
+    {id: 'providers', label: 'Providers', x: 360, y: 210, lane: 'b' as const},
+    {id: 'repositories', label: 'Repositories', x: 660, y: 210, lane: 'b' as const},
+    {id: 'widgets', label: 'Widgets', x: 360, y: 340, lane: 'a' as const},
+    {id: 'shared', label: 'Models, config, utilities', x: 660, y: 340, w: 220, lane: 'd' as const},
+    {id: 'backend', label: 'Firebase adapters', x: 900, y: 340, w: 180, lane: 'd' as const}
+  ],
+  edges: [
+    {from: 'screens', to: 'widgets'},
+    {from: 'screens', to: 'providers'},
+    {from: 'screens', to: 'shared'},
+    {from: 'providers', to: 'usecases'},
+    {from: 'providers', to: 'repositories'},
+    {from: 'providers', to: 'ports'},
+    {from: 'repositories', to: 'ports'},
+    {from: 'backend', to: 'ports'},
+    {from: 'backend', to: 'shared'}
+  ]
+};

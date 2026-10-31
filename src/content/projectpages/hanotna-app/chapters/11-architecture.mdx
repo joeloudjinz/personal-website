@@ -2,7 +2,7 @@
 page: hanotna-app
 chapter: architecture
 ---
-import {layers, seamAfter, seamLabel} from '../data/architecture';
+import {layers, seamAfter, seamLabel, importEdges} from '../data/architecture';
 
 Hanotna is a Flutter app with a flat set of layers and one rule that holds them apart: Firebase is a detail of the bottom layer, and nothing above it may know. The rule is not a convention. A test scans every source file and fails the test run if a Firebase import appears anywhere else.
 
@@ -24,5 +24,10 @@ Every port provider throws if no backend is installed, so a missing adapter is a
 A normative document lists what any backend must guarantee: fifteen business invariants from capital whitelists to the cap of one hundred per cent on work shares, four platform invariants, and an operation matrix of who may do what. About 554 constants are pinned identically across the Dart code, the security rules and the rules tests. A conformant backend is one that makes the end-to-end suite green.
 
 <ForEngineers>
+  <Figure id="fig-imports" caption="Who uses whom. Screens use providers, widgets and the shared models, config and utilities. Providers use the use cases, the repositories and the ports. Repositories use the ports. The Firebase adapters implement the ports, and no arrow leaves the screens for them."
+          description="An import graph of eight boxes. Screens use widgets, providers, and the shared models, config and utilities. Providers use use cases, repositories and ports. Repositories use ports. The Firebase adapters implement the ports and use the shared models and config. No arrow runs from the screens to the adapters, the use cases or the ports.">
+    <FlowGraph title="Import edges" describedBy="fig-imports-desc" nodes={importEdges.nodes} edges={importEdges.edges} height={400} />
+  </Figure>
+
   Import edges, counted across the source: screens import widgets, providers, utilities, config, models and services, and import the backend zero times. Screens do reach seven use cases and five ports directly, which is why the honest claim is a boundary enforced at Firebase rather than strict layering. Providers import ports, repositories and use cases. Repositories import ports. The backend imports ports, models and config. Riverpod 3 with code generation supplies 175 providers, 102 of them kept alive, and models are hand-serialised. Repositories cache in three layers: memory with a lifetime per flavor, then Firestore's own disk cache, then the server. One in-flight future is shared by concurrent readers, and every write invalidates. Only typed application exceptions cross a port: a conflict maps to a transaction-conflict exception and a timeout to a network exception.
 </ForEngineers>
