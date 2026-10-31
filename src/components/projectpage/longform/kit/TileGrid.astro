@@ -1,11 +1,20 @@
 ---
 // A grid of tiles: a stat (big value over a label) or a brick (a rule and the
-// bug it came from). HTML, not SVG, so every number is text. Tiles reveal in
-// order through the kit's node rule.
+// bug it came from). A tile with an href is a door: the whole tile links to
+// the chapter that tells it in full. A tile with a figure opens with a stage,
+// the plate the chapter figures sit on, and TileFigure draws it. HTML, not
+// SVG, so every number is text. Inside a Figure the tiles reveal in order
+// through the kit's node rule; a staged grid is itself the animate target, so
+// the page script starts the figures' loops when the grid comes into view.
+import TileFigure from './TileFigure.astro';
+import type {TileFigureSpec} from './TileFigure.astro';
+
 interface Tile {
     value?: string;
     label: string;
     note?: string;
+    href?: string;
+    figure?: TileFigureSpec;
 }
 interface Props {
     tiles: Tile[];
@@ -13,16 +22,27 @@ interface Props {
     columns?: 2 | 3 | 4;
 }
 const {tiles, variant = 'stat', columns = 3} = Astro.props;
+const staged = tiles.some((tile) => tile.figure);
 ---
 
-<ul class:list={['lfp-tiles', `lfp-tiles-${variant}`, `lfp-tiles-${columns}`]} role='list'>
-    {tiles.map((tile, index) => (
-        <li class='lfp-tile lfp-node' style={`--i: ${index}`}>
-            {tile.value && <p class='lfp-tile-value'>{tile.value}</p>}
-            <p class='lfp-tile-label'>{tile.label}</p>
-            {tile.note && <p class='lfp-tile-note'>{tile.note}</p>}
-        </li>
-    ))}
+<ul class:list={['lfp-tiles', `lfp-tiles-${variant}`, `lfp-tiles-${columns}`]} role='list' data-animate={staged ? '' : undefined}>
+    {tiles.map((tile, index) => {
+        const body = (
+            <Fragment>
+                {tile.figure && <div class='lfp-tile-stage' aria-hidden='true'><TileFigure spec={tile.figure}/></div>}
+                <div class='lfp-tile-text'>
+                    {tile.value && <p class='lfp-tile-value'>{tile.value}</p>}
+                    <p class='lfp-tile-label'>{tile.label}</p>
+                    {tile.note && <p class='lfp-tile-note'>{tile.note}</p>}
+                </div>
+            </Fragment>
+        );
+        return (
+            <li class:list={['lfp-tile', 'lfp-node', tile.href && 'lfp-tile-door']} style={`--i: ${index}`}>
+                {tile.href ? <a class='lfp-tile-link' href={tile.href}>{body}</a> : body}
+            </li>
+        );
+    })}
 </ul>
 
 <style>
@@ -35,7 +55,11 @@ const {tiles, variant = 'stat', columns = 3} = Astro.props;
         list-style: none;
     }
 
+    /* Two columns stack on a phone: a door's note is a sentence, not a number. */
+    .lfp-tiles-2 { grid-template-columns: 1fr; }
+
     @media (min-width: 640px) {
+        .lfp-tiles-2 { grid-template-columns: repeat(2, 1fr); }
         .lfp-tiles-3 { grid-template-columns: repeat(3, 1fr); }
         .lfp-tiles-4 { grid-template-columns: repeat(4, 1fr); }
     }
@@ -44,7 +68,7 @@ const {tiles, variant = 'stat', columns = 3} = Astro.props;
        caramel dot and whose paragraphs a wide margin. A tile wants neither. */
     .lfp-tile {
         margin: 0;
-        padding: 14px 16px;
+        padding: 0;
         border-radius: 12px;
         border: 1px solid var(--hairline);
         background: var(--surface);
@@ -52,6 +76,48 @@ const {tiles, variant = 'stat', columns = 3} = Astro.props;
 
     .lfp-tile::before {
         content: none;
+    }
+
+    .lfp-tile-text {
+        padding: 14px 16px;
+    }
+
+    .lfp-tile-stage {
+        height: 120px;
+        padding: 14px 16px;
+        box-sizing: border-box;
+        display: grid;
+        place-items: center;
+        background: var(--surface-card);
+        border-block-end: 1px solid var(--hairline);
+        border-start-start-radius: 11px;
+        border-start-end-radius: 11px;
+    }
+
+    /* The article's link colour, weight and underline stop at the anchor:
+       the label and the note set their own. */
+    .lfp-tile-door {
+        transition: border-color var(--dur-fast) var(--ease-standard), background-color var(--dur-fast) var(--ease-standard);
+    }
+
+    .lfp-tile-door:hover {
+        border-color: var(--accent);
+        background: var(--surface-soft);
+    }
+
+    .lfp-tile-link {
+        display: block;
+        height: 100%;
+        color: inherit;
+        font-weight: inherit;
+        text-decoration: none;
+    }
+
+    .lfp-tile-link:focus-visible {
+        outline-width: 2px;
+        outline-style: solid;
+        outline-color: var(--focus-ring);
+        outline-offset: 2px;
     }
 
     .lfp-tile-value {
