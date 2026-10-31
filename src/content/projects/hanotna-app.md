@@ -8,7 +8,7 @@ isUnderConstruction: false
 # loader steps down to make room, and the row's label drops "Open source" because
 # this project has no public repository.
 isFeatured: true
-version: "4.4.2"
+version: "4.7.0"
 tags: [ "Flutter", "Firebase", "Point of sale", "Arabic", "RTL", "Algeria", "In production" ]
 id: "hanotna-app"
 ---
@@ -16,5 +16,6 @@ id: "hanotna-app"
 A point-of-sale app for one small Algerian store and its partners: the till, the stock book,
 the credit ledger and the partners' ledger in one phone, in English and Arabic with full
 right-to-left layout. Cash sales and credit customers, supplier bills, rent and wages, and a
-capital ledger with trading cycles and a profit split that never charges interest. In daily use
-since August 2026.
+capital ledger with trading cycles and a profit split that never charges interest, with
+closing-time answers for the owner on the week, the month and the year. In daily use since
+August 2026.
