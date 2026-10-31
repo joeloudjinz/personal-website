@@ -37,5 +37,5 @@ A return is composed first and committed once. The cashier picks quantities per 
 </Callout>
 
 <ForEngineers>
-  The order and its stock moves commit in one Firestore transaction. Stock is re-read inside the transaction, every affected product gets an adjustment row of type `order_confirm`, and the write set is bounded to two documents per product plus the order, at most one payment and at most one customer. An oversell throws `InsufficientStockException` from the adapter, which the quick-sale, order-detail and order-edit screens all handle. Seven call sites write stock, all through one shared primitive that chains moves across lines so two lines of the same product deduct twice.
+  The order and its stock moves commit in one Firestore transaction. Stock is re-read inside the transaction, every affected product gets an adjustment row of type `order_confirm`, and the write set is bounded to two documents per product plus the order, at most one payment and at most one customer. An oversell throws `InsufficientStockException` from the adapter, which the quick-sale, order-detail and order-edit screens all handle. Seven call sites write stock through one shared primitive that chains moves across lines so two lines of the same product deduct twice.
 </ForEngineers>
