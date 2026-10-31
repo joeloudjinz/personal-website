@@ -14,7 +14,7 @@ const {items} = Astro.props;
         <ul class='lfp-glance' role='list'>
             {items.map((item) => (
                 <li class='lfp-glance-item'>
-                    <p class='font-display text-[34px] font-semibold text-strong leading-none'>{item.value}</p>
+                    <p class='lfp-glance-value font-display font-semibold text-strong'>{item.value}</p>
                     <p class='mt-2 text-sm text-muted leading-snug'><CodeSpans text={item.label}/></p>
                 </li>
             ))}
@@ -44,5 +44,14 @@ const {items} = Astro.props;
     .lfp-glance-item {
         padding-inline-start: 16px;
         border-inline-start: 1px solid var(--hairline);
+    }
+
+    /* Values can be short words as well as numbers, so the size follows the
+       viewport and a value that still cannot fit its column wraps instead of
+       spilling into the next tile. */
+    .lfp-glance-value {
+        font-size: clamp(24px, 2vw, 32px);
+        line-height: 1.05;
+        overflow-wrap: anywhere;
     }
 </style>

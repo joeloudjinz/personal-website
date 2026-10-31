@@ -17,4 +17,4 @@ A point-of-sale app for one small Algerian store and its partners: the till, the
 the credit ledger and the partners' ledger in one phone, in English and Arabic with full
 right-to-left layout. Cash sales and credit customers, supplier bills, rent and wages, and a
 capital ledger with trading cycles and a profit split that never charges interest. In daily use
-since June 2026.
+since August 2026.
