@@ -15,7 +15,6 @@ import Waterfall from './Waterfall.astro';
 import FlowGraph from './FlowGraph.astro';
 import LayerStack from './LayerStack.astro';
 import Timeline from './Timeline.astro';
-import MirrorPair from './MirrorPair.astro';
 import BidiCase from './BidiCase.astro';
 import PartsBuild from './PartsBuild.astro';
 import BrandMark from './BrandMark.astro';
@@ -24,6 +23,6 @@ import CodeBlock from '@src/components/CodeBlock.astro';
 
 export const kit = {
   PhoneFrame, PhonePair, Figure, Example, ForEngineers, Callout, Quote, StateMachine,
-  TileGrid, LedgerTape, Waterfall, FlowGraph, LayerStack, Timeline, MirrorPair, BidiCase,
+  TileGrid, LedgerTape, Waterfall, FlowGraph, LayerStack, Timeline, BidiCase,
   PartsBuild, BrandMark, DataTable, CodeBlock
 };
