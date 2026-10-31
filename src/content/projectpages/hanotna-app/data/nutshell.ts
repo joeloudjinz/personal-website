@@ -2,7 +2,7 @@
 // that tells it in full, and a small figure that plays the example. Every
 // number is one the page or the KB already holds: the cart and the label from
 // the captures, Omar, Karim and the partners from the chapter examples, the
-// home screen's attention list and the owner's gross profit from the captures,
+// home screen's attention list and the month's costs from the insights example,
 // 150k lines of test code from the testing stats and the app's 118k from the
 // v4.7.0 figures recount.
 export const features = [
@@ -22,8 +22,8 @@ export const features = [
     figure: {kind: 'bar' as const, chip: 'Amine\'s 20% work share first', segments: [{width: 75, tone: 'b' as const}, {width: 25, tone: 'c' as const}], below: ['Yacine, 75% of the capital', 'Nadia, 25%']}},
   {label: 'The whole day on one screen', note: 'Today\'s sales, who is overdue, what is due, and a draft left open.', href: '#dashboard',
     figure: {kind: 'rows' as const, rows: [{tone: 'n' as const, text: '1 customer overdue'}, {tone: 'c' as const, text: '2,040 د.ج owed to you'}, {tone: 'c' as const, text: 'Rent due since 1 October'}, {tone: 'i' as const, text: '1 draft in progress'}]}},
-  {label: 'Owner-only figures', note: 'Profit, costs and the partners\' ledger never show to staff.', href: '#the-money-for-those-who-may-see-it',
-    figure: {kind: 'veil' as const, title: 'Gross profit today', shown: {label: 'Owner sees', value: '509 د.ج'}, hidden: {label: 'Staff sees'}}}
+  {label: 'Closing-time answers', note: 'Are the month\'s costs covered, who to call, what sits unsold: for the owner and partners, never staff.', href: '#insights',
+    figure: {kind: 'tape' as const, rows: [{label: 'Rent, wages, utilities', amount: '72,000'}, {label: 'Profit by the 19th', amount: '73,100', tone: 'in' as const}], total: {label: 'Covered on', amount: '19 Oct'}}}
 ];
 
 export const engineering = [

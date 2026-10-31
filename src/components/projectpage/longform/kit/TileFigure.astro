@@ -14,12 +14,11 @@ export interface LabelFigure {kind: 'label'; lines: [string, string]; price: str
 export interface BarFigure {kind: 'bar'; chip?: string; above?: string[]; segments: {width: number; tone: 'accent' | 'b' | 'c'}[]; below?: string[]}
 export interface WaterfallFigure {kind: 'waterfall'; steps: {label: string; value: number; kind: 'start' | 'minus' | 'result'}[]}
 export interface RowsFigure {kind: 'rows'; rows: {tone: 'n' | 'c' | 'i'; text: string}[]}
-export interface VeilFigure {kind: 'veil'; title: string; shown: {label: string; value: string}; hidden: {label: string}}
 export interface LinkFigure {kind: 'link'; to: string}
 export interface SeamFigure {kind: 'seam'; above: string; label: string; below: string}
 export interface BarsFigure {kind: 'bars'; rows: {label: string; width: number; value: string; tone: 'accent' | 'c'}[]}
 export interface WallFigure {kind: 'wall'; count: number; hit: number}
-export type TileFigureSpec = TapeFigure | LabelFigure | BarFigure | WaterfallFigure | RowsFigure | VeilFigure | LinkFigure | SeamFigure | BarsFigure | WallFigure;
+export type TileFigureSpec = TapeFigure | LabelFigure | BarFigure | WaterfallFigure | RowsFigure | LinkFigure | SeamFigure | BarsFigure | WallFigure;
 
 interface Props {
     spec: TileFigureSpec;
@@ -134,17 +133,6 @@ const bars = spec.kind !== 'waterfall' ? [] : (() => {
     </span>
 )}
 
-{spec.kind === 'veil' && (
-    <span class='lfp-fig lfp-fig-veil'>
-        <span class='lfp-fig-k'>{spec.title}</span>
-        <span class='lfp-fig-row lfp-a lfp-s1'><span class='lfp-fig-k'>{spec.shown.label}</span><span class='lfp-fig-big'>{spec.shown.value}</span></span>
-        <span class='lfp-fig-row lfp-a lfp-s2'>
-            <span class='lfp-fig-k'>{spec.hidden.label}</span>
-            <span class='lfp-fig-under'><span class='lfp-fig-big'>{spec.shown.value}</span><span class='lfp-fig-cover lfp-a'></span></span>
-        </span>
-    </span>
-)}
-
 {spec.kind === 'link' && (
     <svg class='lfp-fig' viewBox='0 0 230 92'>
         <rect class='lfp-fig-phone' x='44' y='6' width='38' height='80' rx='8'/>
@@ -208,7 +196,6 @@ const bars = spec.kind !== 'waterfall' ? [] : (() => {
     .lfp-fig-v { color: var(--text-strong); font-weight: 500; }
     .lfp-fig-in { color: var(--positive-text); }
     .lfp-fig-out { color: var(--negative-text); }
-    .lfp-fig-big { color: var(--text-strong); font-weight: 600; font-size: 1.15em; }
 
     .lfp-fig-tape { display: grid; align-content: center; line-height: 1.65em; }
     .lfp-fig-row { display: flex; justify-content: space-between; align-items: center; gap: .5em; }
@@ -229,15 +216,12 @@ const bars = spec.kind !== 'waterfall' ? [] : (() => {
     .lfp-fig-brow { display: grid; grid-template-columns: 2.4em 1fr 2.8em; align-items: center; gap: .4em; }
     .lfp-fig-brow .lfp-fig-v { font-weight: 600; text-align: end; }
 
-    .lfp-fig-rows, .lfp-fig-veil { display: grid; align-content: center; gap: .3em; font-size: 11.5px; line-height: 1.3; color: var(--text-body); }
+    .lfp-fig-rows { display: grid; align-content: center; gap: .3em; font-size: 11.5px; line-height: 1.3; color: var(--text-body); }
     .lfp-fig-line { display: flex; align-items: center; gap: .5em; white-space: nowrap; }
     .lfp-fig-dot { width: .6em; height: .6em; border-radius: 50%; flex: none; }
     .lfp-fig-dot-n { background: var(--negative); }
     .lfp-fig-dot-c { background: var(--caution); }
     .lfp-fig-dot-i { background: var(--info); }
-    .lfp-fig-veil { gap: .6em; }
-    .lfp-fig-under { position: relative; display: inline-grid; }
-    .lfp-fig-cover { position: absolute; inset: -1px -3px; border-radius: .45em; background: var(--inactive-fill); border: 1px dashed var(--hairline); }
 
     .lfp-fig-seam { display: grid; gap: .35em; align-content: center; font-size: 10.5px; text-align: center; position: relative; overflow: hidden; }
     .lfp-fig-box { padding: .3em .4em; border: 1px solid var(--hairline); border-radius: .5em; font-weight: 500; color: var(--text-strong); background: var(--surface); }
@@ -282,7 +266,6 @@ const bars = spec.kind !== 'waterfall' ? [] : (() => {
     :global(.lfp-tiles.is-in) .lfp-drop { animation-name: lfp-drop; }
     :global(.lfp-tiles.is-in) .lfp-rise-late { animation-name: lfp-rise-late; }
     :global(.lfp-tiles.is-in) .lfp-fig-feed { animation-name: lfp-print; animation-timing-function: linear; }
-    :global(.lfp-tiles.is-in) .lfp-fig-cover { animation-name: lfp-cover; }
     :global(.lfp-tiles.is-in) .lfp-fig-packet { animation: lfp-travel 2.4s linear infinite var(--d); }
     :global(.lfp-tiles.is-in) .lfp-fig-hit { animation: lfp-light 3s linear infinite var(--d); }
     :global(.lfp-tiles.is-in) .lfp-fig-seam::after { animation: lfp-scan 3s linear infinite var(--d); }
@@ -300,7 +283,6 @@ const bars = spec.kind !== 'waterfall' ? [] : (() => {
     @keyframes lfp-drop { 0%, 26% { transform: scaleY(0); } 40%, 88% { transform: scaleY(1); } 94%, 100% { transform: scaleY(0); } }
     @keyframes lfp-rise-late { 0%, 44% { transform: scaleY(0); } 62%, 88% { transform: scaleY(1); } 94%, 100% { transform: scaleY(0); } }
     @keyframes lfp-print { 0%, 2% { transform: scaleY(1); } 46%, 88% { transform: scaleY(0); } 94%, 100% { transform: scaleY(1); } }
-    @keyframes lfp-cover { 0%, 34% { transform: translateX(115%); } 42%, 88% { transform: translateX(0); } 94%, 100% { transform: translateX(115%); } }
     @keyframes lfp-travel { 0% { transform: translateX(0); opacity: 0; } 12%, 88% { opacity: 1; } 100% { transform: translateX(28px); opacity: 0; } }
     @keyframes lfp-scan { from { inset-block-start: -3px; } to { inset-block-start: 100%; } }
     @keyframes lfp-sweep { from { inset-inline-start: -3px; } to { inset-inline-start: 100%; } }
