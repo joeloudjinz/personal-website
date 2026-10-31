@@ -3,12 +3,14 @@ page: hanotna-app
 chapter: partnership
 ---
 import {cycle, cycleIncome, profitSplit} from '../data/capital';
+import capitalDashboard from '../../../../assets/img/hanotna/capital-dashboard.png';
+import closeCycle from '../../../../assets/img/hanotna/close-cycle.png';
 
 The shop belongs to several people. Some put money in, some put work in, some both. Hanotna's capital ledger is their shared diary: what each partner put in, what the shop is worth, what a trading cycle earned, and how the profit is split. It is the feature the app exists for, and the one with the most rules.
 
 <PhonePair caption="The capital dashboard with the estimated cash on hand, and the close-cycle sheet comparing counted figures with the estimate.">
-  <PhoneFrame alt="The capital dashboard with a cash-on-hand figure, the open cycle and the partners' ownership." caption="Capital dashboard" />
-  <PhoneFrame alt="The close-cycle sheet with counted cash, stock value, debts and a variance line." caption="Closing a cycle" />
+  <PhoneFrame src={capitalDashboard} alt="The capital dashboard with a cash-on-hand figure, the open cycle and the partners' ownership." caption="Capital dashboard" />
+  <PhoneFrame src={closeCycle} alt="The close-cycle sheet with the counted cash typed beside the estimated cash on hand." caption="Closing a cycle" />
 </PhonePair>
 
 ### A ledger with no edits

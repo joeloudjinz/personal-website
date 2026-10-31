@@ -2,12 +2,14 @@
 page: hanotna-app
 chapter: dashboard
 ---
+import homeOwner from '../../../../assets/img/hanotna/home-owner.png';
+import homeStaff from '../../../../assets/img/hanotna/home-staff.png';
 
 The home screen is built around one idea: the counter first, then what wants a decision, then the money. A cashier standing at the till sees the four tools they reach for. An owner sees the same, then everything that needs attention, then the day's figures.
 
 <PhonePair caption="Home as the owner sees it, with every section, and Home as a staff member sees it, with the profit figures and the capital gone.">
-  <PhoneFrame alt="The home screen for an owner: greeting, counter tools, a needs-attention list, today's sales with gross profit, suppliers and recent activity." caption="Owner" />
-  <PhoneFrame alt="The home screen for a staff member: greeting, counter tools, a needs-attention list and recent activity, with no profit figures." caption="Staff" />
+  <PhoneFrame src={homeOwner} alt="The home screen for an owner: greeting, counter tools, a needs-attention list, today's sales with gross profit, suppliers and recent activity." caption="Owner" />
+  <PhoneFrame src={homeStaff} alt="The home screen for a staff member: greeting, counter tools, a needs-attention list and recent activity, with no profit figures." caption="Staff" />
 </PhonePair>
 
 ### The counter tools

@@ -3,12 +3,14 @@ page: hanotna-app
 chapter: stock
 ---
 import {recount, adjustmentTypes} from '../data/stock';
+import products from '../../../../assets/img/hanotna/products.png';
+import labelSheet from '../../../../assets/img/hanotna/label-sheet.png';
 
 The stock room is a book the app keeps so the owner does not have to. Every product has a name, a code, an optional barcode, a cost and a list price, and a unit of sale. Every change to what is on the shelf is written down with its reason, and the book can be checked against the shelf at any time.
 
 <PhonePair caption="The products list with its search and scan controls, and the label sheet with a preview at the roll's real proportions.">
-  <PhoneFrame alt="The products list screen with a search field and a barcode scan icon." caption="Products" />
-  <PhoneFrame alt="The label sheet showing a QR label preview, the roll size and a print button." caption="Label sheet" />
+  <PhoneFrame src={products} alt="The products list screen with a search field and a barcode scan icon." caption="Products" />
+  <PhoneFrame src={labelSheet} alt="The label sheet showing a QR label preview, the roll size and a print button." caption="Label sheet" />
 </PhonePair>
 
 ### Sold by the piece, the kilo or the metre

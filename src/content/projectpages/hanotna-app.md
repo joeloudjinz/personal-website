@@ -34,6 +34,7 @@ hero:
     - label: "Request a demo build"
       href: "mailto:addoun.abdellah@gmail.com?subject=Hanotna%20demo%20build"
   shot:
+    src: "../../assets/img/hanotna/home-owner.png"
     alt: "The Hanotna home screen on a phone: today's sales, what needs attention, and the counter tools."
     caption: "Home, as the owner sees it on a weekday afternoon."
 glance:

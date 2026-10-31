@@ -3,12 +3,14 @@ page: hanotna-app
 chapter: counter
 ---
 import {productOrder} from '../data/counter';
+import quickSale from '../../../../assets/img/hanotna/quick-sale.png';
+import creditSection from '../../../../assets/img/hanotna/confirm-sale.png';
 
 A sale at the counter is one screen and one tap. The cashier picks products, types what the customer hands over, and confirms. Hanotna creates the order and confirms it in the same step, so a quick sale never leaves a draft behind, and the stock, the money and the customer's balance all move at once.
 
-<PhonePair caption="Quick sale with three items in the cart, then the confirm sheet with the amount received.">
-  <PhoneFrame alt="Quick sale screen with a cart of three seeded products and a discount line." caption="Quick sale" />
-  <PhoneFrame alt="The confirm sale sheet showing the total, the amount received and the customer field." caption="Confirm sale" />
+<PhonePair caption="Quick sale with three lines in the cart and a discount, then its customer and credit section with the amount received.">
+  <PhoneFrame src={quickSale} alt="Quick sale screen with a cart of three seeded products and a discount line." caption="Quick sale" />
+  <PhoneFrame src={creditSection} alt="The quick sale screen's customer and credit section, with the amount received and the customer chosen." caption="Customer and credit" />
 </PhonePair>
 
 ### What one tap does
