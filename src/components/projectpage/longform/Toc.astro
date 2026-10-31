@@ -1,5 +1,5 @@
 ---
-// The rail: two groups of chapter links, the current one marked by the page
+// The rail: the chapter links by group, the current one marked by the page
 // script, and a page-progress bar under them. Plain anchors, so it works as a
 // list of jumps with no script at all.
 import type {SpineChapter} from '@src/utils/longformChapters';
@@ -8,10 +8,10 @@ interface Props {
     chapters: SpineChapter[];
     /** Where the links sit, for analytics: 'rail' or 'jump'. */
     location: 'rail' | 'jump';
-    labels: {product: string; technical: string};
+    labels: {overview: string; product: string; technical: string};
 }
 const {chapters, location, labels} = Astro.props;
-const groups = (['product', 'technical'] as const)
+const groups = (['overview', 'product', 'technical'] as const)
     .map((group) => ({group, label: labels[group], rows: chapters.filter((chapter) => chapter.group === group)}))
     .filter((entry) => entry.rows.length > 0);
 ---

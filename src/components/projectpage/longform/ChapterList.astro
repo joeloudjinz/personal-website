@@ -1,5 +1,5 @@
 ---
-// The chapter column: a divider before each group, then every chapter as a
+// The chapter column: a divider before each group that has one, then every chapter as a
 // section whose id is its spine id, with a zero-height sentinel the analytics
 // observer watches, the H2, and either the rendered MDX inside Prose or the
 // reserved note.
@@ -12,7 +12,7 @@ import ReservedChapter from './ReservedChapter.astro';
 
 interface Props {
     chapters: LoadedChapter[];
-    dividers: {product: {kicker: string; standfirst: string}; technical: {kicker: string; standfirst: string}};
+    dividers: Partial<Record<'overview' | 'product' | 'technical', {kicker: string; standfirst: string}>>;
     reservedNote: string;
 }
 const {chapters, dividers, reservedNote} = Astro.props;
@@ -23,7 +23,7 @@ const {chapters, dividers, reservedNote} = Astro.props;
     const Content = chapter.Content;
     return (
         <Fragment>
-            {first && <GroupDivider {...dividers[chapter.spine.group]}/>}
+            {first && dividers[chapter.spine.group] && <GroupDivider {...dividers[chapter.spine.group]!}/>}
             <section id={chapter.spine.id} class:list={['lfp-chapter', band]} data-group={chapter.spine.group}>
                 {/* Zero height but laid out: an element with no box is never
                     reported as intersecting, so the analytics observer would

@@ -776,7 +776,7 @@ const projectPages = defineCollection({
         // Longer than the band's 14: this label sits in a 240px rail, not a
         // header row. Width is still checked in pixels by the pairing guard.
         navLabel: z.string().max(24),
-        group: z.enum(['product', 'technical']),
+        group: z.enum(['overview', 'product', 'technical']),
         // A one-line note of the figure the chapter carries. Read by the plan
         // and shown as the rail row's title attribute; never rendered as copy.
         visual: z.string().max(40),
