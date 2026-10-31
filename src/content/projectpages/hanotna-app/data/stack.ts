@@ -1,16 +1,12 @@
-// The flavor table from the architecture finding, in DataTable's shape.
+// The flavor table from the architecture finding: one value per build, in the
+// order of the titles.
 export const flavors = {
-  columns: [
-    {label: 'Setting', kind: 'sentence' as const, tone: 'strong' as const, width: 200},
-    {label: 'Dev', kind: 'sentence' as const, tone: 'body' as const},
-    {label: 'Staging', kind: 'sentence' as const, tone: 'body' as const},
-    {label: 'Production', kind: 'sentence' as const, tone: 'body' as const}
-  ],
+  titles: ['Dev', 'Staging', 'Production'],
   rows: [
-    {cells: ['Firebase project', 'local emulators', 'its own project', 'its own project']},
-    {cells: ['Crash reports, analytics, traces', 'off', 'on', 'on']},
-    {cells: ['Offline cache', 'off', 'on', 'on']},
-    {cells: ['Cache lifetimes', 'none', '10, 5 and 2 minutes', '15, 10 and 5 minutes']},
-    {cells: ['Product photos', 'on, in the emulator', 'off, free plan', 'on']}
+    {label: 'Firebase project', values: ['local emulators', 'its own project', 'its own project']},
+    {label: 'Crash reports, analytics, traces', values: ['off', 'on', 'on']},
+    {label: 'Offline cache', values: ['off', 'on', 'on']},
+    {label: 'Cache lifetimes', values: ['none', '10, 5 and 2 minutes', '15, 10 and 5 minutes']},
+    {label: 'Product photos', values: ['on, in the emulator', 'off, free plan', 'on']}
   ]
 };

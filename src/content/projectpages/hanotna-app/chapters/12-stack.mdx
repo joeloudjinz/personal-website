@@ -11,8 +11,8 @@ Flutter and Dart on the phone, Firebase behind it, Riverpod for state and GoRout
 The development build connects to local emulators and reports nothing anywhere. Staging and production each have their own Firebase project, crash reporting, analytics and performance tracing, and an offline cache with lifetimes tuned for a shop's day. Photos are on in development and production, and off in staging, which runs on the free plan.
 
 <Figure id="fig-flavors" caption="What differs between the three builds."
-        description="A table of five settings across dev, staging and production: the Firebase project, crash reports and analytics and traces, the offline cache, cache lifetimes, and product photos.">
-  <DataTable columns={flavors.columns} rows={flavors.rows} />
+        description="Three cards, dev, staging and production, each listing five settings: the Firebase project, crash reports and analytics and traces, the offline cache, cache lifetimes, and product photos.">
+  <CompareCards titles={flavors.titles} rows={flavors.rows} />
 </Figure>
 
 ### Routing with guards
