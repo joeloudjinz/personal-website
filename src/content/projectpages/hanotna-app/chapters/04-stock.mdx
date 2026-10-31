@@ -15,11 +15,17 @@ The stock room is a book the app keeps so the owner does not have to. Every prod
 
 ### Sold by the piece, the kilo or the metre
 
-Five units of sale: piece, kilogram, metre, litre and box. The kilo, the metre and the litre take decimal quantities and the piece and the box do not. A product can carry a manufacturer barcode. Scanning one at the counter, in the products list or in the product form goes through the same lookup every time, so the app's own labels and a packet's printed barcode resolve the same way.
+Five units of sale: piece, kilogram, metre, litre and box. The kilo, the metre and the litre take decimal quantities and the piece and the box do not. A product can carry a manufacturer barcode. Scanning one at the counter, in the products list or in the product form goes through the same lookup every time, so the app's own labels and a packet's printed barcode resolve the same way. Scanned from Home or the products list, a barcode that matches no product offers to add one, with the barcode already filled in.
+
+### A product form that shows its working
+
+Adding a product asks for the essentials first: the name, the code and the category, then the price, the cost and the opening stock, with the barcode and a description under More details. A note under the price and the cost shows the margin, and says plainly when the price equals the cost or sits below it, with the loss on each unit. Cost and price must both be above zero, because a product at zero cost counted every sale as pure profit.
+
+Saving offers the next step: print the shelf label, add another product, or add the next one from the same bill. Editing shows its working too. A changed price, cost or unit keeps a "Was …" line under it, and the save button counts the changes.
 
 ### Counting the shelf, not editing a number
 
-A stock correction is a recount. The person types what is on the shelf, and the app works out the difference and writes it to the log beside the product, in the same transaction, so the two can never disagree.
+A stock correction is a recount. The person types what is on the shelf, and the app works out the difference and writes it to the log beside the product, in the same transaction, so the two can never disagree. When a product is edited its stock is read only: the one way to change it is Adjust stock, which asks for a reason.
 
 <Figure id="fig-recount" caption="A recount, as the app shows it: what the book said, what the shelf holds, and the adjustment it writes."
         description="A short ledger: the book held 24 pieces, the shelf count was 27, so an adjustment of plus 3 pieces was written.">
