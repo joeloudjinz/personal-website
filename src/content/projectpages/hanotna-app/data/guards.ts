@@ -1,4 +1,4 @@
-// The 26 architecture tests in test/architecture/, from the architecture
+// The 27 architecture tests in test/architecture/, from the architecture
 // finding, sorted into the four kinds the chapter names. The note names the
 // bug or the reason each exists.
 export const guards = [
@@ -26,7 +26,8 @@ export const guards = [
     {label: 'no_currency_conversion_in_widgets', note: 'the UI never multiplies by a rate'},
     {label: 'no_double_returned_deduction', note: 'returns subtracted twice, shipped twice'},
     {label: 'no_capital_import_of_staff_pay', note: 'capital does not import wages or rent'},
-    {label: 'stock_run_flush', note: 'every stock run flushes, or stock does not move'}
+    {label: 'stock_run_flush', note: 'every stock run flushes, or stock does not move'},
+    {label: 'no_wall_clock_in_month_insights', note: 'month and year figures read one clock a test can fix'}
   ]},
   {title: 'The language', items: [
     {label: 'no_bare_date_format', note: 'dates built in one place only'},

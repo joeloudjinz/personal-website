@@ -15,7 +15,7 @@ export const pipeline = {
     {from: 'batches', to: 'translator'},
     {from: 'translator', to: 'checker', label: 'a return per batch'},
     {from: 'checker', to: 'translator', label: 'a re-ask on failure'},
-    {from: 'checker', to: 'arb', label: '1,357 keys'},
+    {from: 'checker', to: 'arb', label: 'accepted returns'},
     {from: 'arb', to: 'guards'}
   ]
 };

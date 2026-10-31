@@ -1,9 +1,10 @@
-// Counts from the architecture and evolution findings.
+// Counts from the figures recount at v4.7.0 (2026-10-31), calibrated against
+// the architecture and evolution findings' v4.4.2 numbers.
 export const testingStats = [
-  {value: '607', label: 'test files'},
-  {value: '3,900+', label: 'test cases'},
-  {value: '66', label: 'end-to-end scenarios asserting three ends'},
-  {value: '26', label: 'architecture guards'},
-  {value: '23', label: 'security-rules suites, 422 cases'},
-  {value: '123k', label: 'lines of test code, more than the app'}
+  {value: '743', label: 'test files'},
+  {value: '4,900+', label: 'test cases'},
+  {value: '77', label: 'end-to-end scenarios asserting three ends'},
+  {value: '27', label: 'architecture guards'},
+  {value: '24', label: 'security-rules suites, 431 cases'},
+  {value: '150k', label: 'lines of test code, more than the app'}
 ];

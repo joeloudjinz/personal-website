@@ -3,8 +3,8 @@
 // number is one the page or the KB already holds: the cart and the label from
 // the captures, Omar, Karim and the partners from the chapter examples, the
 // home screen's attention list and the owner's gross profit from the captures,
-// 123k lines of test code from the testing stats and the app's 101k from the
-// KB's architecture finding.
+// 150k lines of test code from the testing stats and the app's 118k from the
+// v4.7.0 figures recount.
 export const features = [
   {label: 'Sell at the counter in one tap', note: '2 × Ifri, a Hamoud, two wafers, 5% off: 190 د.ج, done.', href: '#counter',
     figure: {kind: 'tape' as const, rows: [{label: 'Subtotal', amount: '200'}, {label: '5% off', amount: '−10', tone: 'out' as const}], total: {label: 'Total', amount: '190'}}},
@@ -31,8 +31,8 @@ export const engineering = [
     figure: {kind: 'link' as const, to: 'Firestore'}},
   {label: 'One rule, kept by a test', note: 'Firebase may be imported in one folder only; a test scans every file.', href: '#architecture',
     figure: {kind: 'seam' as const, above: 'Screens, providers, ports', label: 'Firebase only below', below: 'Adapters'}},
-  {label: 'More test code than app code', note: '3,900 cases, 66 end-to-end scenarios, 23 rules suites.', href: '#testing',
-    figure: {kind: 'bars' as const, rows: [{label: 'tests', width: 100, value: '123k', tone: 'accent' as const}, {label: 'app', width: 82, value: '101k', tone: 'c' as const}]}},
-  {label: 'Guards that fail the build', note: 'Twenty-six checks for mistakes made once, never again.', href: '#guards',
-    figure: {kind: 'wall' as const, count: 26, hit: 15}}
+  {label: 'More test code than app code', note: '4,900 cases, 77 end-to-end scenarios, 24 rules suites.', href: '#testing',
+    figure: {kind: 'bars' as const, rows: [{label: 'tests', width: 100, value: '150k', tone: 'accent' as const}, {label: 'app', width: 78, value: '118k', tone: 'c' as const}]}},
+  {label: 'Guards that fail the build', note: 'Twenty-seven checks for mistakes made once, never again.', href: '#guards',
+    figure: {kind: 'wall' as const, count: 27, hit: 15}}
 ];
