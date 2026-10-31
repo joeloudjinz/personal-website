@@ -25,6 +25,8 @@ A partner's capital account is what they have really put in, and their share of 
 
 Profit is measured over a cycle. Closing one takes a photograph of the business, works out the cycle's income, splits it, and opens the next cycle in the same transaction, so there is never a moment without one.
 
+During a cycle, the capital card's Cash collected figure opens every payment behind it, on this cycle's sales and on earlier ones. The list's total matches the card to the dinar, because both are summed by the same rule.
+
 <Figure id="fig-cycle" caption="A cycle is opened once and closed once. Closing it opens the next."
         description="A state diagram with three states: cycle N open, cycle N closed, cycle N plus one open. Closing takes the snapshot, computes the income and the split, and the next cycle opens in the same transaction.">
   <StateMachine title="Cycle lifecycle" describedBy="fig-cycle-desc" nodes={cycle.nodes} edges={cycle.edges} height={300} />
