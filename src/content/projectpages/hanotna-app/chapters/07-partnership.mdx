@@ -21,20 +21,20 @@ A partner's capital account is what they have really put in, and their share of 
 
 ### Trading cycles
 
-Profit is measured over a cycle, and the owner closes it. Closing takes a photograph of the business, works out the cycle's income, splits it, and opens the next cycle in the same transaction, so there is never a moment without one. A sale can be rung up only while a cycle is open.
+Profit is measured over a cycle, and the owner closes it. Closing asks for a count of the cash, the stock and the debts, takes a photograph of the business, works out the cycle's income, splits it, and opens the next cycle in the same transaction, so there is never a moment without one. A sale can be rung up only while a cycle is open.
 
 <Figure id="fig-cycle" caption="A cycle is opened once and closed once. Closing it opens the next."
         description="A state diagram with three states: cycle N open, cycle N closed, cycle N plus one open. Closing takes the snapshot, computes the income and the split, and the next cycle opens in the same transaction.">
   <StateMachine title="Cycle lifecycle" describedBy="fig-cycle-desc" nodes={cycle.nodes} edges={cycle.edges} height={300} />
 </Figure>
 
-<Example title="A cycle's income and its split" setup="Three partners: Yacine put in three quarters of the capital, Nadia one quarter, and Amine works in the shop for a 20% share of profit. Over the cycle the shop sold 651,142 of goods.">
+<Example title="A cycle's profit and its split" setup="Three partners: Yacine put in three quarters of the capital, Nadia one quarter, and Amine works in the shop for a 20% share of profit. Over the cycle the shop sold 651,142 of goods.">
   <Figure id="fig-income" caption="Profit is what the cycle's sales earned after the cost of the goods and the expenses, corrected by what the count at the close found."
           description="A ledger with four rows: sales in the cycle 651,142, what those goods cost minus 454,142, expenses minus 85,000, and cash counted below the book minus 2,000. The actual profit is 110,000.">
     <LedgerTape title="A cycle's actual profit" rows={cycleIncome.rows} total={cycleIncome.total} />
   </Figure>
   <Figure id="fig-split" caption="Labour first, then capital: the work share comes off the top and the rest is split by ownership."
-          description="A waterfall: 110,000 of income, minus Amine's 20% work share of 22,000, leaves an investor pool of 88,000, split into 66,000 for Yacine at 75% and 22,000 for Nadia at 25%.">
+          description="A waterfall: 110,000 of profit, minus Amine's 20% work share of 22,000, leaves an investor pool of 88,000, split into 66,000 for Yacine at 75% and 22,000 for Nadia at 25%.">
     <Waterfall title="The profit split" describedBy="fig-split-desc" steps={profitSplit} />
   </Figure>
 </Example>
@@ -43,11 +43,11 @@ When a cycle closes in profit, each partner's share can be paid out, put back in
 
 ### Counting the drawer
 
-The capital card's Cash collected row opens the drawer. A count records two numbers: what is taken to the safe and what is left in the drawer. The app compares their sum with what the drawer should hold, which is what was left at the last count plus the cash payments recorded since, and shows the answer at once: Match, Short or Over. The first count of a cycle sets the starting point. A drawer count does not change the ledger, so profit and the split are untouched by it.
+On the capital dashboard, the Cash collected row opens the drawer. A count records two numbers: what is taken to the safe and what is left in the drawer. The app compares their sum with what the drawer should hold, which is what was left at the last count plus the cash payments recorded since, and shows the answer at once: Match, Short or Over. The first count of a cycle sets the starting point. A drawer count does not change the ledger, so profit and the split are untouched by it. The count that corrects profit is the one the close asks for.
 
 <PhoneFrame alt="The Cash collected screen." caption="Cash collected" />
 
-Partners count. The owner alone can explain a difference or delete the latest count, and the drawer is not shown to staff. The payments behind the figure are listed by day, and the list's total matches the figure to the dinar. Closing a cycle shows what went to the safe and the differences nobody explained, and it asks before closing if cash came in after the last count.
+Partners count. The owner alone can explain a difference or delete the latest count, and the drawer is not shown to staff. The payments behind the Cash collected figure are listed by day, and the list's total matches it to the dinar. Closing a cycle shows what went to the safe and the differences nobody explained, and it asks before closing if cash came in after the last count.
 
 <Example title="One count" setup="Yacine counts the drawer at closing time.">
   <Figure id="fig-drawer" caption="What the drawer should hold, against what was counted."
@@ -61,5 +61,5 @@ Partners count. The owner alone can explain a difference or delete the latest co
 A partner can lend the shop money. The loan is tracked apart from ownership and repaid at face value. The app never models interest (riba) in any form, and the code has no field for an interest rate.
 
 <ForEngineers>
-  The headline profit is a flow calculation: revenue, minus the cost of the goods sold, minus expenses. The cost of goods comes from a snapshot taken at the moment of each sale. The count at the close reconciles that estimate: actual profit is the estimate plus the difference between each counted figure (cash, stock, customer debts, supplier debts) and its book figure. The growth in what the business is worth is the fallback for a cycle closed without that breakdown. Closing is one Firestore transaction that re-reads the cycle, writes the end snapshot and the split, opens the next cycle with that snapshot as its start, and flips a metadata flag that lets sales proceed. Only a system admin closes a cycle or writes a reverse entry. Money put in or taken out has no reverse entry, and a supplier bill's transport rows are deleted with the bill. The cap of one hundred per cent on work shares is enforced twice: an optimistic-concurrency aggregate in the app, and a rule on the database that reads the post-write state. Each drawer count stores what it was compared with, so history is not recomputed, and the database checks the chain: expected is the previous left plus the payments since. When two phones count at once, the second is refused.
+  The headline profit is a flow calculation: revenue, minus the cost of the goods sold, minus expenses. The cost of goods comes from a snapshot taken at the moment of each sale. The count at the close reconciles that estimate: actual profit is the estimate plus the difference between each counted figure (cash, stock, customer debts, supplier debts) and its book figure. The growth in what the business is worth is the fallback for a cycle closed without that breakdown. Closing is one Firestore transaction that re-reads the cycle, writes the end snapshot and the split, opens the next cycle with that snapshot as its start, and flips a metadata flag that lets sales proceed. Only a system admin closes a cycle or writes a reverse entry. Money put in or taken out has no reverse entry, and a supplier bill's transport rows are deleted with the bill. The cap of one hundred per cent on work shares is enforced twice: an optimistic-concurrency aggregate in the app, and a rule on the database that reads the post-write state. Each drawer count stores what it was compared with, so history is not recomputed, and the database checks the chain: expected is what the previous count left plus the payments since. When two phones count at once, the second is refused.
 </ForEngineers>

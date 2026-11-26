@@ -24,7 +24,7 @@ export const cycleIncome = {
 };
 
 export const profitSplit = [
-  {label: 'Cycle income', value: 110000, kind: 'start' as const},
+  {label: 'Actual profit', value: 110000, kind: 'start' as const},
   {label: 'Amine, 20% work share, off the top', value: 22000, kind: 'minus' as const},
   {label: 'Investor pool', value: 88000, kind: 'result' as const},
   {label: 'Yacine, 75% of the capital', value: 66000, kind: 'result' as const},
