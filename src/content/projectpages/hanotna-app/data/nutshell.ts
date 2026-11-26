@@ -18,7 +18,7 @@ export const features = [
     figure: {kind: 'bar' as const, above: ['Paid at the counter 400', 'On the tab 600'], segments: [{width: 40, tone: 'accent' as const}], below: ['Omar\'s 1,000 of goods, oldest debt first']}},
   {label: 'Bills, rent and wages', note: 'A delivery half paid, the rent paid until a date, Karim\'s 25 days at 1,500.', href: '#owe',
     figure: {kind: 'waterfall' as const, steps: [{label: '25 days at 1,500', value: 37500, kind: 'start' as const}, {label: 'advance', value: 10000, kind: 'minus' as const}, {label: 'to settle', value: 27500, kind: 'result' as const}]}},
-  {label: 'The partners\' ledger', note: 'Who put in what, what the shop is worth, and how a cycle\'s profit splits.', href: '#partnership',
+  {label: 'The partners\' ledger', note: 'Who put in what, how a cycle\'s profit splits, and a till counted against the books.', href: '#partnership',
     figure: {kind: 'bar' as const, chip: 'Amine\'s 20% work share first', segments: [{width: 75, tone: 'b' as const}, {width: 25, tone: 'c' as const}], below: ['Yacine, 75% of the capital', 'Nadia, 25%']}},
   {label: 'The whole day on one screen', note: 'Today\'s sales, who is overdue, what is due, and a draft left open.', href: '#dashboard',
     figure: {kind: 'rows' as const, rows: [{tone: 'n' as const, text: '1 customer overdue'}, {tone: 'c' as const, text: '2,040 د.ج owed to you'}, {tone: 'c' as const, text: 'Rent due since 1 October'}, {tone: 'i' as const, text: '1 draft in progress'}]}},

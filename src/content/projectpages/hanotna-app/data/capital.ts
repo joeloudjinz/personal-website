@@ -30,3 +30,15 @@ export const profitSplit = [
   {label: 'Yacine, 75% of the capital', value: 66000, kind: 'result' as const},
   {label: 'Nadia, 25% of the capital', value: 22000, kind: 'result' as const}
 ];
+
+// One drawer count, the example shop's of 27 October: what the drawer should
+// hold against what was counted.
+export const drawerCount = {
+  rows: [
+    {label: 'Left in the drawer at the last count', amount: '5,000'},
+    {label: 'Cash payments since', amount: '+12,500', tone: 'in' as const},
+    {label: 'The drawer should hold', amount: '17,500'},
+    {label: 'Counted: 12,000 to the safe, 5,000 left', amount: '17,000'}
+  ],
+  total: {label: 'Short by', amount: '500'}
+};
