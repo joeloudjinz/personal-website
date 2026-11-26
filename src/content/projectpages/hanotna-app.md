@@ -27,7 +27,7 @@ hero:
   wash: "our shop"
   promise: "The till, the stock book, the credit ledger and the partners' ledger of one Algerian store, in English and Arabic."
   status: "In production"
-  version: "v4.7.0"
+  version: "v4.9.0"
   actions:
     - label: "Talk to me about it"
       href: "mailto:addoun.abdellah@gmail.com?subject=Hanotna"
@@ -47,7 +47,7 @@ glance:
     label: "the till is counted against what the books say it holds"
   - value: "No sign-up"
     label: "the shop creates every account: nobody gets in on their own"
-  - value: "4,900+"
+  - value: "Nearly 6,000"
     label: "automated test cases, run before every pull request"
 chapters:
   - id: "nutshell"
@@ -147,7 +147,7 @@ closing:
   facts:
     - "Android"
     - "English · Arabic"
-    - "v4.7.0"
+    - "v4.9.0"
     - "Since April 2026"
 credit: "Hanotna is built and run by Abdellah Addoun."
 ---

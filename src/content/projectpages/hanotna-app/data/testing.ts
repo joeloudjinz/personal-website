@@ -1,10 +1,10 @@
-// Counts from the figures recount at v4.7.0 (2026-10-31), calibrated against
-// the architecture and evolution findings' v4.4.2 numbers.
+// Counts from the figures recount at the app's tag, by the counting rules of
+// the page's spec: cases under test/, and lines written by hand.
 export const testingStats = [
-  {value: '743', label: 'test files'},
-  {value: '4,900+', label: 'test cases'},
-  {value: '77', label: 'end-to-end scenarios asserting three ends'},
+  {value: '877', label: 'test files'},
+  {value: 'Nearly 6,000', label: 'test cases'},
+  {value: '88', label: 'end-to-end scenarios asserting three ends'},
   {value: '29', label: 'guards that read the source'},
-  {value: '24', label: 'security-rules suites, 431 cases'},
-  {value: '150k', label: 'lines of test code, more than the app'}
+  {value: '26', label: 'security-rules suites, 473 cases'},
+  {value: '184k', label: 'lines of test code, more than the app'}
 ];

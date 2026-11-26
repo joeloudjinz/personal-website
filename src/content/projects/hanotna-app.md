@@ -8,7 +8,7 @@ isUnderConstruction: false
 # loader steps down to make room, and the row's label drops "Open source" because
 # this project has no public repository.
 isFeatured: true
-version: "4.7.0"
+version: "4.9.0"
 tags: [ "Flutter", "Firebase", "Point of sale", "Arabic", "RTL", "Algeria", "In production" ]
 id: "hanotna-app"
 ---

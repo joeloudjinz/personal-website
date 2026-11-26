@@ -1,9 +1,8 @@
 // Every tag with its date (the evolution finding's tag-dates section), and
 // commits per month. Labels are versions only; the words are in the caption.
-// Extended to v4.7.0 from the figures recount of 2026-10-31.
 export const releases = {
   start: '2026-04-29',
-  end: '2026-10-31',
+  end: '2026-11-23',
   ticks: [
     {date: '2026-05-07', label: 'v1.1 to v1.3, 7 tags'},
     {date: '2026-05-08', label: 'v1.4.16'},
@@ -20,7 +19,10 @@ export const releases = {
     {date: '2026-09-12', label: 'v4.4.1, v4.4.2'},
     {date: '2026-10-15', label: 'v4.5.0'},
     {date: '2026-10-22', label: 'v4.6.0'},
-    {date: '2026-10-31', label: 'v4.7.0'}
+    {date: '2026-10-31', label: 'v4.7.0'},
+    {date: '2026-11-05', label: 'v4.8.0'},
+    {date: '2026-11-17', label: 'v4.8.1'},
+    {date: '2026-11-23', label: 'v4.9.0'}
   ],
   months: [
     {label: 'Apr', value: 22},
@@ -29,6 +31,7 @@ export const releases = {
     {label: 'Jul', value: 805},
     {label: 'Aug', value: 440},
     {label: 'Sep', value: 189},
-    {label: 'Oct', value: 521}
+    {label: 'Oct', value: 521},
+    {label: 'Nov', value: 591}
   ]
 };
