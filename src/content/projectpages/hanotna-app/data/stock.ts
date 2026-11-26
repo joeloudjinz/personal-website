@@ -1,5 +1,5 @@
-// The recount strip is the app's own comment text; the eight adjustment types
-// are StockAdjustmentType, both from the commerce finding.
+// The recount strip is the app's own comment text; the six adjustment types
+// are the ones StockAdjustmentType carries for products on the shelf.
 export const recount = {
   rows: [
     {label: 'In the book before the count', amount: '24 pcs'},
@@ -9,12 +9,10 @@ export const recount = {
 };
 
 export const adjustmentTypes = [
-  {label: 'manual', note: 'a recount by hand'},
-  {label: 'bill', note: 'a recount tagged to a supplier bill'},
+  {label: 'manual', note: 'a recount, or opening stock with no bill'},
+  {label: 'bill', note: 'stock received against a supplier bill'},
   {label: 'order_confirm', note: 'a sale confirmed'},
   {label: 'order_edit', note: 'a confirmed sale edited'},
   {label: 'order_cancel', note: 'a sale cancelled'},
-  {label: 'return', note: 'goods returned'},
-  {label: 'service_material', note: 'material consumed'},
-  {label: 'service_cancel', note: 'material restocked'}
+  {label: 'return', note: 'goods returned, put back on the shelf or not'}
 ];
