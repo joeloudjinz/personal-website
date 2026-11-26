@@ -1,5 +1,6 @@
-// The cycle lifecycle from capital chapter 01, and the two worked examples
-// from capital chapter 03, with the partners given Algerian names (D6).
+// The cycle lifecycle, the profit a close saves and its split, with the
+// partners given Algerian names (D6). The income rows are the example shop's
+// own close, so the close-sheet capture agrees with them.
 export const cycle = {
   nodes: [
     {id: 'open', label: 'Cycle open', x: 180, y: 180},
@@ -14,11 +15,12 @@ export const cycle = {
 
 export const cycleIncome = {
   rows: [
-    {label: 'Business value rose from 500,000 to 620,000', amount: '+120,000', tone: 'in' as const},
-    {label: 'Partners took out 30,000 more than before', amount: '+30,000', tone: 'in' as const},
-    {label: 'Partners put in 40,000 more than before', amount: '−40,000', tone: 'out' as const}
+    {label: 'Sales in the cycle', amount: '651,142', tone: 'in' as const},
+    {label: 'What those goods cost', amount: '−454,142', tone: 'out' as const},
+    {label: 'Expenses', amount: '−85,000', tone: 'out' as const},
+    {label: 'Cash counted below the book', amount: '−2,000', tone: 'out' as const}
   ],
-  total: {label: 'Cycle income', amount: '110,000'}
+  total: {label: 'Actual profit', amount: '110,000'}
 };
 
 export const profitSplit = [
