@@ -21,7 +21,7 @@ Every returned batch is checked by a tool before it is accepted. The key set mus
 
 ### Kept at parity
 
-1,980 keys in English and 1,980 in Arabic, none missing and none extra, 485 of them with placeholders and 78 with plurals, across nineteen areas of the app. The parity is measured, not assumed. A guard checks the Arabic file's contract on every test run: its digits, its arrows, where the currency sits, and all six plural forms. Strings written after those batches arrive in English and Arabic in the same change, under the same key rules.
+1,980 keys in English and 1,980 in Arabic, none missing and none extra, 485 of them with placeholders and 78 with plurals, across nineteen areas of the app. The parity is measured, not assumed. A guard checks the Arabic file's contract on every test run: its digits, its arrows, where the currency sits, and all six plural forms. A string written after those batches comes in English and Arabic in the same change, under the same key rules.
 
 <ForEngineers>
   Keys follow an area, screen, role and slug pattern, are assigned once and never renamed, and anything used in two places takes the common prefix. The template file keeps its keys sorted with each metadata block beside its key, a hygiene rule a tool enforces so parallel slices merge cleanly. Stored values stay English on the wire and are translated only at display, with a display twin for each unit, category and status. Guards reject a translated string persisted into data, and a raw wire value inside a translated sentence.

@@ -1,5 +1,5 @@
 // The cycle lifecycle, the profit a close saves and its split, with the
-// partners given Algerian names (D6). The income rows are the example shop's
+// partners given Algerian names (D6). The profit rows are the example shop's
 // own close, so the close-sheet capture agrees with them.
 export const cycle = {
   nodes: [
@@ -8,7 +8,7 @@ export const cycle = {
     {id: 'next', label: 'Next cycle', x: 820, y: 180}
   ],
   edges: [
-    {from: 'open', to: 'closed', label: 'close: snapshot, income, split'},
+    {from: 'open', to: 'closed', label: 'close: snapshot, profit, split'},
     {from: 'closed', to: 'next', label: 'the same transaction'}
   ]
 };

@@ -21,10 +21,10 @@ A partner's capital account is what they have really put in, and their share of 
 
 ### Trading cycles
 
-Profit is measured over a cycle, and the owner closes it. Closing asks for a count of the cash, the stock and the debts, takes a photograph of the business, works out the cycle's income, splits it, and opens the next cycle in the same transaction, so there is never a moment without one. A sale can be rung up only while a cycle is open.
+Profit is measured over a cycle, and the owner closes it. Closing asks for a count of the cash, the stock and the debts, takes a photograph of the business, works out the cycle's profit, splits it, and opens the next cycle in the same transaction, so there is never a moment without one. A sale can be rung up only while a cycle is open.
 
 <Figure id="fig-cycle" caption="A cycle is opened once and closed once. Closing it opens the next."
-        description="A state diagram with three states: cycle N open, cycle N closed, cycle N plus one open. Closing takes the snapshot, computes the income and the split, and the next cycle opens in the same transaction.">
+        description="A state diagram with three states: cycle N open, cycle N closed, cycle N plus one open. Closing takes the snapshot, computes the profit and the split, and the next cycle opens in the same transaction.">
   <StateMachine title="Cycle lifecycle" describedBy="fig-cycle-desc" nodes={cycle.nodes} edges={cycle.edges} height={300} />
 </Figure>
 
@@ -49,7 +49,7 @@ On the capital dashboard, the Cash collected row opens the drawer. A count recor
 
 Partners count. The owner alone can explain a difference or delete the latest count, and the drawer is not shown to staff. The payments behind the Cash collected figure are listed by day, and the list's total matches it to the dinar. Closing a cycle shows what went to the safe and the differences nobody explained, and it asks before closing if cash came in after the last count.
 
-<Example title="One count" setup="Yacine counts the drawer at closing time.">
+<Example title="One count" setup="Yacine counts the drawer at the end of the day.">
   <Figure id="fig-drawer" caption="What the drawer should hold, against what was counted."
           description="A ledger: 5,000 left at the last count plus 12,500 of cash payments since, so the drawer should hold 17,500. The count found 17,000: 12,000 to the safe and 5,000 left. Short by 500.">
     <LedgerTape title="A drawer count" rows={drawerCount.rows} total={drawerCount.total} />
