@@ -6,5 +6,5 @@ export const creditSale = {
     {label: 'Repayment a week later', amount: '+300', tone: 'in' as const},
     {label: 'The order is cancelled, the money goes back', amount: '−700', tone: 'out' as const}
   ],
-  total: {label: 'What the ledger adds up to', amount: '0'}
+  total: {label: 'What the log adds up to', amount: '0'}
 };

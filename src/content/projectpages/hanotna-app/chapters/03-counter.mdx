@@ -43,14 +43,14 @@ Edit order changes the lines, the discount and the note. It does not change the 
 
 ### Returns, line by line
 
-A return is composed first and committed once. The cashier picks quantities per line and marks each Back to stock or Write off, for damaged goods that come back for the money only. A confirmation lists each line, where it goes and the money before and after. Several lines return in one atomic transaction, and one bad line rejects the whole basket. The order stays confirmed, its total is recomputed, and if the customer has now paid more than the new total a refund row is written to the ledger. A return that would raise the total is refused.
+A return is composed first and committed once. The cashier picks quantities per line and marks each Back to stock or Write off, for damaged goods that come back for the money only. A confirmation lists each line, where it goes and the money before and after. Several lines return in one atomic transaction, and one bad line rejects the whole basket. The order stays confirmed, its total is recomputed, and if the customer has now paid more than the new total a refund row is written to the payments log. A return that would raise the total is refused.
 
 ### Two phones, one order
 
 Confirming a draft, saving or deleting one, Edit order, Return items and a change of delivery are each taken from the copy of the order on screen. If the order has changed on another phone since, the action is refused, nothing is written, and the screen brings the order up to date and says "This order changed on another phone. It is now up to date. Try again." A cancel is refused only when the order's status has changed. Recording a payment and writing off a debt make no such check.
 
 <Callout tone="info" label="Why cancelling keeps the history">
-  Cancelling an order writes a negative row to the payments ledger instead of erasing the positive one. The order still shows what had been collected, and the ledger still adds up.
+  Cancelling an order writes a negative row to the payments log instead of erasing the positive one. The order still shows what had been collected, and the log still adds up.
 </Callout>
 
 <ForEngineers>
