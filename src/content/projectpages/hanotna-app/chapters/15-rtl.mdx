@@ -4,7 +4,7 @@ chapter: rtl
 ---
 import {bidiCases} from '../data/rtl';
 
-Making an app read right to left is not a translation job. It is geometry, glyphs and the bidirectional algorithm every browser and phone runs on mixed text, and each of those has a way of being quietly wrong. Hanotna's Arabic milestone took 79 issues and 347 commits, and left behind rules that tests now enforce.
+Making an app read right to left is not a translation job. It is geometry, glyphs and the bidirectional algorithm every browser and phone runs on mixed text, and each of those has a way of being quietly wrong. Hanotna's Arabic milestone took 79 issues and 348 commits, and left behind rules that tests now enforce.
 
 ### Geometry from the text direction
 
@@ -12,10 +12,10 @@ Nothing in the screens says left or right. Padding, alignment, positions and bor
 
 ### Neutral characters need an isolate
 
-A minus sign, a date stamp, an arrow or a counter has no direction of its own, so the bidi algorithm decides for it from its neighbours. Inside an Arabic sentence that decision is often wrong. Hanotna wraps such a run in a left-to-right isolate, and only such a run: a phrase that holds an Arabic word is never forced, because forcing it breaks it.
+A signed amount, a date stamp, a counter or a phone number has no direction of its own, so the bidi algorithm decides for it from its neighbours. Inside an Arabic sentence that decision is often wrong. Hanotna wraps such a run in a left-to-right isolate. A phrase that holds an Arabic word is not forced that way, because forcing it breaks it.
 
 <Figure id="fig-bidi" caption="Three runs inside Arabic text, as typed and with an isolate. The browser is drawing both, so this is the real reordering."
-        description="Three cases. A signed amount: typed as is the minus sign drifts, with an isolate it stays before the digits. A date stamp: typed as is it reads day first, with an isolate it reads year first. A date range holding Arabic words: typed as is it is right, with an isolate the leading number is stranded.">
+        description="Three cases. A signed amount: typed as is the minus sign drifts, with an isolate it stays before the digits. A date stamp: typed as is its parts come out in reverse, with an isolate it reads year first. A date range holding Arabic words: typed as is it is right, with an isolate the leading number is stranded.">
   <BidiCase cases={bidiCases} />
 </Figure>
 
@@ -28,5 +28,5 @@ Arabic locale data uses a full stop as the thousands separator. Had the money fo
 An arrow glyph is not mirrored by the bidi algorithm, so the app chooses the glyph from the direction and never writes one bare. Only nine of the app's 138 icons mirror on their own, so the directional ones are declared as explicit twins and a test checks they flip.
 
 <ForEngineers>
-  The isolate helper wraps a run in U+2066 and U+2069, isolates rather than embeddings or marks, because those leak into the surrounding text. Signs use U+2212 and are passed as a flag, never inferred, because cost of goods is stored positive and shown as a deduction. The money formatter uses a fixed `#,##0` pattern, snaps to cents, then truncates. Input normalises both Arabic-Indic digit blocks to ASCII and reads the Arabic decimal mark ٫ as a decimal point, so 2٫5 kg is 2.5 kg. Headlines in Arabic use the Arabic face at a real bold weight, because a synthesised bold smears the diacritics, and a test refuses any weight the bundled faces cannot serve.
+  The isolate helper wraps a run in U+2066 and U+2069, isolates rather than embeddings or marks, because those leak into the surrounding text. Text whose script the app cannot know, such as a product's or a customer's name, or a count written after an amount, gets a first-strong isolate instead. Signs use U+2212 and are passed as a flag, never inferred, because cost of goods is stored positive and shown as a deduction. The money formatter uses a fixed `#,##0` pattern, snaps to cents, then truncates. Input normalises both Arabic-Indic digit blocks to ASCII and reads the Arabic decimal mark ٫ as a decimal point, so 2٫5 kg is 2.5 kg. Headlines in Arabic use the Arabic face at a real semibold weight, not a synthesised one, because a synthesised bold smears the diacritics, and a test refuses any weight the bundled faces cannot serve.
 </ForEngineers>

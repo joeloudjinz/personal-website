@@ -1,5 +1,5 @@
-// Three runs inside Arabic sentences, from the design-and-RTL finding. The
-// browser draws both forms; `fix` says which one the app ships.
+// Three runs the app has to get right. The browser draws both forms; `fix`
+// says which one the app ships.
 export const bidiCases = [
   {
     label: 'A signed amount',
@@ -9,14 +9,14 @@ export const bidiCases = [
   },
   {
     label: 'A date stamp',
-    before: 'أُضيف ', run: '2026-08-27', after: '',
+    before: 'منذ ', run: '2026-08-01 08:50', after: '',
     fix: 'isolate' as const,
-    note: 'A bare ISO date inside an Arabic sentence comes out day first. The isolate keeps it year first, which is what the stamp means.'
+    note: 'A bare stamp inside an Arabic sentence comes out with its parts in reverse: the time, then the day, the month and the year. The isolate keeps it as one run, year first, which is what the stamp means.'
   },
   {
     label: 'A date range with Arabic words',
-    before: '', run: '12 سبتمبر – 11 أكتوبر 2026', after: '',
+    before: '', run: '12 سبتمبر 2026 – 11 أكتوبر 2026', after: '',
     fix: 'bare' as const,
-    note: 'Here the run holds Arabic words, and forcing it left to right strands the 12 at the far end of the line. The rule is: a run with no Arabic gets an isolate, a run with an Arabic word never does.'
+    note: 'Here the run holds Arabic words, and forcing it left to right strands the 12 at the far end of the line. The rule is: a run with no Arabic letters gets a left-to-right isolate, and a run holding an Arabic word does not get that one.'
   }
 ];
