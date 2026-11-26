@@ -1,20 +1,20 @@
 // The product-order lifecycle, from Hanotna's ProductOrderStatus enum and the
-// orders chapter 01-state-machines: draft, confirmed, cancelled, plus the two
-// ends of the road. Coordinates are on the StateMachine's 1000-wide grid.
+// screens that move an order: New sale, a draft's page and an order's page.
+// The edge labels are the buttons' own. Coordinates are on the StateMachine's
+// 1000-wide grid.
 export const productOrder = {
   nodes: [
     {id: 'start', label: 'New', x: 100, y: 180},
     {id: 'draft', label: 'Draft', x: 360, y: 60},
     {id: 'confirmed', label: 'Confirmed', x: 620, y: 180},
-    {id: 'cancelled', label: 'Cancelled', x: 900, y: 180, terminal: true},
+    {id: 'cancelled', label: 'Cancelled', x: 940, y: 180, terminal: true},
     {id: 'deleted', label: 'Deleted', x: 100, y: 60, terminal: true}
   ],
   edges: [
-    {from: 'start', to: 'draft', label: 'save a draft'},
-    {from: 'start', to: 'confirmed', label: 'quick sale'},
-    {from: 'draft', to: 'confirmed', label: 'confirm'},
-    {from: 'draft', to: 'deleted', label: 'delete'},
-    {from: 'draft', to: 'cancelled', label: 'cancel'},
-    {from: 'confirmed', to: 'cancelled', label: 'cancel, restock, refund'}
+    {from: 'start', to: 'draft', label: 'Save as draft'},
+    {from: 'start', to: 'confirmed', label: 'Confirm sale'},
+    {from: 'draft', to: 'confirmed', label: 'Confirm sale'},
+    {from: 'draft', to: 'deleted', label: 'Delete draft'},
+    {from: 'confirmed', to: 'cancelled', label: 'Cancel order: restock, refund'}
   ]
 };

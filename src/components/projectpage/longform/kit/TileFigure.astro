@@ -1,0 +1,296 @@
+---
+// The small figure a nutshell tile opens with: the chapter's own example,
+// drawn in the kit's language at card size. Nine kinds, each built from data,
+// so the chapter's data file owns every number. TileGrid keeps the whole stage
+// away from assistive tech: the tile's label and note say the same thing.
+// Once the page script marks the grid in view, each figure plays its example
+// on a shared seven-second loop and rests in its finished state for most of
+// it. With reduced motion or no script it shows that finished state at once.
+// One interface per kind: the compiler hoists exports line by line, so the
+// union itself stays on one line.
+interface TapeRow {label: string; amount: string; tone?: 'in' | 'out'}
+export interface TapeFigure {kind: 'tape'; rows: TapeRow[]; total: TapeRow}
+export interface LabelFigure {kind: 'label'; lines: [string, string]; price: string; /** The QR's module rows, '1' for dark. */ qr: string[]}
+export interface BarFigure {kind: 'bar'; chip?: string; above?: string[]; segments: {width: number; tone: 'accent' | 'b' | 'c'}[]; below?: string[]}
+export interface WaterfallFigure {kind: 'waterfall'; steps: {label: string; value: number; kind: 'start' | 'minus' | 'result'}[]}
+export interface RowsFigure {kind: 'rows'; rows: {tone: 'n' | 'c' | 'i'; text: string}[]}
+export interface LinkFigure {kind: 'link'; to: string}
+export interface SeamFigure {kind: 'seam'; above: string; label: string; below: string}
+export interface BarsFigure {kind: 'bars'; rows: {label: string; width: number; value: string; tone: 'accent' | 'c'}[]}
+export interface WallFigure {kind: 'wall'; count: number; hit: number}
+export type TileFigureSpec = TapeFigure | LabelFigure | BarFigure | WaterfallFigure | RowsFigure | LinkFigure | SeamFigure | BarsFigure | WallFigure;
+
+interface Props {
+    spec: TileFigureSpec;
+}
+const {spec} = Astro.props;
+// Rows land one after another: the first four steps of the loop.
+const step = (index: number) => `lfp-a lfp-s${Math.min(index + 1, 4)}`;
+
+// The label's QR as one path, a run of dark modules per subpath, drawn in a
+// 52px square at the label's left. The rows come from the data file, which
+// holds a real encoding of the product's code.
+const QR = {x: 59, y: 20, size: 52};
+const qrPath = spec.kind !== 'label' ? '' : (() => {
+    const m = QR.size / spec.qr.length;
+    const runs: string[] = [];
+    spec.qr.forEach((row, r) => {
+        for (let c = 0; c < row.length; c++) {
+            if (row[c] !== '1') continue;
+            let end = c;
+            while (row[end + 1] === '1') end++;
+            runs.push(`M${(QR.x + c * m).toFixed(2)} ${(QR.y + r * m).toFixed(2)}h${((end - c + 1) * m).toFixed(2)}v${(m + .06).toFixed(2)}h-${((end - c + 1) * m).toFixed(2)}z`);
+            c = end;
+        }
+    });
+    return runs.join('');
+})();
+
+// The waterfall's bars from the running total, on the 230 by 92 canvas.
+const TOP = 6;
+const BASE = 68;
+const bars = spec.kind !== 'waterfall' ? [] : (() => {
+    const peak = Math.max(...spec.steps.map((s) => s.value), 1);
+    const scale = (BASE - TOP) / peak;
+    const gap = 21;
+    const barW = (230 - gap * (spec.steps.length + 1)) / spec.steps.length;
+    let running = 0;
+    return spec.steps.map((s, index) => {
+        const from = s.kind === 'minus' ? running : 0;
+        const to = s.kind === 'minus' ? running - s.value : s.value;
+        running = s.kind === 'result' ? running : to;
+        const y = BASE - Math.max(from, to) * scale;
+        return {
+            ...s, x: gap + index * (barW + gap), w: barW, y, h: Math.max(BASE - Math.min(from, to) * scale - y, 2),
+            motion: s.kind === 'minus' ? 'lfp-drop' : index === 0 ? 'lfp-rise' : 'lfp-rise-late',
+            text: `${s.kind === 'minus' ? '−' : ''}${s.value.toLocaleString('en-US')}`
+        };
+    });
+})();
+---
+
+{spec.kind === 'tape' && (
+    <span class='lfp-fig lfp-fig-tape'>
+        {spec.rows.map((row, index) => (
+            <span class:list={['lfp-fig-row', step(index)]}>
+                <span class='lfp-fig-k'>{row.label}</span>
+                <span class:list={['lfp-fig-v', row.tone && `lfp-fig-${row.tone}`]}>{row.amount}</span>
+            </span>
+        ))}
+        <span class:list={['lfp-fig-row', 'lfp-fig-total', step(spec.rows.length)]}>
+            <span class='lfp-fig-k'>{spec.total.label}</span>
+            <span class:list={['lfp-fig-v', spec.total.tone && `lfp-fig-${spec.total.tone}`]}>{spec.total.amount}</span>
+        </span>
+    </span>
+)}
+
+{spec.kind === 'label' && (
+    <svg class='lfp-fig' viewBox='0 0 230 92'>
+        <rect class='lfp-fig-sheet' x='47' y='4' width='136' height='84' rx='8'/>
+        <path class='lfp-fig-ink' d={qrPath}/>
+        <text class='lfp-fig-small' x='121' y='33'>{spec.lines[0]}</text>
+        <text class='lfp-fig-small' x='121' y='45'>{spec.lines[1]}</text>
+        <line class='lfp-fig-rule' x1='121' y1='52' x2='171' y2='52'/>
+        <text class='lfp-fig-price' x='121' y='70'>{spec.price}</text>
+        <rect class='lfp-fig-feed lfp-a' x='46' y='3' width='138' height='86' rx='8'/>
+    </svg>
+)}
+
+{spec.kind === 'bar' && (
+    <span class='lfp-fig lfp-fig-split'>
+        {spec.chip && <span class='lfp-fig-chip lfp-a lfp-s1'>{spec.chip}</span>}
+        {/* Words above arrive as the bar starts to fill; words below once its last segment has. */}
+        {spec.above && <span class='lfp-fig-ends lfp-a lfp-s2'>{spec.above.map((text) => <span>{text}</span>)}</span>}
+        <span class='lfp-fig-bar'>
+            {spec.segments.map((seg, index) => (
+                <span class:list={['lfp-fig-seg', `lfp-fig-seg-${seg.tone}`, 'lfp-a', index === 0 ? 'lfp-grow' : 'lfp-grow-late']} style={`width:${seg.width}%`}></span>
+            ))}
+        </span>
+        {spec.below && <span class:list={['lfp-fig-ends', 'lfp-a', spec.segments.length > 1 ? 'lfp-s5' : 'lfp-s3']}>{spec.below.map((text) => <span>{text}</span>)}</span>}
+    </span>
+)}
+
+{spec.kind === 'waterfall' && (
+    <svg class='lfp-fig' viewBox='0 0 230 92'>
+        {bars.map((bar) => (
+            <rect class:list={['lfp-fig-wf', `lfp-fig-wf-${bar.kind}`, 'lfp-a', bar.motion]} x={bar.x} y={bar.y} width={bar.w} height={bar.h} rx='4'/>
+        ))}
+        <line class='lfp-fig-rule' x1='8' y1={BASE} x2='222' y2={BASE}/>
+        {bars.map((bar) => (
+            <Fragment>
+                <text class='lfp-fig-tiny' x={bar.x + bar.w / 2} y='79' text-anchor='middle'>{bar.label}</text>
+                <text class='lfp-fig-num' x={bar.x + bar.w / 2} y='90' text-anchor='middle'>{bar.text}</text>
+            </Fragment>
+        ))}
+    </svg>
+)}
+
+{spec.kind === 'rows' && (
+    <span class='lfp-fig lfp-fig-rows'>
+        {spec.rows.map((row, index) => (
+            <span class:list={['lfp-fig-line', step(index)]}><span class={`lfp-fig-dot lfp-fig-dot-${row.tone}`}></span>{row.text}</span>
+        ))}
+    </span>
+)}
+
+{spec.kind === 'link' && (
+    <svg class='lfp-fig' viewBox='0 0 230 92'>
+        <rect class='lfp-fig-phone' x='44' y='6' width='38' height='80' rx='8'/>
+        <rect class='lfp-fig-screen' x='50' y='14' width='26' height='58' rx='3'/>
+        <line class='lfp-fig-arrow' x1='90' y1='46' x2='118' y2='46'/>
+        <path class='lfp-fig-head' d='M116 40l8 6-8 6z'/>
+        <rect class='lfp-fig-store' x='126' y='26' width='72' height='40' rx='10'/>
+        <text class='lfp-fig-num' x='162' y='50' text-anchor='middle'>{spec.to}</text>
+        <circle class='lfp-fig-packet lfp-a' cx='90' cy='46' r='3.5'/>
+    </svg>
+)}
+
+{spec.kind === 'seam' && (
+    <span class='lfp-fig lfp-fig-seam'>
+        <span class='lfp-fig-box'>{spec.above}</span>
+        <span class='lfp-fig-seamline'>{spec.label}</span>
+        <span class='lfp-fig-box'>{spec.below}</span>
+    </span>
+)}
+
+{spec.kind === 'bars' && (
+    <span class='lfp-fig lfp-fig-bars'>
+        {spec.rows.map((row, index) => (
+            <span class='lfp-fig-brow'>
+                <span>{row.label}</span>
+                <span class='lfp-fig-bar'><span class:list={['lfp-fig-seg', `lfp-fig-seg-${row.tone}`, 'lfp-a', index === 0 ? 'lfp-grow' : 'lfp-grow-late']} style={`width:${row.width}%`}></span></span>
+                <span class:list={['lfp-fig-v', 'lfp-a', index === 0 ? 'lfp-s3' : 'lfp-s5']}>{row.value}</span>
+            </span>
+        ))}
+    </span>
+)}
+
+{spec.kind === 'wall' && (
+    <span class='lfp-fig lfp-fig-wall'>
+        {Array.from({length: spec.count}, (_, index) => (
+            <span class:list={['lfp-fig-brick', index === spec.hit && 'lfp-fig-hit lfp-a']}></span>
+        ))}
+    </span>
+)}
+
+<style>
+    .lfp-fig {
+        --loop: 7s;
+        --d: calc(var(--i, 0) * -1.15s);
+        display: block;
+        width: 100%;
+        max-width: 230px;
+        font-size: 12px;
+        line-height: 1.25;
+        font-variant-numeric: tabular-nums;
+        color: var(--text-muted);
+    }
+
+    svg.lfp-fig {
+        height: 92px;
+        overflow: visible;
+        font-family: var(--font-sans);
+    }
+
+    .lfp-fig-k { color: var(--text-muted); }
+    .lfp-fig-v { color: var(--text-strong); font-weight: 500; }
+    .lfp-fig-in { color: var(--positive-text); }
+    .lfp-fig-out { color: var(--negative-text); }
+
+    .lfp-fig-tape { display: grid; align-content: center; line-height: 1.65em; }
+    .lfp-fig-row { display: flex; justify-content: space-between; align-items: center; gap: .5em; }
+    .lfp-fig-total { border-block-start: 1px solid var(--text-strong); margin-block-start: .2em; padding-block-start: .2em; }
+    .lfp-fig-total .lfp-fig-v { font-weight: 700; }
+
+    /* Kind sizes in px: these classes sit on the .lfp-fig element itself, so an
+       em here would scale the article's 18px, not the figure's 12px. */
+    .lfp-fig-split, .lfp-fig-bars { display: grid; align-content: center; gap: .5em; font-size: 11px; }
+    .lfp-fig-bar { display: flex; height: .9em; border-radius: .45em; background: var(--neutral-wash); overflow: hidden; }
+    .lfp-fig-seg { display: block; height: 100%; transform-origin: 0 50%; }
+    .lfp-fig-seg-accent { background: var(--accent); }
+    .lfp-fig-seg-b { background: var(--positive-edge); }
+    .lfp-fig-seg-c { background: var(--info-edge); }
+    .lfp-fig-ends { display: flex; justify-content: space-between; gap: .4em; white-space: nowrap; }
+    .lfp-fig-chip { justify-self: start; font-size: .85em; padding: .2em .6em; border-radius: 999px; background: var(--accent-wash); color: var(--text-strong); }
+    .lfp-fig-bars { gap: .7em; }
+    .lfp-fig-brow { display: grid; grid-template-columns: 2.4em 1fr 2.8em; align-items: center; gap: .4em; }
+    .lfp-fig-brow .lfp-fig-v { font-weight: 600; text-align: end; }
+
+    .lfp-fig-rows { display: grid; align-content: center; gap: .3em; font-size: 11.5px; line-height: 1.3; color: var(--text-body); }
+    .lfp-fig-line { display: flex; align-items: center; gap: .5em; white-space: nowrap; }
+    .lfp-fig-dot { width: .6em; height: .6em; border-radius: 50%; flex: none; }
+    .lfp-fig-dot-n { background: var(--negative); }
+    .lfp-fig-dot-c { background: var(--caution); }
+    .lfp-fig-dot-i { background: var(--info); }
+
+    .lfp-fig-seam { display: grid; gap: .35em; align-content: center; font-size: 10.5px; text-align: center; position: relative; overflow: hidden; }
+    .lfp-fig-box { padding: .3em .4em; border: 1px solid var(--hairline); border-radius: .5em; font-weight: 500; color: var(--text-strong); background: var(--surface); }
+    .lfp-fig-seamline { color: var(--accent); font-weight: 600; border-block-start: 2px dashed var(--accent); padding-block-start: .2em; }
+    .lfp-fig-seam::after { content: ''; position: absolute; inset-inline: 0; inset-block-start: -3px; height: 2px; background: var(--accent); opacity: .7; }
+
+    .lfp-fig-wall { display: grid; grid-template-columns: repeat(9, 1fr); gap: .3em; align-content: center; position: relative; }
+    .lfp-fig-brick { height: 1.1em; border-radius: .2em; background: var(--neutral-wash); border: 1px solid var(--hairline); }
+    .lfp-fig-hit { background: var(--negative); border-color: var(--negative); }
+    .lfp-fig-wall::after { content: ''; position: absolute; inset-block: -2px; inset-inline-start: -3px; width: 2px; background: var(--accent); opacity: .7; }
+
+    /* SVG inks. The feed and the packet rest unseen: they exist for the loop. */
+    .lfp-fig-sheet { fill: var(--surface); stroke: var(--hairline); }
+    .lfp-fig-ink { fill: var(--text-strong); }
+    .lfp-fig-small { font-size: 9px; fill: var(--text-body); }
+    .lfp-fig-tiny { font-size: 8.5px; fill: var(--text-muted); }
+    .lfp-fig-num { font-size: 10.5px; font-weight: 600; fill: var(--text-strong); }
+    .lfp-fig-price { font-size: 15px; font-weight: 700; fill: var(--text-strong); }
+    .lfp-fig-rule { stroke: var(--text-strong); stroke-width: 1.2; }
+    .lfp-fig-feed { fill: var(--surface-card); transform-box: fill-box; transform-origin: center bottom; transform: scaleY(0); }
+    .lfp-fig-wf { transform-box: fill-box; transform-origin: center bottom; }
+    .lfp-fig-wf-minus { fill: var(--negative); transform-origin: center top; }
+    .lfp-fig-wf-start, .lfp-fig-wf-result { fill: var(--accent); }
+    .lfp-fig-phone { fill: var(--surface); stroke: var(--text-strong); stroke-width: 2; }
+    .lfp-fig-screen { fill: var(--accent-wash); }
+    .lfp-fig-arrow { stroke: var(--text-muted); stroke-width: 2; }
+    .lfp-fig-head { fill: var(--text-muted); }
+    .lfp-fig-store { fill: var(--info-wash); stroke: var(--info-edge); stroke-width: 1.5; }
+    .lfp-fig-packet { fill: var(--accent); opacity: 0; }
+
+    /* The loop. Base styles above are the finished state; a name is set only
+       once the grid is in view, so no script and reduced motion both rest. */
+    .lfp-a { animation-duration: var(--loop); animation-timing-function: var(--ease-standard); animation-iteration-count: infinite; animation-delay: var(--d); }
+    :global(.lfp-tiles.is-in) .lfp-s1 { animation-name: lfp-step1; }
+    :global(.lfp-tiles.is-in) .lfp-s2 { animation-name: lfp-step2; }
+    :global(.lfp-tiles.is-in) .lfp-s3 { animation-name: lfp-step3; }
+    :global(.lfp-tiles.is-in) .lfp-s4 { animation-name: lfp-step4; }
+    :global(.lfp-tiles.is-in) .lfp-s5 { animation-name: lfp-step5; }
+    :global(.lfp-tiles.is-in) .lfp-grow { animation-name: lfp-grow; }
+    :global(.lfp-tiles.is-in) .lfp-grow-late { animation-name: lfp-grow-late; }
+    :global(.lfp-tiles.is-in) .lfp-rise { animation-name: lfp-rise; }
+    :global(.lfp-tiles.is-in) .lfp-drop { animation-name: lfp-drop; }
+    :global(.lfp-tiles.is-in) .lfp-rise-late { animation-name: lfp-rise-late; }
+    :global(.lfp-tiles.is-in) .lfp-fig-feed { animation-name: lfp-print; animation-timing-function: linear; }
+    :global(.lfp-tiles.is-in) .lfp-fig-packet { animation: lfp-travel 2.4s linear infinite var(--d); }
+    :global(.lfp-tiles.is-in) .lfp-fig-hit { animation: lfp-light 3s linear infinite var(--d); }
+    :global(.lfp-tiles.is-in) .lfp-fig-seam::after { animation: lfp-scan 3s linear infinite var(--d); }
+    :global(.lfp-tiles.is-in) .lfp-fig-wall::after { animation: lfp-sweep 3s linear infinite var(--d); }
+    :global(.lfp[dir='rtl']) .lfp-fig-seg { transform-origin: 100% 50%; }
+
+    @keyframes lfp-step1 { 0%, 3% { opacity: 0; transform: translateY(5px); } 9%, 88% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; transform: translateY(5px); } }
+    @keyframes lfp-step2 { 0%, 16% { opacity: 0; transform: translateY(5px); } 22%, 88% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; transform: translateY(5px); } }
+    @keyframes lfp-step3 { 0%, 29% { opacity: 0; transform: translateY(5px); } 35%, 88% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; transform: translateY(5px); } }
+    @keyframes lfp-step4 { 0%, 42% { opacity: 0; transform: translateY(5px); } 48%, 88% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; transform: translateY(5px); } }
+    @keyframes lfp-step5 { 0%, 62% { opacity: 0; transform: translateY(5px); } 68%, 88% { opacity: 1; transform: none; } 94%, 100% { opacity: 0; transform: translateY(5px); } }
+    @keyframes lfp-grow { 0%, 6% { transform: scaleX(0); } 36%, 88% { transform: scaleX(1); } 94%, 100% { transform: scaleX(0); } }
+    @keyframes lfp-grow-late { 0%, 38% { transform: scaleX(0); } 66%, 88% { transform: scaleX(1); } 94%, 100% { transform: scaleX(0); } }
+    @keyframes lfp-rise { 0%, 4% { transform: scaleY(0); } 22%, 88% { transform: scaleY(1); } 94%, 100% { transform: scaleY(0); } }
+    @keyframes lfp-drop { 0%, 26% { transform: scaleY(0); } 40%, 88% { transform: scaleY(1); } 94%, 100% { transform: scaleY(0); } }
+    @keyframes lfp-rise-late { 0%, 44% { transform: scaleY(0); } 62%, 88% { transform: scaleY(1); } 94%, 100% { transform: scaleY(0); } }
+    @keyframes lfp-print { 0%, 2% { transform: scaleY(1); } 46%, 88% { transform: scaleY(0); } 94%, 100% { transform: scaleY(1); } }
+    @keyframes lfp-travel { 0% { transform: translateX(0); opacity: 0; } 12%, 88% { opacity: 1; } 100% { transform: translateX(28px); opacity: 0; } }
+    @keyframes lfp-scan { from { inset-block-start: -3px; } to { inset-block-start: 100%; } }
+    @keyframes lfp-sweep { from { inset-inline-start: -3px; } to { inset-inline-start: 100%; } }
+    @keyframes lfp-light { 0%, 66% { background: var(--neutral-wash); border-color: var(--hairline); } 72%, 92% { background: var(--negative); border-color: var(--negative); } 98%, 100% { background: var(--neutral-wash); border-color: var(--hairline); } }
+
+    @media (prefers-reduced-motion: reduce) {
+        :global(.lfp-tiles.is-in) .lfp-a,
+        :global(.lfp-tiles.is-in) .lfp-fig-seam::after,
+        :global(.lfp-tiles.is-in) .lfp-fig-wall::after { animation: none; }
+    }
+</style>

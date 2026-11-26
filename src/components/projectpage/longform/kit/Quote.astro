@@ -11,10 +11,28 @@ const {text, lang = 'en', source} = Astro.props;
 
 <blockquote class='lfp-quote' lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
     <p class='lfp-quote-text'>{text}</p>
-    {source && <footer class='lfp-quote-source'>{source}</footer>}
+    {source && <footer class='lfp-quote-source' lang='en' dir='ltr'>{source}</footer>}
 </blockquote>
 
 <style>
+    /* Rendered inside the article, so the article's own quotation rules reach
+       it: a physical side margin that does not mirror, a bar above, and the
+       display face in italic. This is a product string, set in the body face,
+       with a start-side rule. */
+    .lfp-quote:global(.lfp-quote) {
+        margin-inline: 0;
+    }
+
+    .lfp-quote::before {
+        content: none;
+    }
+
+    .lfp-quote-text:global(.lfp-quote-text) {
+        font-family: var(--font-sans);
+        font-style: normal;
+        font-size: 17px;
+    }
+
     .lfp-quote {
         margin-block: 20px;
         padding-inline-start: 20px;

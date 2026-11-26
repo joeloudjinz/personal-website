@@ -49,7 +49,7 @@ const lines = edges.flatMap((edge, index) => {
 });
 ---
 
-<svg class='lfp-sm' viewBox={`0 0 1000 ${height}`} role='img' aria-describedby={describedBy}>
+<svg class='lfp-sm lfp-mirror' viewBox={`0 0 1000 ${height}`} role='img' aria-describedby={describedBy}>
     <title>{title}</title>
     <defs>
         <marker id={arrowId} viewBox='0 0 10 10' refX='9' refY='5' markerWidth='8' markerHeight='8' orient='auto-start-reverse'>
@@ -104,5 +104,9 @@ const lines = edges.flatMap((edge, index) => {
     .lfp-sm-edge-label {
         font-size: 13px;
         fill: var(--text-muted);
+        paint-order: stroke;
+        stroke: var(--surface-card);
+        stroke-width: 6px;
+        stroke-linejoin: round;
     }
 </style>

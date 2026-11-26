@@ -9,9 +9,22 @@ import ForEngineers from './ForEngineers.astro';
 import Callout from './Callout.astro';
 import Quote from './Quote.astro';
 import StateMachine from './StateMachine.astro';
+import TileGrid from './TileGrid.astro';
+import Checklist from './Checklist.astro';
+import CompareCards from './CompareCards.astro';
+import LedgerTape from './LedgerTape.astro';
+import Waterfall from './Waterfall.astro';
+import FlowGraph from './FlowGraph.astro';
+import LayerStack from './LayerStack.astro';
+import Timeline from './Timeline.astro';
+import BidiCase from './BidiCase.astro';
+import PartsBuild from './PartsBuild.astro';
+import BrandMark from './BrandMark.astro';
 import DataTable from '@src/components/DataTable.astro';
 import CodeBlock from '@src/components/CodeBlock.astro';
 
 export const kit = {
-  PhoneFrame, PhonePair, Figure, Example, ForEngineers, Callout, Quote, StateMachine, DataTable, CodeBlock
+  PhoneFrame, PhonePair, Figure, Example, ForEngineers, Callout, Quote, StateMachine,
+  TileGrid, Checklist, CompareCards, LedgerTape, Waterfall, FlowGraph, LayerStack, Timeline, BidiCase,
+  PartsBuild, BrandMark, DataTable, CodeBlock
 };

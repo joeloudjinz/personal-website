@@ -767,20 +767,18 @@ const projectPages = defineCollection({
       glance: z.array(z.object({ value: z.string().max(12), label: z.string().max(60) }))
         .min(3).max(6),
       // The chapters, in reading order. Ids are the section anchors and the table
-      // of contents is exactly this list, so a chapter with no file has to say
-      // so with `reserved` — the pairing guard in src/utils/longformChapters.ts
-      // rejects anything else.
+      // of contents is exactly this list, so every chapter needs its file — the
+      // pairing guard in src/utils/longformChapters.ts rejects one without.
       chapters: z.array(z.object({
         id: chapterId,
         title: z.string().max(60),
         // Longer than the band's 14: this label sits in a 240px rail, not a
         // header row. Width is still checked in pixels by the pairing guard.
         navLabel: z.string().max(24),
-        group: z.enum(['product', 'technical']),
+        group: z.enum(['overview', 'product', 'technical']),
         // A one-line note of the figure the chapter carries. Read by the plan
         // and shown as the rail row's title attribute; never rendered as copy.
-        visual: z.string().max(40),
-        reserved: z.literal(true).optional()
+        visual: z.string().max(40)
       })).min(1).max(24),
       closing: z.object({
         heading: z.string().max(36),

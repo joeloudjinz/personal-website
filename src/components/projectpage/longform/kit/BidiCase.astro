@@ -1,0 +1,107 @@
+---
+// A run of digits and neutral characters inside an Arabic sentence, shown as
+// typed and then wrapped in a left-to-right isolate (U+2066 … U+2069). The
+// browser's own bidi algorithm draws both, so what the reader sees is the
+// real reordering, not a picture of it. `fix` says which of the two the app
+// ships: the isolate for a signed amount or a date stamp, the bare run for a
+// phrase that holds an Arabic word.
+interface Case {
+    label: string;
+    before: string;
+    run: string;
+    after: string;
+    fix: 'isolate' | 'bare';
+    note: string;
+}
+interface Props {
+    cases: Case[];
+}
+const {cases} = Astro.props;
+// The isolate characters, written as code points: neither prints, and a
+// literal that cannot be seen is a bug waiting for the next editor.
+const LRI = String.fromCodePoint(0x2066);
+const PDI = String.fromCodePoint(0x2069);
+---
+
+<div class='lfp-bidi'>
+    {cases.map((item, index) => (
+        <div class='lfp-bidi-case lfp-node' style={`--i: ${index}`}>
+            <p class='lfp-bidi-label'>{item.label}</p>
+            <div class='lfp-bidi-lines'>
+                <p class:list={['lfp-bidi-line', item.fix === 'bare' && 'lfp-bidi-right']}>
+                    <span class='lfp-bidi-tag'>as typed</span>
+                    <span class='lfp-bidi-text' dir='rtl' lang='ar'>{item.before}{item.run}{item.after}</span>
+                </p>
+                <p class:list={['lfp-bidi-line', item.fix === 'isolate' && 'lfp-bidi-right']}>
+                    <span class='lfp-bidi-tag'>with an isolate</span>
+                    <span class='lfp-bidi-text' dir='rtl' lang='ar'>{item.before}{LRI}{item.run}{PDI}{item.after}</span>
+                </p>
+            </div>
+            <p class='lfp-bidi-note'>{item.note}</p>
+        </div>
+    ))}
+</div>
+
+<style>
+    .lfp-bidi {
+        display: grid;
+        gap: 16px;
+    }
+
+    .lfp-bidi-case {
+        padding: 14px 16px;
+        border-radius: 12px;
+        border: 1px solid var(--hairline);
+        background: var(--surface);
+    }
+
+    .lfp-bidi-label {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        margin: 0;
+        margin-block-end: 8px;
+    }
+
+    .lfp-bidi-lines {
+        display: grid;
+        gap: 6px;
+    }
+
+    /* The article's paragraph margin would part the two lines of a case. */
+    .lfp-bidi-line {
+        margin: 0;
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        padding: 6px 10px;
+        border-radius: 8px;
+    }
+
+    .lfp-bidi-right {
+        background: var(--positive-wash);
+    }
+
+    .lfp-bidi-tag {
+        flex: none;
+        width: 110px;
+        font-size: 11px;
+        color: var(--text-muted);
+    }
+
+    .lfp-bidi-text {
+        font-size: 18px;
+        color: var(--text-strong);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .lfp-bidi-note {
+        margin: 0;
+        margin-block-start: 8px;
+        font-size: 13px;
+        line-height: 1.5;
+        color: var(--text-body);
+    }
+</style>

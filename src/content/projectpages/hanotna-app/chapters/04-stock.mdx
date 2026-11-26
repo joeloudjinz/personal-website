@@ -1,0 +1,49 @@
+---
+page: hanotna-app
+chapter: stock
+---
+import {recount, adjustmentTypes} from '../data/stock';
+import products from '../../../../assets/img/hanotna/products.png';
+import labelSheet from '../../../../assets/img/hanotna/label-sheet.png';
+import productForm from '../../../../assets/img/hanotna/product-form.png';
+
+The stock room is a book the app keeps so the owner does not have to. Every product has a name, a code, an optional barcode, a cost and a list price, and a unit of sale. A sale, an edit, a cancellation, a return, a recount and stock received against a supplier bill each write a row with its reason, and the book can be checked against the shelf at any time.
+
+<PhonePair caption="The products list with its search and scan controls, and the label sheet with a preview at the roll's real proportions.">
+  <PhoneFrame src={products} alt="The products list screen with a search field and a barcode scan icon." caption="Products" />
+  <PhoneFrame src={labelSheet} alt="The label sheet showing a QR label preview, the roll size and a print button." caption="Label sheet" />
+</PhonePair>
+
+Staff, partners and the owner can all add or edit a product, recount and print labels. Cost and margin are shown to partners, and the screens offer partners alone the tie between stock and a supplier bill.
+
+### Sold by the piece, the kilo or the metre
+
+Five units of sale: piece, kilogram, metre, litre and box. The kilo, the metre and the litre take decimal quantities and the piece and the box do not. A product can carry a manufacturer barcode. At the counter, on Home and in the products list a scan goes through one lookup, the code first and then the barcode, so the app's own labels and a packet's printed barcode resolve the same way. In the product form a scan fills the barcode field. Scanned from Home or the products list, a barcode that matches no product offers to add one, with the barcode already filled in.
+
+### A product form that shows its working
+
+Adding a product asks for the essentials first: the name, the code and the category, what it is sold by, then the price, the cost and the opening stock, with the barcode and a description under More details. A note under the price and the cost shows partners the margin, and says plainly when the price equals the cost or sits below it, with the loss on each unit. Price and cost are whole dinars and must both be above zero, because a product at zero cost counted every sale as pure profit.
+
+Saving offers the next step: print the shelf label, add another product, or add the next one from the same bill. Editing shows its working too. A changed price, cost or unit keeps a "Was …" line under it, and the save button counts the changes.
+
+<PhoneFrame src={productForm} alt="The product form while editing: the cost changed from 55 to 60 with the old cost under the field, the margin note, and a save button that counts one change." caption="Product form" />
+
+### Counting the shelf, not editing a number
+
+A stock correction is a recount. The person types what is on the shelf, and the app works out the difference and writes it to the log beside the product, in the same transaction, so the two can never disagree. When a product is edited its stock is read only: the one way to change it is Adjust stock, which asks for a reason. Quantities are kept to the gram.
+
+<Figure id="fig-recount" caption="A recount, as the app shows it: what the book said, what the shelf holds, and the adjustment it writes."
+        description="A short ledger: the book held 24 pieces, the shelf count was 27, so an adjustment of plus 3 pieces was written.">
+  <LedgerTape title="A recount" rows={recount.rows} total={recount.total} />
+</Figure>
+
+An entry is not edited once written, and each one says why it exists. Six reasons cover what moves stock at the counter and on the shelf, and four of them are written by other parts of the app rather than by hand.
+
+<Figure id="fig-adjustments" caption="The six reasons a stock adjustment can carry."
+        description="Six adjustment types: manual, bill, order confirm, order edit, order cancel and return.">
+  <TileGrid variant="brick" columns={3} tiles={adjustmentTypes} />
+</Figure>
+
+### Labels from a thermal printer
+
+A product can be printed as a shelf label: a QR code of its code, the store's name and the price, on a roll set in millimetres under More, sent over the shop's Wi-Fi to a label printer. The app finds the printer on the local network, says when it is reachable, and says plainly that reachable does not mean there is paper in it.

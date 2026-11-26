@@ -2,7 +2,7 @@
 // Longform template for project showcase pages: a spine of hero, glance,
 // chapters and closing, with the chapter bodies rendered from their MDX files
 // and a table of contents the page owns. The header shows no section row —
-// seventeen chapters do not fit its bar — so BaseLayout gets no sections.
+// a longform page has too many chapters for its bar — so BaseLayout gets no sections.
 import BaseLayout from '@src/layouts/BaseLayout.astro';
 import ProjectAnalytics from '@src/components/ProjectAnalytics.astro';
 import ScrollTop from '@src/components/ScrollTop.astro';
@@ -35,11 +35,11 @@ const canonical = `https://${page.data.subdomain}/`;
 // The template's own affordance strings, not the project's copy — the same
 // line content.config.ts draws for the copy control's "Copy".
 const LABELS = {
+    overview: 'Start here',
     product: 'The product',
     technical: 'For technical readers',
     jump: 'Chapters',
-    skip: 'Skip to the chapters',
-    reserved: 'Running in a store since June 2026. More here soon.'
+    skip: 'Skip to the chapters'
 };
 const DIVIDERS = {
     product: {kicker: LABELS.product, standfirst: 'What the app does for the shop, in the order a day at the counter meets it.'},
@@ -57,7 +57,8 @@ const DIVIDERS = {
         <noscript>
             <style is:inline>
                 html .lfp .lfp-figure .lfp-node { opacity: 1; transform: none; }
-                html .lfp .lfp-figure .lfp-edge { stroke-dashoffset: 0; }
+                html .lfp .lfp-figure .lfp-edge { stroke-dashoffset: 0; opacity: 1; }
+                html .lfp .lfp-figure .lfp-part.lfp-node { transform: none; }
             </style>
         </noscript>
 
@@ -69,7 +70,7 @@ const DIVIDERS = {
                 <Toc chapters={spine} location='rail' labels={LABELS}/>
             </aside>
             <div class='lfp-column'>
-                <ChapterList chapters={chapters} dividers={DIVIDERS} reservedNote={LABELS.reserved}/>
+                <ChapterList chapters={chapters} dividers={DIVIDERS}/>
             </div>
         </div>
 
@@ -205,6 +206,20 @@ const DIVIDERS = {
                 window.addEventListener('scroll', paint, {passive: true});
                 teardown.push(() => window.removeEventListener('scroll', paint));
             }
+
+            // A figure wider than its column scrolls sideways, and a keyboard
+            // can only scroll a box it can reach. Measured, not assumed, so a
+            // figure that fits is not an extra stop.
+            const bodies = Array.from(root.querySelectorAll<HTMLElement>('[data-figure-body]'));
+            const fit = () => {
+                for (const body of bodies) {
+                    if (body.scrollWidth > body.clientWidth) body.setAttribute('tabindex', '0');
+                    else body.removeAttribute('tabindex');
+                }
+            };
+            fit();
+            window.addEventListener('resize', fit, {passive: true});
+            teardown.push(() => window.removeEventListener('resize', fit));
         };
 
         // A jump closes the list, so it does not sit open over the chapter the

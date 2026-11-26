@@ -1,0 +1,37 @@
+---
+page: hanotna-app
+chapter: architecture
+---
+import {layers, seamAfter, seamLabel, importEdges} from '../data/architecture';
+
+Hanotna is a Flutter app with a flat set of layers and one rule that holds them apart: Firebase is a detail of the bottom layer, and nothing above it may know. The rule is not a convention. A test scans every source file and fails the test run if a Firebase import appears anywhere else.
+
+<Figure id="fig-layers" caption="The layers, top to bottom, and the seam a test keeps closed."
+        description="Seven layers: entry points, screens and widgets, providers, use cases and repositories, ports, adapters and codecs, Firebase. A seam sits between the ports and the adapters, labelled: Firebase imports only below this line, a test proves it.">
+  <LayerStack title="The layers" layers={layers} seamAfter={seamAfter} seamLabel={seamLabel} />
+</Figure>
+
+### Ports, and the adapters behind them
+
+Twenty-three ports describe what the app needs from a backend: products, orders, customers, the capital ledger, cycles, bills, rent, wages, auth, photos. Each is an abstract interface, and the Firebase adapters that fulfil them live in one folder. The domain models carry no Firebase types at all. Twenty-four codecs translate between the app's objects and the wire, so a timestamp or a document id never leaks upward.
+
+One small port keeps the shop's phones on a supported build. It listens for a minimum build number no phone can write. Below it, one screen, Update required, replaces the whole app and says where to update. If the check fails, the app opens and tries again ten minutes later, because a shop that cannot sell is worse than a phone a version behind.
+
+### Data fails loud, telemetry fails silent
+
+A port that needs a backend throws if none is installed, so a missing adapter is a crash at startup rather than a blank screen. Telemetry does the opposite: with no sink installed, logging and tracing are no-ops, because an analytics layer is never worth breaking a page over.
+
+When the connection drops, reads come from the phone's cache. The order screens, the drawer, the bill forms and the product form switch their write buttons off until the server is reachable. An order's writes are transactions, and a transaction does not wait in a queue. A few small writes, such as creating a customer, can still queue.
+
+### A conformance contract
+
+A conformance document sets out seventeen business invariants, from capital whitelists to the cap of one hundred per cent on work shares, four platform invariants, and an operation matrix of who may do what. The wire values are pinned in three places: the Dart code, the security rules and the rules tests. A conformant backend is one that makes the end-to-end suite green.
+
+<ForEngineers>
+  <Figure id="fig-imports" caption="Who uses whom. Screens use providers, widgets and the shared models, config and utilities. Providers use the use cases, the repositories and the ports. Use cases and repositories use the ports. The Firebase adapters implement the ports, and no arrow leaves the screens for them."
+          description="An import graph of eight boxes. Screens use widgets, providers, and the shared models, config and utilities. Providers use use cases, repositories and ports. Use cases and repositories use ports. The Firebase adapters implement the ports and use the shared models and config. No arrow runs from the screens to the adapters, the use cases or the ports.">
+    <FlowGraph title="Import edges" describedBy="fig-imports-desc" nodes={importEdges.nodes} edges={importEdges.edges} height={400} />
+  </Figure>
+
+  Import edges, counted across the source: screens import widgets, providers, utilities, config, models and services, and import the backend zero times. Providers import ports, repositories and use cases. Use cases and repositories import ports. The backend implements the ports and imports models, config, shared services, utilities and the providers it overrides. Riverpod 3 with code generation supplies 205 providers, 114 of them kept alive, and models are hand-serialised. Repositories cache in three layers: memory with a lifetime per flavor, then Firestore's own disk cache, then the server. One in-flight future is shared by concurrent readers, and every write invalidates. Only typed application exceptions cross a port: a conflict maps to a transaction-conflict exception and a timeout to a network exception. The clearest case is [Two phones, one order](#two-phones-one-order).
+</ForEngineers>

@@ -1,0 +1,75 @@
+---
+page: hanotna-app
+chapter: partnership
+---
+import {cycle, cycleIncome, profitSplit, drawerCount} from '../data/capital';
+import capitalDashboard from '../../../../assets/img/hanotna/capital-dashboard.png';
+import closeCycle from '../../../../assets/img/hanotna/close-cycle.png';
+import cashCollected from '../../../../assets/img/hanotna/cash-collected.png';
+
+The shop belongs to several people. Some put money in, some put work in, some both. Hanotna's capital ledger is their shared diary: what each partner put in, what the shop is worth, what a trading cycle earned, and how the profit is split. It is the feature the app exists for, and the one with the most rules.
+
+<PhonePair caption="The capital dashboard with the estimated cash on hand, and the close-cycle sheet comparing the counted cash with the estimate.">
+  <PhoneFrame src={capitalDashboard} alt="The Capital screen: the cycle open since 1 August, and the estimated cash on hand with the rows it is made of, the Cash collected row among them." caption="Capital dashboard" />
+  <PhoneFrame src={closeCycle} alt="The close-cycle sheet at its cash section: the counted cash beside the estimate with its difference, the cash taken to the safe, 500 unexplained, and when the drawer was last counted." caption="Closing a cycle" />
+</PhonePair>
+
+### A ledger with no edits
+
+Every injection, withdrawal and expense is a row in one ledger, in one of fifteen categories. A row is not edited once written, so every balance can be rebuilt from the ledger at any time. An expense entered by mistake is undone by a reverse entry that points at it, within the cycle it was made in. Partners can put money in as dinars, or in EUR, USD and stablecoins at a rate they type.
+
+### Ownership follows the money
+
+A partner's capital account is what they have really put in, and their share of the shop is that account over the total. Nobody owns a percentage by decree. A partner can also hold a work share: a fixed cut of each cycle's profit, taken before the investors are paid. The work shares together can never pass one hundred per cent, a rule the database enforces as well as the app.
+
+### Trading cycles
+
+Profit is measured over a cycle, and the owner closes it. Closing asks for a count of the cash, the stock and the debts, takes a photograph of the business, works out the cycle's profit, splits it, and opens the next cycle in the same transaction, so there is never a moment without one. A sale can be rung up only while a cycle is open.
+
+<Figure id="fig-cycle" caption="A cycle is opened once and closed once. Closing it opens the next."
+        description="A state diagram with three states: cycle N open, cycle N closed, cycle N plus one open. Closing takes the snapshot, computes the profit and the split, and the next cycle opens in the same transaction.">
+  <StateMachine title="Cycle lifecycle" describedBy="fig-cycle-desc" nodes={cycle.nodes} edges={cycle.edges} height={300} />
+</Figure>
+
+<Example title="A cycle's profit and its split" setup="Three partners: Yacine put in three quarters of the capital, Nadia one quarter, and Amine works in the shop for a 20% share of profit. Over the cycle the shop sold 651,142 of goods.">
+  <Figure id="fig-income" caption="Profit is what the cycle's sales earned after the cost of the goods and the expenses, corrected by what the count at the close found."
+          description="A ledger with four rows: sales in the cycle 651,142, what those goods cost minus 454,142, expenses minus 85,000, and cash counted below the book minus 2,000. The actual profit is 110,000.">
+    <LedgerTape title="A cycle's actual profit" rows={cycleIncome.rows} total={cycleIncome.total} />
+  </Figure>
+  <Figure id="fig-split" caption="Labour first, then capital: the work share comes off the top and the rest is split by ownership."
+          description="A waterfall: 110,000 of profit, minus Amine's 20% work share of 22,000, leaves an investor pool of 88,000, split into 66,000 for Yacine at 75% and 22,000 for Nadia at 25%.">
+    <Waterfall title="The profit split" describedBy="fig-split-desc" steps={profitSplit} />
+  </Figure>
+</Example>
+
+When a cycle closes in profit, each partner's share can be paid out, put back into the shop as capital, or left for later.
+
+### Counting the drawer
+
+On the capital dashboard, the Cash collected row opens the drawer. A count records two numbers: what is taken to the safe and what is left in the drawer. The app compares their sum with what the drawer should hold, which is what was left at the last count plus the cash payments recorded since, and shows the answer at once: Match, Short or Over. The first count of a cycle sets the starting point. A drawer count does not change the ledger, so profit and the split are untouched by it. The count that corrects profit is the one the close asks for.
+
+<PhoneFrame src={cashCollected} alt="The Cash collected screen: what the drawer should hold, the cycle's cash collected, what went to the safe, and the latest counts, the newest short by 500." caption="Cash collected" />
+
+Partners count. The owner alone can explain a difference or delete the latest count, and the drawer is not shown to staff. The payments behind the Cash collected figure are listed by day, and the list's total matches it to the dinar. Closing a cycle shows what went to the safe and the differences nobody explained, and it asks before closing if cash came in after the last count.
+
+<Example title="One count" setup="Yacine counts the drawer at the end of the day.">
+  <Figure id="fig-drawer" caption="What the drawer should hold, against what was counted."
+          description="A ledger: 5,000 left at the last count plus 12,500 of cash payments since, so the drawer should hold 17,500. The count found 17,000: 12,000 to the safe and 5,000 left. Short by 500.">
+    <LedgerTape title="A drawer count" rows={drawerCount.rows} total={drawerCount.total} />
+  </Figure>
+</Example>
+
+### Principal only, never interest
+
+A partner can lend the shop money. The loan is tracked apart from ownership and repaid at face value. The app never models interest (riba) in any form, and the code has no field for an interest rate.
+
+<ForEngineers>
+
+- **The headline profit** is revenue, minus the cost of the goods sold, minus expenses. The cost of goods is a snapshot taken at the moment of each sale.
+- **The count at the close** corrects that estimate. Actual profit is the estimate plus the difference between each counted figure and its book figure, for cash, stock, customer debts and supplier debts. A cycle closed without that breakdown falls back on the growth in what the business is worth.
+- **Closing** is one Firestore transaction, open to a system admin only. It re-reads the cycle, writes the end snapshot and the split, opens the next cycle from that snapshot, and flips the metadata flag that lets sales proceed.
+- **Reverse entries** are written by a system admin only. Money put in or taken out has none, and a supplier bill's transport rows are deleted with the bill.
+- **Work shares** are capped at one hundred per cent, twice: by an optimistic-concurrency aggregate in the app, and by a database rule that reads the post-write state.
+- **Drawer counts** each store what they were compared with, so history is not recomputed. The database checks the chain: expected is what the previous count left plus the payments since. When two phones count at once, the second is refused.
+
+</ForEngineers>

@@ -308,8 +308,8 @@ export async function getProjectPages(): Promise<ProjectPageEntry[]> {
     );
   }
 
-  // Longform pages: every chapter the spine lists has a file, or says it does
-  // not. The heading checks need the rendered bodies and run in LongformPage.
+  // Longform pages: every chapter the spine lists has a file. The heading
+  // checks need the rendered bodies and run in LongformPage.
   assertChaptersPaired(pages.filter(isLongform), await getCollection('projectPageChapters'));
 
   return pages;
