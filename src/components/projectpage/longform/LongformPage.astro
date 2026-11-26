@@ -2,7 +2,7 @@
 // Longform template for project showcase pages: a spine of hero, glance,
 // chapters and closing, with the chapter bodies rendered from their MDX files
 // and a table of contents the page owns. The header shows no section row —
-// eighteen chapters do not fit its bar — so BaseLayout gets no sections.
+// seventeen chapters do not fit its bar — so BaseLayout gets no sections.
 import BaseLayout from '@src/layouts/BaseLayout.astro';
 import ProjectAnalytics from '@src/components/ProjectAnalytics.astro';
 import ScrollTop from '@src/components/ScrollTop.astro';
@@ -39,8 +39,7 @@ const LABELS = {
     product: 'The product',
     technical: 'For technical readers',
     jump: 'Chapters',
-    skip: 'Skip to the chapters',
-    reserved: 'Running in a store since August 2026. More here soon.'
+    skip: 'Skip to the chapters'
 };
 const DIVIDERS = {
     product: {kicker: LABELS.product, standfirst: 'What the app does for the shop, in the order a day at the counter meets it.'},
@@ -71,7 +70,7 @@ const DIVIDERS = {
                 <Toc chapters={spine} location='rail' labels={LABELS}/>
             </aside>
             <div class='lfp-column'>
-                <ChapterList chapters={chapters} dividers={DIVIDERS} reservedNote={LABELS.reserved}/>
+                <ChapterList chapters={chapters} dividers={DIVIDERS}/>
             </div>
         </div>
 

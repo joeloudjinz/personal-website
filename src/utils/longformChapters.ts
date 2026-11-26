@@ -19,7 +19,7 @@ export const TOC_BUDGET_PX = 216;
 const name = (entry: {filePath?: string; id: string}) => entry.filePath ?? entry.id;
 
 /**
- * Every non-reserved chapter has exactly one file, every file fills a declared
+ * Every chapter has exactly one file, every file fills a declared
  * chapter, and every nav label fits the rail. Fails the build with the file
  * and the chapter named, because a chapter the spine lists and nothing renders
  * is a table-of-contents row that jumps nowhere.
@@ -44,11 +44,8 @@ export function assertChaptersPaired(pages: LongformEntry[], files: ChapterEntry
     }
     for (const chapter of page.data.chapters) {
       const matching = own.filter((file) => file.data.chapter === chapter.id);
-      if (chapter.reserved && matching.length > 0) {
-        problems.push(`${name(page)}: chapter "${chapter.id}" is reserved but ${name(matching[0])} fills it`);
-      }
-      if (!chapter.reserved && matching.length === 0) {
-        problems.push(`${name(page)}: chapter "${chapter.id}" has no file under chapters/ and is not reserved`);
+      if (matching.length === 0) {
+        problems.push(`${name(page)}: chapter "${chapter.id}" has no file under chapters/`);
       }
       if (matching.length > 1) {
         problems.push(`${name(page)}: chapter "${chapter.id}" is filled by ${matching.length} files`);
@@ -68,10 +65,10 @@ export function assertChaptersPaired(pages: LongformEntry[], files: ChapterEntry
   }
 }
 
-/** A chapter ready to draw: its spine row and, unless reserved, its rendered body. */
+/** A chapter ready to draw: its spine row and its rendered body. */
 export interface LoadedChapter {
   spine: SpineChapter;
-  Content?: Awaited<ReturnType<typeof render>>['Content'];
+  Content: Awaited<ReturnType<typeof render>>['Content'];
   headings: MarkdownHeading[];
 }
 
@@ -115,9 +112,9 @@ export async function loadChapters(page: LongformEntry, files: ChapterEntry[]): 
   const chapters: LoadedChapter[] = [];
   for (const spine of page.data.chapters) {
     const file = own.get(spine.id);
+    // assertChaptersPaired has already rejected this from projectPages.ts.
     if (!file) {
-      chapters.push({spine, headings: []});
-      continue;
+      throw new Error(`[project-pages] ${name(page)}: chapter "${spine.id}" has no file under chapters/`);
     }
     const {Content, headings} = await render(file);
     chapters.push({spine, Content, headings});

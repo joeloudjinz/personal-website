@@ -1,21 +1,18 @@
 ---
 // The chapter column: a divider before each group that has one, then every chapter as a
 // section whose id is its spine id, with a zero-height sentinel the analytics
-// observer watches, the H2, and either the rendered MDX inside Prose or the
-// reserved note.
+// observer watches, the H2, and the rendered MDX inside Prose.
 import Prose from '@src/components/Prose.astro';
 import {band, bandHeading} from '@src/utils/bandStyles';
 import type {LoadedChapter} from '@src/utils/longformChapters';
 import {kit} from './kit/index';
 import GroupDivider from './GroupDivider.astro';
-import ReservedChapter from './ReservedChapter.astro';
 
 interface Props {
     chapters: LoadedChapter[];
     dividers: Partial<Record<'overview' | 'product' | 'technical', {kicker: string; standfirst: string}>>;
-    reservedNote: string;
 }
-const {chapters, dividers, reservedNote} = Astro.props;
+const {chapters, dividers} = Astro.props;
 ---
 
 {chapters.map((chapter, index) => {
@@ -30,9 +27,7 @@ const {chapters, dividers, reservedNote} = Astro.props;
                     never see a chapter it could not see. */}
                 <span class='lfp-sentinel' data-chapter-sentinel aria-hidden='true'></span>
                 <h2 class:list={[bandHeading, 'lfp-chapter-title']}>{chapter.spine.title}</h2>
-                {Content
-                    ? <Prose><Content components={kit}/></Prose>
-                    : <ReservedChapter note={reservedNote}/>}
+                <Prose><Content components={kit}/></Prose>
             </section>
         </Fragment>
     );

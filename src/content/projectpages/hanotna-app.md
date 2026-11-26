@@ -96,12 +96,6 @@ chapters:
     navLabel: "Insights"
     group: "product"
     visual: "six questions and a cost tape"
-  - id: "production"
-    title: "In production"
-    navLabel: "In production"
-    group: "product"
-    visual: "none"
-    reserved: true
   - id: "architecture"
     title: "Architecture"
     navLabel: "Architecture"
