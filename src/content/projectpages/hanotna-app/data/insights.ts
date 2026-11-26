@@ -14,7 +14,7 @@ export const questions = [
 export const monthCosts = {
   rows: [
     {label: 'Rent, at its monthly rate', amount: '30,000'},
-    {label: 'Karim\'s wages for the month', amount: '37,500'},
+    {label: 'Karim\'s wages paid in October', amount: '37,500'},
     {label: 'Electricity and water', amount: '4,500'}
   ],
   total: {label: 'This month\'s fixed costs', amount: '72,000'}
