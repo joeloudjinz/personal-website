@@ -31,6 +31,7 @@ export const importEdges = {
     {from: 'providers', to: 'usecases'},
     {from: 'providers', to: 'repositories'},
     {from: 'providers', to: 'ports'},
+    {from: 'usecases', to: 'ports'},
     {from: 'repositories', to: 'ports'},
     {from: 'backend', to: 'ports'},
     {from: 'backend', to: 'shared'}
