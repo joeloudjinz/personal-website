@@ -4,18 +4,17 @@ chapter: credit
 ---
 import {creditSale} from '../data/credit';
 import customers from '../../../../assets/img/hanotna/customers.png';
-import customerTab from '../../../../assets/img/hanotna/customer-tab.png';
 
-Many customers of a neighbourhood shop pay some now and the rest later. Hanotna treats that as the normal case. A sale records what was received, the unpaid remainder goes onto the customer's balance with an optional due date, and the shop can see at a glance who owes what and who is overdue.
+Many customers of a neighbourhood shop pay some now and the rest later. Hanotna treats that as the normal case. A sale records what was received, the unpaid remainder goes onto the customer's balance with an optional due date, and the shop can see at a glance who owes what and who is overdue. Credit needs a named customer.
 
-<PhonePair caption="The customers and debts list with an overdue customer, and one customer's tab with the balance and the payment history.">
+<PhonePair caption="The customers and debts list with an overdue customer, and one customer's tab.">
   <PhoneFrame src={customers} alt="The debtors list screen showing customers with balances and one marked overdue." caption="Customers and debts" />
-  <PhoneFrame src={customerTab} alt="A customer's tab with a balance figure and a list of payments received." caption="One customer" />
+  <PhoneFrame alt="One customer's tab." caption="One customer" />
 </PhonePair>
 
 ### Oldest debt first
 
-A repayment is spread across the customer's open orders, oldest first, and the app shows where the money will land before it is committed. The rule is how shop credit is settled by hand, written down once as a pure function that a test can check.
+A repayment is spread across the customer's open orders, oldest first by the date of the sale, and the app shows where the money will land before it is committed. A payment can also be put against one order only. The rule is how shop credit is settled by hand, written down once as a pure function that a test can check.
 
 ### Not revenue until it is paid
 
@@ -30,4 +29,8 @@ Every amount the shop actually receives is a row in a payments ledger, and reven
 
 ### Forgiving a debt is a row too
 
-A debt can be written off, with a note saying why. The write-off is itself a ledger row that is kept out of revenue, so the books still add up, and an admin can reverse it later if the customer comes back. No interest is ever charged on anything owed.
+A debt can be written off, with a note saying why. The write-off is itself a ledger row that is kept out of revenue, so the books still add up, and it can be reversed later if the customer comes back. Staff, partners and the owner can each record a payment or write a debt off. No interest is ever charged on anything owed.
+
+<ForEngineers>
+  Each change to a customer's balance writes an event with the amount, the reason, who and when. The database lets nobody edit or delete those events, and a balance cannot fall without one in the same write. Undoing a write-off is kept for the admin role, and that limit is held by the app's service, not by the database rules.
+</ForEngineers>
