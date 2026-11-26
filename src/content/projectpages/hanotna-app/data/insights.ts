@@ -1,5 +1,5 @@
-// The six Insights sections and the month's costs, from the v4.7 feature-facts
-// finding (2026-10-31). The rent is the rent capture's 30,000 a month and the
+// The six Insights sections and the month's costs, from the Insights
+// feature-facts finding. The rent is the rent capture's 30,000 a month and the
 // wages are chapter 06's 25 days at 1,500. The utilities and the running
 // profit are example numbers.
 export const questions = [
@@ -8,7 +8,7 @@ export const questions = [
   {label: 'Who to call', note: 'Every customer who owes, the biggest and oldest debts first, with a Call button.'},
   {label: 'Money asleep on the shelves', note: 'Stock unsold for 30 or 90 days, valued at what it cost.'},
   {label: 'What earns the most', note: 'The best and weakest products by profit, over 30 or 90 days.'},
-  {label: 'Given away in discounts', note: 'Discounts and below-list prices, by product and by seller, the last 30 days against the 30 before.'}
+  {label: 'Given away in discounts', note: 'Discounts and below-list prices, by product and by seller, over 30 or 90 days.'}
 ];
 
 export const monthCosts = {

@@ -4,7 +4,7 @@ chapter: insights
 ---
 import {questions, monthCosts} from '../data/insights';
 
-Home answers what is happening today. Insights answers the questions an owner asks at closing time: how the week went, whether the month's costs are covered, who to call, and what is sitting unsold. It lives under More, and only the owner and working partners can open it. Staff never see it. It writes nothing of its own: every answer is read from the sales, debts, stock and costs the app already records.
+Home answers what is happening today. Insights answers the questions an owner asks at closing time: how the week went, whether the month's costs are covered, who to call, and what is sitting unsold. It lives under More, and only partners can open it. Staff never see it. It writes nothing of its own: every answer is read from the sales, debts, stock and costs the app already records.
 
 <PhonePair caption="Insights with its six sections on one page, and By month with a month's sales, cost of goods and profit.">
   <PhoneFrame alt="The Insights screen: this week's profit beside last week's, then the month's costs, who to call, money asleep, what earns the most and discounts." caption="Insights" />
@@ -13,7 +13,7 @@ Home answers what is happening today. Insights answers the questions an owner as
 
 ### Six questions at closing time
 
-Each answer is a short section with the figure that matters, and each opens a sheet with the full list behind it.
+Each answer is a short section with the figure that matters, and each opens the full list where there is more to show.
 
 <Figure id="fig-insights" caption="The six sections of Insights, and the rule behind each figure."
         description="Six tiles: profit this week against the same days last week, the day this month's rent, wages and utilities were covered, who to call first, stock unsold for 30 or 90 days valued at cost, the products that earn the most and the least, and what discounts and below-list prices gave away.">
@@ -22,13 +22,13 @@ Each answer is a short section with the figure that matters, and each opens a sh
 
 ### Who to call first
 
-A debt's weight is its size times its age, the days since the customer's oldest unpaid sale. So a small debt that has waited for months can rank above a larger one from last week. Each customer also shows how many days they are past due, counted from the earliest due date already passed: fresh up to a week, needing attention up to two months, and at risk after that.
+A debt's weight is its size times its age, the days since the customer's oldest unpaid sale. So a small debt that has waited for months can rank above a larger one from last week. Each customer also shows how long they have owed and, where a due date has passed, how many days past due. The colour follows how long they have owed: fresh up to a week, needing attention up to two months, and at risk after that.
 
 ### When the month's costs are covered
 
 A month's fixed costs are its rent, its wages and its utilities. When the rent is set up in the app, its monthly rate counts, not what was typed by hand. The screen names the first day on which the month's running profit reached those costs.
 
-<Example title="Covering October's costs" setup="The rent is 30,000 a month, Karim's month of wages is 37,500, and electricity and water came to 4,500. By the evening of the 18th the month's profit stood at 68,400. On the 19th it reached 73,100.">
+<Example title="Covering October's costs" setup="The rent is 30,000 a month, Karim's wages paid in October came to 37,500, and electricity and water came to 4,500. By the evening of the 18th the month's profit stood at 68,400. On the 19th it reached 73,100.">
   <Figure id="fig-month-costs" caption="The month's running profit passed 72,000 on the 19th, so the screen reads covered on 19 October."
           description="A ledger with three rows: rent at its monthly rate 30,000, Karim's wages 37,500, electricity and water 4,500. The month's fixed costs total 72,000.">
     <LedgerTape title="October's fixed costs" rows={monthCosts.rows} total={monthCosts.total} />
@@ -41,6 +41,8 @@ By month opens any month back to the first sale: sales, cost of goods and profit
 
 The Year summary gives one row per month with sales, cost of goods, expenses and net profit, and the year's totals. For the current year it adds the credit still owed to the shop today. It can be shared as an image, for the accountant. On the Orders tab, partners get sales and profit by month as well, one line per sale with what it sold for, what the goods cost and what it earned.
 
+<PhoneFrame alt="The Year summary screen." caption="Year summary" />
+
 <ForEngineers>
-  Insights runs six reads in parallel: recent orders, products, debtors, open credit orders, fixed-cost expense rows and rent. They succeed or fail together. One pure function then folds them into every section, so each rule is a unit test away. Insights writes no document of its own. The month and year pages read the time from one injected clock, and a guard fails the suite if any of their files calls the wall clock, because a span of "the same days of the month before" can only be tested with a fixed clock. The year image is the table painted at three times its size and shared as a PNG with no new package, and sharing is off when the figures were read offline.
+  Insights runs six reads in parallel: recent orders, products, debtors, open credit orders, fixed-cost expense rows and rent. They succeed or fail together. One pure function then folds them into every section, so each rule is a unit test away. Insights writes no document of its own. The month and year pages, like the drawer and the day ledgers, read the time from one injected clock, and a guard fails the suite if any of their files calls the wall clock, because a span of "the same days of the month before" can only be tested with a fixed clock. The year image is the table painted at three times its size and shared as a PNG with no new package, and sharing is off when the figures were read offline.
 </ForEngineers>
