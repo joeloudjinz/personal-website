@@ -14,7 +14,7 @@ export const features = [
       qr: ['111111101001101111111', '100000100110001000001', '101110100000101011101', '101110101100001011101', '101110100010101011101', '100000100110101000001', '111111101010101111111', '000000000101000000000', '001011101010110001001', '101001010110010100010', '100011101011000011111', '100100000111001110011', '010110110101010011101', '000000001101101010010', '111111100000100010011', '100000101001111101001', '101110101011000010011', '101110100100000010110', '101110101000100011101', '100000100101110101010', '111111100001010011011']}},
   {label: 'Keep the stock book honest', note: 'The book said 24, the shelf held 27: the difference is written down with its reason.', href: '#stock',
     figure: {kind: 'tape' as const, rows: [{label: 'In the book', amount: '24 pcs'}, {label: 'Counted on the shelf', amount: '27 pcs'}], total: {label: 'Written to the log', amount: '+3 pcs', tone: 'in' as const}}},
-  {label: 'Customers who pay later', note: 'Omar paid 400 of 1,000 at the counter; the rest sits on his tab, oldest debt first.', href: '#credit',
+  {label: 'Customers who pay later', note: 'Omar paid 400 of 1,000 at the counter, and the rest sits on his tab, oldest debt first.', href: '#credit',
     figure: {kind: 'bar' as const, above: ['Paid at the counter 400', 'On the tab 600'], segments: [{width: 40, tone: 'accent' as const}], below: ['Omar\'s 1,000 of goods, oldest debt first']}},
   {label: 'Bills, rent and wages', note: 'A delivery half paid, the rent paid until a date, Karim\'s 25 days at 1,500.', href: '#owe',
     figure: {kind: 'waterfall' as const, steps: [{label: '25 days at 1,500', value: 37500, kind: 'start' as const}, {label: 'advance', value: 10000, kind: 'minus' as const}, {label: 'to settle', value: 27500, kind: 'result' as const}]}},
@@ -29,7 +29,7 @@ export const features = [
 export const engineering = [
   {label: 'Flutter and Firebase', note: 'The app on the phone, Firestore behind it.', href: '#stack',
     figure: {kind: 'link' as const, to: 'Firestore'}},
-  {label: 'One rule, kept by a test', note: 'Firebase may be imported in one folder only; a test scans every file.', href: '#architecture',
+  {label: 'One rule, kept by a test', note: 'Firebase may be imported in one folder only, and a test scans every file.', href: '#architecture',
     figure: {kind: 'seam' as const, above: 'Screens, providers, ports', label: 'Firebase only below', below: 'Adapters'}},
   {label: 'More test code than app code', note: 'Nearly 6,000 cases, 88 end-to-end scenarios, 26 rules suites.', href: '#testing',
     figure: {kind: 'bars' as const, rows: [{label: 'tests', width: 100, value: '184k', tone: 'accent' as const}, {label: 'app', width: 51, value: '95k', tone: 'c' as const}]}},

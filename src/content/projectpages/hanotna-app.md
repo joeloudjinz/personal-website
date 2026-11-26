@@ -5,7 +5,7 @@ subdomain: "hanotna-app.abdellahaddoun.com"
 projectName: "Hanotna"
 locale: "en"
 seo:
-  title: "Hanotna — a point-of-sale app for small Algerian stores"
+  title: "Hanotna, a point-of-sale app for small Algerian stores"
   description: "A Flutter point-of-sale app for one Algerian shop: cash sales, credit customers, stock, bills, rent, wages and a partners' ledger. English and Arabic."
   keywords:
     - "point of sale"
@@ -17,7 +17,7 @@ seo:
     - "inventory"
     - "Arabic RTL"
     - "Hanotna"
-  imageAlt: "Abdellah Addoun — author of Hanotna"
+  imageAlt: "Abdellah Addoun, author of Hanotna"
 software:
   applicationCategory: "BusinessApplication"
   operatingSystem: "Android"
