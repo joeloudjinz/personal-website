@@ -2,13 +2,12 @@
 page: hanotna-app
 chapter: dashboard
 ---
-import homeOwner from '../../../../assets/img/hanotna/home-owner.png';
 import homeStaff from '../../../../assets/img/hanotna/home-staff.png';
 
-The home screen is built around one idea: the counter first, then what wants a decision, then the money. A cashier standing at the till sees the four tools they reach for. An owner sees the same, then everything that needs attention, then the day's figures.
+The home screen is built around one idea: the counter first, then what wants a decision, then the money. Staff, partners and the owner all see the four tools, what needs attention and today's sales. Partners see more beneath: the week and the month, the profit, the drawer, the suppliers and a forecast.
 
-<PhonePair caption="Home as the owner sees it, with every section, and Home as a staff member sees it, with the profit figures and the capital gone.">
-  <PhoneFrame src={homeOwner} alt="The home screen for an owner: greeting, counter tools, a needs-attention list, today's sales with gross profit, suppliers and recent activity." caption="Owner" />
+<PhonePair caption="Home as the owner sees it, and Home as staff see it, with the week, the month, the profit and the capital gone.">
+  <PhoneFrame alt="The home screen as the owner sees it." caption="Owner" />
   <PhoneFrame src={homeStaff} alt="The home screen for a staff member: greeting, counter tools, a needs-attention list and recent activity, with no profit figures." caption="Staff" />
 </PhonePair>
 
@@ -18,16 +17,20 @@ Four tiles: new sale, find a product, scan a barcode, and customers. New sale is
 
 ### Needs attention
 
-A triaged list, most urgent first. Customers past their due date. Money owed to the shop and money owed to suppliers. Staff pay due. Rent due, with the date it was due. Drafts left open. Each row opens the list it came from. When the list is empty the screen says so, in words rather than in colour.
+A triaged list, most urgent first. Customers past their due date. Money owed to the shop and money owed to suppliers. Staff pay due. Rent due, with the date it was due. Drafts left open. Money owed to suppliers is listed for partners, and staff pay due for the owner. Each row opens the list it came from. When the list is empty the screen says so, in words rather than in colour.
 
 <Quote text="Overdue debts, open bills and drafts land here." source="The empty state of the attention list." />
 
 ### The money, for those who may see it
 
-Today's sales stand as the one large figure on the screen, with the week and the month beneath, and the gross profit beside them when the person is allowed to see cost. Below that, suppliers and open bills for the partners, a forecast of what the stock would fetch at list price, and a short feed of what happened last.
+Today's sales stand as the one large figure on the screen, for the whole shop, because the drawer is counted against them. Partners also see the week and the month, and the gross profit with its margin. Then comes the drawer, with what it should hold and when it was last counted, then suppliers and open bills, then a forecast of the profit sitting in the stock. Everyone sees a short feed of what happened last.
 
 ### Severity you can read
 
-Four tints carry four meanings across the app, each always paired with a word and a mark: a past date or a loss, money outside the till, work in progress or a forecast, and all clear. Nothing on the home screen is signalled by colour alone.
+Four tints carry four meanings, each always paired with a word and a mark: a past date or a loss, money outside the till, work in progress or a forecast, and all clear. Nothing on the home screen is signalled by colour alone.
 
 Profit week by week, whether the month's costs are covered, and the whole year are in [Insights](#insights), under More.
+
+<ForEngineers>
+  Which figures a person sees is decided by the screens. The database rules protect the partners' capital, and they do not hide cost or turnover from a signed-in member.
+</ForEngineers>
