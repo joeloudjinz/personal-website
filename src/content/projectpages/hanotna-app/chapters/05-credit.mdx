@@ -32,5 +32,5 @@ Every amount the shop actually receives is a row in a payments log, and revenue 
 A debt can be written off, with a note saying why. The write-off is itself a log row that is kept out of revenue, so the books still add up, and it can be reversed later if the customer comes back. Staff, partners and the owner can each record a payment or write a debt off. No interest is ever charged on anything owed.
 
 <ForEngineers>
-  Each change to a customer's balance writes an event with the amount, the reason, who and when. The database lets nobody edit or delete those events, and a balance cannot fall without one in the same write. Undoing a write-off is kept for the admin role, and that limit is held by the app's service, not by the database rules.
+  Each change to a customer's balance writes an event with the amount, the reason, who and when. The database lets nobody edit or delete those events, and a balance cannot fall without one in the same write. Undoing a write-off is kept for the admin role.
 </ForEngineers>
