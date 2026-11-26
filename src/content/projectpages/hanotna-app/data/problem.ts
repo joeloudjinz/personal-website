@@ -6,7 +6,7 @@ export const actors = {
     {id: 'customers', label: 'Customers', x: 150, y: 70, lane: 'a' as const},
     {id: 'partners', label: 'Partners', x: 850, y: 70, lane: 'b' as const},
     {id: 'suppliers', label: 'Suppliers', x: 150, y: 290, lane: 'c' as const},
-    {id: 'costs', label: 'Rent, wages, bills', x: 850, y: 290, lane: 'd' as const}
+    {id: 'costs', label: 'Rent, wages, utilities', x: 850, y: 290, w: 200, lane: 'd' as const}
   ],
   edges: [
     {from: 'customers', to: 'store', label: 'cash and credit sales'},

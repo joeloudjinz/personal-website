@@ -22,7 +22,7 @@ export const features = [
     figure: {kind: 'bar' as const, chip: 'Amine\'s 20% work share first', segments: [{width: 75, tone: 'b' as const}, {width: 25, tone: 'c' as const}], below: ['Yacine, 75% of the capital', 'Nadia, 25%']}},
   {label: 'The whole day on one screen', note: 'Today\'s sales, who is overdue, what is due, and a draft left open.', href: '#dashboard',
     figure: {kind: 'rows' as const, rows: [{tone: 'n' as const, text: '1 customer overdue'}, {tone: 'c' as const, text: '2,040 د.ج owed to you'}, {tone: 'c' as const, text: 'Rent due since 1 October'}, {tone: 'i' as const, text: '1 draft in progress'}]}},
-  {label: 'Closing-time answers', note: 'Are the month\'s costs covered, who to call, what sits unsold: for the owner and partners, never staff.', href: '#insights',
+  {label: 'Closing-time answers', note: 'Are the month\'s costs covered, who to call, what sits unsold: for the partners, never staff.', href: '#insights',
     figure: {kind: 'tape' as const, rows: [{label: 'Rent, wages, utilities', amount: '72,000'}, {label: 'Profit by the 19th', amount: '73,100', tone: 'in' as const}], total: {label: 'Covered on', amount: '19 Oct'}}}
 ];
 
