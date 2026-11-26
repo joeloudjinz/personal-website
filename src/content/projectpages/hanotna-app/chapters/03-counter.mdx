@@ -3,14 +3,18 @@ page: hanotna-app
 chapter: counter
 ---
 import {productOrder} from '../data/counter';
+import newSale from '../../../../assets/img/hanotna/new-sale.png';
+import customerCredit from '../../../../assets/img/hanotna/customer-credit.png';
+import reviewChanges from '../../../../assets/img/hanotna/review-changes.png';
+import returnItems from '../../../../assets/img/hanotna/return-items.png';
 
 A sale at the counter is one screen, New sale, and one tap. The cashier finds or scans the products. The amount received follows the total: it is typed only to leave part on credit, in the Customer & credit sheet, and credit needs a named customer.
 
 Confirm sale creates the order and confirms it in the same step, so a confirmed sale leaves no draft behind, and the stock, the money and the customer's balance all move at once. When part goes on credit the button names the amount, and when it cannot be used the reason stands above it. A sale is not queued for later: without a connection, Confirm sale and Save as draft wait. Staff, partners and the owner can all sell, edit an order and take a return.
 
-<PhonePair caption="New sale, and its Customer & credit sheet.">
-  <PhoneFrame alt="The New sale screen." caption="New sale" />
-  <PhoneFrame alt="The Customer & credit sheet of a sale." caption="Customer & credit" />
+<PhonePair caption="New sale with three lines and a 5% discount, and its Customer & credit sheet with part of the sale left on credit.">
+  <PhoneFrame src={newSale} alt="The New sale screen: two bottles of water, a soft drink and two wafers in the cart, a 5% discount, a total of 190 and the Confirm sale button." caption="New sale" />
+  <PhoneFrame src={customerCredit} alt="The Customer & credit sheet: Samir chosen as the customer, 150 received and 40 left on his credit." caption="Customer & credit" />
 </PhonePair>
 
 ### What one tap does
@@ -36,9 +40,9 @@ A draft takes no payment and carries no delivery, and Save as draft says what it
 
 Edit order changes the lines, the discount and the note. It does not change the customer, the amount paid or the due date. When a line, a price or the discount has changed, Review changes shows what the save will do before it is made: per product, what more leaves stock or what goes back, then the total before and after, what is already paid, and whether the customer's credit goes up or comes down. A change to the note alone is saved without it. If the customer has paid more than the new total, the sheet says what to hand back in cash, and a refund row is written. A walk-in sale has no customer to owe a rise, so the rise is collected on the spot.
 
-<PhonePair caption="Review changes on an edited order, and Return items.">
-  <PhoneFrame alt="The Review changes sheet of an edited order." caption="Review changes" />
-  <PhoneFrame alt="The Return items screen of a confirmed order." caption="Return items" />
+<PhonePair caption="Review changes before an edit is saved, and Return items before a return is confirmed.">
+  <PhoneFrame src={reviewChanges} alt="The Review changes sheet: one more bottle taken from stock, the total going from 240 to 320 and the customer's credit going up by 80." caption="Review changes" />
+  <PhoneFrame src={returnItems} alt="The Return items screen: one orange juice going back to stock, the total going from 560 to 440 and 120 to hand back." caption="Return items" />
 </PhonePair>
 
 ### Returns, line by line

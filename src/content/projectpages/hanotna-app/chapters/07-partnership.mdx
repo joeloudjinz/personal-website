@@ -3,12 +3,15 @@ page: hanotna-app
 chapter: partnership
 ---
 import {cycle, cycleIncome, profitSplit, drawerCount} from '../data/capital';
+import capitalDashboard from '../../../../assets/img/hanotna/capital-dashboard.png';
+import closeCycle from '../../../../assets/img/hanotna/close-cycle.png';
+import cashCollected from '../../../../assets/img/hanotna/cash-collected.png';
 
 The shop belongs to several people. Some put money in, some put work in, some both. Hanotna's capital ledger is their shared diary: what each partner put in, what the shop is worth, what a trading cycle earned, and how the profit is split. It is the feature the app exists for, and the one with the most rules.
 
-<PhonePair caption="The capital dashboard, and the close-cycle sheet.">
-  <PhoneFrame alt="The capital dashboard." caption="Capital dashboard" />
-  <PhoneFrame alt="The close-cycle sheet." caption="Closing a cycle" />
+<PhonePair caption="The capital dashboard with the estimated cash on hand, and the close-cycle sheet comparing the counted cash with the estimate.">
+  <PhoneFrame src={capitalDashboard} alt="The Capital screen: the cycle open since 1 August, and the estimated cash on hand with the rows it is made of, the Cash collected row among them." caption="Capital dashboard" />
+  <PhoneFrame src={closeCycle} alt="The close-cycle sheet at its cash section: the counted cash beside the estimate with its difference, the cash taken to the safe, 500 unexplained, and when the drawer was last counted." caption="Closing a cycle" />
 </PhonePair>
 
 ### A ledger with no edits
@@ -45,7 +48,7 @@ When a cycle closes in profit, each partner's share can be paid out, put back in
 
 On the capital dashboard, the Cash collected row opens the drawer. A count records two numbers: what is taken to the safe and what is left in the drawer. The app compares their sum with what the drawer should hold, which is what was left at the last count plus the cash payments recorded since, and shows the answer at once: Match, Short or Over. The first count of a cycle sets the starting point. A drawer count does not change the ledger, so profit and the split are untouched by it. The count that corrects profit is the one the close asks for.
 
-<PhoneFrame alt="The Cash collected screen." caption="Cash collected" />
+<PhoneFrame src={cashCollected} alt="The Cash collected screen: what the drawer should hold, the cycle's cash collected, what went to the safe, and the latest counts, the newest short by 500." caption="Cash collected" />
 
 Partners count. The owner alone can explain a difference or delete the latest count, and the drawer is not shown to staff. The payments behind the Cash collected figure are listed by day, and the list's total matches it to the dinar. Closing a cycle shows what went to the safe and the differences nobody explained, and it asks before closing if cash came in after the last count.
 

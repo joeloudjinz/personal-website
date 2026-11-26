@@ -3,12 +3,15 @@ page: hanotna-app
 chapter: insights
 ---
 import {questions, monthCosts} from '../data/insights';
+import insightsShot from '../../../../assets/img/hanotna/insights.png';
+import byMonth from '../../../../assets/img/hanotna/by-month.png';
+import yearSummary from '../../../../assets/img/hanotna/year-summary.png';
 
 Home answers what is happening today. Insights answers the questions an owner asks at closing time: how the week went, whether the month's costs are covered, who to call, and what is sitting unsold. It lives under More, and only partners can open it. Staff never see it. It writes nothing of its own: every answer is read from the sales, debts, stock and costs the app already records.
 
-<PhonePair caption="Insights with its six sections on one page, and By month with a month's sales, cost of goods and profit.">
-  <PhoneFrame alt="The Insights screen: this week's profit beside last week's, then the month's costs, who to call, money asleep, what earns the most and discounts." caption="Insights" />
-  <PhoneFrame alt="The By month screen: a month's sales, cost of goods and profit, then the month by category." caption="By month" />
+<PhonePair caption="Insights at its top, and By month with a month's sales, cost of goods and profit.">
+  <PhoneFrame src={insightsShot} alt="Insights at its top: the 30 and 90 day switch, October's profit so far, this week's profit beside the same days last week with twelve weekly bars, and the month's costs." caption="Insights" />
+  <PhoneFrame src={byMonth} alt="By month on October: the month's sales, cost of goods and profit, its profit against September's, then the month by category." caption="By month" />
 </PhonePair>
 
 ### Six questions at closing time
@@ -41,7 +44,7 @@ By month opens any month back to the first sale: sales, cost of goods and profit
 
 The Year summary gives one row per month with sales, cost of goods, expenses and net profit, and the year's totals. For the current year it adds the credit still owed to the shop today. It can be shared as an image, for the accountant. On the Orders tab, partners get sales and profit by month as well, one line per sale with what it sold for, what the goods cost and what it earned.
 
-<PhoneFrame alt="The Year summary screen." caption="Year summary" />
+<PhoneFrame src={yearSummary} alt="The 2026 Year summary: one row per month to October, filled from August with sales, cost of goods, expenses and net profit, the year's totals, and the credit still owed today." caption="Year summary" />
 
 <ForEngineers>
   Insights runs six reads in parallel: recent orders, products, debtors, open credit orders, fixed-cost expense rows and rent. They succeed or fail together. One pure function then folds them into every section, so each rule is a unit test away. Insights writes no document of its own. The month and year pages, like the drawer and the day ledgers, read the time from one injected clock, and a guard fails the suite if any of their files calls the wall clock, because a span of "the same days of the month before" can only be tested with a fixed clock. The year image is the table painted at three times its size and shared as a PNG with no new package, and sharing is off when the figures were read offline.

@@ -4,12 +4,13 @@ chapter: credit
 ---
 import {creditSale} from '../data/credit';
 import customers from '../../../../assets/img/hanotna/customers.png';
+import customerTab from '../../../../assets/img/hanotna/customer-tab.png';
 
 Many customers of a neighbourhood shop pay some now and the rest later. Hanotna treats that as the normal case. A sale records what was received, the unpaid remainder goes onto the customer's balance with an optional due date, and the shop can see at a glance who owes what and who is overdue. Credit needs a named customer.
 
-<PhonePair caption="The customers and debts list with an overdue customer, and one customer's tab.">
+<PhonePair caption="The customers and debts list with an overdue customer, and one customer's tab with the unpaid order and the payment history.">
   <PhoneFrame src={customers} alt="The debtors list screen showing customers with balances and one marked overdue." caption="Customers and debts" />
-  <PhoneFrame alt="One customer's tab." caption="One customer" />
+  <PhoneFrame src={customerTab} alt="A customer's tab: 300 owed and overdue, the unpaid order by its number, and the payment history with 400 paid at the counter and 300 repaid." caption="One customer" />
 </PhonePair>
 
 ### Oldest debt first

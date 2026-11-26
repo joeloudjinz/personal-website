@@ -5,6 +5,7 @@ chapter: stock
 import {recount, adjustmentTypes} from '../data/stock';
 import products from '../../../../assets/img/hanotna/products.png';
 import labelSheet from '../../../../assets/img/hanotna/label-sheet.png';
+import productForm from '../../../../assets/img/hanotna/product-form.png';
 
 The stock room is a book the app keeps so the owner does not have to. Every product has a name, a code, an optional barcode, a cost and a list price, and a unit of sale. A sale, an edit, a cancellation, a return, a recount and stock received against a supplier bill each write a row with its reason, and the book can be checked against the shelf at any time.
 
@@ -25,7 +26,7 @@ Adding a product asks for the essentials first: the name, the code and the categ
 
 Saving offers the next step: print the shelf label, add another product, or add the next one from the same bill. Editing shows its working too. A changed price, cost or unit keeps a "Was …" line under it, and the save button counts the changes.
 
-<PhoneFrame alt="The product form." caption="Product form" />
+<PhoneFrame src={productForm} alt="The product form while editing: the cost changed from 55 to 60 with the old cost under the field, the margin note, and a save button that counts one change." caption="Product form" />
 
 ### Counting the shelf, not editing a number
 

@@ -3,12 +3,13 @@ page: hanotna-app
 chapter: owe
 ---
 import {period, settlement} from '../data/owe';
+import supplierBill from '../../../../assets/img/hanotna/supplier-bill.png';
 import rent from '../../../../assets/img/hanotna/rent.png';
 
 A shop owes money too: to the supplier who delivered this week, to the landlord every month, to the people behind the counter. Hanotna records all three. Rent and wages are written into the ledger the partners read. A supplier bill keeps its own balance, and what is still owed to suppliers is counted when a cycle closes.
 
-<PhonePair caption="A supplier bill, and the rent screen with the date the rent has been due since.">
-  <PhoneFrame alt="A supplier bill." caption="Supplier bill" />
+<PhonePair caption="A supplier bill with the photo of its delivery note, and the rent screen with the date the rent has been due since.">
+  <PhoneFrame src={supplierBill} alt="A supplier bill that is partly paid: its header, a card with a photo of the delivery note, then the supplier, the dates and the note." caption="Supplier bill" />
   <PhoneFrame src={rent} alt="The rent screen showing the monthly rate, the landlord and the date the rent has been overdue since." caption="Rent" />
 </PhonePair>
 
