@@ -1,0 +1,84 @@
+---
+// A waterfall of money: a start, steps that add or take, and results that
+// stand on the baseline. Bars are drawn from the running total, labels are
+// SVG text so the numbers are in the page, and the whole drawing reveals in
+// step order through the kit's node rule.
+export interface Step {
+    label: string;
+    value: number;
+    kind: 'start' | 'plus' | 'minus' | 'result';
+}
+interface Props {
+    steps: Step[];
+    /** Appended to every printed amount, e.g. " DZD". */
+    unit?: string;
+    title: string;
+    describedBy?: string;
+}
+const {steps, unit = '', title, describedBy} = Astro.props;
+
+const W = 1000;
+const H = 380;
+const TOP = 40;
+const BASE = 300;
+const gap = 24;
+const barW = (W - gap * (steps.length + 1)) / steps.length;
+const peak = Math.max(...steps.map((s) => s.value), 1);
+let running = 0;
+const bars = steps.map((step, index) => {
+    const from = step.kind === 'start' || step.kind === 'result' ? 0 : running;
+    const to = step.kind === 'minus' ? running - step.value : step.kind === 'plus' ? running + step.value : step.value;
+    running = step.kind === 'result' ? running : to;
+    const scale = (BASE - TOP) / peak;
+    const y1 = BASE - Math.max(from, to) * scale;
+    const y2 = BASE - Math.min(from, to) * scale;
+    return {
+        ...step, index,
+        x: gap + index * (barW + gap), y: y1, h: Math.max(y2 - y1, 2),
+        text: `${step.kind === 'minus' ? '−' : ''}${step.value.toLocaleString('en-US')}${unit}`
+    };
+});
+---
+
+<svg class='lfp-wf lfp-mirror' viewBox={`0 0 ${W} ${H}`} role='img' aria-describedby={describedBy}>
+    <title>{title}</title>
+    <line class='lfp-wf-base' x1='0' y1={BASE} x2={W} y2={BASE}/>
+    {bars.map((bar) => (
+        <g class='lfp-node' style={`--i: ${bar.index}`}>
+            <rect class:list={['lfp-wf-bar', `lfp-wf-${bar.kind}`]} x={bar.x} y={bar.y} width={barW} height={bar.h} rx='6'/>
+            <text class='lfp-wf-amount' x={bar.x + barW / 2} y={bar.y - 10} text-anchor='middle'>{bar.text}</text>
+            <text class='lfp-wf-label' x={bar.x + barW / 2} y={BASE + 26} text-anchor='middle'>{bar.label}</text>
+        </g>
+    ))}
+</svg>
+
+<style>
+    .lfp-wf {
+        display: block;
+        width: 100%;
+        min-width: 560px;
+        height: auto;
+        font-family: var(--font-sans);
+    }
+
+    .lfp-wf-base {
+        stroke: var(--text-strong);
+        stroke-width: 2;
+    }
+
+    .lfp-wf-start, .lfp-wf-result { fill: var(--accent); }
+    .lfp-wf-plus { fill: var(--positive); }
+    .lfp-wf-minus { fill: var(--negative); }
+
+    .lfp-wf-amount {
+        font-size: 15px;
+        font-weight: 600;
+        fill: var(--text-strong);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .lfp-wf-label {
+        font-size: 13px;
+        fill: var(--text-muted);
+    }
+</style>

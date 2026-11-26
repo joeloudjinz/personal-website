@@ -76,7 +76,19 @@ export default {
      *
      * This file is outside the content glob, so every name here costs nothing.
      */
-    content: ['./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}'],
+    /*
+     * Explicit roots rather than ./src/** so the longform chapters and their data
+     * files are never scanned. A chapter is prose, and prose contains the
+     * ordinary English words that happen to be utility names; one of them in a
+     * paragraph would put a live rule into every page. Chapters use the kit
+     * components, which live under components/ and are scanned as before.
+     * The .md entries under content/ stay in, as they always were.
+     */
+    content: [
+        './src/{pages,layouts,components,utils,styles}/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}',
+        './src/*.{ts,astro}',
+        './src/content/**/*.md'
+    ],
     theme: {
         container: {
             center: true,

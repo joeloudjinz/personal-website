@@ -1,0 +1,20 @@
+---
+// The band between the product chapters and the technical ones. A div, not a
+// section with an id, so analytics does not count it as a chapter view.
+interface Props {
+    kicker: string;
+    standfirst: string;
+}
+const {kicker, standfirst} = Astro.props;
+---
+
+<div class='lfp-divider'>
+    <p class='kicker'>{kicker}</p>
+    <p class='mt-3 text-[17px] leading-[1.7] text-body max-w-[640px]'>{standfirst}</p>
+</div>
+
+<style>
+    .lfp-divider {
+        padding-block: 56px 8px;
+    }
+</style>

@@ -1,10 +1,14 @@
 ---
-// Dispatcher for project showcase pages. Two templates render them: the band
-// template (inzsh) in BandPage, and the pinboard template (joeinz-ds) in
-// PinboardPage. getStaticPaths stays here because this file is the route.
+// Dispatcher for project showcase pages. Three templates render them: the band
+// template (inzsh) in BandPage, the pinboard template (joeinz-ds) in
+// PinboardPage, and the longform template (hanotna-app) in LongformPage.
+// getStaticPaths stays here because this file is the route.
 import BandPage from '@src/components/projectpage/BandPage.astro';
 import PinboardPage from '@src/components/projectpage/PinboardPage.astro';
-import {getProjectPages, isPinboard, type BandEntry, type PinboardEntry} from '@src/utils/projectPages';
+import LongformPage from '@src/components/projectpage/longform/LongformPage.astro';
+import {
+    getProjectPages, isLongform, isPinboard, type BandEntry, type LongformEntry, type PinboardEntry
+} from '@src/utils/projectPages';
 
 export async function getStaticPaths() {
     // getProjectPages() fails the build if a slug collides with a blog post or a
@@ -13,13 +17,17 @@ export async function getStaticPaths() {
     return pages.map((page) => ({params: {project: page.data.slug}, props: {page}}));
 }
 
-// The union of the two templates rather than the collection entry type, whose
-// `data` is one object holding a union: isPinboard() cannot narrow that in the
-// false branch, and BandPage only accepts a band entry.
+// The union of the three templates rather than the collection entry type, whose
+// `data` is one object holding a union: the type guards cannot narrow that in
+// their false branches, and each template only accepts its own entry.
 interface Props {
-    page: PinboardEntry | BandEntry;
+    page: PinboardEntry | BandEntry | LongformEntry;
 }
 
 const {page} = Astro.props;
 ---
-{isPinboard(page) ? <PinboardPage page={page}/> : <BandPage page={page}/>}
+{isPinboard(page)
+    ? <PinboardPage page={page}/>
+    : isLongform(page)
+        ? <LongformPage page={page}/>
+        : <BandPage page={page}/>}

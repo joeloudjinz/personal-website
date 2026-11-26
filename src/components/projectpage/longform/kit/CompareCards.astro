@@ -1,0 +1,138 @@
+---
+// The same settings across several things, one card each: a title, then every
+// setting's label over its value. A value that starts with on or off gets a
+// filled or an empty dot before the word, so the pattern reads before the
+// words do. HTML, so every word is text. Inside a Figure the cards reveal in
+// order through the kit's node rule. On a phone the cards stack and each
+// setting folds to one line, label left and value right.
+interface Row {
+    label: string;
+    /** One value per title, in title order. */
+    values: string[];
+}
+interface Props {
+    titles: string[];
+    rows: Row[];
+}
+const {titles, rows} = Astro.props;
+// Literal class names, so the scoped block below ships both.
+const STATE = {on: 'lfp-cc-on', off: 'lfp-cc-off'} as const;
+const state = (value: string) => (/^on\b/.test(value) ? STATE.on : /^off\b/.test(value) ? STATE.off : undefined);
+---
+
+<div class='lfp-cc' style={`--n: ${titles.length}`}>
+    {titles.map((title, column) => (
+        <section class='lfp-cc-card lfp-node' style={`--i: ${column}`}>
+            <p class='lfp-cc-title'>{title}</p>
+            <dl class='lfp-cc-rows'>
+                {rows.map((row) => (
+                    <div class='lfp-cc-row'>
+                        <dt class='lfp-cc-label'>{row.label}</dt>
+                        <dd class:list={['lfp-cc-value', state(row.values[column])]}>{row.values[column]}</dd>
+                    </div>
+                ))}
+            </dl>
+        </section>
+    ))}
+</div>
+
+<style>
+    .lfp-cc {
+        display: grid;
+        gap: 12px;
+    }
+
+    @media (min-width: 640px) {
+        .lfp-cc {
+            grid-template-columns: repeat(var(--n), minmax(0, 1fr));
+        }
+    }
+
+    .lfp-cc-card {
+        padding: 14px 16px;
+        border: 1px solid var(--hairline);
+        border-radius: 12px;
+        background: var(--surface);
+    }
+
+    /* Rendered inside the article, whose paragraphs carry a wide margin. */
+    .lfp-cc p,
+    .lfp-cc dl,
+    .lfp-cc dd {
+        margin: 0;
+    }
+
+    .lfp-cc-title {
+        padding-block-end: 10px;
+        border-block-end: 1px solid var(--hairline);
+        font-family: var(--font-display);
+        font-size: 15px;
+        font-weight: 600;
+        line-height: 1.3;
+        color: var(--text-strong);
+    }
+
+    .lfp-cc-row {
+        display: grid;
+        gap: 2px 12px;
+        padding: 8px 0;
+    }
+
+    .lfp-cc-row + .lfp-cc-row {
+        border-block-start: 1px solid var(--hairline);
+    }
+
+    .lfp-cc-label {
+        font-size: 12.5px;
+        line-height: 1.45;
+        color: var(--text-muted);
+    }
+
+    .lfp-cc-value {
+        font-size: 13.5px;
+        line-height: 1.45;
+        color: var(--text-body);
+    }
+
+    .lfp-cc-on,
+    .lfp-cc-off {
+        display: flex;
+        align-items: flex-start;
+        gap: 7px;
+    }
+
+    .lfp-cc-on::before,
+    .lfp-cc-off::before {
+        content: '';
+        flex: none;
+        width: 8px;
+        height: 8px;
+        margin-block-start: .48em;
+        border-radius: 50%;
+        box-sizing: border-box;
+    }
+
+    .lfp-cc-on::before {
+        background: var(--positive);
+    }
+
+    .lfp-cc-off {
+        color: var(--text-muted);
+    }
+
+    .lfp-cc-off::before {
+        border: 1.5px solid var(--text-muted);
+    }
+
+    /* Stacked cards fold each setting to one line. */
+    @media (max-width: 639px) {
+        .lfp-cc-row {
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: baseline;
+        }
+
+        .lfp-cc-value {
+            text-align: end;
+        }
+    }
+</style>

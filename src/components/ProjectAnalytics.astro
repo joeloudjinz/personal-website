@@ -84,16 +84,29 @@
             track('faq_open', {item: (question?.textContent || '').trim().slice(0, 100)});
         }, true); // toggle does not bubble
 
-        // Jumping to a section means the page was too long to scroll. Desktop and
-        // mobile are separated because they are different judgements about it.
+        // Longform: which chapter's folded half was opened. Only an open is
+        // curiosity; a close is not counted, as the FAQ's is not.
+        document.addEventListener('toggle', (event) => {
+            const item = event.target;
+            if (!(item instanceof Element) || !item.matches('[data-for-engineers]')) return;
+            if (!item.open) return;
+            const chapter = item.closest('section[id]');
+            track('disclosure_open', {item: chapter ? chapter.id : 'unknown'});
+        }, true); // toggle does not bubble
+
+        // Jumping to a section means the page was too long to scroll. Where the
+        // link sat is the second parameter: the header's bar or panel on a band
+        // page, and the rail or the jump list on a longform page, which names
+        // its own location on the link.
         document.addEventListener('click', (event) => {
             const link = event.target instanceof Element
                 ? event.target.closest('[data-section-link]')
                 : null;
             if (!link) return;
+            const named = link.getAttribute('data-section-location');
             track('nav_click', {
                 item: (link.getAttribute('href') || '').replace('#', ''),
-                location: link.closest('#mobileMenu') ? 'mobile' : 'desktop'
+                location: named || (link.closest('#mobileMenu') ? 'mobile' : 'desktop')
             });
         });
 
@@ -159,23 +172,45 @@
         // a funnel. Fires however the reader arrived — scrolled, nav, or CTA —
         // so the three entry points into the install steps stay comparable.
         let observer = null;
+        let sentinelObserver = null;
         const observeSections = () => {
             if (observer) observer.disconnect();
+            if (sentinelObserver) sentinelObserver.disconnect();
             if (!('IntersectionObserver' in window)) return;
 
             const seen = new Set();
+            const view = (id) => {
+                if (!id || seen.has(id)) return;
+                seen.add(id);
+                track('section_view', {item: id});
+            };
+
             observer = new IntersectionObserver((entries) => {
                 for (const entry of entries) {
                     if (!entry.isIntersecting) continue;
-                    const id = entry.target.id;
-                    if (!id || seen.has(id)) continue;
-                    seen.add(id);
                     observer.unobserve(entry.target);
-                    track('section_view', {item: id});
+                    view(entry.target.id);
                 }
             }, {threshold: 0.4});
 
-            document.querySelectorAll('section[id]').forEach((section) => observer.observe(section));
+            // A longform chapter is taller than two screens, so 40% of it is
+            // never on screen at once and the band rule above would never fire.
+            // Each chapter plants a zero-height sentinel at its top instead, and
+            // crossing it is the view.
+            sentinelObserver = new IntersectionObserver((entries) => {
+                for (const entry of entries) {
+                    if (!entry.isIntersecting) continue;
+                    sentinelObserver.unobserve(entry.target);
+                    const section = entry.target.closest('section[id]');
+                    if (section) view(section.id);
+                }
+            }, {threshold: 0});
+
+            document.querySelectorAll('section[id]').forEach((section) => {
+                if (section.querySelector('[data-chapter-sentinel]')) return;
+                observer.observe(section);
+            });
+            document.querySelectorAll('[data-chapter-sentinel]').forEach((sentinel) => sentinelObserver.observe(sentinel));
         };
 
         observeSections();

@@ -1,0 +1,30 @@
+---
+// The band closing with the spine's two quick actions.
+import CodeSpans from '@src/components/CodeSpans.astro';
+import CtaPair from '@src/components/CtaPair.astro';
+import {band} from '@src/utils/bandStyles';
+import {splitWash, type LongformEntry} from '@src/utils/projectPages';
+
+interface Props {
+    closing: LongformEntry['data']['closing'];
+}
+const {closing} = Astro.props;
+const heading = splitWash(closing.heading, closing.wash);
+---
+
+<section class={band}>
+    <div class='shell py-24 text-center'>
+        <h2 class='font-display text-[clamp(30px,7vw,56px)] font-semibold text-strong tracking-[-0.015em] leading-[1.15]'>
+            {heading
+                ? <>{heading.before}<span class='marker-wash whitespace-nowrap'>{heading.washed}</span>{heading.after}</>
+                : closing.heading}
+        </h2>
+        <p class='mt-5 text-base text-muted leading-relaxed max-w-[560px] mx-auto'><CodeSpans text={closing.sub}/></p>
+        <CtaPair primary={closing.actions[0]} secondary={closing.actions[1]} location='closing' centred class='mt-9'/>
+        {closing.facts && (
+            <p class='stack-line justify-center mt-8'>
+                {closing.facts.map((fact) => <span class='stack-tag'>{fact}</span>)}
+            </p>
+        )}
+    </div>
+</section>

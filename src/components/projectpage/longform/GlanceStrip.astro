@@ -1,0 +1,57 @@
+---
+// The facts strip under the hero: a row of value-and-label tiles.
+import CodeSpans from '@src/components/CodeSpans.astro';
+import {band} from '@src/utils/bandStyles';
+
+interface Props {
+    items: {value: string; label: string}[];
+}
+const {items} = Astro.props;
+---
+
+<section class={band}>
+    <div class='shell py-[56px]'>
+        <ul class='lfp-glance' role='list'>
+            {items.map((item) => (
+                <li class='lfp-glance-item'>
+                    <p class='lfp-glance-value font-display font-semibold text-strong'>{item.value}</p>
+                    <p class='mt-2 text-sm text-muted leading-snug'><CodeSpans text={item.label}/></p>
+                </li>
+            ))}
+        </ul>
+    </div>
+</section>
+
+<style>
+    .lfp-glance {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (min-width: 768px) {
+        .lfp-glance {
+            grid-template-columns: repeat(3, 1fr);
+        }
+    }
+
+    @media (min-width: 1100px) {
+        .lfp-glance {
+            grid-template-columns: repeat(6, 1fr);
+        }
+    }
+
+    .lfp-glance-item {
+        padding-inline-start: 16px;
+        border-inline-start: 1px solid var(--hairline);
+    }
+
+    /* Values can be short words as well as numbers, so the size follows the
+       viewport and a value that still cannot fit its column wraps instead of
+       spilling into the next tile. */
+    .lfp-glance-value {
+        font-size: clamp(24px, 2vw, 32px);
+        line-height: 1.05;
+        overflow-wrap: anywhere;
+    }
+</style>
