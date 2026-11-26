@@ -33,6 +33,6 @@ export const engineering = [
     figure: {kind: 'seam' as const, above: 'Screens, providers, ports', label: 'Firebase only below', below: 'Adapters'}},
   {label: 'More test code than app code', note: '4,900 cases, 77 end-to-end scenarios, 24 rules suites.', href: '#testing',
     figure: {kind: 'bars' as const, rows: [{label: 'tests', width: 100, value: '150k', tone: 'accent' as const}, {label: 'app', width: 78, value: '118k', tone: 'c' as const}]}},
-  {label: 'Guards that fail the build', note: 'Twenty-seven checks for mistakes made once, never again.', href: '#guards',
-    figure: {kind: 'wall' as const, count: 27, hit: 15}}
+  {label: 'Guards that fail the build', note: 'Twenty-nine checks for mistakes made once, never again.', href: '#guards',
+    figure: {kind: 'wall' as const, count: 29, hit: 15}}
 ];

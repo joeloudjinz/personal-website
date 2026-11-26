@@ -4,7 +4,7 @@ export const testingStats = [
   {value: '743', label: 'test files'},
   {value: '4,900+', label: 'test cases'},
   {value: '77', label: 'end-to-end scenarios asserting three ends'},
-  {value: '27', label: 'architecture guards'},
+  {value: '29', label: 'guards that read the source'},
   {value: '24', label: 'security-rules suites, 431 cases'},
   {value: '150k', label: 'lines of test code, more than the app'}
 ];

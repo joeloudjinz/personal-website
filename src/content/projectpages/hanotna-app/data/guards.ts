@@ -1,25 +1,27 @@
-// The 27 architecture tests in test/architecture/, from the architecture
-// finding, sorted into the four kinds the chapter names. The note names the
-// bug or the reason each exists.
+// The 28 tests in test/architecture/ and the one guard beside the security
+// tests, sorted into the four kinds the chapter names. The note names the
+// reason each exists.
 export const guards = [
   {title: 'The architecture', items: [
     {label: 'architecture_guard', note: 'Firebase imported only under backend/firebase'},
-    {label: 'guard_firestore_sweep', note: 'every write inside the error-mapping guard'},
+    {label: 'guard_firestore_sweep', note: 'sets, commits and transactions sit inside the error mapper'},
     {label: 'async_when_guard', note: 'no raw .when in the UI, after a spinner that never stopped'},
     {label: 'no_inline_material_app', note: 'widget tests share one app shell, 185 to 0'},
     {label: 'no_display_string_in_ports', note: 'ports carry no display text'},
     {label: 'no_prose_literal_in_backend', note: 'no English prose in the backend'}
   ]},
   {title: 'The screen', items: [
-    {label: 'no_raw_dialog', note: 'one dialog shell, after buttons stacked wrongly'},
+    {label: 'no_raw_dialog', note: 'the shared dialog shells, after buttons stacked wrongly'},
     {label: 'no_colour_literals', note: 'colour from the theme only, 42 literals found once'},
     {label: 'no_direction_blind_layout', note: 'no left or right geometry'},
     {label: 'directional_glyphs_mirror', note: 'directional icons mirror under RTL'},
     {label: 'no_bare_arrow_glyph', note: 'arrows never flip on their own'},
     {label: 'no_bare_iso_stamp_in_sentence', note: 'a date inside Arabic reorders'},
     {label: 'no_hand_signed_money', note: 'a hand-written sign lands on the wrong side'},
+    {label: 'no_unisolated_sign', note: 'a sign chosen in a condition, or written before any figure, is isolated or it lands on the wrong side'},
     {label: 'no_offline_suffix', note: 'labels never gain an offline suffix'},
-    {label: 'no_unservable_font_weight', note: 'no weight the bundled faces cannot draw'}
+    {label: 'no_unservable_font_weight', note: 'no weight the bundled faces cannot draw'},
+    {label: 'no_raw_exception_leak', note: 'no raw exception text in a snackbar or a label'}
   ]},
   {title: 'The books', items: [
     {label: 'no_money_arithmetic_in_literals', note: 'no two amounts in one string'},
@@ -27,7 +29,7 @@ export const guards = [
     {label: 'no_double_returned_deduction', note: 'returns subtracted twice, shipped twice'},
     {label: 'no_capital_import_of_staff_pay', note: 'capital does not import wages or rent'},
     {label: 'stock_run_flush', note: 'every stock run flushes, or stock does not move'},
-    {label: 'no_wall_clock_in_month_insights', note: 'month and year figures read one clock a test can fix'}
+    {label: 'no_wall_clock_in_month_insights', note: 'month, year, drawer and day-ledger figures read one clock a test can fix'}
   ]},
   {title: 'The language', items: [
     {label: 'no_bare_date_format', note: 'dates built in one place only'},
