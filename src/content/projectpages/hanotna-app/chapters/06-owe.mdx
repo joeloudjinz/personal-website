@@ -3,21 +3,22 @@ page: hanotna-app
 chapter: owe
 ---
 import {period, settlement} from '../data/owe';
-import supplierBill from '../../../../assets/img/hanotna/supplier-bill.png';
 import rent from '../../../../assets/img/hanotna/rent.png';
 
-A shop owes money too: to the supplier who delivered this week, to the landlord every month, to the people behind the counter. Hanotna records all three in the same ledger the partners read, so the money the shop owes is never a surprise at the end of a cycle.
+A shop owes money too: to the supplier who delivered this week, to the landlord every month, to the people behind the counter. Hanotna records all three. Rent and wages are written into the ledger the partners read. A supplier bill keeps its own balance, and what is still owed to suppliers is counted when a cycle closes.
 
-<PhonePair caption="A supplier bill with its goods total, its transport legs and a partial payment, and the rent screen with the date the rent has been due since.">
-  <PhoneFrame src={supplierBill} alt="A supplier bill detail screen with a goods total, transport costs and payments listed." caption="Supplier bill" />
+<PhonePair caption="A supplier bill, and the rent screen with the date the rent has been due since.">
+  <PhoneFrame alt="A supplier bill." caption="Supplier bill" />
   <PhoneFrame src={rent} alt="The rent screen showing the monthly rate, the landlord and the date the rent has been overdue since." caption="Rent" />
 </PhonePair>
 
+Supplier bills are the partners' to read and the owner's to write, and staff do not see them. Staff do see when the rent is due, and paying rent and wages is the owner's. Everyday costs such as electricity or supplies are logged from the + button by whoever is at the till, and the list of them is open to staff as well.
+
 ### Bills that keep their own balance
 
-One bill per delivery. The goods total is what the shop owes, payments are added against it, and the balance is worked out rather than stored, so it cannot drift. Transport on a delivery is posted once as an expense and the bill remembers that it was, so it cannot be posted twice.
+One bill per delivery. The goods total is what the shop owes, payments are added against it and the owner can correct one, and the balance is worked out rather than stored, so it cannot drift. Transport on a delivery is posted once as an expense and the bill remembers that it was, so it cannot be posted twice.
 
-A bill also keeps up to five photos of the paper it came on, the whole page and uncropped, from the camera or the gallery. The owner adds and deletes them, working partners can open and share them, and staff never see them.
+A bill also keeps up to five photos of the paper it came on, the whole page and uncropped, from the camera or the gallery. The owner adds and deletes them, partners can open and share them, and staff never see them.
 
 ### Rent covered until a date
 
@@ -27,7 +28,7 @@ The owner sets the rent up once, with the landlord and the date the shop is paid
 
 Each employee has a pay profile: a rate by the month, the day or the hour, the days of the week they work, and a start date that anchors their pay period. Days off are recorded as exceptions, paid or unpaid. When a period ends the app proposes a figure, the owner can change it before paying, and both the computed and the paid amounts are kept.
 
-<Example title="One month's wages" setup="Karim is paid 1,500 a day, works Saturday to Thursday, and started on 12 September 2026. He took one paid day off and one unpaid day, and had an advance of 10,000 during the month.">
+<Example title="One month's wages" setup="Karim is paid 1,500 a day, works Saturday to Thursday, and started on 12 September 2026. He took one paid day off and one unpaid day, and had an advance of 10,000 on 8 October.">
   <Figure id="fig-period" caption="The period, counted."
           description="Four figures: 26 days scheduled, 1 paid day off, 1 unpaid day off, 25 days paid.">
     <TileGrid columns={4} tiles={period} />
@@ -38,4 +39,4 @@ Each employee has a pay profile: a rate by the month, the day or the hour, the d
   </Figure>
 </Example>
 
-Advances, settlements and rent payments all write ordinary expense rows into the capital ledger, and the feature that wrote a row is the only one allowed to void it. That way there are never two ways to undo the same money.
+Advances, settlements and rent payments all write ordinary expense rows into the capital ledger, and the feature that wrote a row is the only one allowed to void it, within the cycle it was written in. That way there are never two ways to undo the same money.
