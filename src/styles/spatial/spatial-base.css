@@ -4,9 +4,11 @@
    Sections: springs and keyframes, illustrations (.il …), career map (.cmap …), toolbox, carousel, quiet field (.fx …).
    Differences from the boards: one print rule at the very end (reveals fully visible, lights and field hidden).
    Page root must use overflow: clip (not hidden) so the sticky nav, the post's table of contents and the scroll reveals work.
-   The "round 2" phone block uses !important only to beat the boards' inline styles; with class-based markup it can go. */
+   The "round 2" phone block keeps its !important: spatial-shell.css and the page stylesheets load after this file. */
 body{margin:0}
 a{color:var(--sp-ink)}a:hover{color:var(--sp-acc)}
+/* fix 13: a class that sets display must never beat the hidden attribute (filtered cards and rows) */
+[hidden]{display:none!important}
 .sp-win{box-sizing:border-box;border-radius:34px;background:rgba(var(--sp-rgb),.07);border:1px solid rgba(var(--sp-rgb),.16);-webkit-backdrop-filter:blur(26px) saturate(150%);backdrop-filter:blur(26px) saturate(150%);box-shadow:0 60px 100px -45px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,253,246,.16)}
 .sp-back{background:rgba(var(--sp-rgb),.045);border-color:rgba(var(--sp-rgb),.11);box-shadow:0 40px 80px -40px rgba(0,0,0,.75),inset 0 1px 0 rgba(255,253,246,.1)}
 .sp-grab{width:64px;height:6px;margin:.85rem auto 0;border-radius:999px;background:rgba(var(--sp-rgb),.28)}
@@ -205,6 +207,8 @@ a{color:var(--sp-ink)}a:hover{color:var(--sp-acc)}
 .sp-night{--sp-ink:var(--cream);--sp-ink-2:var(--cream-muted);--sp-acc:var(--caramel-bright);--sp-rgb:243, 234, 210;--sp-focus:var(--caramel-bright);--sp-scrim:rgba(10,13,26,.48);--sp-drop:rgba(0,0,0,.55);--sp-tint-bg:rgba(20,26,46,.84);--sp-room:linear-gradient(180deg,#232C49 0%,#191F33 16%,#171D31 60%,#12172A 100%)}
 .sp-day{--sp-ink:var(--choc-ink);--sp-ink-2:#5E4E41;--sp-acc:#6E4718;--sp-rgb:58, 40, 30;--sp-focus:var(--ink-blue);--sp-scrim:rgba(243,234,210,.62);--sp-drop:rgba(58,40,30,.32);--sp-tint-bg:rgba(255,253,246,.88);--sp-room:linear-gradient(180deg,#FBF7EC 0%,#F6EEDB 22%,#F3EAD2 60%,#EDE1C4 100%)}
 .sp-day.glass-contrast{--sp-ink-2:var(--choc)}
+/* fix 3: the visitor's own setting brightens the muted ink too, as .glass-contrast does */
+@media (prefers-contrast:more){.sp-night{--cream-muted:#E4DCC8}.sp-day{--sp-ink-2:var(--choc)}}
 .sp-status{background:rgba(var(--sp-rgb),.08);border:1px solid rgba(var(--sp-rgb),.16)}
 /* day glass: frosted white, warm shadows, neumorphic wells */
 .sp-day .sp-win{background:linear-gradient(180deg,rgba(255,255,255,.72),rgba(255,253,246,.56));border-color:rgba(255,255,255,.85);box-shadow:0 50px 90px -50px rgba(58,40,30,.45),0 0 0 1px rgba(58,40,30,.06),inset 0 1px 0 rgba(255,255,255,.95)}
@@ -255,7 +259,9 @@ html.vt-theme::view-transition-new(root){animation:spReveal .9s var(--spring-gli
 @media (prefers-reduced-motion:reduce){.sp-tile{transition:none}}
 /* side windows keep their title above the dimming scrim; status pills wrap into rounded blocks */
 .sp-card3d .sp-title{position:relative;z-index:2}
-.sp-avail{align-items:flex-start;padding:.5rem 1rem;border-radius:18px;line-height:1.4}
+.sp-avail{position:relative;align-items:flex-start;padding:.5rem 1rem;border-radius:18px;line-height:1.4}
+/* fix 6: the pill is 36px tall; this widens what can be pressed to 44px without changing its look */
+.sp-avail::after{content:"";position:absolute;inset:-4px 0}
 .sp-avail-dot{flex:0 0 8px;margin-top:.4em}
 .sp-card3d.is-far .sp-title,.sp-card3d.is-far .sp-bring,.sp-card3d.is-far > span:nth-child(2){opacity:0}
 .sp-card3d.is-right{text-align:end}.sp-card3d.is-right .sp-title{margin-left:auto;max-width:62%}
@@ -302,7 +308,7 @@ html.vt-theme::view-transition-new(root){animation:spReveal .9s var(--spring-gli
 .sp-nav{position:fixed;top:auto;left:50%;bottom:calc(.75rem + env(safe-area-inset-bottom, 0px));transform:translateX(-50%);z-index:30;margin:0;flex-direction:row;gap:.2rem;padding:.35rem;background:rgba(38,46,74,.86);border-color:rgba(var(--sp-rgb),.22);box-shadow:0 18px 40px -16px rgba(0,0,0,.85),inset 0 1px 0 rgba(255,253,246,.14)}
 .sp-day .sp-nav{background:rgba(255,253,246,.9);border-color:rgba(255,255,255,.9);box-shadow:0 18px 40px -18px rgba(58,40,30,.5),0 0 0 1px rgba(58,40,30,.08),inset 0 1px 0 #FFFFFF}
 .sp-top{display:grid!important;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:.6rem .5rem!important}
-.sp-top-r,.sp-top sc-if{display:contents!important}
+.sp-top-r{display:contents!important}
 .sp-top .sp-status,.sp-top .sp-avail{grid-column:1/-1;grid-row:2}
 .sp-foot-in{padding-bottom:calc(5.75rem + env(safe-area-inset-bottom, 0px))!important}
 .st-intro{margin-top:-2.5rem!important}
@@ -325,6 +331,18 @@ html.vt-theme::view-transition-new(root){animation:spReveal .9s var(--spring-gli
 .cmap-arc{stroke-width:12}
 .cmap-dash{stroke-width:4}
 }
+/* fix 9: the bar floats over the page, so a focused link must never scroll underneath it */
+@media (max-width:720px){html{scroll-padding-bottom:calc(5.5rem + env(safe-area-inset-bottom, 0px))}}
+/* fix 9: on a short viewport (landscape, or 400% zoom) the bar joins the page flow */
+@media (max-width:720px) and (max-height:500px){
+html{scroll-padding-bottom:0}
+.sp-nav{position:static;transform:none;justify-self:center}
+.sp-foot-in{padding-bottom:1rem!important}
+}
+/* fix 10: the bar's own fill and border come after the edge-state rules above, so those are repeated here */
+@media (max-width:720px) and (prefers-reduced-transparency:reduce){.sp-nav{background:#232A44;-webkit-backdrop-filter:none;backdrop-filter:none}.sp-day .sp-nav{background:#FFFDF6}}
+@media (max-width:720px) and (prefers-contrast:more){.sp-nav,.sp-day .sp-nav{border:2px solid rgba(var(--sp-rgb),.6)}}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){@media (max-width:720px){.sp-nav{background:#232A44}.sp-day .sp-nav{background:#FFFDF6}}}
 /* quiet field */
 /* quiet field: the page background (grid, signals, lights) */
 .fx{position:absolute;inset:0;overflow:hidden;pointer-events:none;contain:layout paint style}

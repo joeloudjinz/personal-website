@@ -8,3 +8,6 @@
 .lead-404 .fx{--fx-lat:rgba(243,234,210,.12)}
 .sp-day.lead-404 .fx{--fx-lat:rgba(58,40,30,.13)}
 .lead-404 .fx-sig[data-kind="crit"] .fx-core{left:-3.5px;top:-3.5px;width:7px;height:7px;box-shadow:0 0 22px 7px var(--fx-crit-halo)}
+/* fix 14: with reduced motion or Save-Data no signal moves, so the sentence that says one does is not shown */
+@media (prefers-reduced-motion:reduce){.nf-hint-move{display:none}}
+.save-data .nf-hint-move{display:none}
