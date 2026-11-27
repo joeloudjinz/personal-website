@@ -227,6 +227,8 @@ a{color:var(--sp-ink)}a:hover{color:var(--sp-acc)}
 .sp-day .sp-glow{background:radial-gradient(circle at 80% 10%,rgba(198,138,69,.28),rgba(198,138,69,0) 55%)}
 .sp-day.glass-solid .sp-win,.sp-day.glass-solid .sp-tint,.sp-day.glass-solid .sp-orn,.sp-day.glass-solid .sp-nav,.sp-day.glass-solid .sp-status{background:#FFFDF6;-webkit-backdrop-filter:none;backdrop-filter:none}
 @media (prefers-reduced-transparency:reduce){.sp-day .sp-win,.sp-day .sp-tint,.sp-day .sp-orn,.sp-day .sp-nav,.sp-day .sp-status{background:#FFFDF6;-webkit-backdrop-filter:none;backdrop-filter:none}}
+/* the day glass resets border-color above, so the prefers-contrast rim is repeated for the light theme */
+@media (prefers-contrast:more){.sp-day .sp-win,.sp-day .sp-orn,.sp-day .sp-nav{border:2px solid rgba(var(--sp-rgb),.6)}}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.sp-day .sp-win,.sp-day .sp-tint,.sp-day .sp-orn,.sp-day .sp-nav,.sp-day .sp-status{background:#FFFDF6}}
 /* theme switch: a circular reveal from the button (View Transitions) */
 html.vt-theme::view-transition-old(root){animation:none}
