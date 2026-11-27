@@ -15,7 +15,7 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
   </section>
 </SpatialLayout>
 
-<script is:inline>
+<script is:inline data-astro-rerun>
   // Save-Data has no media query, so the stylesheet needs a class to hide the sentence about moving signals.
   if (navigator.connection && navigator.connection.saveData) document.documentElement.classList.add('save-data');
 </script>
