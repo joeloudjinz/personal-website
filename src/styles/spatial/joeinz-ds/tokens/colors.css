@@ -1,0 +1,166 @@
+/* Joe Inz — color tokens.
+   Palette read from the logo: cream fill, chocolate ink, navy dark-lockup, caramel accent.
+   Two matched modes (light = warm/personal, dark = sharp/technical). */
+:root{
+  /* --- Base ramps --- */
+  --cream:#F3EAD2;        /* primary light background */
+  --cream-soft:#F7F1E1;   /* softer light surface */
+  --cream-bright:#FFFDF6; /* near-white highlight for glows */
+  --cream-muted:#C9BFA6;  /* muted cream — dark-mode secondary text */
+  --cream-deep:#EEE2C6;   /* deeper cream for subtle light gradients */
+
+  --choc:#3A281E;         /* chocolate — primary ink on light */
+  --choc-soft:#6B5A4C;    /* muted chocolate — secondary text on light */
+  --choc-ink:#241B14;     /* deepest brown — headings */
+
+  --navy:#191F33;         /* navy — primary dark background */
+  --navy-soft:#2A3350;    /* raised navy surface */
+  --navy-deep:#12172A;    /* deepest navy for gradient ends */
+
+  --caramel:#B07A3C;      /* caramel — the single saturated accent, both modes */
+  --caramel-bright:#C68A45;/* brighter caramel for glows */
+  --highlight-wash:rgba(176,122,60,.28);   /* caramel marker wash (light) */
+  --highlight-wash-dark:rgba(198,138,69,.34);/* caramel marker wash (dark) */
+
+  /* --- Muted semantics (restrained, warm) --- */
+  --sage:#5E7A5B;         /* positive / affirmative */
+  --sage-bright:#8FAE8B;  /* lighter sage for dark mode */
+  --ink-blue:#41507A;     /* info / link, derived from navy */
+  --ink-blue-bright:#8F9BC4;/* lighter ink-blue for dark mode */
+
+  /* --- State ramps (additive) ---
+     Solid opaque hex only — transcribable to Swift/Kotlin/ANSI/print as-is.
+     X = light-mode value, X-bright = dark-mode lift (existing pattern);
+     -wash = pre-mixed solid tint (not alpha), -edge = ≥3:1 border/ring value. */
+  --sage-deep:#4F6B4C;    /* positive TEXT on cream — raw sage is AA-large only */
+  --sage-wash:#E8E2C9;    --sage-wash-dark:#2B3440;
+  --sage-edge:#748A6D;    --sage-edge-dark:#6E8572;
+  --ink-blue-wash:#E5DECB;--ink-blue-wash-dark:#2C334A;
+  --ink-blue-edge:#7D8497;--ink-blue-edge-dark:#747EA3;
+
+  --madder:#7A443A;       /* negative / destructive — book-cloth brick, not alarm red */
+  --madder-bright:#E0A5AF;/* dark-mode negative — dusty rose; hue tuned so protan/deutan
+                             viewers keep separation from sage-bright */
+  --madder-wash:#E9DDC6;  --madder-wash-dark:#343144;
+  --madder-edge:#A27C6D;  --madder-edge-dark:#997683;
+
+  --ochre:#7A6119;        /* caution — dry ochre, darker+greener than caramel so a warning
+                             can never read as brand emphasis */
+  --ochre-bright:#E4CA83; /* dark-mode caution — pale gold */
+  --ochre-wash:#ECE2C7;   --ochre-wash-dark:#31333C;
+  --ochre-edge:#988246;   --ochre-edge-dark:#8A7E60;
+
+  /* Neutral-chip + disabled ramps: putty (light) / slate (dark) */
+  --putty-wash:#E7DEC6;   --putty-line:#908171;  /* neutral chip tint + 3:1 edge on cream */
+  --putty-text:#9B8D7B;   --putty-fill:#E6DCC5;  --putty-hair:#B9AC99; /* disabled ~2.7:1, WCAG-exempt */
+  --slate-wash:#2F3341;   --slate-line:#827F78;  /* neutral chip tint + 3:1 edge on navy */
+  --slate-text:#586281;   --slate-fill:#252B42;  --slate-hair:#414965; /* disabled (dark) */
+
+  /* --- Hairlines / borders --- */
+  --hair-light:#E4D8BE;   /* divider on cream */
+  --hair-dark:#333C58;    /* divider on navy */
+
+  /* --- Semantic aliases: LIGHT mode (default) --- */
+  --surface:var(--cream);
+  --surface-soft:var(--cream-soft);
+  --surface-card:#FFFFFF;
+  --text-strong:var(--choc-ink);
+  --text-body:var(--choc);
+  --text-muted:var(--choc-soft);
+  --accent:var(--caramel);
+  --accent-wash:var(--highlight-wash);
+  --positive:var(--sage);
+  --info:var(--ink-blue);
+  /* State roles — same five slots per state: fill (--X), on fill (--on-X),
+     text on surface (--X-text), tinted bg (--X-wash), border/ring (--X-edge). */
+  --positive-text:var(--sage-deep);
+  --on-positive:var(--cream-bright);
+  --positive-wash:var(--sage-wash);
+  --positive-edge:var(--sage-edge);
+  --info-text:var(--ink-blue);
+  --on-info:var(--cream-bright);
+  --info-wash:var(--ink-blue-wash);
+  --info-edge:var(--ink-blue-edge);
+  --negative:var(--madder);
+  --negative-text:var(--madder);
+  --on-negative:var(--cream-bright);
+  --negative-wash:var(--madder-wash);
+  --negative-edge:var(--madder-edge);
+  --caution:var(--ochre);
+  --caution-text:var(--ochre);
+  --on-caution:var(--cream-bright);
+  --caution-wash:var(--ochre-wash);
+  --caution-edge:var(--ochre-edge);
+  --neutral:var(--choc-soft);
+  --neutral-text:var(--choc-soft);
+  --on-neutral:var(--cream-bright);
+  --neutral-wash:var(--putty-wash);
+  --neutral-edge:var(--putty-line);
+  --inactive-fill:var(--putty-fill);
+  --inactive-text:var(--putty-text);
+  --inactive-edge:var(--putty-hair);
+  --focus-ring:var(--ink-blue);
+  --hairline:var(--hair-light);
+  --on-accent:var(--cream);
+
+  /* --- Utility --- */
+  --board-bg:#ECE9E3;     /* neutral board/canvas behind cards */
+  --badge-aa-bg:#E3F3E6;
+  --badge-aa-fg:#1C6B32;
+}
+
+/* Dark mode: apply .theme-dark on any container (or the slide root). */
+.theme-dark{
+  --surface:var(--navy);
+  --surface-soft:var(--navy-soft);
+  --surface-card:var(--navy-soft);
+  --text-strong:var(--cream);
+  --text-body:var(--cream);
+  --text-muted:var(--cream-muted);
+  --accent:var(--caramel);
+  --accent-wash:var(--highlight-wash-dark);
+  --positive:var(--sage-bright);
+  --info:var(--ink-blue-bright);
+  --positive-text:var(--sage-bright);
+  --on-positive:var(--navy-deep);
+  --positive-wash:var(--sage-wash-dark);
+  --positive-edge:var(--sage-edge-dark);
+  --info-text:var(--ink-blue-bright);
+  --on-info:var(--navy-deep);
+  --info-wash:var(--ink-blue-wash-dark);
+  --info-edge:var(--ink-blue-edge-dark);
+  --negative:var(--madder-bright);
+  --negative-text:var(--madder-bright);
+  --on-negative:var(--navy-deep);
+  --negative-wash:var(--madder-wash-dark);
+  --negative-edge:var(--madder-edge-dark);
+  --caution:var(--ochre-bright);
+  --caution-text:var(--ochre-bright);
+  --on-caution:var(--navy-deep);
+  --caution-wash:var(--ochre-wash-dark);
+  --caution-edge:var(--ochre-edge-dark);
+  --neutral:var(--cream-muted);
+  --neutral-text:var(--cream-muted);
+  --on-neutral:var(--navy-deep);
+  --neutral-wash:var(--slate-wash);
+  --neutral-edge:var(--slate-line);
+  --inactive-fill:var(--slate-fill);
+  --inactive-text:var(--slate-text);
+  --inactive-edge:var(--slate-hair);
+  --focus-ring:var(--ink-blue-bright);
+  --hairline:var(--hair-dark);
+  --on-accent:var(--choc);
+}
+
+/* Accessibility — prefers-contrast: more. The core text roles respond like every foundation
+   layer's quiet roles do (the most-read quiet role must not be the one that ignores the
+   preference). Lifts are contrast-checked on both surfaces:
+   · light --text-muted #6B5A4C (5.5:1 on cream) → #55463A (7.5:1 cream · 8.9:1 card)
+   · dark  --text-muted #C9BFA6 (8.9:1 on navy)  → #D9D0B8 (10.6:1 navy · 8.1:1 raised)
+   · --inactive-text lifts one step but stays deliberately sub-AA (disabled UI, WCAG-exempt)
+   · --hairline moves to the 3:1 edge values (putty-line / slate-edge family) so structure
+     reads as boundaries, matching the diagram/doc layer lifts. */
+@media (prefers-contrast:more){
+  :root{--text-muted:#55463A;--neutral-text:#55463A;--inactive-text:#847668;--hairline:#908171}
+  .theme-dark{--text-muted:#D9D0B8;--neutral-text:#D9D0B8;--inactive-text:#8C96B8;--hairline:#747EA3}
+}

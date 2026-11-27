@@ -1,0 +1,74 @@
+/* Joe Inz — foundation RTL/bidi. Arabic is first-class: every surface must work FULLY
+   MIRRORED, not just tolerate inline Arabic.
+
+   DIRECTION MODEL
+   dir="rtl" on the root (or any subtree) drives LAYOUT MIRRORING. lang="ar" drives FONT
+   SELECTION (the role stacks), the Arabic line-height/tracking/synthesis rules, and
+   hyphenation. They are independent switches and BOTH must always be set: dir without lang
+   = mirrored layout with wrong type rules; lang without dir = Arabic type in an unmirrored
+   shell. Set them together, on the same element.
+
+   HOUSE RULE — LOGICAL PROPERTIES ONLY
+   margin-inline* · padding-inline* · inset-inline* · border-inline* · border-start-*-radius ·
+   text-align:start|end · float: inline-start / inline-end (never left/right) ·
+   inline-size/block-size for width/height
+   pairs that participate in direction. Flex and grid mirror by themselves under dir="rtl"
+   (flex-start, gap, grid tracks are direction-relative; reach for `order` only as a last
+   resort). A physical left/right — inset, margin, or text-align — in layout code is a BUG
+   in this system. The only legal physical values are the deliberate LTR islands below.
+
+   WHAT MUST NOT MIRROR
+   · numbers and numeric sequences — "3 / 7", dates, phone numbers: digit order stays LTR
+     even inside Arabic text; isolate, never reorder
+   · code, terminal output, anything in the mono stack (enforced below)
+   · media playback controls and scrub/progress/timeline direction (platform convention)
+   · logos and wordmarks — the Joe Inz bubble is a drawing, not text
+   Mechanism: the [data-no-mirror] hook below, or <bdi>.
+
+   NOT ON THIS LIST: DIAGRAMS. A diagram MIRRORS under dir="rtl" — layout, flow and edge
+   direction follow the reading direction; Latin identifiers inside node labels stay LTR
+   runs via bidi. The LTR-island doctrine covers code and terminal blocks ONLY. Mirroring
+   mechanics and the honest Mermaid limits: foundation/diagram.css.
+
+   BIDI CORRECTNESS
+   Isolate embedded runs. Any run whose direction differs from its context — user-generated
+   strings, Latin-in-Arabic, Arabic-in-Latin — goes in <bdi> (or unicode-bidi:isolate) so
+   neutral characters (· / @ . -) at the seams can't leak direction across it. Never build
+   sentences by concatenating variable strings around mixed runs: "a · b" glued from data
+   reorders unpredictably at the joins; isolate each run, then join.
+   Latin brand names, @handles and URLs inside Arabic text stay Latin (never transliterate)
+   and sit in <bdi>, so the leading @ / www / . stays attached to its own word.
+
+   CODE INSIDE RTL PAGES
+   pre/code/kbd/samp are LTR islands, enforced below. Block pre additionally gets
+   dir="ltr" + text-align:left in markup inside an otherwise-RTL page; inline code behaves
+   like a bdi. Arabic comments INSIDE a code block are the one place mixed direction is
+   expected: the island stays LTR, the comment text runs RTL within it — the bidi
+   algorithm handles that on its own.
+
+   BRAND VOCABULARY — FLIPS or HOLDS
+   · caramel rule / kicker tick — FLIPS: it sits at inline-start; logical border/inset does
+     it for free
+   · kicker middle dot (·) — HOLDS: a bidi-neutral separator, order comes from the text
+   · byline — FLIPS as a row: the AA monogram leads at inline-start; Arabic contexts lead
+     with the Arabic name; the @handle is a Latin token in <bdi>
+   · page counter — position FLIPS (inset-inline-end = the reading-end corner), digits
+     HOLD ("3 / 7" in [data-no-mirror]; never "7 / 3")
+   · progress / playback — HOLDS (see the no-mirror list)
+
+   ICONS
+   Directional icons — arrows, chevrons, back/forward, undo/redo, any "next/previous"
+   affordance — FLIP under dir="rtl". Non-directional icons — search, close, settings,
+   user — HOLD. Text-glyph arrows and angle quotes (‹ › « ») are paired punctuation:
+   the bidi algorithm mirrors them for free. Graphic icons (svg/img) opt in explicitly
+   with data-mirror-rtl (rule below). */
+/* LTR islands: code never mirrors; block pre left-aligns even inside dir="rtl". */
+:where(pre,code,kbd,samp){direction:ltr;unicode-bidi:isolate}
+:where(pre){text-align:left}
+/* Opt-out hook for everything else that must not mirror: counters, dates, URLs, handles.
+   Content spans ONLY, never positioned containers: direction:ltr makes the element's own
+   inline-* insets resolve LTR, un-mirroring its position. Keep the positioned box in the
+   page direction and wrap just the digits: <span class="counter"><span data-no-mirror>3 / 7</span></span>. */
+:where([data-no-mirror]){direction:ltr;unicode-bidi:isolate}
+/* Directional graphic icons: mark them data-mirror-rtl and they flip with their context. */
+:where([data-mirror-rtl]:dir(rtl)){transform:scaleX(-1)}

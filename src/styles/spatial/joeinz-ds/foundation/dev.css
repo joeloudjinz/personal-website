@@ -1,0 +1,172 @@
+/* Joe Inz — foundation developer layer: syntax, terminal, diff, and log color, plus code-block
+   presentation. Code, terminal and log surfaces are first-class brand territory — they must feel
+   like the same calm, warm editorial system, not a bolted-on VS Code theme.
+
+   The six semantic STATES (positive/info/negative/caution/neutral/inactive) are status
+   semantics — not enough hues for syntax. This layer EXTENDS the palette, never replaces it:
+   two new chromatic families (plum, teal) join caramel, sage, ink-blue, madder, ochre. All
+   derived warm-desaturated (OKLCH chroma ≤ ~0.09) so nothing out-shouts caramel.
+
+   CONTRAST LAW (encode, don't rediscover):
+   · caramel #B07A3C on navy = 4.43:1 — SUB-AA. Never for code-size text on dark surfaces;
+     caramel-bright #C68A45 = 5.58:1 is the dark-surface caramel.
+   · caramel #B07A3C on cream = 3.07:1 — sub-AA at code sizes too; --dev-caramel-ink #8A5D28
+     (≈4.7:1) is the code-grade caramel on cream.
+   · No token in this file introduces a new sub-AA pairing for code text. Comment-dim is
+     deliberately the quietest text role at ≈4.5–5:1 (dark-mode muted cream at ~9:1 is far
+     too loud for comments). Approx ratios noted per value.
+
+   Self-contained on purpose (foundation loads without legacy tokens/): values that mirror a
+   legacy token say so in their comment. */
+:root{
+  /* --- Ramps (light value / -bright = dark-mode value) --- */
+  --dev-plum:#6E4460;        /* NEW · dusty book-cloth plum, oklch(≈.45 .07 335) · ≈6.5:1 on cream */
+  --dev-plum-bright:#C9A3CF; /* ≈7.5:1 on navy; violet-leaning so protan/deutan keep it apart from rose #E0A5AF */
+  --dev-teal:#2F6462;        /* NEW · slate teal, oklch(≈.45 .05 190) · ≈5.6:1 on cream */
+  --dev-teal-bright:#83B8B2; /* ≈7.4:1 on navy */
+  --dev-caramel-ink:#8A5D28; /* code-grade caramel for cream surfaces · ≈4.7:1 */
+  --dev-caramel-bright:#C68A45; /* = legacy --caramel-bright · 5.58:1 on navy */
+  --dev-comment:#746353;     /* NEW comment-dim · ≈4.8:1 on cream — quiet by design */
+  --dev-comment-bright:#8E8874;/* ≈4.6:1 on navy */
+  --dev-green:#4F6B4C;       /* = --sage-deep · ≈4.9:1 */   --dev-green-bright:#8FAE8B; /* = --sage-bright · ≈6.7:1 */
+  --dev-red:#7A443A;         /* = --madder · ≈6.4:1 */      --dev-red-bright:#E0A5AF;   /* = --madder-bright · ≈7.9:1 */
+  --dev-gold:#7A6119;        /* = --ochre · ≈4.9:1 */       --dev-gold-bright:#E4CA83;  /* = --ochre-bright · ≈10:1 */
+  --dev-blue:#41507A;        /* = --ink-blue · ≈6.6:1 */    --dev-blue-bright:#8F9BC4;  /* = --ink-blue-bright · ≈6:1 */
+
+  /* --- Syntax roles (light mode). Philosophy: variables stay ink — code should read like
+     prose with a few warm annotations, not confetti. Shared hues are deliberate:
+     constant shares number's ochre (weight 500 differentiates); attribute shares type's
+     teal (italic differentiates); invalid is madder's alone — red means wrong, never syntax. */
+  --syn-keyword:var(--dev-plum);
+  --syn-string:var(--dev-green);
+  --syn-number:var(--dev-gold);
+  --syn-constant:var(--dev-gold);      /* + font-weight 500 */
+  --syn-comment:var(--dev-comment);    /* + italic */
+  --syn-function:var(--dev-caramel-ink);
+  --syn-type:var(--dev-teal);
+  --syn-variable:#241B14;              /* = --choc-ink — default ink, on purpose */
+  --syn-operator:#6B5A4C;              /* = --choc-soft */
+  --syn-punctuation:var(--dev-comment);
+  --syn-tag:var(--dev-plum);           /* markup: tags = structure */
+  --syn-attribute:var(--dev-teal);     /* + italic */
+  --syn-invalid:var(--dev-red);        /* + wavy underline or --diff-remove-bg band — never color alone */
+
+  /* --- Bracket-pair cycle — exactly the six chromatic families, madder excluded
+     (red is reserved for "wrong": an unmatched bracket gets --syn-invalid). --- */
+  --bracket-1:var(--dev-caramel-ink);
+  --bracket-2:var(--dev-teal);
+  --bracket-3:var(--dev-plum);
+  --bracket-4:var(--dev-green);
+  --bracket-5:var(--dev-blue);
+  --bracket-6:var(--dev-gold);
+
+  /* --- Terminal ANSI-16. One canonical mapping so every emulator scheme, prompt, and
+     editor theme resolves identically. Light scheme: "bright" means MORE INK, not more
+     light — brighter-on-cream would go sub-AA. ANSI 8 (bright black) is comment-dim, the
+     conventional dim-text slot (autosuggestions), kept ≥4.5:1. --- */
+  --ansi-0:#241B14;  --ansi-8:#6B5A4C;
+  --ansi-1:#7A443A;  --ansi-9:#6B3A31;
+  --ansi-2:#4F6B4C;  --ansi-10:#435D40;
+  --ansi-3:#7A6119;  --ansi-11:#6A530F;
+  --ansi-4:#41507A;  --ansi-12:#364569;
+  --ansi-5:#6E4460;  --ansi-13:#5F3A53;
+  --ansi-6:#2F6462;  --ansi-14:#275754;
+  --ansi-7:#E7DEC6;  --ansi-15:#FFFDF6;
+  --ansi-fg:#3A281E; --ansi-bg:#F3EAD2;
+
+  /* --- Diff. Pre-mixed solids (system rule: washes are never alpha), tinted a WHISPER above
+     the code background — measured so every AA syntax color (worst case: comment-dim) stays
+     ≥4.5:1 on the band. The tint locates the line; the +/−/~ gutter marker in --diff-*-text
+     is the mandatory carrier of meaning. --- */
+  --diff-add-bg:#E3EACF;    --diff-add-text:var(--dev-green);
+  --diff-remove-bg:#F2E2D9; --diff-remove-text:var(--dev-red);
+  --diff-change-bg:#F1E7C6; --diff-change-text:var(--dev-gold);
+
+  /* --- Log levels. Long-running output needs a readable HIERARCHY: trace quietest,
+     fatal the only filled band. trace < debug < message-default; info/warn/error map onto
+     the states; fatal = negative fill + on-fill text (its non-color partner is the band). --- */
+  --log-trace:var(--dev-comment);
+  --log-debug:#6B5A4C;
+  --log-info:var(--dev-blue);
+  --log-warn:var(--dev-gold);
+  --log-error:var(--dev-red);
+  --log-fatal-bg:#7A443A; --log-fatal-text:#F7F1E1;
+  --log-timestamp:var(--dev-comment); /* tabular-nums; never bold */
+  --log-source:var(--dev-teal);       /* logger/module name — quiet structural identity */
+  --log-stack:var(--dev-comment);     /* de-emphasized; keep the FIRST frame at default text */
+
+  /* --- Code block presentation --- */
+  --code-bg:#EEE2C6;            /* = --cream-deep: recessed, not boxed-white */
+  --code-text:#3A281E;
+  --code-line-highlight:#EFE5C9; /* comment-dim stays ≥4.5:1 on it */
+  --code-selection:#E3D3AE;
+  --code-gutter:var(--dev-comment);
+  --code-lh:1.6;      /* @kind other */ /* mono needs more air than UI text */
+  --code-tab:2;       /* @kind other */ /* display tab-size; editors keep their own */
+}
+.theme-dark{
+  --syn-variable:#F3EAD2;
+  --syn-operator:#C9BFA6;
+  --syn-keyword:var(--dev-plum-bright);
+  --syn-string:var(--dev-green-bright);
+  --syn-number:var(--dev-gold-bright);
+  --syn-constant:var(--dev-gold-bright);
+  --syn-comment:var(--dev-comment-bright);
+  --syn-function:var(--dev-caramel-bright); /* NOT raw caramel — 4.43:1 sub-AA on navy */
+  --syn-type:var(--dev-teal-bright);
+  --syn-punctuation:var(--dev-comment-bright);
+  --syn-tag:var(--dev-plum-bright);
+  --syn-attribute:var(--dev-teal-bright);
+  --syn-invalid:var(--dev-red-bright);
+  --bracket-1:var(--dev-caramel-bright);
+  --bracket-2:var(--dev-teal-bright);
+  --bracket-3:var(--dev-plum-bright);
+  --bracket-4:var(--dev-green-bright);
+  --bracket-5:var(--dev-blue-bright);
+  --bracket-6:var(--dev-gold-bright);
+  /* Dark terminal is the canonical one; black is a visible panel-dark, never the bg itself. */
+  --ansi-0:#2A3350;  --ansi-8:#8E8874;
+  --ansi-1:#E0A5AF;  --ansi-9:#ECC3CA;
+  --ansi-2:#8FAE8B;  --ansi-10:#ACC7A8;
+  --ansi-3:#E4CA83;  --ansi-11:#F0DDA9;
+  --ansi-4:#8F9BC4;  --ansi-12:#AEB9DA;
+  --ansi-5:#C9A3CF;  --ansi-13:#DCC0E0;
+  --ansi-6:#83B8B2;  --ansi-14:#A3CFC9;
+  --ansi-7:#C9BFA6;  --ansi-15:#F3EAD2;
+  --ansi-fg:#F3EAD2; --ansi-bg:#191F33;
+  --diff-add-bg:#17251B;    --diff-add-text:var(--dev-green-bright);
+  --diff-remove-bg:#2A1D22; --diff-remove-text:var(--dev-red-bright);
+  --diff-change-bg:#262115; --diff-change-text:var(--dev-gold-bright);
+  /* Verified (dark): comment-dim-bright #8E8874 — the quietest AA syntax role — measures
+     ≈4.5–4.6:1 on all three dark bands; every louder syntax color clears it further. */
+  --log-trace:var(--dev-comment-bright);
+  --log-debug:#C9BFA6;
+  --log-info:var(--dev-blue-bright);
+  --log-warn:var(--dev-gold-bright);
+  --log-error:var(--dev-red-bright);
+  --log-fatal-bg:#E0A5AF; --log-fatal-text:#241B14;
+  --log-timestamp:var(--dev-comment-bright);
+  --log-source:var(--dev-teal-bright);
+  --log-stack:var(--dev-comment-bright);
+  --code-bg:#12172A;           /* = --navy-deep */
+  --code-text:#F3EAD2;
+  --code-line-highlight:#1A2038; /* comment-dim-bright stays ≥4.5:1 on it */
+  --code-selection:#443A2B;    /* caramel-tinted navy */
+  --code-gutter:var(--dev-comment-bright);
+}
+/* Presentation defaults — zero-specificity so components can override. The mono stack,
+   ligatures-off, and the LTR-island rules come from foundation/typography.css + rtl.css
+   (pre/code stay LTR inside RTL pages; Arabic comments inside code are the one expected
+   mixed-direction case). */
+:where(pre){background:var(--code-bg);color:var(--code-text);line-height:var(--code-lh);tab-size:var(--code-tab);padding:var(--space-4) var(--space-5);border-radius:var(--radius-md);overflow-x:auto}
+:where(:not(pre)>code){background:var(--code-bg);color:var(--code-text);padding:.08em .38em;border-radius:6px;font-size:.9em}
+pre ::selection,pre::selection,code ::selection,code::selection{background:var(--code-selection)}
+/* Verified: --code-text on --code-selection = 9.5:1 light / 9.3:1 dark — selection never
+   drops below AA for the default text (syntax colors on selection are transient state,
+   exempt, but all stay ≥3:1). */
+/* Low-vision: raise the quietest roles. Everything aliased to comment-dim (gutter,
+   punctuation, log-trace, timestamps, stack traces) lifts with the two ramp values. */
+@media (prefers-contrast:more){
+  :root{--dev-comment:#5C4F42;--log-debug:#5C4F42}
+  .theme-dark{--dev-comment-bright:#A79F8A}
+}
