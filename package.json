@@ -7,7 +7,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "build": "astro build",
-    "check:build": "astro check && astro build",
+    "check:build": "node --test src/lib/spatial/buildCheck.test.mjs && astro check && astro build",
     "preview": "astro preview",
     "astro": "astro",
     "subdomain": "node scripts/subdomain/cli.mjs",
