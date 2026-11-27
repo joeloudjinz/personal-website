@@ -5,7 +5,9 @@
    Differences from the boards: one print rule at the very end (reveals fully visible, lights and field hidden).
    Page root must use overflow: clip (not hidden) so the sticky nav, the post's table of contents and the scroll reveals work.
    The "round 2" phone block keeps its !important: spatial-shell.css and the page stylesheets load after this file. */
-body{margin:0}
+/* what Tailwind's preflight gives the old pages: no text inflation on phones, and a sans body for what sits outside .sp-room (the skip link) */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;font-family:var(--font-sans)}
 a{color:var(--sp-ink)}a:hover{color:var(--sp-acc)}
 /* fix 13: a class that sets display must never beat the hidden attribute (filtered cards and rows) */
 [hidden]{display:none!important}
