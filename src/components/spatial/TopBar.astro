@@ -26,31 +26,47 @@ import { FULL_NAME, STATUS, STATUS_TEXT } from '../../consts';
 <script>
   import { toggleTheme } from '../../lib/spatial/theme.js';
 
+  const labelTheme = (themeBtn: Element, theme: string) => {
+    const text = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+    themeBtn.setAttribute('aria-label', text);
+    themeBtn.setAttribute('title', text);
+  };
+
+  // The label stays "Pause animations"; aria-pressed carries the state.
+  const setPaused = (pauseBtn: Element, on: boolean) => {
+    const html = document.documentElement;
+    html.classList.toggle('still', on);
+    pauseBtn.setAttribute('aria-pressed', String(on));
+    try { sessionStorage.setItem('sp-still', on ? '1' : '0'); } catch (err) { /* storage can be unavailable */ }
+    document.dispatchEvent(new CustomEvent('sp:pause', { detail: on }));
+  };
+
+  // Per-page work: label the theme button and sync the pause button with the page's state.
   function init() {
     const html = document.documentElement;
-    const themeBtn = document.querySelector<HTMLButtonElement>('[data-sp-theme]');
-    const pauseBtn = document.querySelector<HTMLButtonElement>('[data-sp-pause]');
+    const themeBtn = document.querySelector('[data-sp-theme]');
+    const pauseBtn = document.querySelector('[data-sp-pause]');
     if (!themeBtn || !pauseBtn) return; // not a Spatial page
-
-    const labelTheme = (theme: string) => {
-      const text = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
-      themeBtn.setAttribute('aria-label', text);
-      themeBtn.setAttribute('title', text);
-    };
-    labelTheme(html.dataset.theme || 'light');
-    themeBtn.addEventListener('click', (event) => labelTheme(toggleTheme(event)));
-
-    // The label stays "Pause animations"; aria-pressed carries the state.
-    const setPaused = (on: boolean) => {
-      html.classList.toggle('still', on);
-      pauseBtn.setAttribute('aria-pressed', String(on));
-      try { sessionStorage.setItem('sp-still', on ? '1' : '0'); } catch (err) { /* storage can be unavailable */ }
-      document.dispatchEvent(new CustomEvent('sp:pause', { detail: on }));
-    };
-    setPaused(html.classList.contains('still'));
-    pauseBtn.addEventListener('click', () => setPaused(!html.classList.contains('still')));
+    labelTheme(themeBtn, html.dataset.theme || 'light');
+    setPaused(pauseBtn, html.classList.contains('still'));
   }
 
-  // <ClientRouter /> fires this on the first load and after every navigation.
-  document.addEventListener('astro:page-load', init);
+  // Wired once per visit, even if a later page runs this module again. The clicks are one listener
+  // on document, so the buttons work as soon as this module runs: before window load on a first view,
+  // and on every Spatial page reached by navigation, from either layout.
+  const state = window as Window & { __spTopBarWired?: boolean };
+  if (!state.__spTopBarWired) {
+    state.__spTopBarWired = true;
+
+    document.addEventListener('click', (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      const themeBtn = target?.closest('[data-sp-theme]');
+      if (themeBtn) { labelTheme(themeBtn, toggleTheme(event)); return; }
+      const pauseBtn = target?.closest('[data-sp-pause]');
+      if (pauseBtn) setPaused(pauseBtn, !document.documentElement.classList.contains('still'));
+    });
+
+    // <ClientRouter /> fires this on the first load (at window load) and after every navigation.
+    document.addEventListener('astro:page-load', init);
+  }
 </script>
