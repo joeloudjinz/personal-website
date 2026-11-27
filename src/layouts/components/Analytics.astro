@@ -1,0 +1,28 @@
+---
+// Analytics.astro — the GA4 tag, used by both layouts.
+interface Props {
+	contentGroup: 'main-site' | 'project-page';
+}
+
+const {contentGroup} = Astro.props;
+const GTAG_MEASUREMENT_ID = import.meta.env.PUBLIC_GTAG_MEASUREMENT_ID;
+---
+
+{GTAG_MEASUREMENT_ID && (
+	<Fragment>
+		<!-- Google tag (gtag.js) -->
+		<script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${GTAG_MEASUREMENT_ID}`}></script>
+		<script define:vars={{ GTAG_MEASUREMENT_ID, contentGroup }}>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+			// content_group is a reserved parameter GA4 reports on natively,
+			// so segmenting the project subdomains from the main site costs
+			// no custom-dimension slot. One property, one measurement ID —
+			// subdomains share the _ga cookie, so a visitor who crosses from
+			// the main site keeps their client ID and the session is one
+			// session rather than two.
+			gtag('config', GTAG_MEASUREMENT_ID, {content_group: contentGroup});
+		</script>
+	</Fragment>
+)}
