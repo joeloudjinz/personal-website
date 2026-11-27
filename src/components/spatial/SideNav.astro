@@ -1,0 +1,23 @@
+---
+// SideNav.astro — the glass navigation: vertical and sticky on desktop, a row on phones.
+import { navIcons } from './icons';
+
+export type NavKey = 'home' | 'projects' | 'posts' | 'about';
+interface Props { current?: NavKey | null }
+const { current = null } = Astro.props;
+
+const items = [
+  { key: 'home', label: 'Home', href: '/', icon: navIcons.home },
+  { key: 'projects', label: 'Projects', href: '/projects/', icon: navIcons.window },
+  { key: 'posts', label: 'Posts', href: '/posts/', icon: navIcons.pen },
+  { key: 'about', label: 'About', href: '/about/', icon: navIcons.person },
+  { key: 'contact', label: 'Contact', href: '#contact', icon: navIcons.bubble }, // every page ends with the contact card
+];
+---
+<nav class="sp-nav" aria-label="Main">
+  {items.map((it) => (
+    <a href={it.href} class="sp-navlink" aria-label={it.label} title={it.label} aria-current={it.key === current ? 'page' : undefined}>
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" focusable="false" set:html={it.icon} />
+    </a>
+  ))}
+</nav>

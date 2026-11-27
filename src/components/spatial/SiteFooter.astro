@@ -1,0 +1,31 @@
+---
+// SiteFooter.astro — brand line left; GitHub and LinkedIn text links and the copyright right.
+import { aaMark } from './icons';
+import { FULL_NAME, NICKNAME, HANDLE, GITHUB_ACCOUNT, LINKEDIN_ACCOUNT } from '../../consts';
+import { linkAttrs } from '../../utils/links';
+
+const year = new Date().getFullYear();
+const links = [
+  { label: 'GitHub', href: GITHUB_ACCOUNT },
+  { label: 'LinkedIn', href: LINKEDIN_ACCOUNT }
+];
+---
+<footer class="sp-foot">
+  <div class="sp-foot-in">
+    <p class="sp-foot-brand">
+      <svg viewBox="0 0 240 240" width="24" height="24" aria-hidden="true" focusable="false" set:html={aaMark} />
+      {FULL_NAME} · {HANDLE}
+    </p>
+    <div class="sp-foot-r">
+      {links.map((link) => {
+        const attrs = linkAttrs(link.href);
+        return (
+          <a href={link.href} target={attrs.target} rel={`me ${attrs.rel ?? ''}`.trim()} class="sp-footlink">
+            {link.label}<span class="sp-vh"> (opens in a new tab)</span>
+          </a>
+        );
+      })}
+      <p>© {year} {FULL_NAME} · {NICKNAME}</p>
+    </div>
+  </div>
+</footer>

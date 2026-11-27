@@ -1,0 +1,27 @@
+---
+// ThemeScript.astro — put it in <head>. Applies the stored (or system) theme and the paused state
+// to <html data-sp-root> before first paint, and again after each client-side navigation.
+//
+// The root check matters while both layouts exist: this listener outlives a navigation to a
+// BaseLayout page, and that page's own script owns the theme there.
+---
+<script is:inline>
+  (function () {
+    function apply() {
+      var h = document.documentElement, t = null, still = false;
+      if (!h.hasAttribute('data-sp-root')) return;
+      try { t = localStorage.getItem('theme'); still = sessionStorage.getItem('sp-still') === '1'; } catch (e) {}
+      if (t !== 'light' && t !== 'dark') t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      var night = t === 'dark';
+      h.classList.toggle('sp-night', night);
+      h.classList.toggle('theme-dark', night);
+      h.classList.toggle('sp-day', !night);
+      h.classList.toggle('still', still);
+      h.classList.add('js');
+      h.dataset.theme = t;
+      h.style.colorScheme = t;
+    }
+    apply();
+    document.addEventListener('astro:after-swap', apply);
+  })();
+</script>
