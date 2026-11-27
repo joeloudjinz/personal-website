@@ -1,0 +1,61 @@
+/* Spatial v2 — page shell as classes.
+   On the boards these were inline styles; the values are identical. Load after spatial-base.css.
+   Used by code/astro/layout/*.astro. */
+
+/* the room: page background, clips the lights; overflow:clip (not hidden) keeps sticky + scroll timelines working */
+.sp-room{position:relative;overflow:clip;min-height:100vh;color:var(--sp-ink);font-family:var(--font-sans);background:var(--sp-room)}
+.sp-grain{position:absolute;inset:0;background-image:var(--vx-grain);opacity:.06;pointer-events:none}
+.sp-light{position:absolute;border-radius:50%;pointer-events:none;transition:opacity 6s ease}
+.sp-light.warm{background:radial-gradient(circle,rgba(198,138,69,.3),rgba(198,138,69,0) 64%);opacity:var(--fx-dz,.72)}
+.sp-light.cool{background:radial-gradient(circle,rgba(143,155,196,.18),rgba(143,155,196,0) 64%);opacity:var(--fx-fl,.72)}
+
+/* skip link */
+.sp-skip{position:absolute;left:1rem;top:-5rem;z-index:30}
+.sp-skip:focus{top:1rem}
+
+/* frame: nav column + main column */
+.sp-frame{position:relative;max-width:1320px;margin:0 auto;padding:2rem 1.5rem 0;display:flex;flex-wrap:wrap;align-items:flex-start;gap:1.5rem}
+.sp-main{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:6rem;padding-bottom:4rem}
+.sp-main:focus{outline:none}
+
+/* side nav links (.sp-nav itself is in spatial-base.css) */
+.sp-navlink{width:48px;height:48px;display:flex;align-items:center;justify-content:center;border-radius:50%;color:var(--sp-ink-2);text-decoration:none}
+.sp-navlink svg{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sp-navlink:hover{color:var(--sp-ink)}
+.sp-navlink[aria-current="page"]{background:rgba(var(--sp-rgb),.18);color:var(--sp-ink)}
+
+/* top row */
+.sp-top{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap}
+.sp-brand{display:flex;align-items:center;gap:.75rem;text-decoration:none;font-weight:600;color:var(--sp-ink)}
+.sp-brand svg{flex-shrink:0}
+.sp-top-r{display:inline-flex;flex-wrap:wrap;align-items:center;gap:.6rem}
+.sp-status{margin:0;display:inline-flex;align-items:flex-start;gap:.6rem;padding:.45rem .95rem;border-radius:18px;line-height:1.4;font-size:var(--fs-caption);color:var(--sp-ink-2)}
+.sp-status-dot{flex:0 0 8px;width:8px;height:8px;margin-top:.4em;border-radius:50%;background:var(--sage-bright)}
+.sp-iconbtn svg{display:block}
+.sp-icon-line{fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sp-icon-fill{fill:currentColor}
+.sp-night .sp-i-moon,.sp-day .sp-i-sun{display:none}
+.still .sp-i-pause,html:not(.still) .sp-i-play{display:none}
+
+/* section header */
+.sp-sechead{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:.5rem 2rem}
+.sp-sectitle{display:flex;flex-direction:column;gap:.5rem}
+
+/* contact card */
+.sp-win.sp-contact{position:relative;overflow:hidden;isolation:isolate;min-width:0;padding:2.6rem 2.8rem;display:flex;flex-direction:column;justify-content:center;gap:1.1rem;background:radial-gradient(80% 120% at 100% 0%,rgba(198,138,69,.2),rgba(198,138,69,0) 60%),var(--sp-tint-bg)}
+.sp-contact.side{flex:1.7 1 28rem}
+.sp-contact-h{margin:0;font-family:var(--font-display);font-weight:600;font-size:clamp(2.2rem,3.8vw,3.2rem);line-height:1.08;letter-spacing:var(--ls-display);color:var(--sp-ink)}
+.sp-contact-p{margin:0;font-size:1.125rem;line-height:1.55;color:var(--sp-ink-2)}
+.sp-contact-ctas{display:flex;flex-wrap:wrap;gap:.85rem;padding-top:.3rem}
+.glass-solid .sp-win.sp-contact{background:radial-gradient(80% 120% at 100% 0%,rgba(198,138,69,.2),rgba(198,138,69,0) 60%),#1E2439}
+.sp-day.glass-solid .sp-win.sp-contact{background:#FFFDF6}
+@media (prefers-reduced-transparency:reduce){.sp-win.sp-contact{background:radial-gradient(80% 120% at 100% 0%,rgba(198,138,69,.2),rgba(198,138,69,0) 60%),#1E2439}.sp-day .sp-win.sp-contact{background:#FFFDF6}}
+
+/* footer */
+.sp-foot{position:relative;border-top:1px solid rgba(var(--sp-rgb),.12)}
+.sp-foot-in{max-width:1320px;margin:0 auto;padding:1rem 1.5rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:.5rem 1rem;font-size:var(--fs-caption);color:var(--sp-ink-2)}
+.sp-foot-brand{margin:0;display:flex;align-items:center;gap:.5rem}
+.sp-foot-r{display:flex;flex-wrap:wrap;align-items:center;gap:0 1.25rem}
+.sp-foot-r p{margin:0}
+
+@media (forced-colors:active){.sp-win,.sp-orn,.sp-nav,.sp-status{border:1px solid CanvasText}.sp-tab[aria-pressed="true"],.sp-tab[aria-selected="true"]{font-weight:800;text-decoration:underline}}
