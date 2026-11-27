@@ -94,7 +94,8 @@ export default {
         './src/*.{ts,astro}',
         './src/content/**/*.md',
         '!./src/components/spatial/**',
-        '!./src/layouts/SpatialLayout.astro'
+        '!./src/layouts/SpatialLayout.astro',
+        '!./src/pages/404.astro'
     ],
     theme: {
         container: {
