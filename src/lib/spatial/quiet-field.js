@@ -283,6 +283,8 @@ export class QuietField {
   }
 
   spawn(R, o = {}) {
+    // a paused field starts nothing, whoever asks: the "salam" egg asks half a second after the key press
+    if (this.paused) return null;
     const s = this.free();
     if (!s) return null;
     const B = this.bounds(R);
@@ -659,6 +661,8 @@ export class QuietField {
     const lines = Array.prototype.slice.call(this.bp.querySelectorAll('.d'));
     const fade = [{ transform: pos, opacity: 0 }, { transform: pos, opacity: 1, offset: 0.12 }, { transform: pos, opacity: 1, offset: 0.78, easing: 'ease-in' }, { transform: pos, opacity: 0 }];
     if (this.reduce) {
+      // the press ring has done its job; without this it stays on screen until the next press
+      if (this.wave) this.wave.getAnimations().forEach((a) => a.cancel());
       this.bp.animate(fade, { duration: life, fill: 'forwards' });
       lines.forEach((p) => p.animate([{ strokeDashoffset: 0 }, { strokeDashoffset: 0 }], { duration: life, fill: 'forwards' }));
       return;
@@ -715,7 +719,7 @@ export class QuietField {
 
   // Between midnight and 5 am, once per visit: one fast caramel signal crosses the screen.
   nightOwl() {
-    if (this.mode === 'off') return;
+    if (this.mode === 'off' || this.paused || this.lite) return; // pause and Save-Data hold the owl, as they hold every other signal
     const s = this.free();
     if (!s) return;
     const B = this.bounds(this.region());

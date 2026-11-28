@@ -2,8 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { FIELD_DEFAULTS, QuietField } from './quiet-field.js';
 
-// The engine is the design package's file, unchanged. These tests pin the facts about it that the
-// site relies on, so a later copy of the engine cannot change them unnoticed.
+// The engine is the design package's file with three places changed (the last test pins two of them).
+// These tests pin the facts about it that the site relies on, so a later copy cannot change them unnoticed.
 
 test('the two lights follow the clocks in Algiers and in Florida', () => {
   // 12:00 UTC in June is 13:00 in Algiers and 08:00 in New York: working hours in both.
@@ -19,4 +19,15 @@ test('the two lights follow the clocks in Algiers and in Florida', () => {
 
 test('the empty-space list still holds the bare [tabindex] entry that QuietField.astro narrows', () => {
   assert.ok(FIELD_DEFAULTS.emptyBlockers.split(',').includes('[tabindex]'));
+});
+
+test('a paused field starts no signal, and Save-Data holds the night owl', () => {
+  // No browser is needed: both calls must return before they look for a signal to move.
+  const field = new QuietField({ parentElement: null });
+  field.paused = true;
+  assert.equal(field.spawn({}), null);
+  assert.equal(field.nightOwl(), undefined);
+  field.paused = false;
+  field.lite = true;
+  assert.equal(field.nightOwl(), undefined);
 });
