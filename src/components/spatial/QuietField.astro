@@ -1,0 +1,96 @@
+---
+// QuietField.astro — the background field. SpatialLayout.astro places it as the first child of the
+// room, right after the drifting lights, so the content stacks above it:
+//
+//   <div class="voice-editorial sp-room">        ← position:relative; overflow:clip
+//     <div class="sp-drift sp-light warm" …></div>  ← lights, opacity: var(--fx-dz) / var(--fx-fl)
+//     <QuietField page="home" />
+//     <div class="sp-frame">…</div>
+//   </div>
+//
+// The settings per page and the pool sizes are read from src/data/spatial/field-config.json.
+// Its other keys (pitch, idleMs, lights) record values the engine and the stylesheet hold themselves.
+import blueprint from '../../assets/spatial/illustrations/field/hidden-engine-blueprint.svg?raw';
+import fieldConfig from '../../data/spatial/field-config.json';
+
+interface Props { page?: 'home' | 'about' | 'projects' | 'posts' | 'post' | '404'; mode?: 'quiet' | 'reveal' | 'off'; }
+const { page = 'home', mode = 'quiet' } = Astro.props;
+const CONFIG = fieldConfig.pages[page];
+const tags = [['req', 'request'], ['res', 'response'], ['crit', 'critical path'], ['meet', 'meeting halfway'],
+  ['grow', 'growing'], ['detour', 'detour'], ['stand', 'stand-up'], ['owl', 'night owl']];
+const sigs = Array.from({ length: fieldConfig.pools.signals });
+const dots = Array.from({ length: fieldConfig.pools.dots });
+const rings = Array.from({ length: fieldConfig.pools.rings });
+---
+<div class:list={['fx', `fx-${mode}`]} aria-hidden="true" data-fx data-config={JSON.stringify(CONFIG)} data-mode={mode}>
+  <div class="fx-lat"></div>
+  <div class="fx-ear"></div>
+  <span class="fx-ripple"></span>
+  {rings.map(() => <span class="fx-ring"></span>)}
+  <Fragment set:html={blueprint} />
+  {dots.map(() => <span class="fx-dot"></span>)}
+  {sigs.map(() => (
+    <span class="fx-sig"><span class="fx-core"></span>{tags.map(([k, label]) => <span class={`fx-tag k-${k}`}>{label}</span>)}</span>
+  ))}
+</div>
+
+<script>
+  import type { TransitionBeforeSwapEvent } from 'astro:transitions/client';
+  import { FIELD_DEFAULTS, QuietField } from '../../lib/spatial/quiet-field.js';
+
+  // <main> carries tabindex="-1" so the skip link can move focus into it. It is a container, not a
+  // control, so the gaps between its sections are empty background: the pointer's listening circle
+  // shows there, and press and hold opens the hidden engine there. The engine's own list counts
+  // every element with a tabindex as taken, which would rule out the whole main column.
+  const EMPTY_BLOCKERS = FIELD_DEFAULTS.emptyBlockers.replace('[tabindex]', '[tabindex]:not(main)');
+
+  // The engine lets signals pass behind text inside glass, because glass blurs them. Its glass list
+  // names the status pill, but the stylesheet gives the pill no blur. So the pill's text is treated
+  // like any other text on the page: signals route around it.
+  const GLASS = FIELD_DEFAULTS.glassSelector.replace(',.sp-status', '');
+
+  let field: QuietField | null = null;
+
+  function boot() {
+    field?.stop();
+    const root = document.querySelector<HTMLElement>('[data-fx]');
+    if (!root) return;
+    const cfg = JSON.parse(root.dataset.config || '{}');
+    field = new QuietField(root, { ...cfg, mode: root.dataset.mode || 'quiet', emptyBlockers: EMPTY_BLOCKERS, glassSelector: GLASS });
+    // start once layout and fonts have settled, so quiet zones are measured on the final text
+    // fix 15: the engine drops a pause that reaches it before it has started, and start() does not
+    // look at the page. So the page's own state is handed over here. That covers a pause remembered
+    // from before a reload, and a press of the pause button made while the fonts were loading (D31).
+    const go = () => {
+      // the start is late on purpose, so the visitor may be gone by now: the router has swapped this page's markup out
+      if (!root.isConnected) return;
+      field?.start();
+      field?.pause('still', document.documentElement.classList.contains('still'));
+    };
+    (document.fonts?.ready ?? Promise.resolve()).then(() => setTimeout(go, 300));
+  }
+
+  // the page's pause button dispatches this; reduced motion is handled inside the engine
+  document.addEventListener('sp:pause', (e) => field?.pause('still', !!(e as CustomEvent).detail));
+  // anything that moves text around (filters, expanding a role, switching a hat) should ask for new quiet zones
+  document.addEventListener('sp:layout', () => field?.requestQuiet());
+
+  document.addEventListener('astro:page-load', boot);      // with <ClientRouter />
+  // fix 16: the engine keeps the two light levels in the style of <html>, and the router replaces
+  // every attribute of <html> on a swap. Without this the lights fall back to .72 and take six
+  // seconds to ease back. lights() needs no running field, so the one that has just stopped sets them.
+  // They are set inside the swap itself and not on astro:after-swap: on Back and Forward the router
+  // restores the scroll position between the two, and that can compute the lights' style too early.
+  // The root check matters while both layouts exist: this listener outlives a visit to a BaseLayout page.
+  document.addEventListener('astro:before-swap', (e) => {
+    field?.stop();
+    const event = e as TransitionBeforeSwapEvent;
+    const swap = event.swap;
+    event.swap = () => {
+      swap();
+      if (document.documentElement.hasAttribute('data-sp-root')) field?.lights();
+    };
+  });
+  // without <ClientRouter />, astro:page-load never fires: boot once now
+  if (!document.querySelector('meta[name="astro-view-transitions-enabled"]')) boot();
+</script>
