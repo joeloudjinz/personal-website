@@ -20,6 +20,7 @@ import SideNav, { type NavKey } from '../components/spatial/SideNav.astro';
 import TopBar from '../components/spatial/TopBar.astro';
 import ContactCard from '../components/spatial/ContactCard.astro';
 import SiteFooter from '../components/spatial/SiteFooter.astro';
+import QuietField from '../components/spatial/QuietField.astro';
 
 type Page = 'home' | 'about' | 'projects' | 'posts' | 'post' | '404';
 interface Light { side: 'left' | 'right'; offset: string; top: string; size: string; warm: boolean; delay: number }
@@ -74,6 +75,7 @@ const {
         <div aria-hidden="true" class:list={['sp-drift', 'sp-light', l.warm ? 'warm' : 'cool']}
           style={`animation-delay:-${l.delay}s;width:${l.size};height:${l.size};${l.side}:${l.offset};top:${l.top}`}></div>
       ))}
+      <QuietField page={page} />
       <div class="sp-frame">
         <TopBar />
         <SideNav current={current} />
