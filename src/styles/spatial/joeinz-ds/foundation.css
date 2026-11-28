@@ -1,0 +1,18 @@
+/* Joe Inz DS, version 1.1.0: the layers the Spatial v2 pages read, in the
+   order the design system's own entry stylesheet loads them.
+
+   Left out on purpose:
+   - foundation/fonts.css — BaseHead already links Literata, Readex Pro and
+     JetBrains Mono, and importing them again would download them twice.
+   - foundation/dataviz.css, diagram.css, docs.css — no Spatial page uses them.
+
+   These tokens also exist in src/styles/global.css, with the same values. The
+   two copies are unified when the showcase pages get their follow-up design. */
+@import url('tokens/colors.css');
+@import url('tokens/spacing.css');
+@import url('tokens/effects.css');
+@import url('foundation/typography.css');
+@import url('foundation/scale.css');
+@import url('foundation/rtl.css');
+@import url('foundation/voice.css');
+@import url('foundation/dev.css');

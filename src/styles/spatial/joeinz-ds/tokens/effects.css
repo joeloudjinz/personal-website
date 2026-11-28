@@ -1,0 +1,30 @@
+/* Joe Inz — shadows, gradients, motion.
+   Solid backgrounds are retired: every post picks one of four gradients, in dark or light.
+   All gradients use the same palette so the feed stays coherent. */
+:root{
+  /* Shadows — soft, warm-neutral, never harsh */
+  --shadow-card:0 10px 30px -12px rgba(0,0,0,.35);
+  --shadow-soft:0 4px 16px -8px rgba(58,40,30,.25);
+  --shadow-lift:0 18px 44px -16px rgba(0,0,0,.42);
+
+  /* Motion — calm, no bounce */
+  --ease-standard:cubic-bezier(.22,.61,.36,1); /* @kind other */
+  --dur-fast:120ms; /* @kind other */
+  --dur-base:220ms; /* @kind other */
+  --dur-slow:420ms; /* @kind other */
+
+  /* --- DARK gradients (navy family) --- */
+  --grad-dark-subtle:linear-gradient(176deg,#212a48,#161c30 55%,#141a2c); /* @kind color */
+  --grad-dark-glow:radial-gradient(135% 105% at 12% 8%,#2b3560,#1a2038 44%,#12172a); /* @kind color */
+  --grad-dark-diagonal:linear-gradient(135deg,#1d2448,#211a3c 55%,#241826); /* @kind color */
+  --grad-dark-warm:radial-gradient(120% 95% at 88% 10%,rgba(198,138,69,.24),rgba(198,138,69,.05) 32%,rgba(25,31,51,0) 60%),#191F33; /* @kind color */
+
+  /* --- LIGHT gradients (cream family) --- */
+  --grad-light-subtle:linear-gradient(176deg,#FAF4E6,#EEE2C6); /* @kind color */
+  --grad-light-glow:radial-gradient(135% 105% at 12% 8%,#FFFDF6,#F1E7CD); /* @kind color */
+  --grad-light-diagonal:linear-gradient(135deg,#F6EDD8,#F0E7E6); /* @kind color */
+  --grad-light-warm:radial-gradient(120% 95% at 88% 10%,rgba(198,138,69,.18),transparent 55%),#F3EAD2; /* @kind color */
+
+  /* --- Grain: low-opacity noise overlaid on gradients for depth --- */
+  --grain-svg:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); /* @kind other */
+}

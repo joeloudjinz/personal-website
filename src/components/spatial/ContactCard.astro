@@ -1,0 +1,18 @@
+---
+// ContactCard.astro — "I'm one message away." Full width on every page; layout="side" on the
+// homepage, where it shares a row with "When I'm not shipping".
+import { EMAIL, LINKEDIN_ACCOUNT } from '../../consts';
+import { linkAttrs } from '../../utils/links';
+
+interface Props { layout?: 'full' | 'side' }
+const { layout = 'full' } = Astro.props;
+---
+<section id="contact" aria-labelledby="contact-h" class:list={['sp-win', 'sp-contact', 'sp-reveal', { side: layout === 'side' }]}>
+  <div aria-hidden="true" class="sp-glow" style="z-index: -1;"></div>
+  <h2 id="contact-h" class="sp-contact-h">I’m one message away.</h2>
+  <p class="sp-contact-p">Reach out on LinkedIn, or send a direct email. I’ll be delighted to answer.</p>
+  <div class="sp-contact-ctas">
+    <a href={`mailto:${EMAIL}`} class="sp-btn sp-pri">Email me</a>
+    <a href={LINKEDIN_ACCOUNT} {...linkAttrs(LINKEDIN_ACCOUNT)} class="sp-btn sp-sec">LinkedIn<span class="sp-vh"> (opens in a new tab)</span></a>
+  </div>
+</section>

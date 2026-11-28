@@ -9,6 +9,7 @@ import {
   pagePath,
   readProjectPageSlugs
 } from './src/utils/projectPagesBuild';
+import { assertSpatialPages } from './src/lib/spatial/buildCheck';
 
 const SITE = 'https://abdellahaddoun.com';
 const PROJECT_ROOT = new URL('./', import.meta.url);
@@ -52,6 +53,15 @@ const assertProjectPageRedirects = {
   }
 };
 
+// Invariants over the built HTML: no route lost, no review note or placeholder
+// left in a page, exactly one <h1> on a Spatial page. See src/lib/spatial/buildCheck.ts.
+const assertSpatialInvariants = {
+  name: 'assert-spatial-invariants',
+  hooks: {
+    'astro:build:done': ({ dir }) => assertSpatialPages(dir)
+  }
+};
+
 // https://astro.build/config
 export default defineConfig({
   site: SITE,
@@ -62,6 +72,7 @@ export default defineConfig({
     // reads the files sitemap() writes.
     assertCanonicalHosts,
     assertProjectPageRedirects,
+    assertSpatialInvariants,
     // `src/styles/global.css` owns the three @tailwind directives — it has to,
     // its @layer base and @layer components blocks need directives in the same
     // sheet to hoist into — so the base stylesheet the

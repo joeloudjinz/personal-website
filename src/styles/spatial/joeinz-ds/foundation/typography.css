@@ -1,0 +1,61 @@
+/* Joe Inz — foundation typography tokens (generalized beyond LinkedIn slides).
+   Load foundation/fonts.css first. One stack per ROLE: each stack pairs a Latin face with an
+   Arabic face; the Latin faces carry no Arabic glyphs and Google's @font-face subsets are
+   unicode-range-gated, so Arabic codepoints resolve to the Arabic face per character —
+   mixed-script text just works with no extra markup. Bidi order comes from dir/lang attributes.
+   The modular size ladder still lives in tokens/typography.css (legacy, pending re-validation);
+   the foundation re-declares only what the new type identity changes. */
+:root{
+  /* --- Role stacks --- */
+  --font-display:'Literata','Harmattan',Georgia,'Times New Roman',serif;        /* display/editorial. Arabic → Harmattan: warm/personal register (system default) */
+  --font-display-formal:'Literata','Amiri',Georgia,'Times New Roman',serif;     /* display/editorial. Arabic → Amiri: formal/literary register. Peer of the above — pick by register */
+  --font-sans:'Readex Pro',system-ui,-apple-system,'Segoe UI',sans-serif;       /* UI + body + Arabic UI chrome, Latin AND Arabic in the one family — no pairing, no third face */
+  --font-mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,Consolas,monospace; /* code. No Arabic coverage — Arabic in code falls to the system monospace */
+
+  /* --- Weights --- */
+  --fw-regular:400; /* @kind other */
+  --fw-medium:500; /* @kind other */
+  --fw-semibold:600; /* @kind other */
+  --fw-bold:700; /* @kind other */
+
+  /* --- Arabic optical scale ---
+     Arabic reads ~10–15% smaller than Latin at equal font-size (no ascender/x-height mass),
+     so it renders larger at the same role: font-size:calc(var(--fs-h1)*var(--ar-scale-amiri)).
+     Documented em-factors because the fonts load from CDN; if self-hosted, move these into
+     @font-face size-adjust (see foundation/fonts.css) and set the tokens to 1. */
+  --ar-scale-harmattan:1.10; /* @kind other */
+  --ar-scale-amiri:1.15; /* @kind other */ /* traditional Naskh, smallest loop height of the set */
+  --ar-scale-readex:1; /* @kind other */ /* dual-script family, harmonized by design */
+
+  /* --- Line heights — Latin --- */
+  --lh-tight:1.12; /* @kind other */ /* Latin display only — clips Arabic ascenders + vowel marks */
+  --lh-snug:1.25; /* @kind other */ /* intentionally 1.25 in the foundation — legacy tokens/typography.css uses 1.2 */
+  --lh-normal:1.5; /* @kind other */
+  --lh-relaxed:1.6; /* @kind other */
+
+  /* --- Line heights — Arabic (taller: joining strokes, marks, deep descenders).
+     Role mapping: Latin 1.5 ↔ Arabic 1.7 · Latin 1.6 ↔ Arabic 1.85 · Latin display 1.12 ↔ Arabic display 1.4 --- */
+  --lh-ar-tight:1.4; /* @kind other */ /* Arabic display minimum, never lower */
+  --lh-ar-normal:1.7; /* @kind other */
+  --lh-ar-relaxed:1.85; /* @kind other */
+
+  /* --- Tracking — LATIN ONLY. Arabic is a joined script: letter-spacing breaks the
+     connections and is never acceptable, at any size, in any register. --- */
+  --ls-kicker:0.16em; /* @kind other */
+  --ls-tight:-0.02em; /* @kind other */
+  --ls-display:-0.015em; /* @kind other */
+  --ls-arabic:0; /* @kind other */ /* the only legal tracking value for Arabic */
+
+  /* --- Mono features: ligatures OFF by default (!= => stay two glyphs). Re-enable per
+     surface with font-feature-settings:normal if a display context truly wants them. --- */
+  --mono-features:'calt' 0,'liga' 0; /* @kind other */
+}
+/* Enforced: never letter-space Arabic. :lang() is inheritance-aware, so this reaches every
+   element inside a lang="ar" subtree; !important is deliberate — it must beat kicker/label
+   tracking rules. Re-declared lang (e.g. a lang="en" span inside Arabic) is exempt.
+   font-synthesis:none — the browser must never fake a missing style: Harmattan has no
+   italic, Amiri has no 500/600. Snap to a real weight instead (see the usage card). */
+:lang(ar){letter-spacing:var(--ls-arabic)!important;font-synthesis:none}
+/* Zero-specificity defaults — any explicit component rule wins. */
+:where(:lang(ar)){line-height:var(--lh-ar-normal)}
+:where(code,kbd,samp,pre){font-family:var(--font-mono);font-feature-settings:var(--mono-features)}

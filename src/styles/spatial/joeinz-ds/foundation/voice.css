@@ -1,0 +1,182 @@
+/* Joe Inz — foundation voices: how one brand core serves very different media without going
+   bland or costume-y. Three orthogonal axes, each owning ONE decision:
+   · REGISTER (warm | sharp) — CONTENT tone. Picks the display face + copy style. Nothing else.
+   · MODE (light | dark) — display preference. Picks surface luminance. Nothing else.
+   · VOICE (editorial | utility | console) — the surface's JOB. Fixes display-face USAGE,
+     background policy, density, decoration budget, and motion appetite.
+
+   STRUCTURE — why exactly these three. A fourth "reading" voice for long-form prose was
+   considered and folded into EDITORIAL: its background policy turned out to be positional, not
+   surface-wide — on any editorial surface, gradient + grain frame the statement moments (cover,
+   hero, section break, social slide) while running prose sits flat, so splitting would force
+   every article to be two voices. Folding CONSOLE into UTILITY was also considered and rejected:
+   ownership and typography flip (utility recedes behind the USER's live data, sans + interactive;
+   console renders MACHINE output, mono-forward), and console blocks must embed inside the other
+   two voices without adopting them. Fewer than three re-couples job to medium; a fifth would name
+   a medium, not an intent.
+
+   USE — put .voice-editorial / .voice-utility / .voice-console on the surface root; the unmarked
+   default is editorial (the brand speaking). A surface adopts ONE voice whole; the only legal mix
+   is an embedded console block (a code pane in an essay keeps console rules — the essay's
+   decoration stops at its border). Every voice must hold in light AND dark (voices reference the
+   mode-indirected --vx-* primitives below, never mode literals), LTR AND RTL (logical properties;
+   nothing in this file is directional), and with either Arabic display face. Two mechanics to
+   respect: put .theme-dark ON or ABOVE the voice root — a mode flip strictly inside a voice
+   scope won't re-resolve the --v-* indirections (custom properties substitute where declared);
+   and density works because foundation/scale.css re-declares the --fs-* ladder under the voice
+   classes, so each voice's --type-scale re-computes in scope.
+
+   REGISTER ⊥ MODE — the full matrix; all four cells are legal in every voice:
+                 light                                  dark
+   warm     career story slide (the old default)   evening long-read; personal post in a dark feed
+   sharp    hiring one-pager; print handout        conference title card (the old default)
+   The legacy rule "light = warm, dark = sharp" is hereby DEMOTED: it was a sensible default for
+   the two original social templates, never a law. Voices and registers must not read mode to make
+   decisions; mode must never restyle tone.
+
+   GRADIENTS + GRAIN are a voice-level opt-in — editorial framing only — not the system-wide
+   mandate of the slide era ("solid backgrounds are retired" stays true only inside slide
+   templates). Why they are wrong for dense working UI: a gradient is an uneven contrast substrate
+   (AA measured at one point silently fails as small text repeats across the glow); under controls
+   a glow reads as emphasis, spending the caramel budget on chrome; grain adds a noise floor under
+   small text, mono glyphs, and hatched dataviz; and a workspace of repeated glowing cards is
+   wallpaper. Utility and console therefore pin flat surfaces + recessed wells.
+
+   The --v-deco-* flags are 1/0 contract values for components and lint — comments carry the
+   nuance ("optional" stays 1 with a stated budget). */
+
+/* --- Mode-indirected surface primitives. Self-contained (foundation loads without legacy
+   tokens/); mirrors noted. Voices point at these so mode stays orthogonal by construction. --- */
+:root{
+  --vx-flat:#F3EAD2;        /* = --cream */
+  --vx-flat-raised:#F7F1E1; /* = --cream-soft — cards on flat */
+  --vx-well:#EEE2C6;        /* = --cream-deep = --code-bg — recessed inputs, code, quiet wells */
+  --vx-frame:radial-gradient(135% 105% at 12% 8%,#FFFDF6,#F1E7CD); /* @kind color */ /* = --grad-light-glow */
+  --vx-frame-warm:radial-gradient(120% 95% at 88% 10%,rgba(198,138,69,.18),transparent 55%),#F3EAD2; /* @kind color */ /* = --grad-light-warm */
+  --vx-grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"); /* @kind other */ /* = --grain-svg */
+  --vx-grain-alpha:.05; /* @kind other */
+}
+.theme-dark{
+  --vx-flat:#191F33;        /* = --navy */
+  --vx-flat-raised:#2A3350; /* = --navy-soft */
+  --vx-well:#12172A;        /* = --navy-deep = --code-bg (dark) */
+  --vx-frame:radial-gradient(135% 105% at 12% 8%,#2B3560,#1A2038 44%,#12172A); /* @kind color */ /* = --grad-dark-glow */
+  --vx-frame-warm:radial-gradient(120% 95% at 88% 10%,rgba(198,138,69,.24),rgba(198,138,69,.05) 32%,rgba(25,31,51,0) 60%),#191F33; /* @kind color */ /* = --grad-dark-warm */
+  --vx-grain-alpha:.07; /* @kind other */
+}
+
+/* --- REGISTER hooks — .register-warm / .register-sharp anywhere; default warm. Register picks
+   the display FACE; the voice decides how much display gets used. Arabic display: warm → Harmattan
+   (--fs-*-ar); formal/literary content keeps Amiri via --reg-display-formal + --fs-*-ar-formal;
+   sharp → Readex Pro carries both scripts (×1 optical). Copy style: warm = reassuring reframes;
+   sharp = declarative takes — both first person, sentence case, no hype. --- */
+:root,.register-warm{
+  --reg-display:var(--font-display);
+  --reg-display-formal:var(--font-display-formal);
+  --reg-display-weight:var(--fw-semibold);
+  --reg-display-ls:var(--ls-display);
+}
+.register-sharp{
+  --reg-display:var(--font-sans);
+  --reg-display-formal:var(--font-sans);
+  --reg-display-weight:var(--fw-bold);
+  --reg-display-ls:var(--ls-tight);
+}
+
+/* ============ VOICE: EDITORIAL — the brand speaking (the unmarked default) ============
+   Covers, heroes, slides, section openers, long-form prose, about pages.
+   Display: the register's face, up to --fs-display. Arabic display default: Harmattan (warm);
+   Amiri is the formal/literary opt-in via --v-display-formal. Backgrounds: --v-surface-frame
+   (gradient) + grain at --vx-grain-alpha for FRAMING moments only — a gradient never underlays
+   more than a subheading's worth of text; running prose sits on flat --v-surface. Density:
+   --type-scale 1 (slides re-densify to ≈1.3125 themselves — a medium fact, not a voice fact).
+   Decoration: kicker ON · caramel rule/tick ON · marker highlight ON (optional, ≤1 per view) ·
+   byline ON · page counter ON in paged media, off in scroll. Motion: expressive-calm — entrances
+   allowed at --v-dur-enter, ONE choreographed moment per surface, never bounce. */
+:root,.voice-editorial{
+  --v-display:var(--reg-display);
+  --v-display-formal:var(--reg-display-formal);
+  --v-display-weight:var(--reg-display-weight);
+  --v-display-ls:var(--reg-display-ls);
+  --v-fs-top:var(--fs-display);
+  --type-scale:1; /* @kind other */
+  --v-surface:var(--vx-flat);
+  --v-surface-raised:var(--vx-flat-raised);
+  --v-surface-frame:var(--vx-frame);
+  --v-well:var(--vx-well);
+  --v-grain:var(--vx-grain); /* @kind other */
+  --v-pad:var(--space-6);--v-gap:var(--space-5); /* roomy — pinned to the spacing scale */
+  --v-deco-kicker:1; /* @kind other */ --v-deco-rule:1; /* @kind other */ --v-deco-highlight:1; /* @kind other */ --v-deco-byline:1; /* @kind other */ --v-deco-counter:1; /* @kind other */
+  --v-dur-enter:420ms; /* @kind other */
+  --v-dur-state:220ms; /* @kind other */
+  --v-ease:cubic-bezier(.22,.61,.36,1); /* @kind other */ /* = --ease-standard, no bounce */
+}
+
+/* ============ VOICE: UTILITY — the user's content; the brand recedes to chrome ============
+   Dashboards, forms, settings, tables, editors of user data. The literary display face would
+   claim ownership of content that isn't ours — sans-first everywhere, largest role --fs-title.
+   Arabic: Readex Pro carries all chrome — labels, controls, body — one dual-script family.
+   Backgrounds: flat only, wells recessed; gradients + grain BANNED (header rationale).
+   Density: --type-scale .9375 (body 15px), spacing one step down. Decoration: kicker OFF (the
+   uppercase section label survives as structure — muted, tracked — but drops the caramel
+   announcement role) · rule OFF · highlight OFF · byline OFF · counter OFF. The entire caramel
+   budget = primary action + focus + selection. Motion: functional feedback only, no entrances. */
+.voice-utility{
+  --v-display:var(--font-sans);
+  --v-display-formal:var(--font-sans);
+  --v-display-weight:var(--fw-semibold);
+  --v-display-ls:var(--ls-tight);
+  --v-fs-top:var(--fs-title);
+  --type-scale:.9375; /* @kind other */
+  --v-surface:var(--vx-flat);
+  --v-surface-raised:var(--vx-flat-raised);
+  --v-surface-frame:var(--vx-flat); /* frames don't exist here — resolves flat on purpose */
+  --v-well:var(--vx-well);
+  --v-grain:none; /* @kind other */
+  --v-pad:var(--space-4);--v-gap:var(--space-3); /* one step down from editorial */
+  --v-deco-kicker:0; /* @kind other */ --v-deco-rule:0; /* @kind other */ --v-deco-highlight:0; /* @kind other */ --v-deco-byline:0; /* @kind other */ --v-deco-counter:0; /* @kind other */
+  --v-dur-enter:0ms; /* @kind other */
+  --v-dur-state:120ms; /* @kind other */
+  --v-ease:cubic-bezier(.22,.61,.36,1); /* @kind other */
+}
+
+/* ============ VOICE: CONSOLE — machine output ============
+   Terminals, logs, diffs, code panes, API playgrounds — and every code block embedded in the
+   other voices (the one legal voice mix; the block keeps these rules inside any host).
+   Type: mono-forward content (foundation/dev.css owns color + presentation); chrome/captions stay
+   sans at caption size; largest role --fs-subheading (pane titles). No display face. Arabic: code
+   is an LTR island (foundation/rtl.css); Arabic in strings/comments falls to system mono.
+   Backgrounds: flat chrome + recessed panes (--v-well = --code-bg); gradients + grain banned —
+   grain under mono antialiasing is the worst case. Density: --type-scale pinned to 1 — code never
+   densifies with a host app; mono legibility is the floor. Decoration: ALL OFF. The emphasis
+   budget lives in the dev layer instead: caramel appears only as --syn-function and one
+   --code-line-highlight band per pane (the diagram one-emphasis law, applied to code). Motion:
+   none — no typing animations, no entrances; the cursor may blink; state feedback stays fast. */
+.voice-console{
+  --v-display:var(--font-sans);
+  --v-display-formal:var(--font-sans);
+  --v-display-weight:var(--fw-semibold);
+  --v-display-ls:var(--ls-tight);
+  --v-fs-top:var(--fs-subheading);
+  --type-scale:1; /* @kind other */
+  --v-surface:var(--vx-flat);
+  --v-surface-raised:var(--vx-flat-raised);
+  --v-surface-frame:var(--vx-flat);
+  --v-well:var(--vx-well);
+  --v-grain:none; /* @kind other */
+  --v-pad:var(--space-5);--v-gap:var(--space-4); /* = dev.css pre inline padding */
+  --v-deco-kicker:0; /* @kind other */ --v-deco-rule:0; /* @kind other */ --v-deco-highlight:0; /* @kind other */ --v-deco-byline:0; /* @kind other */ --v-deco-counter:0; /* @kind other */
+  --v-dur-enter:0ms; /* @kind other */
+  --v-dur-state:120ms; /* @kind other */
+  --v-ease:cubic-bezier(.22,.61,.36,1); /* @kind other */
+}
+
+/* --- Motion preference law (WCAG 2.3.3) — under prefers-reduced-motion, CHOREOGRAPHY GOES,
+   FEEDBACK STAYS. Entrances, parallax, the press nudge, and any translate/scale choreography
+   must ride --v-dur-enter, which zeroes here in every voice (re-declared per voice class
+   because custom properties substitute where declared). --v-dur-state survives on purpose:
+   120–220ms color/opacity feedback is not vestibular — hover, focus and selection must not
+   go dead. Components: gate movement on enter, never on state. --- */
+@media (prefers-reduced-motion:reduce){
+  :root,.voice-editorial,.voice-utility,.voice-console{--v-dur-enter:0ms; /* @kind other */}
+}

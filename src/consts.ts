@@ -13,6 +13,19 @@ export const LINKEDIN_ACCOUNT = 'https://www.linkedin.com/in/abdellah-addoun';
 
 export const AUTHOR_ROLE = 'Senior Software Engineer';
 
+export const HANDLE = '@joeinz';
+
+/**
+ * What the status pill in the Spatial top row says. 'employed' shows where I
+ * work now; 'available' shows a link to the contact card. Switching is this one
+ * word, and only on my say-so.
+ */
+export const STATUS = 'employed' as 'employed' | 'available';
+export const STATUS_TEXT = {
+  employed: 'Now: Senior Software Engineer at AMEK Consulting, Sweden',
+  available: 'Open to lead roles and new projects · Let’s talk ›'
+} as const;
+
 /**
  * The main site's absolute URL and bare hostname, for chrome that has to point
  * home from another host. A project showcase page is served from its own

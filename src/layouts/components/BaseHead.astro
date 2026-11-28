@@ -1,7 +1,4 @@
 ---
-// Import the global.css file here so that it is included on
-// all pages through the use of the <BaseHead /> component.
-import '../../styles/global.css';
 import {FULL_NAME, SITE_DESCRIPTION, SITE_TITLE} from "../../consts";
 
 interface Props {
@@ -45,6 +42,12 @@ interface Props {
         repository?: string;
         version?: string;
     };
+    /**
+     * Set to 'cover' by a layout whose chrome reaches the screen edges on a phone,
+     * so env(safe-area-inset-*) reports real values. Omit it and the viewport is
+     * what it has always been.
+     */
+    viewportFit?: 'cover';
 }
 
 const {
@@ -59,7 +62,8 @@ const {
     tags,
     canonical,
     imageAlt,
-    software
+    software,
+    viewportFit
 } = Astro.props;
 
 const canonicalURL = canonical ? new URL(canonical) : new URL(Astro.url.pathname, Astro.site);
@@ -126,7 +130,7 @@ const structuredData = software
 
 <!-- Global Metadata -->
 <meta charset='utf-8'/>
-<meta name='viewport' content='width=device-width,initial-scale=1'/>
+<meta name='viewport' content={`width=device-width,initial-scale=1${viewportFit ? `,viewport-fit=${viewportFit}` : ''}`}/>
 <link rel='icon' href='/favicon.png' type='image/png'/>
 <meta name='generator' content={Astro.generator}/>
 

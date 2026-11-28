@@ -1,0 +1,56 @@
+/* Joe Inz — foundation type scale. Role-based and medium-agnostic; replaces the IDEA of the
+   legacy px ladder (tokens/typography.css — tuned to 1080×1350 slides, left untouched).
+   Base: 1rem = the browser base (16px by default — never redefine html{font-size}).
+   Ratio: ~1.25 (major third) from body upward; caption sits one step down; label (the
+   uppercase kicker) is off-ratio by design, pinned near the legacy 11px — LATIN ONLY:
+   --fs-label-ar rides the caption step instead (see the Arabic block).
+   Surface hook: every size flows through --type-scale — but custom properties substitute
+   var() at the scope where the TOKEN is DECLARED, so overriding the factor alone does
+   nothing (:root already computed the ladder at 1). The ladder is therefore re-declared
+   under the rescale hooks (:root, .type-rescale, and the foundation/voice.css voice
+   classes): a surface re-densifies by setting BOTH the hook class and the factor on its
+   root, e.g. class="type-rescale" style="--type-scale:.9375" (voice classes carry their
+   own factor). Factors are absolute, not compounding — a nested rescale states its full
+   factor. Typical factors:
+     docs/web 1 (default) · dense mobile ~0.9375 · slides ~1.3125 (body → 21px) —
+   surfaces pick their own factor; roles and ratios never change per medium.
+   Load-order independent w.r.t. foundation/voice.css: the two files never declare the same
+   property on the same selector (voice.css owns each voice's --type-scale; this file owns the
+   --fs-* ladder), and custom-property substitution is a per-element dependency graph, not
+   source order.
+   Arabic: every role also ships its pre-computed Arabic size via the --ar-scale-* factors
+   (foundation/typography.css) so authors never hand-calc. Display roles get two: -ar
+   (Harmattan, warm — the default register) and -ar-formal (Amiri, ×1.15 — smallest optical
+   size of the set). Body/caption run ×1 (Readex Pro is harmonized dual-script) — the tokens
+   still exist so call-sites stay symmetric across scripts. The ONE size asymmetry:
+   --fs-label-ar rides the CAPTION step (13px), not the 11px label — 13px is this file's own
+   floor for Readex at small sizes, and Arabic cannot buy 11px legibility with caps + tracking
+   the way the Latin kicker does; weight 700 carries the label role instead. */
+:root{
+  --type-scale:1; /* @kind other */ /* the one surface multiplier */
+}
+:root,.type-rescale,.voice-editorial,.voice-utility,.voice-console{
+  /* Role · rem · px at 16px base — pair with line-heights: display/title --lh-tight (Arabic
+     --lh-ar-tight) · heading/subheading --lh-snug (Arabic --lh-ar-tight) · body --lh-normal
+     or --lh-relaxed (Arabic --lh-ar-normal / --lh-ar-relaxed) · caption/label --lh-snug. */
+  --fs-display:calc(2.441rem*var(--type-scale));      /* 39px — hero/cover statement */
+  --fs-title:calc(1.953rem*var(--type-scale));        /* 31px — page/screen title */
+  --fs-heading:calc(1.563rem*var(--type-scale));      /* 25px — section heading */
+  --fs-subheading:calc(1.25rem*var(--type-scale));    /* 20px — standfirst, card title */
+  --fs-body:calc(1rem*var(--type-scale));             /* 16px — running copy, UI default */
+  --fs-caption:calc(0.8125rem*var(--type-scale));    /* 13px — metadata, footnotes; 13px is the floor for Readex Pro at small sizes */
+  --fs-label:calc(0.6875rem*var(--type-scale));       /* 11px — kicker/eyebrow; tracked uppercase is LATIN ONLY (see usage card for the Arabic kicker treatment) */
+
+  /* Arabic-adjusted sizes — same roles, correct optical size, zero hand-calc. */
+  --fs-display-ar:calc(2.441rem*var(--type-scale)*var(--ar-scale-harmattan));
+  --fs-display-ar-formal:calc(2.441rem*var(--type-scale)*var(--ar-scale-amiri));
+  --fs-title-ar:calc(1.953rem*var(--type-scale)*var(--ar-scale-harmattan));
+  --fs-title-ar-formal:calc(1.953rem*var(--type-scale)*var(--ar-scale-amiri));
+  --fs-heading-ar:calc(1.563rem*var(--type-scale)*var(--ar-scale-harmattan));
+  --fs-heading-ar-formal:calc(1.563rem*var(--type-scale)*var(--ar-scale-amiri));
+  --fs-subheading-ar:calc(1.25rem*var(--type-scale)*var(--ar-scale-harmattan));
+  --fs-subheading-ar-formal:calc(1.25rem*var(--type-scale)*var(--ar-scale-amiri));
+  --fs-body-ar:calc(1rem*var(--type-scale)*var(--ar-scale-readex));
+  --fs-caption-ar:calc(0.8125rem*var(--type-scale)*var(--ar-scale-readex));
+  --fs-label-ar:calc(0.8125rem*var(--type-scale)*var(--ar-scale-readex)); /* 13px — the caption step, deliberately NOT 11px: the 13px Readex floor above is law, and the Arabic kicker carries the label role with this size + weight 700 */
+}

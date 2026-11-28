@@ -1,0 +1,13 @@
+/* 404 page — on top of spatial-base.css */
+.nf{position:relative;margin-top:-2rem;min-height:30rem;display:flex;align-items:center;justify-content:center}
+.nf-card{max-width:42rem;padding:2.6rem 2.8rem;display:flex;flex-direction:column;gap:1.1rem}
+.nf-h1{margin:0;font-family:var(--font-display);font-weight:600;font-size:clamp(2.6rem,4.6vw,4rem);line-height:1.05;letter-spacing:var(--ls-display);color:var(--sp-ink);text-wrap:balance}
+.nf-p{margin:0;font-size:1.125rem;line-height:1.6;color:var(--sp-ink-2)}
+.nf-roads{display:flex;flex-wrap:wrap;gap:.75rem;padding-top:.3rem}
+.nf-hint{margin:0;padding-top:1rem;border-top:1px solid rgba(var(--sp-rgb),.12);font-size:var(--fs-caption);line-height:1.55;color:var(--sp-ink-2)}
+.lead-404 .fx{--fx-lat:rgba(243,234,210,.12)}
+.sp-day.lead-404 .fx{--fx-lat:rgba(58,40,30,.13)}
+.lead-404 .fx-sig[data-kind="crit"] .fx-core{left:-3.5px;top:-3.5px;width:7px;height:7px;box-shadow:0 0 22px 7px var(--fx-crit-halo)}
+/* fix 14: with reduced motion or Save-Data no signal moves, so the sentence that says one does is not shown */
+@media (prefers-reduced-motion:reduce){.nf-hint-move{display:none}}
+.save-data .nf-hint-move{display:none}

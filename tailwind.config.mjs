@@ -83,11 +83,19 @@ export default {
      * paragraph would put a live rule into every page. Chapters use the kit
      * components, which live under components/ and are scanned as before.
      * The .md entries under content/ stay in, as they always were.
+     *
+     * The negated entries are the Spatial v2 pages. They load their own
+     * stylesheets and no Tailwind at all, so nothing in them should be able to
+     * add a rule to the bundle the showcase pages load. A page file joins this
+     * list in the commit that moves it to SpatialLayout.
      */
     content: [
         './src/{pages,layouts,components,utils,styles}/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}',
         './src/*.{ts,astro}',
-        './src/content/**/*.md'
+        './src/content/**/*.md',
+        '!./src/components/spatial/**',
+        '!./src/layouts/SpatialLayout.astro',
+        '!./src/pages/404.astro'
     ],
     theme: {
         container: {

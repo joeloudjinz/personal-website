@@ -9,7 +9,7 @@ const {posts} = Astro.props;
 
 function groupPostsByYear(posts: BlogPost[]) {
     const grouped = posts.reduce((acc, post) => {
-        const year = post.data.pubDate.getFullYear();
+        const year = post.data.pubDate.getUTCFullYear();
         if (!acc[year]) {
             acc[year] = [];
         }

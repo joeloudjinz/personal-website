@@ -1,0 +1,72 @@
+---
+// TopBar.astro — the page's banner: brand, status pill, theme button, pause button.
+import { aaMark, sunIcon, moonIcon, pauseIcon, playIcon } from './icons';
+import { FULL_NAME, STATUS, STATUS_TEXT } from '../../consts';
+---
+<header class="sp-top">
+  <a href="/" class="sp-brand" aria-label={`${FULL_NAME}, home`}>
+    <svg viewBox="0 0 240 240" width="32" height="32" aria-hidden="true" focusable="false" set:html={aaMark} />
+    {FULL_NAME}
+  </a>
+  <div class="sp-top-r">
+    {STATUS === 'available'
+      ? <a href="#contact" class="sp-avail"><span class="sp-avail-dot" aria-hidden="true"></span>{STATUS_TEXT.available}</a>
+      : <p class="sp-status"><span class="sp-status-dot" aria-hidden="true"></span>{STATUS_TEXT.employed}</p>}
+    <button type="button" class="sp-iconbtn" data-sp-theme aria-label="Switch theme" title="Switch theme">
+      <svg class="sp-i-sun sp-icon-line" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false" set:html={sunIcon} />
+      <svg class="sp-i-moon sp-icon-line" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false" set:html={moonIcon} />
+    </button>
+    <button type="button" class="sp-iconbtn" data-sp-pause aria-pressed="false" aria-label="Pause animations" title="Pause animations">
+      <svg class="sp-i-pause sp-icon-fill" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false" set:html={pauseIcon} />
+      <svg class="sp-i-play sp-icon-fill" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false" set:html={playIcon} />
+    </button>
+  </div>
+</header>
+
+<script>
+  import { toggleTheme } from '../../lib/spatial/theme.js';
+
+  const labelTheme = (themeBtn: Element, theme: string) => {
+    const text = theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme';
+    themeBtn.setAttribute('aria-label', text);
+    themeBtn.setAttribute('title', text);
+  };
+
+  // The label stays "Pause animations"; aria-pressed carries the state.
+  const setPaused = (pauseBtn: Element, on: boolean) => {
+    const html = document.documentElement;
+    html.classList.toggle('still', on);
+    pauseBtn.setAttribute('aria-pressed', String(on));
+    try { sessionStorage.setItem('sp-still', on ? '1' : '0'); } catch (err) { /* storage can be unavailable */ }
+    document.dispatchEvent(new CustomEvent('sp:pause', { detail: on }));
+  };
+
+  // Per-page work: label the theme button and sync the pause button with the page's state.
+  function init() {
+    const html = document.documentElement;
+    const themeBtn = document.querySelector('[data-sp-theme]');
+    const pauseBtn = document.querySelector('[data-sp-pause]');
+    if (!themeBtn || !pauseBtn) return; // not a Spatial page
+    labelTheme(themeBtn, html.dataset.theme || 'light');
+    setPaused(pauseBtn, html.classList.contains('still'));
+  }
+
+  // Wired once per visit, even if a later page runs this module again. The clicks are one listener
+  // on document, so the buttons work as soon as this module runs: before window load on a first view,
+  // and on every Spatial page reached by navigation, from either layout.
+  const state = window as Window & { __spTopBarWired?: boolean };
+  if (!state.__spTopBarWired) {
+    state.__spTopBarWired = true;
+
+    document.addEventListener('click', (event) => {
+      const target = event.target instanceof Element ? event.target : null;
+      const themeBtn = target?.closest('[data-sp-theme]');
+      if (themeBtn) { labelTheme(themeBtn, toggleTheme(event)); return; }
+      const pauseBtn = target?.closest('[data-sp-pause]');
+      if (pauseBtn) setPaused(pauseBtn, !document.documentElement.classList.contains('still'));
+    });
+
+    // <ClientRouter /> fires this on the first load (at window load) and after every navigation.
+    document.addEventListener('astro:page-load', init);
+  }
+</script>

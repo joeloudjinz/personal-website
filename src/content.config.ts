@@ -3,15 +3,24 @@ import { glob } from 'astro/loaders'; // Not available with legacy API
 import { PROJECT_PAGES_BASE, PROJECT_PAGES_PATTERN } from './utils/projectPagesSource';
 import { WASH_BUDGET_PX, washFits, washWidthAtFloor } from './utils/washFit';
 
+// A date-only value is a calendar day, not an instant: pin it to UTC midnight
+// whatever timezone the build machine is in. Without this, 'Oct 08 2025' is read
+// as local midnight, and a machine ahead of UTC shows the day before. An ISO
+// value and a YAML date are UTC already and pass through untouched.
+const calendarDate = z.preprocess((value) => {
+  if (typeof value !== 'string' || /^\d{4}-\d{2}-\d{2}/.test(value)) return value;
+  const local = new Date(value);
+  return new Date(Date.UTC(local.getFullYear(), local.getMonth(), local.getDate()));
+}, z.coerce.date());
+
 const blog = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/blog" }),
   schema: ({ image }) => z.object({
 		title: z.string(),
     seoTitle: z.string().optional(),
 		description: z.string(),
-		// Transform string to Date object
-		pubDate: z.coerce.date(),
-		updatedDate: z.coerce.date().optional(),
+		pubDate: calendarDate,
+		updatedDate: calendarDate.optional(),
     tags: z.array(z.string()).optional(),
 		coverImage: image().optional()
 	})

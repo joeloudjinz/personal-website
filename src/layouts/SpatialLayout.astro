@@ -1,0 +1,89 @@
+---
+// SpatialLayout.astro — the shared frame of every page in the Spatial v2 design.
+//
+//   <SpatialLayout title="About Abdellah Addoun" description="…" page="about" current="about">
+//     <section id="intro">…</section>
+//     …                                   ← your sections; the contact card is added at the end
+//   </SpatialLayout>
+//
+// State classes live on <html data-sp-root> (theme, .still, .lead-404), because some selectors
+// combine them (.sp-day.lead-404 …) and because ThemeScript sets them before first paint.
+// The CSS order matters: tokens, then the Spatial stylesheet, then the shell.
+import '../styles/spatial/joeinz-ds/foundation.css';
+import '../styles/spatial/spatial-base.css';
+import '../styles/spatial/spatial-shell.css';
+import { ClientRouter } from 'astro:transitions';
+import BaseHead from './components/BaseHead.astro';
+import Analytics from './components/Analytics.astro';
+import ThemeScript from '../components/spatial/ThemeScript.astro';
+import SideNav, { type NavKey } from '../components/spatial/SideNav.astro';
+import TopBar from '../components/spatial/TopBar.astro';
+import ContactCard from '../components/spatial/ContactCard.astro';
+import SiteFooter from '../components/spatial/SiteFooter.astro';
+
+type Page = 'home' | 'about' | 'projects' | 'posts' | 'post' | '404';
+interface Light { side: 'left' | 'right'; offset: string; top: string; size: string; warm: boolean; delay: number }
+interface Props {
+  title: string;
+  description: string;
+  page: Page;
+  current?: NavKey | null;
+  /** 'full' (default) adds the contact card at the end of <main>; 'none' when the page places it itself (home). */
+  contact?: 'full' | 'none';
+  /** Head-only values, passed straight to BaseHead. */
+  image?: string;
+  type?: 'website' | 'article';
+  publishedTime?: string;
+  modifiedTime?: string;
+  tags?: string[];
+  lights?: Light[];
+}
+
+const L = (side: Light['side'], offset: number | string, top: number, size: number, warm: boolean, delay: number): Light =>
+  ({ side, offset: typeof offset === 'number' ? `${offset}rem` : offset, top: `${top}rem`, size: `${size}rem`, warm, delay });
+
+// Positions from the boards (rem). Warm lights follow the Algiers clock, cool ones Florida.
+const LIGHTS: Record<Page, Light[]> = {
+  home: [L('right', -18, -26, 64, true, 0), L('left', -24, 52, 62, false, 5), L('right', -22, 112, 60, true, 10), L('left', '10%', 182, 64, false, 15), L('right', -16, 262, 60, true, 20)],
+  about: [L('right', -18, -26, 64, true, 0), L('left', -24, 52, 62, false, 5), L('right', -22, 130, 60, true, 10), L('left', -20, 215, 64, false, 15), L('right', -16, 300, 60, true, 20)],
+  projects: [L('right', -18, -26, 64, true, 0), L('left', -24, 56, 62, false, 5), L('right', -22, 140, 60, true, 10), L('left', -20, 225, 64, false, 15)],
+  posts: [L('right', -18, -26, 64, true, 0), L('left', -24, 46, 62, false, 5), L('right', -20, 104, 58, true, 10)],
+  post: [L('right', -18, -26, 64, true, 0), L('left', -24, 70, 62, false, 5), L('right', -20, 150, 58, true, 10)],
+  '404': [L('right', -18, -26, 64, true, 0), L('left', -24, 22, 62, false, 5)],
+};
+
+const {
+  title, description, page, current = null, contact = 'full',
+  image, type, publishedTime, modifiedTime, tags, lights = LIGHTS[page]
+} = Astro.props;
+---
+<!doctype html>
+<html lang="en" data-sp-root data-theme="light" class:list={['sp-day', page === '404' && 'lead-404']}>
+  <head>
+    <BaseHead title={title} description={description} image={image} type={type}
+              publishedTime={publishedTime} modifiedTime={modifiedTime} tags={tags} viewportFit="cover" />
+    <ClientRouter />
+    <ThemeScript />
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="sp-skip sp-btn sp-sec" href="#main">Skip to content</a>
+    <div class="voice-editorial sp-room">
+      <div class="sp-grain" aria-hidden="true"></div>
+      {lights.map((l) => (
+        <div aria-hidden="true" class:list={['sp-drift', 'sp-light', l.warm ? 'warm' : 'cool']}
+          style={`animation-delay:-${l.delay}s;width:${l.size};height:${l.size};${l.side}:${l.offset};top:${l.top}`}></div>
+      ))}
+      <div class="sp-frame">
+        <TopBar />
+        <SideNav current={current} />
+        <main id="main" class="sp-main" tabindex="-1">
+          <slot />
+          {contact === 'full' && <ContactCard />}
+        </main>
+      </div>
+      <SiteFooter />
+    </div>
+    <Analytics contentGroup="main-site" />
+  </body>
+</html>
