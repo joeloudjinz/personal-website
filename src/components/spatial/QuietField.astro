@@ -50,6 +50,8 @@ const rings = Array.from({ length: fieldConfig.pools.rings });
     // look at the page. So the page's own state is handed over here. That covers a pause remembered
     // from before a reload, and a press of the pause button made while the fonts were loading (D31).
     const go = () => {
+      // the start is late on purpose, so the visitor may be gone by now: the router has swapped this page's markup out
+      if (!root.isConnected) return;
       field?.start();
       field?.pause('still', document.documentElement.classList.contains('still'));
     };
