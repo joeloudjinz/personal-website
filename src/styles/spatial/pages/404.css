@@ -11,3 +11,5 @@
 /* fix 14: with reduced motion or Save-Data no signal moves, so the sentence that says one does is not shown */
 @media (prefers-reduced-motion:reduce){.nf-hint-move{display:none}}
 .save-data .nf-hint-move{display:none}
+/* without scripts no signal searches and nothing answers a press, so the whole hint goes (spec rule 3.9). ThemeScript puts .js on the root before first paint */
+html:not(.js) .nf-hint{display:none}
