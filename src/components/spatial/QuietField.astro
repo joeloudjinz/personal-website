@@ -35,6 +35,7 @@ const rings = Array.from({ length: fieldConfig.pools.rings });
 </div>
 
 <script>
+  import type { TransitionBeforeSwapEvent } from 'astro:transitions/client';
   import { QuietField } from '../../lib/spatial/quiet-field.js';
 
   let field: QuietField | null = null;
@@ -64,13 +65,20 @@ const rings = Array.from({ length: fieldConfig.pools.rings });
   document.addEventListener('sp:layout', () => field?.requestQuiet());
 
   document.addEventListener('astro:page-load', boot);      // with <ClientRouter />
-  document.addEventListener('astro:before-swap', () => field?.stop());
   // fix 16: the engine keeps the two light levels in the style of <html>, and the router replaces
   // every attribute of <html> on a swap. Without this the lights fall back to .72 and take six
   // seconds to ease back. lights() needs no running field, so the one that has just stopped sets them.
+  // They are set inside the swap itself and not on astro:after-swap: on Back and Forward the router
+  // restores the scroll position between the two, and that can compute the lights' style too early.
   // The root check matters while both layouts exist: this listener outlives a visit to a BaseLayout page.
-  document.addEventListener('astro:after-swap', () => {
-    if (document.documentElement.hasAttribute('data-sp-root')) field?.lights();
+  document.addEventListener('astro:before-swap', (e) => {
+    field?.stop();
+    const event = e as TransitionBeforeSwapEvent;
+    const swap = event.swap;
+    event.swap = () => {
+      swap();
+      if (document.documentElement.hasAttribute('data-sp-root')) field?.lights();
+    };
   });
   // without <ClientRouter />, astro:page-load never fires: boot once now
   if (!document.querySelector('meta[name="astro-view-transitions-enabled"]')) boot();
