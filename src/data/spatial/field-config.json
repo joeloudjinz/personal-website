@@ -1,0 +1,62 @@
+{
+  "_note": "Per-page settings for the quiet field (see docs/09-background-field.md).",
+  "pitch": 32,
+  "pools": {
+    "signals": 12,
+    "dots": 96,
+    "rings": 4
+  },
+  "idleMs": 60000,
+  "pages": {
+    "home": {
+      "density": 3.5,
+      "idle": true,
+      "critGap": 6000,
+      "meet": true,
+      "greet": true
+    },
+    "about": {
+      "density": 3.5,
+      "idle": true,
+      "critGap": 6000,
+      "meet": true
+    },
+    "projects": {
+      "density": 3.5,
+      "idle": true,
+      "critGap": 6000,
+      "meet": true
+    },
+    "posts": {
+      "density": 3.5,
+      "idle": true,
+      "critGap": 6000,
+      "meet": true
+    },
+    "post": {
+      "density": 1.6,
+      "idle": false,
+      "critGap": 9000,
+      "meet": false,
+      "readingZone": ".ps-article"
+    },
+    "404": {
+      "density": 5,
+      "idle": true,
+      "critGap": 1200,
+      "meet": true,
+      "greet": true,
+      "lead": true
+    }
+  },
+  "lights": {
+    "warm": "Africa/Algiers",
+    "cool": "America/New_York",
+    "levels": {
+      "working (08-18)": 1,
+      "morning/evening (06-08, 18-21)": 0.72,
+      "night": 0.45
+    },
+    "refreshMs": 300000
+  }
+}

@@ -1,0 +1,67 @@
+---
+// QuietField.astro — the background field. SpatialLayout.astro places it as the first child of the
+// room, right after the drifting lights, so the content stacks above it:
+//
+//   <div class="voice-editorial sp-room">        ← position:relative; overflow:clip
+//     <div class="sp-drift sp-light warm" …></div>  ← lights, opacity: var(--fx-dz) / var(--fx-fl)
+//     <QuietField page="home" />
+//     <div class="sp-frame">…</div>
+//   </div>
+//
+// Settings per page come from data/field-config.json (copied below as defaults).
+import blueprint from '../../assets/spatial/illustrations/field/hidden-engine-blueprint.svg?raw';
+
+interface Props { page?: 'home' | 'about' | 'projects' | 'posts' | 'post' | '404'; mode?: 'quiet' | 'reveal' | 'off'; }
+const { page = 'home', mode = 'quiet' } = Astro.props;
+const CONFIG = {
+  home: { density: 3.5, idle: true, critGap: 6000, meet: true, greet: true },
+  about: { density: 3.5, idle: true, critGap: 6000, meet: true },
+  projects: { density: 3.5, idle: true, critGap: 6000, meet: true },
+  posts: { density: 3.5, idle: true, critGap: 6000, meet: true },
+  post: { density: 1.6, idle: false, critGap: 9000, meet: false },
+  '404': { density: 5, idle: true, critGap: 1200, meet: true, greet: true },
+}[page];
+const tags = [['req', 'request'], ['res', 'response'], ['crit', 'critical path'], ['meet', 'meeting halfway'],
+  ['grow', 'growing'], ['detour', 'detour'], ['stand', 'stand-up'], ['owl', 'night owl']];
+const sigs = Array.from({ length: 12 });
+const dots = Array.from({ length: 96 });
+const rings = Array.from({ length: 4 });
+---
+<div class:list={['fx', `fx-${mode}`]} aria-hidden="true" data-fx data-config={JSON.stringify(CONFIG)} data-mode={mode}>
+  <div class="fx-lat"></div>
+  <div class="fx-ear"></div>
+  <span class="fx-ripple"></span>
+  {rings.map(() => <span class="fx-ring"></span>)}
+  <Fragment set:html={blueprint} />
+  {dots.map(() => <span class="fx-dot"></span>)}
+  {sigs.map(() => (
+    <span class="fx-sig"><span class="fx-core"></span>{tags.map(([k, label]) => <span class={`fx-tag k-${k}`}>{label}</span>)}</span>
+  ))}
+</div>
+
+<script>
+  import { QuietField } from '../../lib/spatial/quiet-field.js';
+
+  let field: QuietField | null = null;
+
+  function boot() {
+    field?.stop();
+    const root = document.querySelector<HTMLElement>('[data-fx]');
+    if (!root) return;
+    const cfg = JSON.parse(root.dataset.config || '{}');
+    field = new QuietField(root, { ...cfg, mode: root.dataset.mode || 'quiet' });
+    // start once layout and fonts have settled, so quiet zones are measured on the final text
+    const go = () => field?.start();
+    (document.fonts?.ready ?? Promise.resolve()).then(() => setTimeout(go, 300));
+  }
+
+  // the page's pause button dispatches this; reduced motion is handled inside the engine
+  document.addEventListener('sp:pause', (e) => field?.pause('still', !!(e as CustomEvent).detail));
+  // anything that moves text around (filters, expanding a role, switching a hat) should ask for new quiet zones
+  document.addEventListener('sp:layout', () => field?.requestQuiet());
+
+  document.addEventListener('astro:page-load', boot);      // with <ClientRouter />
+  document.addEventListener('astro:before-swap', () => field?.stop());
+  // without <ClientRouter />, astro:page-load never fires: boot once now
+  if (!document.querySelector('meta[name="astro-view-transitions-enabled"]')) boot();
+</script>
