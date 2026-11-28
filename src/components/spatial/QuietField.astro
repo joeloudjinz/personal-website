@@ -46,7 +46,13 @@ const rings = Array.from({ length: fieldConfig.pools.rings });
     const cfg = JSON.parse(root.dataset.config || '{}');
     field = new QuietField(root, { ...cfg, mode: root.dataset.mode || 'quiet' });
     // start once layout and fonts have settled, so quiet zones are measured on the final text
-    const go = () => field?.start();
+    // fix 15: the engine drops a pause that reaches it before it has started, and start() does not
+    // look at the page. So the page's own state is handed over here. That covers a pause remembered
+    // from before a reload, and a press of the pause button made while the fonts were loading (D31).
+    const go = () => {
+      field?.start();
+      field?.pause('still', document.documentElement.classList.contains('still'));
+    };
     (document.fonts?.ready ?? Promise.resolve()).then(() => setTimeout(go, 300));
   }
 
