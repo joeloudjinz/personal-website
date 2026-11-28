@@ -65,6 +65,13 @@ const rings = Array.from({ length: fieldConfig.pools.rings });
 
   document.addEventListener('astro:page-load', boot);      // with <ClientRouter />
   document.addEventListener('astro:before-swap', () => field?.stop());
+  // fix 16: the engine keeps the two light levels in the style of <html>, and the router replaces
+  // every attribute of <html> on a swap. Without this the lights fall back to .72 and take six
+  // seconds to ease back. lights() needs no running field, so the one that has just stopped sets them.
+  // The root check matters while both layouts exist: this listener outlives a visit to a BaseLayout page.
+  document.addEventListener('astro:after-swap', () => {
+    if (document.documentElement.hasAttribute('data-sp-root')) field?.lights();
+  });
   // without <ClientRouter />, astro:page-load never fires: boot once now
   if (!document.querySelector('meta[name="astro-view-transitions-enabled"]')) boot();
 </script>
