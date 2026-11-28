@@ -36,7 +36,13 @@ const rings = Array.from({ length: fieldConfig.pools.rings });
 
 <script>
   import type { TransitionBeforeSwapEvent } from 'astro:transitions/client';
-  import { QuietField } from '../../lib/spatial/quiet-field.js';
+  import { FIELD_DEFAULTS, QuietField } from '../../lib/spatial/quiet-field.js';
+
+  // <main> carries tabindex="-1" so the skip link can move focus into it. It is a container, not a
+  // control, so the gaps between its sections are empty background: the pointer's listening circle
+  // shows there, and press and hold opens the hidden engine there. The engine's own list counts
+  // every element with a tabindex as taken, which would rule out the whole main column.
+  const EMPTY_BLOCKERS = FIELD_DEFAULTS.emptyBlockers.replace('[tabindex]', '[tabindex]:not(main)');
 
   let field: QuietField | null = null;
 
@@ -45,7 +51,7 @@ const rings = Array.from({ length: fieldConfig.pools.rings });
     const root = document.querySelector<HTMLElement>('[data-fx]');
     if (!root) return;
     const cfg = JSON.parse(root.dataset.config || '{}');
-    field = new QuietField(root, { ...cfg, mode: root.dataset.mode || 'quiet' });
+    field = new QuietField(root, { ...cfg, mode: root.dataset.mode || 'quiet', emptyBlockers: EMPTY_BLOCKERS });
     // start once layout and fonts have settled, so quiet zones are measured on the final text
     // fix 15: the engine drops a pause that reaches it before it has started, and start() does not
     // look at the page. So the page's own state is handed over here. That covers a pause remembered
