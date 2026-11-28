@@ -8,24 +8,19 @@
 //     <div class="sp-frame">…</div>
 //   </div>
 //
-// Settings per page come from data/field-config.json (copied below as defaults).
+// The settings per page and the pool sizes are read from src/data/spatial/field-config.json.
+// Its other keys (pitch, idleMs, lights) record values the engine and the stylesheet hold themselves.
 import blueprint from '../../assets/spatial/illustrations/field/hidden-engine-blueprint.svg?raw';
+import fieldConfig from '../../data/spatial/field-config.json';
 
 interface Props { page?: 'home' | 'about' | 'projects' | 'posts' | 'post' | '404'; mode?: 'quiet' | 'reveal' | 'off'; }
 const { page = 'home', mode = 'quiet' } = Astro.props;
-const CONFIG = {
-  home: { density: 3.5, idle: true, critGap: 6000, meet: true, greet: true },
-  about: { density: 3.5, idle: true, critGap: 6000, meet: true },
-  projects: { density: 3.5, idle: true, critGap: 6000, meet: true },
-  posts: { density: 3.5, idle: true, critGap: 6000, meet: true },
-  post: { density: 1.6, idle: false, critGap: 9000, meet: false },
-  '404': { density: 5, idle: true, critGap: 1200, meet: true, greet: true },
-}[page];
+const CONFIG = fieldConfig.pages[page];
 const tags = [['req', 'request'], ['res', 'response'], ['crit', 'critical path'], ['meet', 'meeting halfway'],
   ['grow', 'growing'], ['detour', 'detour'], ['stand', 'stand-up'], ['owl', 'night owl']];
-const sigs = Array.from({ length: 12 });
-const dots = Array.from({ length: 96 });
-const rings = Array.from({ length: 4 });
+const sigs = Array.from({ length: fieldConfig.pools.signals });
+const dots = Array.from({ length: fieldConfig.pools.dots });
+const rings = Array.from({ length: fieldConfig.pools.rings });
 ---
 <div class:list={['fx', `fx-${mode}`]} aria-hidden="true" data-fx data-config={JSON.stringify(CONFIG)} data-mode={mode}>
   <div class="fx-lat"></div>
