@@ -44,6 +44,11 @@ const rings = Array.from({ length: fieldConfig.pools.rings });
   // every element with a tabindex as taken, which would rule out the whole main column.
   const EMPTY_BLOCKERS = FIELD_DEFAULTS.emptyBlockers.replace('[tabindex]', '[tabindex]:not(main)');
 
+  // The engine lets signals pass behind text inside glass, because glass blurs them. Its glass list
+  // names the status pill, but the stylesheet gives the pill no blur. So the pill's text is treated
+  // like any other text on the page: signals route around it.
+  const GLASS = FIELD_DEFAULTS.glassSelector.replace(',.sp-status', '');
+
   let field: QuietField | null = null;
 
   function boot() {
@@ -51,7 +56,7 @@ const rings = Array.from({ length: fieldConfig.pools.rings });
     const root = document.querySelector<HTMLElement>('[data-fx]');
     if (!root) return;
     const cfg = JSON.parse(root.dataset.config || '{}');
-    field = new QuietField(root, { ...cfg, mode: root.dataset.mode || 'quiet', emptyBlockers: EMPTY_BLOCKERS });
+    field = new QuietField(root, { ...cfg, mode: root.dataset.mode || 'quiet', emptyBlockers: EMPTY_BLOCKERS, glassSelector: GLASS });
     // start once layout and fonts have settled, so quiet zones are measured on the final text
     // fix 15: the engine drops a pause that reaches it before it has started, and start() does not
     // look at the page. So the page's own state is handed over here. That covers a pause remembered

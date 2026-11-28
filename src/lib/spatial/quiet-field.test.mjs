@@ -31,3 +31,7 @@ test('a paused field starts no signal, and Save-Data holds the night owl', () =>
   field.lite = true;
   assert.equal(field.nightOwl(), undefined);
 });
+
+test('the glass list still names the status pill that QuietField.astro takes out of it', () => {
+  assert.ok(FIELD_DEFAULTS.glassSelector.split(',').includes('.sp-status'));
+});
