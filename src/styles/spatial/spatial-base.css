@@ -383,6 +383,7 @@ html{scroll-padding-bottom:0}
 .fx-legend .fx-lh{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--sp-ink-2)}
 .fx-sw{flex:0 0 10px;width:10px;height:10px;border-radius:50%;transform:translateY(1px)}
 .fx-sw-dz{background:#C68A45}.fx-sw-fl{background:#8F9BC4}
-.fx-show .sp-kick,.fx-show .sp-h2{outline:1px dashed rgba(var(--sp-rgb),.4);outline-offset:12px;border-radius:4px}
+/* fix 17: one name for reveal mode. The engine sets .fx-reveal on the field itself, an earlier sibling of the frame; nothing ever set .fx-show. Review only: no page ships in this mode. */
+.fx-reveal~.sp-frame .sp-kick,.fx-reveal~.sp-frame .sp-h2{outline:1px dashed rgba(var(--sp-rgb),.4);outline-offset:12px;border-radius:4px}
 @media (prefers-reduced-motion:reduce){.fx-ear{transition:none}}
 @media print{.sp-reveal{animation:none!important;opacity:1!important;transform:none!important;filter:none!important}.sp-drift,.fx,.sp-glow{display:none!important}}
