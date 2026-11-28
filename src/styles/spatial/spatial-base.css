@@ -200,7 +200,7 @@ a{color:var(--sp-ink)}a:hover{color:var(--sp-acc)}
 .glass-contrast{--cream-muted:#E4DCC8}
 .glass-contrast .sp-win,.glass-contrast .sp-orn,.glass-contrast .sp-nav{border:2px solid rgba(var(--sp-rgb),.6)}
 @media (prefers-reduced-transparency:reduce){.sp-win,.sp-orn,.sp-nav{background:#232A44;-webkit-backdrop-filter:none;backdrop-filter:none}.sp-tint{background:#1E2439}}
-@media (prefers-contrast:more){.sp-win,.sp-orn,.sp-nav{border:2px solid rgba(var(--sp-rgb),.6)}}
+@media (prefers-contrast:more){.sp-win,.sp-orn,.sp-nav,.sp-iconbtn{border:2px solid rgba(var(--sp-rgb),.6)}}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.sp-win,.sp-orn,.sp-nav{background:#232A44}.sp-tint{background:#1E2439}}
 .still .sp-avail-dot{animation-play-state:paused}
 @media (prefers-reduced-motion:reduce){.sp-avail-dot{animation:none}.sp-card3d::after,.sp-card3d .sp-desc,.sp-bring,.sp-toolchip,.sp-textlink::after{transition:none}}
@@ -233,7 +233,7 @@ a{color:var(--sp-ink)}a:hover{color:var(--sp-acc)}
 .sp-day.glass-solid .sp-win,.sp-day.glass-solid .sp-tint,.sp-day.glass-solid .sp-orn,.sp-day.glass-solid .sp-nav,.sp-day.glass-solid .sp-status{background:#FFFDF6;-webkit-backdrop-filter:none;backdrop-filter:none}
 @media (prefers-reduced-transparency:reduce){.sp-day .sp-win,.sp-day .sp-tint,.sp-day .sp-orn,.sp-day .sp-nav,.sp-day .sp-status{background:#FFFDF6;-webkit-backdrop-filter:none;backdrop-filter:none}}
 /* the day glass resets border-color above, so the prefers-contrast rim is repeated for the light theme */
-@media (prefers-contrast:more){.sp-day .sp-win,.sp-day .sp-orn,.sp-day .sp-nav,.sp-day .sp-status,.sp-day .sp-avail{border:2px solid rgba(var(--sp-rgb),.6)}}
+@media (prefers-contrast:more){.sp-day .sp-win,.sp-day .sp-orn,.sp-day .sp-nav,.sp-day .sp-status,.sp-day .sp-avail,.sp-day .sp-iconbtn{border:2px solid rgba(var(--sp-rgb),.6)}}
 @supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.sp-day .sp-win,.sp-day .sp-tint,.sp-day .sp-orn,.sp-day .sp-nav,.sp-day .sp-status{background:#FFFDF6}}
 /* theme switch: a circular reveal from the button (View Transitions) */
 html.vt-theme::view-transition-old(root){animation:none}
